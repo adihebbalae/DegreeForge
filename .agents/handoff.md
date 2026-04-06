@@ -1,193 +1,173 @@
-# Handoff: Competitive Analysis + Advertising Agent Feasibility Complete
+# Handoff: TASK-001 — Project Scaffold
+**Task ID**: TASK-001
+**Mode**: autonomous (no user interaction available)
+**Agent**: engineer | **Model**: sonnet
 
-**From**: Researcher → **To**: Manager | **Model**: Haiku  
-**Date**: March 29, 2026
+## Context
 
----
+DegreeForge is an interactive 4-year degree planner + next-semester schedule optimizer for a specific UT Austin ECE student (Adi, single-user localhost app). There is NO existing application code — this is a greenfield scaffold.
 
-## Research Complete
+**Stack decided (locked — do not change)**:
+- Frontend: Vite + React + TypeScript + Tailwind CSS + shadcn/ui + dnd-kit
+- Backend: Express + TypeScript (proxy-only — single `/api/chat` route)
+- Structure: Monorepo with npm workspaces
+- Testing: Vitest
+- TypeScript: strict mode (`"strict": true`)
 
-Full report available: `.agents/research/competitive-analysis-ad-agent.md`
+**Why this task matters**: Every other task depends on this scaffold. Nothing else can be built until the monorepo with both workspaces is working.
 
----
+**Mode**: `mvp` — do not gold-plate. No extra features, no over-engineering.
 
-## Executive Summary
+## Project Structure to Create
 
-### Part 1: Competitive Landscape
-
-**11 competitors analyzed** across 3 categories:
-- **Direct competitors**: Cursor, Windsurf, Aider, Continue, Sweep, Devin
-- **Agent frameworks**: CrewAI, LangGraph, Semantic Kernel, Open Interpreter
-- **Adjacent**: AutoGPT, project scaffolding tools
-
-**Our unique advantages** (what NO competitor has):
-1. Security-first architecture (dedicated Security agent + 4-gate supply chain + SBOM)
-2. 7 specialized agents vs. competitors' single-agent systems
-3. Skills system (9 production-ready workflows)
-4. Dual-mode operation (GitHub Copilot + Claude Code CLI)
-5. Production-grade state management (state.json + MODULES.md for 3-6 month projects)
-6. Research-first workflow (only system that invokes Researcher before scaffolding)
-
-**Market gaps we could fill**:
-- Security-conscious teams (no competitor has adversarial security review)
-- Solo founders building real products (competitors optimize for speed, not continuity)
-- GitHub Copilot power users (we're the only native Copilot orchestration layer)
-
----
-
-### Part 2: Advertising Agent Feasibility
-
-**RECOMMENDATION**: ⚠️ **Build as Designer Skill, NOT Standalone Agent**
-
-**Why NOT standalone agent**:
-1. **Meta Tribe V2 doesn't exist** — no public API, no documentation, likely internal research project
-2. **Scope creep risk** — dilutes core value ("PRD → Project" becomes "PRD → Project → Ads")
-3. **Market already served** — AdCreative.ai ($29/mo), Canva ($15/mo) exist and work well
-4. **TAM overlap is small** — only ~15% of our users run ads themselves (~18k addressable)
-5. **Support burden** — ad creative feedback is subjective, Meta policy compliance is manual
-
-**Why YES to ad-brief skill**:
-1. **Unique differentiator** — no dev tool has this
-2. **Low cost to build** — 80% prompt engineering, 20% API wrapper
-3. **Complements Designer agent** — natural extension
-4. **Solves real pain** — indie hackers struggle with ad copy
-5. **Low risk** — skill can be ignored by users who don't need it
-
----
-
-## Key Findings
-
-### Meta Tribe V2 Research
-**[GAP] — NO PUBLIC INFORMATION EXISTS**
-
-Searched:
-- Meta for Developers portal
-- Meta AI Research blog
-- arXiv papers
-- GitHub repositories
-
-**Conclusion**: Meta Tribe V2 either:
-1. Is an internal Meta project (not public)
-2. Doesn't exist (confusion with other Meta AI)
-3. Is hypothetical/speculative
-
-**Alternative**: Use Meta Marketing API's **Advantage+ Campaigns** (Meta's AI auto-targeting) — this IS the "brain model" that's actually available.
-
----
-
-### Ad Generation Workflow (If Pursued)
-
-**Technical feasibility**: ✅ YES (with caveats)
-
-**Cost per ad**: $2.51 (templated route via Bannerbear) OR $0.21 (AI generation via DALL-E 3)
-
-**Workflow**:
-1. Research competitors (Meta Ad Library scraping) — ✅ Feasible
-2. Generate copy (Claude API) — ✅ Feasible  
-3. Generate visuals (Bannerbear templates OR DALL-E 3) — ⚠️ Partial (brand consistency issues with AI)
-4. Assemble ad creative — ✅ Feasible
-5. Target audience (Meta Marketing API) — ✅ Feasible (using Advantage+ instead of Tribe V2)
-6. Export campaign draft (Meta Ads Manager) — ✅ Feasible
-
-**Blockers**:
-- Meta ad policy compliance (manual review required)
-- Business verification (can't automate, requires human ID)
-- Brand safety / copyright risk (AI-generated images)
-
----
-
-## Proposed Implementation
-
-### Option 1: Ad Brief Skill (RECOMMENDED)
-
-**Scope**:
-- ✅ Ad copy generation (headlines, CTAs, 5 variants)
-- ✅ Ad mockup descriptions ("Image: product on white background...")
-- ✅ Competitive research (Meta Ad Library scraping)
-- ✅ Audience targeting suggestions (map to Meta params)
-- ❌ NO asset generation (user provides images OR uses Canva separately)
-- ❌ NO Meta API integration (user copies output to Ads Manager manually)
-
-**User workflow**:
 ```
-User → @designer "Create ad brief for [product] targeting [audience]"
-  ↓
-Designer loads ad-brief skill
-  ↓
-Output: .ads/[product-slug]-brief.md
-  - 5 copy variants (ready to paste)
-  - Mockup descriptions (for Canva or designer)
-  - Targeting suggestions (for Meta Ads Manager)
-  - Competitor examples (URLs)
+package.json                  # Root — npm workspaces config
+packages/
+  client/
+    src/
+      App.tsx
+      main.tsx
+      index.css               # Tailwind base
+    public/
+      data/                   # Copy 9 JSON files here from root data/
+    index.html
+    vite.config.ts
+    tailwind.config.ts
+    components.json           # shadcn/ui config
+    tsconfig.json
+    package.json
+  server/
+    src/
+      index.ts                # Express entry — /api/health + /api/chat stub
+    tsconfig.json
+    package.json
+.env.example                  # ANTHROPIC_API_KEY=
+.gitignore                    # Already exists — do not overwrite
 ```
 
-**Effort**: 1 week MVP  
-**Cost**: $0 (uses Claude API only)  
-**Risk**: Low (no external dependencies, no policy compliance)
+## Task
 
----
+Scaffold the full monorepo from scratch. Specific requirements:
 
-### Option 2: Standalone Advertising Agent (IF Validated)
+### Root `package.json`
+```json
+{
+  "name": "degreeforge",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=packages/server\" \"npm run dev --workspace=packages/client\"",
+    "build": "npm run build --workspace=packages/client",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
+```
 
-**Only build if**:
-1. User survey shows strong demand (100+ users)
-2. Partnership with Bannerbear (to reduce costs)
-3. In-house expertise in ad creative + Meta policies
-4. Marketing pivot: rebrand as "AI dev + marketing tool"
+### `packages/client/package.json`
+Key dependencies:
+- `react`, `react-dom` (latest stable)
+- `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`
+- `react-router-dom`
+- Dev: `vite`, `@vitejs/plugin-react`, `typescript`, `tailwindcss`, `autoprefixer`, `postcss`, `vitest`, `@testing-library/react`
 
-**Effort**: 2 weeks full build  
-**Dependencies**: Bannerbear API, Meta Business account, Meta app approval  
-**Risk**: High (scope creep, support burden)
+### `packages/server/package.json`
+Key dependencies:
+- `express`, `cors`, `dotenv`, `@anthropic-ai/sdk`
+- Dev: `typescript`, `tsx` (for dev), `@types/express`, `@types/cors`, `@types/node`
+- Scripts: `"dev": "tsx watch src/index.ts"`, `"build": "tsc"`
 
----
+### TypeScript
+Both packages need `tsconfig.json` with `"strict": true`.
 
-## Competitive Feature Matrix
+### Tailwind
+Standard Tailwind v3 setup with `tailwind.config.ts` — content glob includes `src/**/*.{tsx,ts}`.
 
-Full matrix in report. **Highlights**:
+### shadcn/ui
+Initialize with `npx shadcn-ui@latest init` settings:
+- Style: Default
+- Base color: Slate
+- CSS variables: yes
 
-| Feature | Us | Cursor | Aider | CrewAI |
-|---------|-----|--------|-------|--------|
-| Multi-agent orchestration | ✅ (7) | ❌ | ❌ | ✅ |
-| Security audit agent | ✅ | ❌ | ❌ | ❌ |
-| Supply chain security | ✅ (4-gate) | ❌ | ❌ | ❌ |
-| SBOM generation | ✅ | ❌ | ❌ | ❌ |
-| Skills system | ✅ (9) | ❌ | ❌ | 🔄 |
-| GitHub Copilot native | ✅ | ❌ | ❌ | ❌ |
-| State persistence | ✅ | 🔄 | ❌ | 🔄 |
-| Free tier | ✅ | ❌ | ✅ | ✅ |
+Add at minimum these shadcn components: `button`, `badge`, `tooltip`, `card`, `progress`, `dialog`, `scroll-area`, `separator`.
 
-**No competitor has all of**: security-first + multi-agent + skills + dual-mode + state management.
+### Express server (`packages/server/src/index.ts`)
+```typescript
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+dotenv.config({ path: '../../.env' });
 
----
+const app = express();
+app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(express.json());
 
-## Market Positioning Opportunities
+app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
-1. **Security-conscious teams**: "The only AI dev tool with adversarial security review built-in"
-2. **Solo founders with 3-6 month timelines**: "The only AI dev tool with state continuity for real products"
-3. **GitHub Copilot power users**: "Copilot orchestration layer"
-4. **Open source believers**: "Multi-agent, production-grade, free"
+// TASK-012 will implement this properly
+app.post('/api/chat', (_req, res) => res.json({ message: 'stub' }));
 
----
+app.listen(3001, () => console.log('Server running on port 3001'));
+```
 
-## Next Steps
+### Copy data files
+Copy all 9 JSON files from `data/` to `packages/client/public/data/`:
+- course-catalog.json
+- prerequisite-graph.json
+- tech-cores.json
+- degree-requirements.json
+- offering-schedule.json
+- math-requirements.json
+- fall-2026-sections.json
+- grade-distributions.json
+- user-profile.json
 
-**Recommended**:
-1. Review full report: `.agents/research/competitive-analysis-ad-agent.md`
-2. Decide: Ad brief skill (low risk) vs. standalone agent (high risk, requires validation)
-3. If skill: Create `.github/skills/ad-brief/SKILL.md` (1 week)
-4. If agent: Survey 100+ users first (validate demand before building)
+### App.tsx
+Simple placeholder that renders a shadcn `Button` and `Badge` to confirm component library works:
+```tsx
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+export default function App() {
+  return (
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-4">DegreeForge</h1>
+      <Button>Get Started</Button>
+      <Badge className="ml-2">V1</Badge>
+    </div>
+  )
+}
+```
 
-**Alternative**:
-- Archive research for future reference
-- Focus on core value: PRD → Project automation
-- Revisit in 12 months if user requests accumulate
+### `.env.example`
+```
+ANTHROPIC_API_KEY=your_key_here
+```
 
----
+## Acceptance Criteria
+- [ ] `npm install` from root installs both workspaces without errors
+- [ ] `npm run dev` starts both Vite (port 5173) and Express (port 3001) concurrently
+- [ ] Browser shows DegreeForge placeholder with a shadcn Button and Badge
+- [ ] `curl http://localhost:3001/api/health` returns `{"status":"ok"}`
+- [ ] `packages/client/public/data/` contains all 9 JSON files
+- [ ] TypeScript compiles without errors in both packages (`tsc --noEmit`)
+- [ ] Tailwind styles apply (the h1 should be bold, p-8 padding visible)
 
-## Report Location
+## Validation Gates
+- [ ] `cd packages/client && npx tsc --noEmit` — passes
+- [ ] `cd packages/server && npx tsc --noEmit` — passes
+- [ ] `npm run dev` — both processes start without crash
 
-📄 **Full Report**: `.agents/research/competitive-analysis-ad-agent.md` (10,000+ words, 11 competitors, cost calculations, workflow diagrams, sources)
+## Files to Read First
+- `.agents/workspace-map.md` — see the planned structure
+- `.agents/state.json` — architecture decisions section
+- `data/` — verify all 9 JSON files exist before copying
 
----
-
-**Researcher signing off — Ready for Manager review.**
+## Constraints
+- Do NOT use Next.js, Remix, or any SSR framework — Vite SPA only
+- Do NOT use Redux — state management in TASK-002+ via React Context
+- Do NOT overwrite `.gitignore` — it already exists
+- Do NOT add auth, multi-user features, or a database
+- Do NOT modify any files in `data/` — only copy them to `public/data/`
+- Commit when done: `git add -A && git commit -m "feat(TASK-001): scaffold monorepo with Vite, Express, Tailwind, shadcn/ui"`

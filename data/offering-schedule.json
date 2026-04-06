@@ -1,0 +1,948 @@
+{
+  "ECE 325": {
+    "title": "Electromagnetic Engineering",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 325K": {
+    "title": "Antennas and Wireless Propagation",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": false,
+      "fall_26": true,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 334K": {
+    "title": "Quantum Theory of Electronic",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": false,
+      "fall_26": true,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 339": {
+    "title": "Solid-State Electronic Devices",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 339S": {
+    "title": "Solar Energy Conversion Devices",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 340P": {
+    "title": "High-Throughput Nanopatterning",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 347": {
+    "title": "Modern Optics",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 348": {
+    "title": "Laser and Optical Engineering",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": false,
+      "fall_26": true,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 351M": {
+    "title": "Digital Signal Processing",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 360C": {
+    "title": "Algorithms",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 360G": {
+    "title": "Programming Paradigms",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": false,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 360K": {
+    "title": "Intro to Digital Communications",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 360P": {
+    "title": "Concurrent and Distributed Systems",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": false,
+      "fall_26": false,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 360T": {
+    "title": "Software Testing",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": false,
+      "fall_26": true,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 361C": {
+    "title": "Multicore Computing",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 361E": {
+    "title": "ML/Data Analytics for Edge AI",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 361G": {
+    "title": "Engineering Progam Analysis",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": false,
+      "fall_26": true,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 361M": {
+    "title": "Software Architectures",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 361N": {
+    "title": "Info Security and Privacy",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": false,
+      "fall_26": true,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 361Q": {
+    "title": "Requirements Engineering",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": false,
+      "fall_26": false,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 361R": {
+    "title": "RF Electronics",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": false,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 362K": {
+    "title": "Introduction to Automatic Control",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 362M": {
+    "title": "Power Electronics II",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 362Q": {
+    "title": "Power Quality and Harmonics",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": false,
+      "fall_26": true,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 362R": {
+    "title": "Renewable Energy",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": false,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": []
+  },
+  "ECE 362S": {
+    "title": "Development of Solar-powered",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": false,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": []
+  },
+  "ECE 363M": {
+    "title": "Microwave and Radio Frequency Eng.",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 363N": {
+    "title": "Engineering Acoustics",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": false,
+      "fall_26": true,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 368L": {
+    "title": "Power Systems Apparatus/Lab",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 369": {
+    "title": "Power Systems Engineering",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": false,
+      "fall_26": true,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 371P": {
+    "title": "Introduction to Computer Vision",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": false,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": []
+  },
+  "ECE 371Q": {
+    "title": "Digital Image Processing",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": false,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": []
+  },
+  "ECE 372N": {
+    "title": "Telecommunication networks",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 374N": {
+    "title": "Neural Engineering",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 379K": {
+    "title": "Power Semiconductor Devices",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 479K": {
+    "title": "Compilers",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": false,
+      "fall_26": false,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 438": {
+    "title": "Electronic Circuits I",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 438K": {
+    "title": "Analog Electronics Lab",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 440": {
+    "title": "Microelectronics Fabrication Techniques",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 445L": {
+    "title": "Embedded Systems Design Lab",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 445M": {
+    "title": "Embedded and Real-Time Sys Lab",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 460J": {
+    "title": "Data Science Laboratory",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 460R": {
+    "title": "VLSI Design",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": false,
+      "fall_26": true,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 460M": {
+    "title": "Digital Systems Design Hardware Descr Lang",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 461P": {
+    "title": "Data Science Principles",
+    "offerings": {
+      "fall_25": false,
+      "spring_26": true,
+      "fall_26": false,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "spring"
+    ]
+  },
+  "ECE 461S": {
+    "title": "Operating Systems",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 462L": {
+    "title": "Power Electronics Lab",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": false,
+      "fall_26": true,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 471C": {
+    "title": "Wireless Communications Lab",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": false,
+      "fall_26": true,
+      "spring_27": false
+    },
+    "offered_semesters": [
+      "fall"
+    ]
+  },
+  "ECE 402": {
+    "title": "Introduction to Electrical Engineering",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 406": {
+    "title": "Introduction to Computing",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 411": {
+    "title": "Circuit Theory",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 412": {
+    "title": "Software Design and Implementation I",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 313": {
+    "title": "Linear Systems and Signals",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 419K": {
+    "title": "Introduction to Embedded Systems",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 333T": {
+    "title": "Engineering Communication",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 351K": {
+    "title": "Probability and Random Processes",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 364D": {
+    "title": "Introduction to Engineering Design",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 316": {
+    "title": "Digital Logic Design",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 422C": {
+    "title": "Software Design & Implementation II",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 460N": {
+    "title": "Computer Architecture",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "ECE 461L": {
+    "title": "Software Engineering & Design Laboratory",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "M 408C": {
+    "title": "Differential and Integral Calculus",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "M 408D": {
+    "title": "Sequences, Series, and Multivariable Calculus",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "M 408K": {
+    "title": "Differential Calculus",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "M 408L": {
+    "title": "Integral Calculus",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "M 408M": {
+    "title": "Multivariable Calculus",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "M 427J": {
+    "title": "Differential Equations with Linear Algebra",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "M 427K": {
+    "title": "Differential Equations with Linear Algebra",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "M 427L": {
+    "title": "Advanced Calculus for Applications II",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "M 340L": {
+    "title": "Matrices and Matrix Calculations",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "M 325K": {
+    "title": "Discrete Mathematics",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "PHY 303K": {
+    "title": "Engineering Physics I",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "PHY 303L": {
+    "title": "Engineering Physics II",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "PHY 303E": {
+    "title": "Electromagnetic/Quantum/Semiconductor Physics",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "PHY 105M": {
+    "title": "Laboratory for PHY 303K",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  },
+  "PHY 105N": {
+    "title": "Laboratory for PHY 303L",
+    "offerings": {
+      "fall_25": true,
+      "spring_26": true,
+      "fall_26": true,
+      "spring_27": true
+    },
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ]
+  }
+}

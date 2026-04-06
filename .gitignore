@@ -1,13 +1,21 @@
 # =========================
-# TEMPLATE REPO .gitignore
+# Agent System Files
 # =========================
-# This .gitignore is for the BOILERPLATE TEMPLATE itself.
-# It commits all agent files so the template is complete on GitHub.
-#
-# AFTER CLONING for a new project:
-#   1. Delete this .gitignore
-#   2. Rename .gitignore.project → .gitignore
-#   (The Manager does this automatically during /init-project)
+# These are the AI agent orchestration files.
+# They should NOT be committed to the actual project repository.
+# The boilerplate template repo keeps them; cloned projects ignore them.
+
+# Agent state (changes every session, project-specific)
+.agents/state.json
+.agents/state.md
+.agents/handoff.md
+
+# Agent config files (boilerplate — not project code)
+.agents/
+.github/agents/
+.github/prompts/
+.github/skills/
+.github/copilot-instructions.md
 
 # =========================
 # Standard Ignores
@@ -40,11 +48,20 @@ out/
 .DS_Store
 Thumbs.db
 
+# =========================
+# Development / Planning
+# =========================
+.dev/
+_dev/
+
+# =========================
+# DegreeForge Data Pipeline
+# =========================
+# Large data sources (not needed in git — reproducible via scripts)
+scraped_data_corpus/
+utgradesdist_21-26/
+UT_Grade_Parser/
+
 # Logs
 *.log
 npm-debug.log*
-
-#Other Stuff
-.agents/_dev
-.github/agents/meta-manager.agent.md
-.github/agents/meta-researcher.agent.md

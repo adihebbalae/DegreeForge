@@ -1,35 +1,454 @@
-{
-  "project": "",
-  "description": "",
-  "phase": "0 — Not Started",
-  "last_updated": "",
-  "last_updated_by": "",
-  "current_task": {
-    "id": "",
-    "title": "",
-    "assigned_to": "",
-    "status": "not_started",
-    "priority": ""
-  },
-  "handoff": {
-    "from": "",
-    "to": "",
-    "model": "",
-    "prompt_file": ".agents/handoff.md",
-    "approved_by_user": false,
-    "created_at": ""
-  },
-  "context": {
-    "current_file_focus": "",
-    "recent_decisions": [],
-    "blocked_on": null
-  },
-  "security_status": {
-    "last_scan": "",
-    "open_findings": 0,
-    "cleared_for_push": false
-  },
-  "tasks": {},
-  "decisions": [],
-  "changelog": []
+﻿{
+    "project":  {
+                    "name":  "DegreeForge",
+                    "description":  "Interactive 4-year degree planner + next-semester schedule optimizer for UT Austin ECE",
+                    "tech_stack":  [
+                                       "Vite",
+                                       "React",
+                                       "TypeScript",
+                                       "Tailwind CSS",
+                                       "shadcn/ui",
+                                       "dnd-kit",
+                                       "Express",
+                                       "Anthropic Claude API"
+                                   ],
+                    "architecture_decisions":  {
+                                                   "proxy":  "Express â€” single /api/chat endpoint for Claude API key isolation",
+                                                   "structure":  "Monorepo with npm workspaces â€” packages/client/ + packages/server/",
+                                                   "styling":  "shadcn/ui + Tailwind CSS â€” professional accessible components",
+                                                   "drag_drop":  "dnd-kit â€” modern React-first DnD library",
+                                                   "persistence":  "localStorage + JSON export/import for plan state",
+                                                   "solver":  "Deterministic code (toposort + constraint satisfaction) â€” not LLM",
+                                                   "claude_role":  "Chat/explanation only â€” never generates plans",
+                                                   "normalization":  "E E â†’ ECE at data load time"
+                                               },
+                    "external_dependencies":  [
+                                                  "@anthropic-ai/sdk"
+                                              ]
+                },
+    "phase":  "3 â€” Planning Complete, Ready to Build",
+    "mode":  "mvp",
+    "last_updated":  "2026-04-06T14:10:00.0000000-05:00",
+    "last_updated_by":  "engineer",
+    "status":  "building",
+    "current_task":  {
+                         "id":  "TASK-002",
+                         "title":  "Data layer + TypeScript types + E E\u2192ECE normalization",
+                         "assigned_to":  "engineer",
+                         "status":  "pending",
+                         "priority":  "high"
+                     },
+    "handoff":  {
+                    "from":  "manager",
+                    "to":  "engineer",
+                    "model":  "sonnet",
+                    "prompt_file":  ".agents/handoff.md",
+                    "approved_by_user":  true,
+                    "created_at":  "2026-04-05"
+                },
+    "context":  {
+                    "current_file_focus":  "packages/",
+                    "recent_decisions":  [
+                                             "Vite + React + TypeScript (no Next.js â€” overkill for localhost SPA)",
+                                             "Express proxy for Claude API (not direct frontend calls)",
+                                             "Monorepo with npm workspaces (packages/client + packages/server)",
+                                             "shadcn/ui + Tailwind (professional components for progress bars, tooltips, dialogs)",
+                                             "dnd-kit for drag-and-drop",
+                                             "localStorage + JSON export/import for persistence",
+                                             "V1 + V2 ship together (schedule optimizer in scope)",
+                                             "Normalize E E â†’ ECE at data load time",
+                                             "Grade distributions as primary quality signal (not RMP)"
+                                         ],
+                    "blocked_on":  null,
+                    "tools":  {
+                                  "claude_code_cli":  true
+                              },
+                    "budget":  "paid"
+                },
+    "security_status":  {
+                            "last_scan":  "",
+                            "open_findings":  0,
+                            "cleared_for_push":  false
+                        },
+    "tasks":  {
+                  "TASK-001":  {
+                                   "title":  "Project scaffold (monorepo, Vite, Express, Tailwind, shadcn)",
+                                   "assigned_to":  "engineer",
+                                   "status":  "done",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+
+                                                  ],
+                                   "description":  "Scaffold monorepo with npm workspaces. packages/client/ = Vite + React + TS + Tailwind + shadcn/ui. packages/server/ = Express + TypeScript. Root package.json with workspace scripts. Copy data/ JSONs into client public folder. Confirm npm run dev starts both.",
+                                   "acceptance_criteria":  [
+                                                               "npm install from root installs both workspaces",
+                                                               "npm run dev starts Vite dev server + Express proxy concurrently",
+                                                               "Tailwind + shadcn/ui renders a test component",
+                                                               "Express /api/health returns 200",
+                                                               "data/ JSON files accessible from client"
+                                                           ],
+                                   "why":  "Foundation â€” nothing else builds without this"
+                               },
+                  "TASK-002":  {
+                                   "title":  "Data layer + TypeScript types + E Eâ†’ECE normalization",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-001"
+                                                  ],
+                                   "description":  "Define TypeScript interfaces for all 9 JSON schemas. Build data loader hooks (useCourseCatalog, usePrereqGraph, etc.). Implement E E â†’ ECE normalization at load time. Export a unified DataContext provider.",
+                                   "acceptance_criteria":  [
+                                                               "TypeScript interfaces for all 9 data files",
+                                                               "React context provider with all data loaded and typed",
+                                                               "All E E prefixes normalized to ECE in grade distribution data",
+                                                               "Custom hooks for each data domain",
+                                                               "Unit tests for normalization logic"
+                                                           ],
+                                   "why":  "All features consume typed data; normalization must happen once at load"
+                               },
+                  "TASK-003":  {
+                                   "title":  "Prerequisite graph engine (DAG, toposort, validation)",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-002"
+                                                  ],
+                                   "description":  "Build prerequisite graph as a DAG class. Methods: getPrereqs(course), getCoreqs(course), getDownstream(course), topologicalSort(courses), validatePlacement(course, semester, plan). All pure TypeScript, no React.",
+                                   "acceptance_criteria":  [
+                                                               "DAG class with adjacency list representation",
+                                                               "Topological sort returns valid course ordering",
+                                                               "validatePlacement returns specific violation details",
+                                                               "getDownstream returns all transitively dependent courses",
+                                                               "Handles corequisites (same-semester-or-earlier)",
+                                                               "Unit tests for all graph operations"
+                                                           ],
+                                   "why":  "Core logic the solver, validation UI, and what-if all depend on"
+                               },
+                  "TASK-004":  {
+                                   "title":  "Constraint solver / recommendation engine",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-003"
+                                                  ],
+                                   "description":  "Build the Recommend 4-Year Plan engine. Takes remaining requirements, prereq graph, tech core, user profile (load tolerance), pinned courses. Distributes courses across semesters respecting prereqs, coreqs, offering patterns, course load limits, and pins.",
+                                   "acceptance_criteria":  [
+                                                               "Generates valid semester-by-semester plan for Adi\u0027s profile",
+                                                               "Respects prerequisite ordering (no prereq violations in output)",
+                                                               "Respects offering patterns (fall-only, spring-only)",
+                                                               "Honors pinned courses as fixed constraints",
+                                                               "Configurable max courses per semester",
+                                                               "Returns structured plan data (not UI)",
+                                                               "Unit tests with known-good plans"
+                                                           ],
+                                   "why":  "The Recommend 4-Year Plan button â€” needs graph engine first"
+                               },
+                  "TASK-005":  {
+                                   "title":  "App shell + page layout + routing",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-001"
+                                                  ],
+                                   "description":  "Create app shell with two pages: V1 Planner and V2 Scheduler. Use React Router (client-side). Build header with nav, main layout containers for timeline grid + sidebar. Dark/light mode toggle.",
+                                   "acceptance_criteria":  [
+                                                               "Two routes: / (planner) and /schedule (scheduler)",
+                                                               "Header with nav links between V1 and V2",
+                                                               "Main layout: left area for timeline, right area for palette/sidebar",
+                                                               "Responsive enough for desktop (no mobile needed)",
+                                                               "DataContext provider wraps entire app"
+                                                           ],
+                                   "why":  "V1 planner page + V2 scheduler page structure"
+                               },
+                  "TASK-006":  {
+                                   "title":  "Semester timeline grid + course cards",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-002",
+                                                      "TASK-005"
+                                                  ],
+                                   "description":  "Build the horizontal semester timeline grid. Columns = semesters (past, current, future). Course cards show course number, title, category color, avg GPA badge. Past semesters are muted/checkmarked. Current semester highlighted. Future semesters have empty slots.",
+                                   "acceptance_criteria":  [
+                                                               "Semester columns render from user profile data",
+                                                               "Course cards show number, title, category color, GPA",
+                                                               "Category colors: Blue=ECE core, Yellow=Gen ed, Green=Tech core, Gray=Free elective, Purple=Math",
+                                                               "Past semesters visually distinct (muted)",
+                                                               "Current semester highlighted",
+                                                               "Empty slots in future semesters accept drops"
+                                                           ],
+                                   "why":  "Primary UI surface â€” cards show course data, colors, GPA"
+                               },
+                  "TASK-007":  {
+                                   "title":  "Course palette panel",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-002",
+                                                      "TASK-005"
+                                                  ],
+                                   "description":  "Build the right-side course palette with collapsible sections: Remaining ECE core, Tech core courses, Gen ed, Free electives, Math courses. Each card shows course number, title, avg GPA. Courses with unmet prereqs are dimmed.",
+                                   "acceptance_criteria":  [
+                                                               "Collapsible/tabbed sections for each category",
+                                                               "Cards match timeline card style",
+                                                               "Courses with unmet prereqs visually dimmed",
+                                                               "Remaining courses computed from profile + plan state",
+                                                               "Search/filter within palette"
+                                                           ],
+                                   "why":  "Right-side panel with categorized remaining courses"
+                               },
+                  "TASK-008":  {
+                                   "title":  "Drag-drop system (dnd-kit: paletteâ†”timeline)",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-006",
+                                                      "TASK-007"
+                                                  ],
+                                   "description":  "Implement dnd-kit drag-and-drop: palette â†’ semester slot, semester â†’ semester, semester â†’ palette (remove). DndContext wraps timeline + palette. Sortable within semesters. Drop zones in empty slots.",
+                                   "acceptance_criteria":  [
+                                                               "Drag from palette to semester slot",
+                                                               "Drag between semesters",
+                                                               "Drag back to palette (remove from plan)",
+                                                               "Visual drag overlay with course card preview",
+                                                               "Drop zone highlights on hover",
+                                                               "Duplicate detection (can\u0027t place same course twice)"
+                                                           ],
+                                   "why":  "Connects palette and grid â€” the core interaction model"
+                               },
+                  "TASK-009":  {
+                                   "title":  "Progress bars (credit hours, ECE, gen ed, tech core, electives)",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-002",
+                                                      "TASK-005"
+                                                  ],
+                                   "description":  "Build progress bar components at top of planner page. Track: total credit hours (X/128), ECE core (X/Y), Core curriculum gen ed (X/8), Tech core (X/8), Free electives (X/11 hours). Update live on every plan change.",
+                                   "acceptance_criteria":  [
+                                                               "Five progress bars with labels and counts",
+                                                               "Bars update reactively on plan state changes",
+                                                               "XP-bar visual style (filled portion with text)",
+                                                               "Correct counting logic for each requirement category",
+                                                               "Handles completed courses from profile"
+                                                           ],
+                                   "why":  "Real-time feedback on every plan change"
+                               },
+                  "TASK-010":  {
+                                   "title":  "Prerequisite validation UI (borders, tooltips, highlights)",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-003",
+                                                      "TASK-008"
+                                                  ],
+                                   "description":  "On every course placement: red border if prereqs missing, orange border if coreqs misplaced, tooltip listing violations. On hover: highlight downstream dependent courses. On move: check if it invalidates dependents.",
+                                   "acceptance_criteria":  [
+                                                               "Red border + tooltip for prereq violations",
+                                                               "Orange border + tooltip for coreq violations",
+                                                               "Hover highlights downstream courses with visual edges",
+                                                               "Moving a course checks downstream impact",
+                                                               "Validation runs on every plan change (drop, remove, reorder)"
+                                                           ],
+                                   "why":  "Red/orange borders + downstream impact on hover"
+                               },
+                  "TASK-011":  {
+                                   "title":  "What-if simulator (tech core switch, Math BA toggle, diffs)",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-004",
+                                                      "TASK-009"
+                                                  ],
+                                   "description":  "UI for switching tech core tracks (dropdown of 9 tracks) and toggling Math BA double major. On change: recompute requirements, show diff summary (courses added/removed, credit hour impact, graduation timeline change), update progress bars, update palette.",
+                                   "acceptance_criteria":  [
+                                                               "Tech core dropdown with all 9 tracks",
+                                                               "Math BA toggle switch",
+                                                               "Diff summary panel showing added/removed courses",
+                                                               "Progress bars update on what-if change",
+                                                               "Palette updates to show new required courses",
+                                                               "Can revert what-if change"
+                                                           ],
+                                   "why":  "Needs solver for recompute + progress bars for updated tracking"
+                               },
+                  "TASK-012":  {
+                                   "title":  "Claude chat panel + Express proxy endpoint",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-005",
+                                                      "TASK-002"
+                                                  ],
+                                   "description":  "Build collapsible chat panel (slide-out). Express POST /api/chat endpoint proxies to Claude API with key from .env. System prompt includes full plan state + prereq graph + user profile + grade data for relevant courses. Streaming response.",
+                                   "acceptance_criteria":  [
+                                                               "Collapsible chat panel UI (slide-out from right or bottom)",
+                                                               "Express /api/chat proxies to Claude with server-side API key",
+                                                               "System prompt includes current plan state context",
+                                                               "Streaming response renders token-by-token",
+                                                               "Chat history persists within session",
+                                                               "Error handling for API failures"
+                                                           ],
+                                   "why":  "Chat UI + /api/chat proxy â€” needs plan state for system prompt"
+                               },
+                  "TASK-013":  {
+                                   "title":  "External links + course detail popover",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-006"
+                                                  ],
+                                   "description":  "On course card click/hover: popover with full prereqs, downstream courses, grade distribution summary chart, and external links (RMP, UTGradesPlus, Past Syllabi, CIS Surveys). Links open in new tab.",
+                                   "acceptance_criteria":  [
+                                                               "Popover on course card click",
+                                                               "Shows prerequisites and downstream courses",
+                                                               "Grade distribution mini-chart (bar chart or similar)",
+                                                               "RMP link with professor name pre-filled",
+                                                               "UTGradesPlus / official grade distribution link",
+                                                               "Past syllabi and CIS survey links"
+                                                           ],
+                                   "why":  "RMP, grade dist, syllabi links on course cards"
+                               },
+                  "TASK-014":  {
+                                   "title":  "State persistence (localStorage + JSON export/import)",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-008"
+                                                  ],
+                                   "description":  "Auto-save full plan state to localStorage on every change. Add Export Plan (downloads JSON) and Import Plan (file upload) buttons. On app load, restore from localStorage if available.",
+                                   "acceptance_criteria":  [
+                                                               "Plan state auto-saves to localStorage on every change",
+                                                               "App restores plan state from localStorage on load",
+                                                               "Export button downloads plan as .json file",
+                                                               "Import button accepts .json file and restores plan",
+                                                               "Clear/reset plan button",
+                                                               "Handles corrupted/invalid localStorage gracefully"
+                                                           ],
+                                   "why":  "Auto-save plan state, export/import buttons"
+                               },
+                  "TASK-015":  {
+                                   "title":  "V2: Schedule optimizer engine",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-002"
+                                                  ],
+                                   "description":  "Build the schedule optimizer: given a list of courses for next semester and fall-2026-sections.json, generate all conflict-free section combinations. Rank by weighted factors: avg GPA (highest), time preference, schedule fit, instruction mode. Return top 5 candidates.",
+                                   "acceptance_criteria":  [
+                                                               "Generates all valid (no time conflict) section combinations",
+                                                               "Weighted ranking: GPA \u003e time pref \u003e fit \u003e mode",
+                                                               "Returns top 5 ranked schedules",
+                                                               "Each schedule includes per-section details (prof, time, room, GPA)",
+                                                               "Composite score per schedule",
+                                                               "Handles courses with multiple meeting times (lecture + discussion)",
+                                                               "Unit tests with known section data"
+                                                           ],
+                                   "why":  "Generate conflict-free section combos, weighted ranking by GPA/time/fit"
+                               },
+                  "TASK-016":  {
+                                   "title":  "V2: Schedule calendar view + selection UI",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-015",
+                                                      "TASK-005"
+                                                  ],
+                                   "description":  "Build V2 page: weekly calendar view (Mon-Fri grid, time on Y-axis). Show top 5 schedules as tabs/cards. Each shows all sections with color-coded course blocks. Click to select. Copy unique numbers button. Nudge to verify links (RMP, syllabi).",
+                                   "acceptance_criteria":  [
+                                                               "Weekly calendar grid (Mon-Fri, 8am-9pm)",
+                                                               "Color-coded course blocks with professor, time, room",
+                                                               "Toggle between top 5 candidate schedules",
+                                                               "Composite score + per-course GPA displayed",
+                                                               "Copy unique numbers button for registration",
+                                                               "Verify nudge links (RMP, CIS surveys, syllabi)",
+                                                               "Input: select courses from V1 plan for next semester"
+                                                           ],
+                                   "why":  "Weekly calendar grid, schedule comparison, copy unique numbers"
+                               },
+                  "TASK-017":  {
+                                   "title":  "Integration testing + visual polish",
+                                   "assigned_to":  "engineer",
+                                   "status":  "pending",
+                                   "model":  "sonnet",
+                                   "depends_on":  [
+                                                      "TASK-010",
+                                                      "TASK-011",
+                                                      "TASK-012",
+                                                      "TASK-013",
+                                                      "TASK-014",
+                                                      "TASK-016"
+                                                  ],
+                                   "description":  "End-to-end testing of full flow: load data, generate plan, drag courses, validate prereqs, switch tech core, chat with Claude, export/import, V2 schedule optimization. Visual consistency pass.",
+                                   "acceptance_criteria":  [
+                                                               "Full user flow works end-to-end",
+                                                               "No console errors in normal usage",
+                                                               "Prereq validation catches all known edge cases",
+                                                               "Chat panel context includes live plan state",
+                                                               "V1 â†’ V2 flow (select next semester courses â†’ optimize schedule)",
+                                                               "Export/import round-trips correctly",
+                                                               "Visual consistency across all components"
+                                                           ],
+                                   "why":  "Connect all pieces, edge cases, visual consistency pass"
+                               }
+              },
+    "auto_run":  {
+                     "task_order":  [
+                                        "TASK-001",
+                                        "TASK-002",
+                                        "TASK-003",
+                                        "TASK-004",
+                                        "TASK-005",
+                                        "TASK-006",
+                                        "TASK-007",
+                                        "TASK-008",
+                                        "TASK-009",
+                                        "TASK-010",
+                                        "TASK-011",
+                                        "TASK-012",
+                                        "TASK-013",
+                                        "TASK-014",
+                                        "TASK-015",
+                                        "TASK-016",
+                                        "TASK-017"
+                                    ],
+                     "checkpoint_seconds":  45,
+                     "max_retries":  3,
+                     "security_between_tasks":  true,
+                     "rate_limit_wait_hours":  5
+                 },
+    "decisions":  [
+                      "Stack: Vite + React + TypeScript, Express proxy, Tailwind + shadcn/ui, dnd-kit",
+                      "Monorepo with npm workspaces: packages/client/ + packages/server/",
+                      "Express proxy for Claude API â€” single /api/chat endpoint",
+                      "shadcn/ui + Tailwind for professional accessible components",
+                      "localStorage + JSON export/import for plan persistence",
+                      "V1 + V2 ship together â€” schedule optimizer is in scope",
+                      "Normalize E E â†’ ECE at data load time",
+                      "Constraint solver is deterministic code, not LLM",
+                      "Grade distributions as primary quality signal (not RMP)"
+                  ],
+    "changelog":  [
+                      "2025-07-17: Built corpus agent with search, lookup, and 5 extractors",
+                      "2025-07-17: Generated 5 core data files (course-catalog, prereq-graph, tech-cores, degree-reqs, offering-schedule)",
+                      "2025-07-18: OCR\u0027d 53 schedule page images, built math-requirements.json, fall-2026-sections.json, grade-distributions placeholder",
+                      "2026-04-05: Parsed 5 grade distribution CSVs (249 courses), OCR\u0027d ECE upper-div (62 courses, 232 sections), built user-profile.json",
+                      “2026-04-05: Completed init-project Phases 5-9 â€” plan approved, 17 tasks scaffolded, all architecture decisions locked”,
+                      “2026-04-05: auto-run configured â€” 17 handoff files generated in .agents/handoffs/, auto_run block added to state.json”,
+                      “2026-04-06: TASK-001 complete â€” monorepo scaffolded: Vite+React+TS+Tailwind+shadcn/ui (client), Express+TS (server), 9 JSON files copied to public/data/, tsc passes on both packages, both dev servers confirmed starting”
+                  ]
 }

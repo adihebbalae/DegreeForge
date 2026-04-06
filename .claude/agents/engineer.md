@@ -1,7 +1,7 @@
 ---
 name: engineer
 description: Code implementation agent. Use for building features, fixing bugs, running tests, and committing code. Works autonomously — does not ask the user questions when running as a subagent.
-model: claude-sonnet-4-5
+model: sonnet
 tools: Read, Edit, Write, Bash, Grep, Glob
 user-invocable: false
 ---
