@@ -1,4 +1,4 @@
-﻿{
+{
     "project":  {
                     "name":  "DegreeForge",
                     "description":  "Interactive 4-year degree planner + next-semester schedule optimizer for UT Austin ECE",
@@ -13,29 +13,29 @@
                                        "Anthropic Claude API"
                                    ],
                     "architecture_decisions":  {
-                                                   "proxy":  "Express â€” single /api/chat endpoint for Claude API key isolation",
-                                                   "structure":  "Monorepo with npm workspaces â€” packages/client/ + packages/server/",
-                                                   "styling":  "shadcn/ui + Tailwind CSS â€” professional accessible components",
-                                                   "drag_drop":  "dnd-kit â€” modern React-first DnD library",
+                                                   "proxy":  "Express -- single /api/chat endpoint for Claude API key isolation",
+                                                   "structure":  "Monorepo with npm workspaces -- packages/client/ + packages/server/",
+                                                   "styling":  "shadcn/ui + Tailwind CSS -- professional accessible components",
+                                                   "drag_drop":  "dnd-kit -- modern React-first DnD library",
                                                    "persistence":  "localStorage + JSON export/import for plan state",
-                                                   "solver":  "Deterministic code (toposort + constraint satisfaction) â€” not LLM",
-                                                   "claude_role":  "Chat/explanation only â€” never generates plans",
-                                                   "normalization":  "E E â†’ ECE at data load time"
+                                                   "solver":  "Deterministic code (toposort + constraint satisfaction) -- not LLM",
+                                                   "claude_role":  "Chat/explanation only -- never generates plans",
+                                                   "normalization":  "E E -\u003e ECE at data load time"
                                                },
                     "external_dependencies":  [
                                                   "@anthropic-ai/sdk"
                                               ]
                 },
-    "phase":  "3 â€” Planning Complete, Ready to Build",
+    "phase":  "3 -- Planning Complete, Ready to Build",
     "mode":  "mvp",
-    "last_updated":  "2026-04-06T14:10:00.0000000-05:00",
-    "last_updated_by":  "engineer",
+    "last_updated":  "2026-04-06T14:19:24.3046788-05:00",
+    "last_updated_by":  "auto-run",
     "status":  "building",
     "current_task":  {
                          "id":  "TASK-002",
-                         "title":  "Data layer + TypeScript types + E E\u2192ECE normalization",
+                         "title":  "Data layer + TypeScript types + E E-\u003eECE normalization",
                          "assigned_to":  "engineer",
-                         "status":  "pending",
+                         "status":  "in_progress",
                          "priority":  "high"
                      },
     "handoff":  {
@@ -49,17 +49,17 @@
     "context":  {
                     "current_file_focus":  "packages/",
                     "recent_decisions":  [
-                                             "Vite + React + TypeScript (no Next.js â€” overkill for localhost SPA)",
+                                             "Vite + React + TypeScript (no Next.js -- overkill for localhost SPA)",
                                              "Express proxy for Claude API (not direct frontend calls)",
                                              "Monorepo with npm workspaces (packages/client + packages/server)",
                                              "shadcn/ui + Tailwind (professional components for progress bars, tooltips, dialogs)",
                                              "dnd-kit for drag-and-drop",
                                              "localStorage + JSON export/import for persistence",
                                              "V1 + V2 ship together (schedule optimizer in scope)",
-                                             "Normalize E E â†’ ECE at data load time",
+                                             "Normalize E E -\u003e ECE at data load time",
                                              "Grade distributions as primary quality signal (not RMP)"
                                          ],
-                    "blocked_on":  null,
+                    "blocked_on":  "",
                     "tools":  {
                                   "claude_code_cli":  true
                               },
@@ -87,17 +87,17 @@
                                                                "Express /api/health returns 200",
                                                                "data/ JSON files accessible from client"
                                                            ],
-                                   "why":  "Foundation â€” nothing else builds without this"
+                                   "why":  "Foundation -- nothing else builds without this"
                                },
                   "TASK-002":  {
-                                   "title":  "Data layer + TypeScript types + E Eâ†’ECE normalization",
+                                   "title":  "Data layer + TypeScript types + E E-\u003eECE normalization",
                                    "assigned_to":  "engineer",
-                                   "status":  "pending",
+                                   "status":  "in_progress",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-001"
                                                   ],
-                                   "description":  "Define TypeScript interfaces for all 9 JSON schemas. Build data loader hooks (useCourseCatalog, usePrereqGraph, etc.). Implement E E â†’ ECE normalization at load time. Export a unified DataContext provider.",
+                                   "description":  "Define TypeScript interfaces for all 9 JSON schemas. Build data loader hooks (useCourseCatalog, usePrereqGraph, etc.). Implement E E -\u003e ECE normalization at load time. Export a unified DataContext provider.",
                                    "acceptance_criteria":  [
                                                                "TypeScript interfaces for all 9 data files",
                                                                "React context provider with all data loaded and typed",
@@ -144,7 +144,7 @@
                                                                "Returns structured plan data (not UI)",
                                                                "Unit tests with known-good plans"
                                                            ],
-                                   "why":  "The Recommend 4-Year Plan button â€” needs graph engine first"
+                                   "why":  "The Recommend 4-Year Plan button -- needs graph engine first"
                                },
                   "TASK-005":  {
                                    "title":  "App shell + page layout + routing",
@@ -182,7 +182,7 @@
                                                                "Current semester highlighted",
                                                                "Empty slots in future semesters accept drops"
                                                            ],
-                                   "why":  "Primary UI surface â€” cards show course data, colors, GPA"
+                                   "why":  "Primary UI surface -- cards show course data, colors, GPA"
                                },
                   "TASK-007":  {
                                    "title":  "Course palette panel",
@@ -204,7 +204,7 @@
                                    "why":  "Right-side panel with categorized remaining courses"
                                },
                   "TASK-008":  {
-                                   "title":  "Drag-drop system (dnd-kit: paletteâ†”timeline)",
+                                   "title":  "Drag-drop system (dnd-kit: palette\u003c-\u003etimeline)",
                                    "assigned_to":  "engineer",
                                    "status":  "pending",
                                    "model":  "sonnet",
@@ -212,7 +212,7 @@
                                                       "TASK-006",
                                                       "TASK-007"
                                                   ],
-                                   "description":  "Implement dnd-kit drag-and-drop: palette â†’ semester slot, semester â†’ semester, semester â†’ palette (remove). DndContext wraps timeline + palette. Sortable within semesters. Drop zones in empty slots.",
+                                   "description":  "Implement dnd-kit drag-and-drop: palette -\u003e semester slot, semester -\u003e semester, semester -\u003e palette (remove). DndContext wraps timeline + palette. Sortable within semesters. Drop zones in empty slots.",
                                    "acceptance_criteria":  [
                                                                "Drag from palette to semester slot",
                                                                "Drag between semesters",
@@ -221,7 +221,7 @@
                                                                "Drop zone highlights on hover",
                                                                "Duplicate detection (can\u0027t place same course twice)"
                                                            ],
-                                   "why":  "Connects palette and grid â€” the core interaction model"
+                                   "why":  "Connects palette and grid -- the core interaction model"
                                },
                   "TASK-009":  {
                                    "title":  "Progress bars (credit hours, ECE, gen ed, tech core, electives)",
@@ -299,7 +299,7 @@
                                                                "Chat history persists within session",
                                                                "Error handling for API failures"
                                                            ],
-                                   "why":  "Chat UI + /api/chat proxy â€” needs plan state for system prompt"
+                                   "why":  "Chat UI + /api/chat proxy -- needs plan state for system prompt"
                                },
                   "TASK-013":  {
                                    "title":  "External links + course detail popover",
@@ -399,7 +399,7 @@
                                                                "No console errors in normal usage",
                                                                "Prereq validation catches all known edge cases",
                                                                "Chat panel context includes live plan state",
-                                                               "V1 â†’ V2 flow (select next semester courses â†’ optimize schedule)",
+                                                               "V1 -\u003e V2 flow (select next semester courses -\u003e optimize schedule)",
                                                                "Export/import round-trips correctly",
                                                                "Visual consistency across all components"
                                                            ],
@@ -434,11 +434,11 @@
     "decisions":  [
                       "Stack: Vite + React + TypeScript, Express proxy, Tailwind + shadcn/ui, dnd-kit",
                       "Monorepo with npm workspaces: packages/client/ + packages/server/",
-                      "Express proxy for Claude API â€” single /api/chat endpoint",
+                      "Express proxy for Claude API -- single /api/chat endpoint",
                       "shadcn/ui + Tailwind for professional accessible components",
                       "localStorage + JSON export/import for plan persistence",
-                      "V1 + V2 ship together â€” schedule optimizer is in scope",
-                      "Normalize E E â†’ ECE at data load time",
+                      "V1 + V2 ship together -- schedule optimizer is in scope",
+                      "Normalize E E -\u003e ECE at data load time",
                       "Constraint solver is deterministic code, not LLM",
                       "Grade distributions as primary quality signal (not RMP)"
                   ],
@@ -447,8 +447,8 @@
                       "2025-07-17: Generated 5 core data files (course-catalog, prereq-graph, tech-cores, degree-reqs, offering-schedule)",
                       "2025-07-18: OCR\u0027d 53 schedule page images, built math-requirements.json, fall-2026-sections.json, grade-distributions placeholder",
                       "2026-04-05: Parsed 5 grade distribution CSVs (249 courses), OCR\u0027d ECE upper-div (62 courses, 232 sections), built user-profile.json",
-                      “2026-04-05: Completed init-project Phases 5-9 â€” plan approved, 17 tasks scaffolded, all architecture decisions locked”,
-                      “2026-04-05: auto-run configured â€” 17 handoff files generated in .agents/handoffs/, auto_run block added to state.json”,
-                      “2026-04-06: TASK-001 complete â€” monorepo scaffolded: Vite+React+TS+Tailwind+shadcn/ui (client), Express+TS (server), 9 JSON files copied to public/data/, tsc passes on both packages, both dev servers confirmed starting”
+                      "2026-04-05: Completed init-project Phases 5-9 -- plan approved, 17 tasks scaffolded, all architecture decisions locked",
+                      "2026-04-05: auto-run configured -- 17 handoff files generated in .agents/handoffs/, auto_run block added to state.json",
+                      "2026-04-06: TASK-001 complete -- monorepo scaffolded: Vite+React+TS+Tailwind+shadcn/ui (client), Express+TS (server), 9 JSON files copied to public/data/, tsc passes on both packages, both dev servers confirmed starting"
                   ]
 }

@@ -102,12 +102,18 @@ function Read-StateFile {
         Write-Error "State file not found: $StateFile"
         exit 1
     }
-    Get-Content $StateFile -Raw | ConvertFrom-Json
+    # Read as UTF-8 explicitly (PS 5.1 defaults to system ANSI, which mangles multi-byte chars)
+    $content = [System.IO.File]::ReadAllText($StateFile, [System.Text.Encoding]::UTF8)
+    # Strip UTF-8 BOM if present (PS 5.1 Set-Content -Encoding UTF8 writes BOM)
+    if ($content -and $content[0] -eq [char]0xFEFF) { $content = $content.Substring(1) }
+    $content | ConvertFrom-Json
 }
 
 function Save-StateFile {
     param($State)
-    $State | ConvertTo-Json -Depth 10 | Set-Content $StateFile -Encoding UTF8
+    # Use UTF8Encoding($false) to write UTF-8 without BOM — PS 5.1 Set-Content -Encoding UTF8 writes BOM
+    $noBomUtf8 = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($StateFile, ($State | ConvertTo-Json -Depth 10), $noBomUtf8)
 }
 
 function Get-PendingTasks {
