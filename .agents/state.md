@@ -57,7 +57,7 @@
 | ID | Title | Agent | Depends On | Status |
 |----|-------|-------|------------|--------|
 | TASK-001 | Project scaffold (monorepo, Vite, Express, Tailwind, shadcn) | engineer | — | ✅ done |
-| TASK-002 | Data layer + TypeScript types + E E→ECE normalization | engineer | 001 | pending |
+| TASK-002 | Data layer + TypeScript types + E E→ECE normalization | engineer | 001 | ✅ done |
 | TASK-003 | Prerequisite graph engine (DAG, toposort, validation) | engineer | 002 | pending |
 | TASK-004 | Constraint solver / recommendation engine | engineer | 003 | pending |
 | TASK-005 | App shell + page layout + routing | engineer | 001 | pending |
@@ -90,8 +90,9 @@
 
 ## Last Updated
 **When**: 2026-04-06
-**By**: engineer (TASK-001 complete)
-**Next**: TASK-002 — Data layer + TypeScript types + E E→ECE normalization
+**By**: engineer (TASK-002 complete)
+**Next**: TASK-003 — Prerequisite graph engine (DAG, toposort, validation)
 
 ## Changelog (cont.)
 - `TASK-001`: Monorepo scaffolded — packages/client (Vite+React+TS+Tailwind+shadcn), packages/server (Express+TS), 9 JSON data files in public/data/, tsc clean on both packages [2026-04-06]
+- `TASK-002`: Data layer complete — TypeScript interfaces for all 9 JSON schemas, normalizeEEtoECE() with 19 passing unit tests, DataProvider with 11 typed hooks, DataProvider wraps React tree in main.tsx, tsc --noEmit: 0 errors [2026-04-06]
