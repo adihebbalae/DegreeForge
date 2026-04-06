@@ -29,11 +29,14 @@ export interface PrereqEdge {
   min_grade?: string;
 }
 
-/** prerequisite-graph.json */
-export interface PrereqGraph {
+/** prerequisite-graph.json — raw data shape (use PrereqGraph class from graph-engine for logic) */
+export interface PrereqGraphData {
   nodes: Record<string, PrereqNode>;
   edges: PrereqEdge[];
 }
+
+/** @deprecated Use PrereqGraphData instead */
+export type PrereqGraph = PrereqGraphData;
 
 // ─── Grade Distributions ─────────────────────────────────────────────────────
 export interface GradeSection {
@@ -360,4 +363,16 @@ export interface FallSections {
   semester_code: string;
   source: string;
   courses: Record<string, CourseSections>;
+}
+
+// ─── Plan State ──────────────────────────────────────────────────────────────
+export type SemesterId = string; // e.g. "Fall 2025", "Spring 2026"
+
+/** semesterId → courseId[] */
+export type Plan = Record<SemesterId, string[]>;
+
+export interface PlanState {
+  semesters: SemesterId[];   // Ordered list of semester IDs
+  plan: Plan;                // Which courses are in each semester
+  pinnedCourses: string[];   // Cannot be moved by solver
 }
