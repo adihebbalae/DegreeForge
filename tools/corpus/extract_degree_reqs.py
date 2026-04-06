@@ -1,0 +1,223 @@
+"""
+Extract structured degree requirements from corpus data.
+Outputs degree-requirements.json matching the PRD schema §6.3.
+
+Sources:
+  - ece_catalog_bse_web.txt (curriculum table, credit hours)
+  - 2628 Flowchart.txt (course sequencing)
+  - 26-27 core listv2.txt (core curriculum approved courses)
+  - Tech Core Packet (Updated 12.18.25).txt (free elective rules)
+"""
+import json
+from pathlib import Path
+from typing import Optional
+
+from .search import CORPUS_DIR
+
+
+def build_degree_requirements() -> dict:
+    """
+    Build the degree-requirements.json data.
+
+    This is largely hardcoded from the verified BSE page and core list,
+    because the text format is too messy to reliably parse.
+    The PRD specifies the exact schema (§6.3).
+    """
+    return {
+        "ece_core": {
+            "courses": [
+                "ECE 402", "ECE 406", "ECE 419K", "ECE 411",
+                "ECE 412", "ECE 313", "ECE 333T", "ECE 351K",
+                "ECE 364D", "ECE 464K",
+            ],
+            "notes": (
+                "All required. ECE 333T and ECE 364D count toward Core 010. "
+                "ECE 302/306/312/319K are pre-2026 numbers; "
+                "2026-2028 catalog uses ECE 402/406/412/419K."
+            ),
+            "honors_variants": {
+                "ECE 402": "ECE 302H",
+                "ECE 412": "ECE 312H",
+                "ECE 419K": "ECE 319H",
+            },
+            "senior_design_options": [
+                "ECE 464G", "ECE 464H", "ECE 464K",
+                "ECE 464R", "ECE 464S",
+            ],
+        },
+        "core_curriculum": {
+            "slots": [
+                {
+                    "id": "ugs",
+                    "label": "First-Year Signature Course",
+                    "hours": 3,
+                    "core_code": "090",
+                    "options": ["UGS 302", "UGS 303"],
+                    "ap_eligible": False,
+                },
+                {
+                    "id": "rhe",
+                    "label": "Rhetoric & Writing",
+                    "hours": 3,
+                    "core_code": "010",
+                    "options": ["RHE 306"],
+                    "ap_eligible": True,
+                    "notes": "RHE 306Q for non-native English speakers",
+                },
+                {
+                    "id": "humanities",
+                    "label": "Humanities",
+                    "hours": 3,
+                    "core_code": "040",
+                    "options": ["E 316L", "E 316M", "E 316N", "E 316P"],
+                    "ap_eligible": True,
+                    "prereq": "RHE 306",
+                },
+                {
+                    "id": "vapa",
+                    "label": "Visual & Performing Arts",
+                    "hours": 3,
+                    "core_code": "050",
+                    "options": ["list_of_approved"],
+                    "ap_eligible": True,
+                },
+                {
+                    "id": "his1",
+                    "label": "US History I",
+                    "hours": 3,
+                    "core_code": "060",
+                    "options": [
+                        "HIS 314K", "HIS 315G", "HIS 315K", "HIS 315L",
+                        "HIS 317L", "HIS 329P", "HIS 333L", "HIS 333M",
+                        "HIS 334L", "HIS 340S", "HIS 345J", "HIS 345L",
+                        "HIS 350R", "HIS 351P", "HIS 355F", "HIS 355M",
+                        "HIS 355N", "HIS 355P", "HIS 355S", "HIS 356G",
+                        "HIS 356K", "HIS 356P", "HIS 356R", "HIS 356S",
+                        "HIS 357C", "HIS 357D", "HIS 365G", "HIS 376F",
+                    ],
+                    "ap_eligible": True,
+                    "notes": "Three hours may be Texas History: HIS 320E, HIS 320F, HIS 320T",
+                },
+                {
+                    "id": "his2",
+                    "label": "US History II",
+                    "hours": 3,
+                    "core_code": "060",
+                    "options": ["same_as_his1"],
+                    "ap_eligible": True,
+                },
+                {
+                    "id": "gov1",
+                    "label": "American Government I",
+                    "hours": 3,
+                    "core_code": "070",
+                    "options": ["GOV 310L", "CIV 303C"],
+                    "ap_eligible": True,
+                    "notes": "AP Gov exam → must pass UT Austin Texas Government test",
+                },
+                {
+                    "id": "gov2",
+                    "label": "American Government II",
+                    "hours": 3,
+                    "core_code": "070",
+                    "options": [
+                        "GOV 312L", "GOV 312P",
+                        "GOV 305C", "GOV 306C",
+                    ],
+                    "ap_eligible": False,
+                    "notes": "Multiple option combinations exist; GOV 306C = GOVT 2306, GOV 305C = GOVT 2305",
+                },
+                {
+                    "id": "sbs",
+                    "label": "Social & Behavioral Sciences",
+                    "hours": 3,
+                    "core_code": "080",
+                    "options": ["list_of_approved"],
+                    "ap_eligible": True,
+                },
+            ],
+        },
+        "tech_core": {
+            "description": (
+                "8 upper-division courses within a declared track. "
+                "ECB dual degree requires 7."
+            ),
+            "components": {
+                "advanced_math": {"hours": "3-4", "count": 1},
+                "core_courses": {"hours": "6-7", "count": 2},
+                "core_lab": {"hours": 4, "count": 1},
+                "tech_electives": {
+                    "hours_min": 12,
+                    "count": "3-4 (varies by track)",
+                },
+            },
+            "notes": "See tech-cores.json for per-track details",
+        },
+        "advanced_tech_elective": {
+            "count": 1,
+            "hours": "3-4",
+            "description": (
+                "1 additional upper-division ECE course from any tech area. "
+                "ECE 316 may count if not part of declared tech core. "
+                "2 semesters of ECE Co-op or 1 semester ECE 125S may substitute."
+            ),
+        },
+        "free_electives": {
+            "total_hours": 14,
+            "constraints": [
+                "At least 3 hours must be approved advanced math or basic science",
+                "No more than 3 hours of lower-division credit",
+                "AP credits never accepted toward free electives",
+                "No more than 3 hours of transfer credit",
+                "All coursework must count for a major in the offering department",
+                "All coursework must be taken in residence (except up to 3 transfer hours)",
+                "No course can duplicate a course required elsewhere in ECE degree",
+            ],
+            "approved_list_url": "bit.ly/UTECE-FE",
+        },
+        "math_sequence": {
+            "required": ["M 408C", "M 408D", "M 427J", "M 340L"],
+            "alternate_calculus": ["M 408K", "M 408L", "M 408M"],
+            "notes": (
+                "M 408C+D or M 408K+L+M. M 427J requires M 408D/L/S. "
+                "M 340L requires M 408D/L."
+            ),
+        },
+        "physics_sequence": {
+            "required": ["PHY 303K", "PHY 105M", "PHY 303L", "PHY 105N"],
+            "alternate": ["PHY 303E"],
+            "notes": (
+                "PHY 303E (Electromagnetic, Quantum, Semiconductor Physics) replaces "
+                "PHY 303L for some flowchart paths. "
+                "Labs PHY 105M and PHY 105N are corequisites."
+            ),
+        },
+        "total_credit_hours": 125,
+        "notes": (
+            "125 semester credit hours per catalog (was 128 in older catalogs). "
+            "ECE Honors minimum also 125 hours."
+        ),
+    }
+
+
+def extract_all(output_path: Optional[Path] = None) -> dict:
+    """Extract degree requirements and optionally save to file."""
+    data = build_degree_requirements()
+
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+    return data
+
+
+if __name__ == "__main__":
+    out = Path(__file__).resolve().parent.parent.parent / "data" / "degree-requirements.json"
+    data = extract_all(out)
+    print(f"Degree requirements extracted:")
+    print(f"  ECE core courses: {len(data['ece_core']['courses'])}")
+    print(f"  Core curriculum slots: {len(data['core_curriculum']['slots'])}")
+    print(f"  Math sequence: {data['math_sequence']['required']}")
+    print(f"  Total credit hours: {data['total_credit_hours']}")
+    print(f"\nSaved to {out}")

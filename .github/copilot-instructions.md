@@ -59,6 +59,39 @@ When work needs to transfer between agents:
 - Run tests before declaring work complete
 - Run the `quality-gate` skill before every push (lint → type-check → tests → security scan). Do not push with any stage failing.
 
+## DegreeForge Project Standards
+
+### Stack & Structure
+- **Monorepo**: npm workspaces with `packages/client/` (Vite + React) and `packages/server/` (Express)
+- **TypeScript**: Strict mode enabled (`strict: true`). No `any` unless absolutely unavoidable.
+- **React**: Functional components only. Use hooks, not classes.
+- **Styling**: Tailwind CSS utility classes + shadcn/ui components. No CSS modules; no styled-components.
+- **Drag-drop**: dnd-kit library exclusively. Do not introduce react-dnd or HTML5 drag API.
+- **State**: React Context + useReducer for plan state. No Redux.
+- **Persistence**: localStorage + JSON export/import. No database.
+
+### Data
+- 9 static JSON files in `data/` — treat as read-only at runtime (copy into client `public/` or import directly)
+- **Normalize `E E` → `ECE`** at data load time. All internal references use `ECE`.
+- TypeScript interfaces for all data shapes. Define in shared types file.
+
+### Architecture Rules
+- **Constraint solver** = deterministic TypeScript (toposort, validation). NEVER use Claude for plan generation.
+- **Claude** = chat/explanation only. All Claude calls go through Express proxy (`/api/chat`).
+- **API key** stays server-side only. Frontend never sees `ANTHROPIC_API_KEY`.
+- **No auth, no deployment, no multi-user** — this is a single-user localhost tool.
+
+### Naming Conventions
+- Files: kebab-case (`semester-timeline.tsx`, `graph-engine.ts`)
+- Components: PascalCase (`SemesterTimeline`, `CoursePalette`)
+- Hooks: camelCase with `use` prefix (`usePlan`, `useConstraints`)
+- Types/Interfaces: PascalCase (`Course`, `PrerequisiteEdge`, `DegreeRequirements`)
+
+### Testing
+- Vitest for unit + integration tests
+- Test files colocated: `graph-engine.test.ts` next to `graph-engine.ts`
+- Critical paths MUST have tests: prerequisite validation, constraint solver, data normalization
+
 ## Communication Principles
 - **Always include WHY**: When making a decision, choosing a priority, or recommending an approach, explain the reasoning. "Do X because Y" not just "Do X."
 - **Research first**: Before making changes, search the codebase for existing patterns and conventions. Understand what exists before creating something new.

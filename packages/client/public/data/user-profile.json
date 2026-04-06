@@ -1,0 +1,175 @@
+{
+  "name": "Adi H.",
+  "eid": "DEMO001",
+  "university": "The University of Texas at Austin",
+  "catalog_year": "2026-2028",
+  "major": "BSE in Electrical and Computer Engineering (BSECE)",
+  "classification": "Freshman",
+  "first_semester": "Fall 2025",
+  "graduation_target": "Spring 2029",
+
+  "tech_core": {
+    "declared": "Computer Architecture & Embedded Systems",
+    "status": "intended",
+    "required_math": "M 325K",
+    "required_ece": ["ECE 316", "ECE 460N"],
+    "tech_electives_needed": 3
+  },
+
+  "secondary_aspirations": {
+    "math_ba": {
+      "status": "considering",
+      "notes": "Math BA double major (Standard Option)"
+    },
+    "advanced_math_cert": {
+      "status": "not_pursuing",
+      "notes": "Was listed in PRD as 'applied_math_cert' — maps to Advanced Mathematics Certificate"
+    },
+    "jefferson_scholars_cert": {
+      "status": "not_pursuing",
+      "notes": "Jefferson Scholars / CTI Certificate — started CTI 301G and CTI 302"
+    }
+  },
+
+  "preferences": {
+    "course_load": "17-18 hours",
+    "course_load_tolerance": "above_average",
+    "time_preference": "no_preference",
+    "summer_courses": true,
+    "summer_notes": "Willing to take summer classes to accelerate"
+  },
+
+  "gpa": {
+    "cumulative": 3.693,
+    "lower_division": 3.557,
+    "upper_division": 4.0,
+    "gpa_hours": 13,
+    "grade_points": 48.01
+  },
+
+  "credit_summary": {
+    "total_hours_transferred": 9,
+    "total_hours_taken": 20,
+    "total_hours": 29
+  },
+
+  "completed_courses": [
+    {
+      "course": "M 508M",
+      "title": "Intermediate Calculus",
+      "grade": "A",
+      "semester": "Summer 2024",
+      "type": "Transfer",
+      "credit_hours": 5.0,
+      "notes": "Dual enrollment equivalent — covers M 408C + M 408D content"
+    },
+    {
+      "course": "M 411",
+      "title": "Linear Algebra",
+      "grade": "B",
+      "semester": "Fall 2024",
+      "type": "Transfer",
+      "credit_hours": 4.0,
+      "notes": "Likely equivalent to M 340L / M 341"
+    },
+    {
+      "course": "RHE 306",
+      "title": "Rhetoric and Writing",
+      "grade": "CR",
+      "semester": "Summer 2025",
+      "type": "Credit by exam",
+      "credit_hours": 3.0,
+      "notes": "Core curriculum writing flag satisfied"
+    },
+    {
+      "course": "M 408C",
+      "title": "Differential and Integral Calculus",
+      "grade": "CR",
+      "semester": "Summer 2025",
+      "type": "Credit by exam",
+      "credit_hours": 4.0,
+      "notes": "Credit by exam — prereq chain satisfied"
+    },
+    {
+      "course": "UGS 016",
+      "title": "First-Year Interest Group — Engineering",
+      "grade": "CR",
+      "semester": "Fall 2025",
+      "type": "In residence",
+      "credit_hours": 0.0,
+      "notes": "FIG seminar, no credit hours"
+    },
+    {
+      "course": "ECE 302",
+      "title": "Introduction to Electrical Engineering",
+      "grade": "B+",
+      "semester": "Fall 2025",
+      "type": "In residence",
+      "credit_hours": 3.0
+    },
+    {
+      "course": "ECE 306",
+      "title": "Introduction to Computing",
+      "grade": "A-",
+      "semester": "Fall 2025",
+      "type": "In residence",
+      "credit_hours": 3.0
+    },
+    {
+      "course": "CTI 301G",
+      "title": "Introduction to Ancient Greece",
+      "grade": "A-",
+      "semester": "Fall 2025",
+      "type": "In residence",
+      "credit_hours": 3.0,
+      "notes": "Jefferson Scholars / CTI Certificate course — also satisfies core curriculum"
+    },
+    {
+      "course": "M 427J",
+      "title": "Differential Equations with Linear Algebra",
+      "grade": "A",
+      "semester": "Fall 2025",
+      "type": "In residence",
+      "credit_hours": 4.0,
+      "notes": "Required math sequence course"
+    }
+  ],
+
+  "in_progress_courses": [
+    {
+      "course": "ECE 312H",
+      "title": "Software Design/Implementation I: Honors",
+      "semester": "Spring 2026",
+      "credit_hours": 3.0
+    },
+    {
+      "course": "M 325K",
+      "title": "Discrete Mathematics",
+      "semester": "Spring 2026",
+      "credit_hours": 3.0,
+      "notes": "Required for Computer Architecture tech core"
+    },
+    {
+      "course": "CTI 302",
+      "title": "Classics of Social/Political Thought",
+      "semester": "Spring 2026",
+      "credit_hours": 3.0,
+      "notes": "Jefferson Scholars / CTI Certificate course"
+    },
+    {
+      "course": "ECE 319H",
+      "title": "Introduction to Embedded Systems: Honors",
+      "semester": "Spring 2026",
+      "credit_hours": 3.0,
+      "notes": "ECE core requirement (honors section)"
+    }
+  ],
+
+  "career_interests": [
+    "Computer architecture",
+    "Embedded systems",
+    "Hardware/software co-design"
+  ],
+
+  "notes": "Profile auto-generated from unofficial transcript + user interview. Career interests inferred from tech core choice — update with specifics when available."
+}

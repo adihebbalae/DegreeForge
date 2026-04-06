@@ -1,0 +1,7266 @@
+{
+  "nodes": {
+    "ECE 302": {
+      "title": "Introduction to Electrical Engineering",
+      "credits": 5,
+      "category": "ece_core",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 302H": {
+      "title": "Introduction to Electrical Engineering: Honors",
+      "credits": 5,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 306": {
+      "title": "Introduction to Computing",
+      "credits": 3,
+      "category": "ece_core",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 306H": {
+      "title": "Introduction to Computing: Honors",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 307E": {
+      "title": "Elements of Electrical and Computer Engineering",
+      "credits": 4,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 107H": {
+      "title": "Engineering Leadership: Honors",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 108S": {
+      "title": "Topics in Technical Skills",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 109K": {
+      "title": "Topics in Electrical Engineering",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 209K": {
+      "title": "Topics in Electrical Engineering",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 309K": {
+      "title": "Topics in Electrical Engineering",
+      "credits": 1,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 409K": {
+      "title": "Topics in Electrical Engineering",
+      "credits": 1,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 209P": {
+      "title": "Introduction to Professional Engineering",
+      "credits": 2,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 309S": {
+      "title": "Development of a Solar-Powered Vehicle",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 411": {
+      "title": "Circuit Theory",
+      "credits": 3,
+      "category": "ece_core",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 411H": {
+      "title": "Circuit Theory: Honors",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 111S": {
+      "title": "Tools to Enhance Academic Success",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 312": {
+      "title": "Software Design and Implementation I",
+      "credits": 3,
+      "category": "ece_core",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 312H": {
+      "title": "Software Design and Implementation I: Honors",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 313": {
+      "title": "Linear Systems and Signals",
+      "credits": 3,
+      "category": "ece_core",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 313H": {
+      "title": "Linear Systems and Signals: Honors",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 316": {
+      "title": "Digital Logic Design",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 319H": {
+      "title": "Introduction to Embedded Systems: Honors",
+      "credits": 4,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 319K": {
+      "title": "Introduction to Embedded Systems",
+      "credits": 4,
+      "category": "ece_core",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 119S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 219S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 319S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 419S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 519S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 619S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 719S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 819S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 919S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 321K": {
+      "title": "Mixed Signal and Circuits Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 422C": {
+      "title": "Software Design and Implementation II",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 325": {
+      "title": "Electromagnetic Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 325K": {
+      "title": "Antennas and Wireless Propagation",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 125S": {
+      "title": "Internship in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 129S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 229S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 329S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 429S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 529S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 629S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 729S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 829S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 929S": {
+      "title": "Topics in Electrical and Computer Engineering",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 331": {
+      "title": "Electrical Circuits, Electronics, and Machinery",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 333T": {
+      "title": "Engineering Communication",
+      "credits": 3,
+      "category": "ece_core",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 334K": {
+      "title": "Quantum Theory of Electronic Materials",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 438": {
+      "title": "Fundamentals of Electronic Circuits I Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 438K": {
+      "title": "Analog Electronics",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 338L": {
+      "title": "Analog Integrated Circuit Design",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 339": {
+      "title": "Solid-State Electronic Devices",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 339S": {
+      "title": "Solar Energy Conversion Devices",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 440": {
+      "title": "Integrated Circuit Nanomanufacturing Techniques",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 340P": {
+      "title": "High-Throughput Nanopatterning",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 341": {
+      "title": "Electric Drives and Machines",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 445L": {
+      "title": "Embedded Systems Design Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 445M": {
+      "title": "Embedded and Real-Time Systems Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 445S": {
+      "title": "Real-Time Digital Signal Processing Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 347": {
+      "title": "Modern Optics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 348": {
+      "title": "Laser and Optical Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 351H": {
+      "title": "Probability and Random Processes: Honors",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 351K": {
+      "title": "Probability and Random Processes",
+      "credits": 3,
+      "category": "ece_core",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 351M": {
+      "title": "Digital Signal Processing",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 155": {
+      "title": "Electrical and Computer Engineering Seminar",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 155L": {
+      "title": "Engineering Leadership Seminar",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 155R": {
+      "title": "Undergraduate Research Seminar",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 160": {
+      "title": "Special Problems in Electrical and Computer Engineering",
+      "credits": 3,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 260": {
+      "title": "Special Problems in Electrical and Computer Engineering",
+      "credits": 3,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 360": {
+      "title": "Special Problems in Electrical and Computer Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 460": {
+      "title": "Special Problems in Electrical and Computer Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 360C": {
+      "title": "Algorithms",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 360F": {
+      "title": "Introduction to Software Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 360G": {
+      "title": "Programming Paradigms",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 460J": {
+      "title": "Data Science Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 360K": {
+      "title": "Introduction to Digital Communications",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 460M": {
+      "title": "Digital Systems Design Using Hardware Description Languages",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 460N": {
+      "title": "Computer Architecture",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 360P": {
+      "title": "Concurrent and Distributed Systems",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 460R": {
+      "title": "Introduction to VLSI Design",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 360S": {
+      "title": "Digital Integrated Circuit Design",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 360T": {
+      "title": "Software Testing",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 361C": {
+      "title": "Multicore Computing",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 361D": {
+      "title": "System Design Metrics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 361E": {
+      "title": "Machine Learning and Data Analytics for Edge Artificial Intelligence",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 361G": {
+      "title": "Engineering Program Analysis",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 461L": {
+      "title": "Software Engineering and Design Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 361M": {
+      "title": "Software Architectures",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 361N": {
+      "title": "Information Security and Privacy",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 461P": {
+      "title": "Data Science Principles",
+      "credits": 4,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 361Q": {
+      "title": "Requirements Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 361R": {
+      "title": "Radio-Frequency Electronics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 461S": {
+      "title": "Operating Systems",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 362G": {
+      "title": "Smart Grids",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 362K": {
+      "title": "Introduction to Automatic Control",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 462L": {
+      "title": "Power Electronics Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 362M": {
+      "title": "Power Electronics II",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 362Q": {
+      "title": "Power Quality and Harmonics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 362R": {
+      "title": "Renewable Energy and Power Systems",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 362S": {
+      "title": "Development of a Solar-Powered Vehicle",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 363M": {
+      "title": "Microwave and Radio Frequency Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 363N": {
+      "title": "Engineering Acoustics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 464C": {
+      "title": "Corporate Senior Design Project",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 364D": {
+      "title": "Introduction to Engineering Design",
+      "credits": 5,
+      "category": "ece_core",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 364E": {
+      "title": "Interdisciplinary Entrepreneurship",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 464G": {
+      "title": "Multidisciplinary Senior Design Project",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 464H": {
+      "title": "Honors Senior Design Project",
+      "credits": 9,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 464K": {
+      "title": "Senior Design Project",
+      "credits": 9,
+      "category": "ece_core",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 464R": {
+      "title": "Research Senior Design Project",
+      "credits": 9,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 464S": {
+      "title": "Start-Up Senior Design Project",
+      "credits": 9,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 366": {
+      "title": "Engineering Economics I",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 366K": {
+      "title": "Engineering Economics II",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 366L": {
+      "title": "Statistics for Manufacturing",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 368L": {
+      "title": "Power Systems Apparatus and Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 468L": {
+      "title": "Power Systems Apparatus and Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 369": {
+      "title": "Power Systems Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 369L": {
+      "title": "Relay Protection of Power Systems",
+      "credits": 5,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 370": {
+      "title": "Automatic Control II",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 370K": {
+      "title": "Computer Control Systems",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 370L": {
+      "title": "Introduction to Manufacturing Systems Automation",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 370N": {
+      "title": "Introduction to Robotics and Mechatronics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 471C": {
+      "title": "Wireless Communications Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 371D": {
+      "title": "Introduction to Neural Networks",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 371M": {
+      "title": "Communication Systems",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 371P": {
+      "title": "Introduction to Computer Vision",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 371Q": {
+      "title": "Digital Image Processing",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 472L": {
+      "title": "Network Engineering Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 372N": {
+      "title": "Telecommunication Networks",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 372S": {
+      "title": "Cryptography and Network Security",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 374K": {
+      "title": "Biomedical Electronic Instrument Design",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 374L": {
+      "title": "Applications of Biomedical Engineering",
+      "credits": 9,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 374N": {
+      "title": "Neural Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 679H": {
+      "title": "Undergraduate Honors Thesis",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 179K": {
+      "title": "Topics in Electrical Engineering",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 279K": {
+      "title": "Topics in Electrical Engineering",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 379K": {
+      "title": "Topics in Electrical Engineering",
+      "credits": 1,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 479K": {
+      "title": "Topics in Electrical Engineering",
+      "credits": 1,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 380C": {
+      "title": "Introduction to Optimization",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 380K": {
+      "title": "Introduction to System Theory",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 380L": {
+      "title": "Topics in Computer Systems in Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 380N": {
+      "title": "Topics in System Theory",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 381C": {
+      "title": "Verification and Validation",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 381J": {
+      "title": "Probability and Stochastic Processes I",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 381K": {
+      "title": "Topics in Decision, Information, and Communications Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 381L": {
+      "title": "Digital Time Series Analysis and Applications",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 381M": {
+      "title": "Probability and Stochastic Processes II",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 381S": {
+      "title": "Space-Time Communication",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 381V": {
+      "title": "Topics in Communications, Networks, and Systems",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 382C": {
+      "title": "Topics in Software Engineering and Systems",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 382L": {
+      "title": "Topics in Theory of Digital Systems",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 382M": {
+      "title": "Topics in Integrated Circuits and Systems",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 382N": {
+      "title": "Topics in Architecture, Computer Systems, and Embedded Systems",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 382V": {
+      "title": "Topics in Computer Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 383L": {
+      "title": "Electromagnetic Field Theory",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 383M": {
+      "title": "Microwave Field Theory",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 383N": {
+      "title": "Theory of Electromagnetic Fields: Electrodynamics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 383P": {
+      "title": "Topics in Optical Processing and Laser Communications",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 383V": {
+      "title": "Topics in Electromagnetics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 384N": {
+      "title": "Topics in Acoustics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 385J": {
+      "title": "Topics in Biomedical Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 386C": {
+      "title": "Software Architecture",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 390C": {
+      "title": "Statistical Methods in Engineering and Quality Assurance",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 390V": {
+      "title": "Topics in Manufacturing Systems Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 391C": {
+      "title": "Technical Entrepreneurship",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 392C": {
+      "title": "Software Testing",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 392K": {
+      "title": "Antenna Theory and Practice",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 392L": {
+      "title": "Computational Electromagnetics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 392N": {
+      "title": "Principles of Radar",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 393C": {
+      "title": "Topics in Plasma Dynamics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 394": {
+      "title": "Topics in Power System Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 394J": {
+      "title": "Topics in Energy Systems",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 394L": {
+      "title": "Power Systems Apparatus and Laboratory",
+      "credits": 6,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 396K": {
+      "title": "Topics in Solid-State Device Theory",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 396M": {
+      "title": "Topics in Quantum Electronics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 396N": {
+      "title": "Topics in Nanotechnology",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 396V": {
+      "title": "Topics in Solid-State Electronics",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 197C": {
+      "title": "Research Problems",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 297C": {
+      "title": "Research Problems",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 397C": {
+      "title": "Research Problems",
+      "credits": 1,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 697C": {
+      "title": "Research Problems",
+      "credits": 1,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 997C": {
+      "title": "Research Problems",
+      "credits": 1,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 197G": {
+      "title": "Research Problems",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 297G": {
+      "title": "Research Problems",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 397G": {
+      "title": "Research Problems",
+      "credits": 1,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 697G": {
+      "title": "Research Problems",
+      "credits": 1,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 997G": {
+      "title": "Research Problems",
+      "credits": 1,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 397K": {
+      "title": "Advanced Topics in Electrical Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 197M": {
+      "title": "Graduate Research Internship",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 297M": {
+      "title": "Graduate Research Internship",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 397M": {
+      "title": "Graduate Research Internship",
+      "credits": 1,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 397N": {
+      "title": "Conference Course",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 197S": {
+      "title": "Graduate Seminar in Electrical Engineering",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 297S": {
+      "title": "Graduate Seminar in Electrical Engineering",
+      "credits": 1,
+      "category": "ece_lower",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 397S": {
+      "title": "Graduate Seminar in Electrical Engineering",
+      "credits": 1,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 698": {
+      "title": "Thesis",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 398R": {
+      "title": "Master's Report",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 398T": {
+      "title": "Supervised Teaching in Electrical Engineering",
+      "credits": 3,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 399W": {
+      "title": "Dissertation",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 499W": {
+      "title": "Dissertation",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 599W": {
+      "title": "Dissertation",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 699W": {
+      "title": "Dissertation",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 799W": {
+      "title": "Dissertation",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 899W": {
+      "title": "Dissertation",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "ECE 999W": {
+      "title": "Dissertation",
+      "credits": null,
+      "category": "ece_upper",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 301": {
+      "title": "College Algebra",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 302": {
+      "title": "Introduction to Mathematics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 303D": {
+      "title": "Applicable Mathematics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 303F": {
+      "title": "Mathematics of Investment",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 403K": {
+      "title": "Calculus I for Business and Economics",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 403L": {
+      "title": "Calculus II for Business and Economics",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 305E": {
+      "title": "Analytic Geometry",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 305G": {
+      "title": "Preparation for Calculus",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 408C": {
+      "title": "Differential and Integral Calculus",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 408D": {
+      "title": "Sequences, Series, and Multivariable Calculus",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 408K": {
+      "title": "Differential Calculus",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 308L": {
+      "title": "Integral Calculus",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 408L": {
+      "title": "Integral Calculus",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 308M": {
+      "title": "Multivariable Calculus",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 408M": {
+      "title": "Multivariable Calculus",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 408N": {
+      "title": "Differential Calculus for Science",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 408Q": {
+      "title": "Differential and Integral Calculus for Business",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 408R": {
+      "title": "Differential and Integral Calculus for the Sciences",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 408S": {
+      "title": "Integral Calculus for Science",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 110C": {
+      "title": "Conference Course",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 210C": {
+      "title": "Conference Course",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 310C": {
+      "title": "Conference Course",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 410C": {
+      "title": "Conference Course",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 210E": {
+      "title": "Emerging Scholars Seminar",
+      "credits": 4,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 310P": {
+      "title": "Modern Mathematics: Plan II",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 110T": {
+      "title": "Topics in Mathematics",
+      "credits": 4,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 210T": {
+      "title": "Topics in Mathematics",
+      "credits": 4,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 310T": {
+      "title": "Topics in Mathematics",
+      "credits": 4,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 410T": {
+      "title": "Topics in Mathematics",
+      "credits": 4,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 315C": {
+      "title": "Foundations, Functions, and Regression Models",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 316K": {
+      "title": "Foundations of Arithmetic",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 316L": {
+      "title": "Foundations of Geometry, Statistics, and Probability",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 119S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 219S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 319S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 419S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 519S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 619S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 719S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 819S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 919S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 325K": {
+      "title": "Discrete Mathematics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 326K": {
+      "title": "Foundations of Number Systems",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 427J": {
+      "title": "Differential Equations with Linear Algebra",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 427K": {
+      "title": "Advanced Calculus for Applications I",
+      "credits": 5,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 427L": {
+      "title": "Advanced Calculus for Applications II",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 328K": {
+      "title": "Introduction to Number Theory",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 329F": {
+      "title": "Theory of Interest",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 129S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 229S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 329S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 429S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 529S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 629S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 729S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 829S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 929S": {
+      "title": "Topics in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 329W": {
+      "title": "Cooperative Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 333L": {
+      "title": "Structure of Modern Geometry",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 339C": {
+      "title": "Actuarial Case Studies",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 339D": {
+      "title": "Introduction to Financial Mathematics for Actuaries",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 339G": {
+      "title": "Predictive Analytics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 339J": {
+      "title": "Probability Models with Actuarial Applications",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 139S": {
+      "title": "Seminar on Actuarial Practice",
+      "credits": 1,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 339U": {
+      "title": "Actuarial Contingent Payments I",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 339V": {
+      "title": "Actuarial Contingent Payments II",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 340L": {
+      "title": "Matrices and Matrix Calculations",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 341": {
+      "title": "Linear Algebra and Matrix Theory",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 343K": {
+      "title": "Introduction to Algebraic Structures",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 343L": {
+      "title": "Applied Number Theory",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 343M": {
+      "title": "Error-Correcting Codes",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 344K": {
+      "title": "Intermediate Symbolic Logic",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 346": {
+      "title": "Applied Linear Algebra",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 348": {
+      "title": "Scientific Computation in Numerical Analysis",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 349P": {
+      "title": "Actuarial Statistical Estimates",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 349R": {
+      "title": "Applied Regression and Time Series",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 349T": {
+      "title": "Time Series and Survival-Model Estimation",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 358K": {
+      "title": "Applied Statistics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 360M": {
+      "title": "Mathematics as Problem Solving",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 361": {
+      "title": "Theory of Functions of a Complex Variable",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 361K": {
+      "title": "Introduction to Real Analysis",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 362K": {
+      "title": "Probability I",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 362M": {
+      "title": "Introduction to Stochastic Processes",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 364K": {
+      "title": "Vector and Tensor Analysis I",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 364L": {
+      "title": "Vector and Tensor Analysis II",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 365C": {
+      "title": "Real Analysis I",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 365D": {
+      "title": "Real Analysis II",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 365G": {
+      "title": "Curves and Surfaces",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 367K": {
+      "title": "Topology I",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 367L": {
+      "title": "Topology II",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 368K": {
+      "title": "Numerical Methods for Applications",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 371E": {
+      "title": "Learning Assistant Experience in Mathematics",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 372": {
+      "title": "Fourier Series and Boundary Value Problems",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 372K": {
+      "title": "Partial Differential Equations and Applications",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 373K": {
+      "title": "Algebraic Structures I",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 373L": {
+      "title": "Algebraic Structures II",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 374": {
+      "title": "Fourier and Laplace Transforms",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 374G": {
+      "title": "Linear Regression Analysis",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 374K": {
+      "title": "Fourier and Laplace Transforms",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 374M": {
+      "title": "Mathematical Modeling in Science and Engineering",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 175": {
+      "title": "Conference Course",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 275": {
+      "title": "Conference Course",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 375": {
+      "title": "Conference Course",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 475": {
+      "title": "Conference Course",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 375C": {
+      "title": "Topics in Conference Course: Computer-Assisted",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 375D": {
+      "title": "Discovery: An Introduction to Advanced Study in Mathematics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 175S": {
+      "title": "Seminar in Instruction of Mathematics",
+      "credits": 1,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 175T": {
+      "title": "Topics in Mathematics",
+      "credits": 4,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 275T": {
+      "title": "Topics in Mathematics",
+      "credits": 4,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 375T": {
+      "title": "Topics in Mathematics",
+      "credits": 4,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 475T": {
+      "title": "Topics in Mathematics",
+      "credits": 4,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 376C": {
+      "title": "Topics in Methods of Applied Mathematics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 378K": {
+      "title": "Introduction to Mathematical Statistics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 378N": {
+      "title": "Generalized Linear Models",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 378P": {
+      "title": "Decision Analytics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 379H": {
+      "title": "Honors Tutorial Course",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 380C": {
+      "title": "Algebra",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 380D": {
+      "title": "Algebra",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 381C": {
+      "title": "Real Analysis",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 381D": {
+      "title": "Complex Analysis",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 381E": {
+      "title": "Functional Analysis",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 382C": {
+      "title": "Algebraic Topology",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 382D": {
+      "title": "Differential Topology",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 382E": {
+      "title": "Advanced Algebraic Topology",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 382F": {
+      "title": "Algebraic Topology",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 382G": {
+      "title": "Differential Geometry",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 383C": {
+      "title": "Methods of Applied Mathematics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 383D": {
+      "title": "Methods of Applied Mathematics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 383E": {
+      "title": "Numerical Analysis: Linear Algebra",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 383F": {
+      "title": "Numerical Analysis: Interpolation, Approximation, Quadrature, and Differential Equations",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 384C": {
+      "title": "Mathematical Statistics I",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 384D": {
+      "title": "Mathematical Statistics II",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 384E": {
+      "title": "Design and Analysis of Experiments",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 384F": {
+      "title": "Design of Experiments",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 384G": {
+      "title": "Regression Analysis",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 384H": {
+      "title": "Multivariate Statistical Analysis",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 385C": {
+      "title": "Theory of Probability",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 385D": {
+      "title": "Theory of Probability",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 387C": {
+      "title": "Numerical Analysis: Algebra and Approximation",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 387D": {
+      "title": "Numerical Analysis: Differential Equations",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 389C": {
+      "title": "Actuarial Case Studies",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 389D": {
+      "title": "Introduction to Financial Mathematics for Actuaries",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 389F": {
+      "title": "Theory of Interest",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 389G": {
+      "title": "Predictive Analytics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 389J": {
+      "title": "Probability Models with Actuarial Applications",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 389P": {
+      "title": "Actuarial Statistical Estimates",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 189S": {
+      "title": "Seminar on Actuarial Practice",
+      "credits": 1,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 389T": {
+      "title": "Time Series and Survival-Model Estimation",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 389U": {
+      "title": "Actuarial Contingent Payments I",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 389V": {
+      "title": "Actuarial Contingent Payments II",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 389W": {
+      "title": "Financial Mathematics for Actuarial Applications",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 390C": {
+      "title": "Topics in Algebra",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 391C": {
+      "title": "Topics in Analysis",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 392C": {
+      "title": "Topics in Topology",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 393C": {
+      "title": "Topics in Applied Mathematics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 393N": {
+      "title": "Numerical Solution of Elliptic Partial Differential Equations",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 394C": {
+      "title": "Topics in Probability and Statistics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 395C": {
+      "title": "Topics in Logic and Foundations",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 396C": {
+      "title": "Topics in Mathematics",
+      "credits": 1,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 696C": {
+      "title": "Topics in Mathematics",
+      "credits": 1,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 996C": {
+      "title": "Topics in Mathematics",
+      "credits": 1,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 396D": {
+      "title": "Conference Course",
+      "credits": 1,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 696D": {
+      "title": "Conference Course",
+      "credits": 1,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 996D": {
+      "title": "Conference Course",
+      "credits": 1,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 397C": {
+      "title": "Topics in Numerical Analysis",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 197S": {
+      "title": "Topics in Mathematics: Seminar",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 397S": {
+      "title": "Topics in Mathematics: Seminar",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 698": {
+      "title": "Thesis",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 398R": {
+      "title": "Master's Report",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 398T": {
+      "title": "Supervised Teaching in Mathematics",
+      "credits": 3,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 399W": {
+      "title": "Dissertation",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 699W": {
+      "title": "Dissertation",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    },
+    "M 999W": {
+      "title": "Dissertation",
+      "credits": null,
+      "category": "math",
+      "offered": [
+        "fall",
+        "spring"
+      ],
+      "flags": []
+    }
+  },
+  "edges": [
+    {
+      "from": "M 408C",
+      "to": "ECE 302",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408C",
+      "to": "ECE 302",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "ECE 302H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "ECE 302H",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408C",
+      "to": "ECE 306",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408C",
+      "to": "ECE 306",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "ECE 306H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "ECE 306H",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 302",
+      "to": "ECE 209P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 302H",
+      "to": "ECE 209P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 302",
+      "to": "ECE 411",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 302H",
+      "to": "ECE 411",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 411",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 303L",
+      "to": "ECE 411",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 411",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 302",
+      "to": "ECE 411H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 302H",
+      "to": "ECE 411H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 411H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 303L",
+      "to": "ECE 411H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 411H",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 306",
+      "to": "ECE 312",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306",
+      "to": "ECE 312",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306H",
+      "to": "ECE 312",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319K",
+      "to": "ECE 312",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319H",
+      "to": "ECE 312",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 306",
+      "to": "ECE 312H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306",
+      "to": "ECE 312H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306H",
+      "to": "ECE 312H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319H",
+      "to": "ECE 312H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 302",
+      "to": "ECE 313",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 302H",
+      "to": "ECE 313",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 313",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "ECE 313",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "ECE 313",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 302",
+      "to": "ECE 313H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 302H",
+      "to": "ECE 313H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 313H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "ECE 313H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "ECE 313H",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 306",
+      "to": "ECE 316",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 429",
+      "to": "ECE 316",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306",
+      "to": "ECE 316",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306H",
+      "to": "ECE 316",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 306",
+      "to": "ECE 319H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306",
+      "to": "ECE 319H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306H",
+      "to": "ECE 319H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 306",
+      "to": "ECE 319K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306",
+      "to": "ECE 319K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306H",
+      "to": "ECE 319K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 321K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 321K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 321K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 321K",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 422C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 422C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 411",
+      "to": "ECE 325",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 325",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 303L",
+      "to": "ECE 325",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 105N",
+      "to": "ECE 325",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427L",
+      "to": "ECE 325",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427L",
+      "to": "ECE 325",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 325",
+      "to": "ECE 325K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "ECE 331",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 303L",
+      "to": "ECE 331",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "RHE 306",
+      "to": "ECE 333T",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319K",
+      "to": "ECE 333T",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 334K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 303L",
+      "to": "ECE 334K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 105N",
+      "to": "ECE 334K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 311",
+      "to": "ECE 438",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 411",
+      "to": "ECE 438",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 438",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 438",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 438",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 438K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 338L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 339",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 303L",
+      "to": "ECE 339",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 105N",
+      "to": "ECE 339",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 339S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 303L",
+      "to": "ECE 339S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 105N",
+      "to": "ECE 339S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 440",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 303L",
+      "to": "ECE 440",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 103N",
+      "to": "ECE 440",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 440",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 440",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 440",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 411",
+      "to": "ECE 340P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 339",
+      "to": "ECE 340P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427K",
+      "to": "ECE 340P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 411",
+      "to": "ECE 341",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 445L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 445L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319K",
+      "to": "ECE 445L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319H",
+      "to": "ECE 445L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 411",
+      "to": "ECE 445L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 445L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 311",
+      "to": "ECE 445L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 445L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 445L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 445L",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306",
+      "to": "ECE 445M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306H",
+      "to": "ECE 445M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 445M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 445M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319K",
+      "to": "ECE 445M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319H",
+      "to": "ECE 445M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 445S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 445S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319K",
+      "to": "ECE 445S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319H",
+      "to": "ECE 445S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 445S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 445S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 445S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 445S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 445S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351K",
+      "to": "ECE 445S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 445S",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 445S",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 347",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 325",
+      "to": "ECE 347",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 347",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 325",
+      "to": "ECE 348",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 351H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 351K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 351M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 351M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 351M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351K",
+      "to": "ECE 351M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 351M",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "E 316L",
+      "to": "ECE 155",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "E 316L",
+      "to": "ECE 155L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319K",
+      "to": "ECE 160",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319H",
+      "to": "ECE 160",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319K",
+      "to": "ECE 260",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319H",
+      "to": "ECE 260",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319K",
+      "to": "ECE 360",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319H",
+      "to": "ECE 360",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319K",
+      "to": "ECE 460",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319H",
+      "to": "ECE 460",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 360C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 360C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 325K",
+      "to": "ECE 360C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 311",
+      "to": "ECE 360C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 314",
+      "to": "ECE 360F",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 422C",
+      "to": "ECE 360F",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 422C",
+      "to": "ECE 360G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 314",
+      "to": "ECE 360G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 314H",
+      "to": "ECE 360G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 360C",
+      "to": "ECE 360G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 331",
+      "to": "ECE 360G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 331H",
+      "to": "ECE 360G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 460J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 460J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 460J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351K",
+      "to": "ECE 460J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "ECE 460J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "ECE 460J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 460J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 460J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 460J",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 360K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351K",
+      "to": "ECE 360K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 360K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 360K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351M",
+      "to": "ECE 360K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445S",
+      "to": "ECE 360K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 460M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 460M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 316",
+      "to": "ECE 460M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319K",
+      "to": "ECE 460M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319H",
+      "to": "ECE 460M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 312",
+      "to": "ECE 460N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306",
+      "to": "ECE 460N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 306H",
+      "to": "ECE 460N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 460N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 460N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319K",
+      "to": "ECE 460N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319H",
+      "to": "ECE 460N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 422C",
+      "to": "ECE 360P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 360C",
+      "to": "ECE 360P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 316",
+      "to": "ECE 460R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 460R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 314",
+      "to": "ECE 360T",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 422C",
+      "to": "ECE 360T",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 422C",
+      "to": "ECE 361C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 360C",
+      "to": "ECE 361C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 364D",
+      "to": "ECE 361D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 460J",
+      "to": "ECE 361E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 342",
+      "to": "ECE 361E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 422C",
+      "to": "ECE 361G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 360C",
+      "to": "ECE 361G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 314",
+      "to": "ECE 461L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 422C",
+      "to": "ECE 461L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 325K",
+      "to": "ECE 461L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 461L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 461L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 422C",
+      "to": "ECE 361M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 360C",
+      "to": "ECE 361M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 312",
+      "to": "ECE 361N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 361N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 361N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "ECE 461P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 461P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 461P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 461P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351K",
+      "to": "ECE 461P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "ECE 461P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 312",
+      "to": "ECE 361Q",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 361Q",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 361Q",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 361R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 461S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 461S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319K",
+      "to": "ECE 461S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 319H",
+      "to": "ECE 461S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 325K",
+      "to": "ECE 461S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 468L",
+      "to": "ECE 362G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 368L",
+      "to": "ECE 362G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 369",
+      "to": "ECE 362G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 362K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "ECE 362K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 411",
+      "to": "ECE 462L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 462L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 462L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 462L",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 462L",
+      "to": "ECE 362M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 468L",
+      "to": "ECE 362Q",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 368L",
+      "to": "ECE 362Q",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 369",
+      "to": "ECE 362Q",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 411",
+      "to": "ECE 362R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 362S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 362S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 362S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 325",
+      "to": "ECE 363M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "ECE 363N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 364D",
+      "to": "ECE 464C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 464C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 440",
+      "to": "ECE 464C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445L",
+      "to": "ECE 464C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445S",
+      "to": "ECE 464C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 460J",
+      "to": "ECE 464C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 461L",
+      "to": "ECE 464C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 462L",
+      "to": "ECE 464C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 471C",
+      "to": "ECE 464C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 364D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 364D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 364D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 440",
+      "to": "ECE 364D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445L",
+      "to": "ECE 364D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445S",
+      "to": "ECE 364D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 460J",
+      "to": "ECE 364D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 461L",
+      "to": "ECE 364D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 462L",
+      "to": "ECE 364D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 468L",
+      "to": "ECE 364D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 368L",
+      "to": "ECE 364D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 471C",
+      "to": "ECE 364D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 364E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 364E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 364E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 440",
+      "to": "ECE 364E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445L",
+      "to": "ECE 364E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445S",
+      "to": "ECE 364E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 460J",
+      "to": "ECE 364E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 461L",
+      "to": "ECE 364E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 462L",
+      "to": "ECE 364E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 468L",
+      "to": "ECE 364E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 368L",
+      "to": "ECE 364E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 471C",
+      "to": "ECE 364E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 364D",
+      "to": "ECE 464G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 464G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 440",
+      "to": "ECE 464G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445S",
+      "to": "ECE 464G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 460J",
+      "to": "ECE 464G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 461L",
+      "to": "ECE 464G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 462L",
+      "to": "ECE 464G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 471C",
+      "to": "ECE 464G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 364D",
+      "to": "ECE 464H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 464H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 440",
+      "to": "ECE 464H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445L",
+      "to": "ECE 464H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445S",
+      "to": "ECE 464H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 460J",
+      "to": "ECE 464H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 461L",
+      "to": "ECE 464H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 462L",
+      "to": "ECE 464H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 468L",
+      "to": "ECE 464H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 368L",
+      "to": "ECE 464H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 471C",
+      "to": "ECE 464H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 364D",
+      "to": "ECE 464K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 464K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 440",
+      "to": "ECE 464K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445L",
+      "to": "ECE 464K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445S",
+      "to": "ECE 464K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 460J",
+      "to": "ECE 464K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 461L",
+      "to": "ECE 464K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 462L",
+      "to": "ECE 464K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 468L",
+      "to": "ECE 464K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 368L",
+      "to": "ECE 464K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 471C",
+      "to": "ECE 464K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 364D",
+      "to": "ECE 464R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 464R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 440",
+      "to": "ECE 464R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445L",
+      "to": "ECE 464R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445S",
+      "to": "ECE 464R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 460J",
+      "to": "ECE 464R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 461L",
+      "to": "ECE 464R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 462L",
+      "to": "ECE 464R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 468L",
+      "to": "ECE 464R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 368L",
+      "to": "ECE 464R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 471C",
+      "to": "ECE 464R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 364D",
+      "to": "ECE 464S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 464S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 440",
+      "to": "ECE 464S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445L",
+      "to": "ECE 464S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445S",
+      "to": "ECE 464S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 460J",
+      "to": "ECE 464S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 461L",
+      "to": "ECE 464S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 462L",
+      "to": "ECE 464S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 468L",
+      "to": "ECE 464S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 368L",
+      "to": "ECE 464S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 471C",
+      "to": "ECE 464S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 366",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351K",
+      "to": "ECE 366",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 366",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 366",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 366",
+      "to": "ECE 366K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 366L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351K",
+      "to": "ECE 366L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 366L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 366L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 411",
+      "to": "ECE 368L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 368L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 368L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 368L",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 411",
+      "to": "ECE 468L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 468L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 468L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 468L",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 411",
+      "to": "ECE 369",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 369L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 362K",
+      "to": "ECE 370",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 362K",
+      "to": "ECE 370K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 362K",
+      "to": "ECE 370L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 362K",
+      "to": "ECE 370N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 445S",
+      "to": "ECE 471C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351M",
+      "to": "ECE 471C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 360K",
+      "to": "ECE 471C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 471C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 471C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 471C",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "ECE 371D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 371D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 371D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 371D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351K",
+      "to": "ECE 371D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "ECE 371D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "ECE 371M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 371M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 371M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 371M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351K",
+      "to": "ECE 371M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "ECE 371M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 371P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 371P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 371P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351K",
+      "to": "ECE 371P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "ECE 371P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 371Q",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 371Q",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 371Q",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351K",
+      "to": "ECE 371Q",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "ECE 371Q",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 372N",
+      "to": "ECE 472L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 472L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 472L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 472L",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "ECE 372N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 343",
+      "to": "ECE 372N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 372N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 335",
+      "to": "ECE 372N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351K",
+      "to": "ECE 372N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "ECE 372N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 325K",
+      "to": "ECE 372S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 438",
+      "to": "ECE 374K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 374K",
+      "to": "ECE 374L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 374L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 333T",
+      "to": "ECE 374L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 333T",
+      "to": "ECE 374L",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 351M",
+      "to": "ECE 374N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 461P",
+      "to": "ECE 374N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 460J",
+      "to": "ECE 374N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 679HA",
+      "to": "ECE 679H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 179K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 179K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 179K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 279K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 279K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 279K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 379K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 379K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 379K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312",
+      "to": "ECE 479K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 312H",
+      "to": "ECE 479K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 313",
+      "to": "ECE 479K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 380L",
+      "to": "ECE 380L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 391L",
+      "to": "ECE 380L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 380K",
+      "to": "ECE 380N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 380N",
+      "to": "ECE 380N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 381J",
+      "to": "ECE 380N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 381K",
+      "to": "ECE 381K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 380L",
+      "to": "ECE 381K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 380N",
+      "to": "ECE 381K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 381J",
+      "to": "ECE 381K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 471C",
+      "to": "ECE 381K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 380K",
+      "to": "ECE 381K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 383P",
+      "to": "ECE 381K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 381J",
+      "to": "ECE 381K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 381J",
+      "to": "ECE 381M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 381J",
+      "to": "ECE 381S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 381K",
+      "to": "ECE 381S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 382C",
+      "to": "ECE 382C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 382V",
+      "to": "ECE 382C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 382L",
+      "to": "ECE 382L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 382M",
+      "to": "ECE 382M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 382V",
+      "to": "ECE 382M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 382N",
+      "to": "ECE 382N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 382M",
+      "to": "ECE 382N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 382V",
+      "to": "ECE 382N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 382P",
+      "to": "ECE 383P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 383P",
+      "to": "ECE 383P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 384N",
+      "to": "ECE 384N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 385J",
+      "to": "ECE 385J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 384J",
+      "to": "ECE 385J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 381J",
+      "to": "ECE 385J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "BME 385J",
+      "to": "ECE 385J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 385V",
+      "to": "ECE 385J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 393C",
+      "to": "ECE 393C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 394",
+      "to": "ECE 394",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 394J",
+      "to": "ECE 394J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 396K",
+      "to": "ECE 396K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 396V",
+      "to": "ECE 396K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 396M",
+      "to": "ECE 396M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 396V",
+      "to": "ECE 396M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 396N",
+      "to": "ECE 396N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 396V",
+      "to": "ECE 396V",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 396K",
+      "to": "ECE 396V",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 383P",
+      "to": "ECE 396V",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "ECE 698A",
+      "to": "ECE 698",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 403K",
+      "to": "M 403L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 301",
+      "to": "M 305E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 305G",
+      "to": "M 408C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408C",
+      "to": "M 408D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 305G",
+      "to": "M 408K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408C",
+      "to": "M 308L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408R",
+      "to": "M 308L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408C",
+      "to": "M 408L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408R",
+      "to": "M 408L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408L",
+      "to": "M 308M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408L",
+      "to": "M 408M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 305G",
+      "to": "M 408N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 305G",
+      "to": "M 408Q",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 305G",
+      "to": "M 408R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408C",
+      "to": "M 408S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408R",
+      "to": "M 408S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408C",
+      "to": "M 315C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408C",
+      "to": "M 315C",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 301",
+      "to": "M 316K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 316K",
+      "to": "M 316L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "M 326K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "M 427J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "M 427K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "M 427L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 325K",
+      "to": "M 328K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "M 329F",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "M 329W",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 325K",
+      "to": "M 329W",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 329F",
+      "to": "M 339C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 329F",
+      "to": "M 339D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "M 339D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 341",
+      "to": "M 339G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 358K",
+      "to": "M 339G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 358K",
+      "to": "M 339J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 329F",
+      "to": "M 139S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 339J",
+      "to": "M 139S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 339J",
+      "to": "M 139S",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "M 339U",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 329F",
+      "to": "M 339U",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "M 339U",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 329F",
+      "to": "M 339U",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "M 339U",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 329F",
+      "to": "M 339V",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 339U",
+      "to": "M 339V",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408C",
+      "to": "M 340L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "M 341",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 325K",
+      "to": "M 343K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 328K",
+      "to": "M 343K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 328K",
+      "to": "M 343L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 328K",
+      "to": "M 343M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 341",
+      "to": "M 346",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 303E",
+      "to": "M 348",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 341",
+      "to": "M 348",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 339J",
+      "to": "M 349P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 358K",
+      "to": "M 349R",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 339U",
+      "to": "M 349T",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "M 358K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "M 360M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "M 361",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 325K",
+      "to": "M 361K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 328K",
+      "to": "M 361K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "M 362K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "M 362M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "M 362M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "M 364K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 364K",
+      "to": "M 364L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 365C",
+      "to": "M 365D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 365C",
+      "to": "M 365G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 365C",
+      "to": "M 365G",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 361K",
+      "to": "M 367K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 367K",
+      "to": "M 367L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 348",
+      "to": "M 368K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408C",
+      "to": "M 371E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "M 372",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "M 372K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 373K",
+      "to": "M 373L",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "M 374",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 358K",
+      "to": "M 374G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 341",
+      "to": "M 374G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 374",
+      "to": "M 374K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "M 374M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "M 374M",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427J",
+      "to": "M 376C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "M 378K",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 378K",
+      "to": "M 378N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "M 378P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 378K",
+      "to": "M 378P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 365C",
+      "to": "M 379H",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 380C",
+      "to": "M 380D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 385R",
+      "to": "M 381E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 381C",
+      "to": "M 381E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 382C",
+      "to": "M 382D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 382E",
+      "to": "M 382F",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 386C",
+      "to": "M 383D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 383C",
+      "to": "M 383D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 367",
+      "to": "M 383E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 368K",
+      "to": "M 383E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "M 383E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 383C",
+      "to": "M 383F",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 383C",
+      "to": "M 383F",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 383E",
+      "to": "M 383F",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 427K",
+      "to": "M 383F",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "M 384C",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 384R",
+      "to": "M 384D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 384C",
+      "to": "M 384D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "M 384D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "M 384E",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 378K",
+      "to": "M 384F",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "M 384G",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 384K",
+      "to": "M 385D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 385C",
+      "to": "M 385D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 383C",
+      "to": "M 387D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 387C",
+      "to": "M 387D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 389F",
+      "to": "M 389D",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 408D",
+      "to": "M 389F",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 358K",
+      "to": "M 389J",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 341",
+      "to": "M 389P",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 329F",
+      "to": "M 189S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 389F",
+      "to": "M 189S",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 341",
+      "to": "M 389T",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 362K",
+      "to": "M 389U",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "M 389U",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 329F",
+      "to": "M 389U",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 340L",
+      "to": "M 389U",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 329F",
+      "to": "M 389U",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 389F",
+      "to": "M 389V",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 389D",
+      "to": "M 389W",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 383K",
+      "to": "M 393N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "C S 386K",
+      "to": "M 393N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 387C",
+      "to": "M 393N",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "M 698A",
+      "to": "M 698",
+      "type": "prerequisite",
+      "min_grade": "C-"
+    }
+  ]
+}
