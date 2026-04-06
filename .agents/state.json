@@ -28,14 +28,14 @@
                 },
     "phase":  "3 -- Planning Complete, Ready to Build",
     "mode":  "mvp",
-    "last_updated":  "2026-04-06T14:19:24.3046788-05:00",
-    "last_updated_by":  "auto-run",
+    "last_updated":  "2026-04-06T14:28:00.0000000-05:00",
+    "last_updated_by":  "engineer",
     "status":  "building",
     "current_task":  {
-                         "id":  "TASK-002",
-                         "title":  "Data layer + TypeScript types + E E-\u003eECE normalization",
+                         "id":  "TASK-003",
+                         "title":  "Prerequisite graph engine (DAG, toposort, validation)",
                          "assigned_to":  "engineer",
-                         "status":  "in_progress",
+                         "status":  "pending",
                          "priority":  "high"
                      },
     "handoff":  {
@@ -92,7 +92,7 @@
                   "TASK-002":  {
                                    "title":  "Data layer + TypeScript types + E E-\u003eECE normalization",
                                    "assigned_to":  "engineer",
-                                   "status":  "in_progress",
+                                   "status":  "done",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-001"
@@ -449,6 +449,7 @@
                       "2026-04-05: Parsed 5 grade distribution CSVs (249 courses), OCR\u0027d ECE upper-div (62 courses, 232 sections), built user-profile.json",
                       "2026-04-05: Completed init-project Phases 5-9 -- plan approved, 17 tasks scaffolded, all architecture decisions locked",
                       "2026-04-05: auto-run configured -- 17 handoff files generated in .agents/handoffs/, auto_run block added to state.json",
-                      "2026-04-06: TASK-001 complete -- monorepo scaffolded: Vite+React+TS+Tailwind+shadcn/ui (client), Express+TS (server), 9 JSON files copied to public/data/, tsc passes on both packages, both dev servers confirmed starting"
+                      "2026-04-06: TASK-001 complete -- monorepo scaffolded: Vite+React+TS+Tailwind+shadcn/ui (client), Express+TS (server), 9 JSON files copied to public/data/, tsc passes on both packages, both dev servers confirmed starting",
+                      "2026-04-06: TASK-002 complete -- TypeScript interfaces for all 9 JSON schemas, normalizeEEtoECE() with 19 passing unit tests, DataProvider with 11 typed hooks, DataProvider wraps React tree in main.tsx, tsc --noEmit: 0 errors"
                   ]
 }

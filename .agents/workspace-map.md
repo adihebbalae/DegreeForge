@@ -59,8 +59,15 @@ packages/                        # Monorepo (npm workspaces)
       App.tsx                    # Root component — shadcn Button + Badge placeholder
       main.tsx                   # React entry point
       index.css                  # Tailwind base + shadcn CSS variables (Slate theme)
+      types/
+        index.ts                 # TypeScript interfaces for all 9 JSON schemas (CatalogCourse, PrereqGraph, GradeDistribution, UserProfile, DegreeRequirements, TechCores, OfferingSchedule, MathRequirements, FallSections + all nested types)
+      context/
+        DataContext.tsx           # DataProvider (loads all 9 files on mount, applies E E→ECE normalization) + 11 typed hooks (useCourseCatalog, usePrereqGraph, useTechCores, useDegreeRequirements, useOfferingSchedule, useMathRequirements, useFallSections, useGradeDistributions, useUserProfile, useDataLoading, useDataError)
       lib/
         utils.ts                 # cn() helper (clsx + tailwind-merge)
+        normalize.ts             # normalizeEEtoECE(), normalizeDeptCode(), normalizeGradeDistributions() — single E E→ECE normalization boundary
+        normalize.test.ts        # 19 vitest unit tests for normalization functions
+        data-loaders.ts          # Typed fetch helpers for all 9 JSON endpoints (loadCourseCatalog, loadPrereqGraph, etc.)
       components/
         ui/
           button.tsx             # shadcn Button component
@@ -83,7 +90,7 @@ packages/                        # Monorepo (npm workspaces)
         grade-distributions.json
         user-profile.json
     index.html                   # Vite HTML entry
-    vite.config.ts               # Vite config (port 5173, /api proxy → 3001, @/ alias)
+    vite.config.ts               # Vite config (port 5173, /api proxy → 3001, @/ alias, vitest test block)
     tailwind.config.ts           # Tailwind v3 config (darkMode class, shadcn colors/radius)
     postcss.config.js            # PostCSS (tailwindcss + autoprefixer)
     components.json              # shadcn/ui config (style: default, baseColor: slate)
