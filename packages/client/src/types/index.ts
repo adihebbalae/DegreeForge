@@ -365,6 +365,18 @@ export interface FallSections {
   courses: Record<string, CourseSections>;
 }
 
+export interface PrereqViolation {
+  /** The course whose placement is invalid */
+  courseId: string;
+  /** The semester it was (mis)placed in */
+  semesterId: string;
+  /** Prerequisites that are not yet completed before this semester */
+  missingPrereqs: string[];
+  /** Corequisites not placed in same or earlier semester */
+  unsatisfiedCoreqs: string[];
+  violationType: 'prereq' | 'coreq' | 'both';
+}
+
 // ─── Plan State ──────────────────────────────────────────────────────────────
 export type SemesterId = string; // e.g. "Fall 2025", "Spring 2026"
 
@@ -383,6 +395,7 @@ export interface PlanState {
   semesters: Semester[];       // Ordered list of semester objects
   plan: Record<string, string[]>; // semesterId → courseId[]
   pinnedCourses: string[];     // Cannot be moved by solver
+  hoveredCourse: string | null; // For downstream highlighting
 }
 
 /** Display category for color-coding course cards */

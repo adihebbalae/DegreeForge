@@ -238,86 +238,38 @@ function Invoke-Claude {
 
     # ── Gemini CLI ─────────────────────────────────────────────────────────────
     if ($Gemini) {
-        # Gemini CLI has no --agent flag; explicitly prepend the agent's persona.
-        # We read the actual agent instruction file and prepend it as context.
-        $agentFile = Join-Path $ProjectRoot ".github\agents\$Agent.agent.md"
-        $rolePrefix = ""
-        if (Test-Path $agentFile) {
-            $rolePrefix = [System.IO.File]::ReadAllText($agentFile, [System.Text.Encoding]::UTF8) + "`n`n--- END OF AGENT ROLE CONTEXT ---`n`n"
-        }
-        else {
-            $rolePrefix = "You are an AI assistant performing the role of '$Agent'. `n`n"
-        }
+        # Gemini CLI has no --agent flag. Instead of injecting the 8KB persona string
+        # natively (which could break limits), we instruct it to read its persona file.
+        $rolePrefix = "You are acting as the '$Agent' agent. Your core instructions and strict guidelines are in '.github/agents/$Agent.agent.md'. You MUST read this file first and strictly adhere to it as your system prompt! "
         
         $fullPrompt = $rolePrefix + $Prompt
-
-        # Write prompt to a temp file inside the project dir to avoid shell
-        # escaping issues with long prompts containing special characters.
-        # Then pipe it via stdin to gemini (more reliable than -p for long prompts).
-        $promptFile = Join-Path $ProjectRoot ".agents\_auto-run-prompt.tmp"
-        $stdoutFile = Join-Path $ProjectRoot ".agents\_auto-run-stdout.tmp"
-        $stderrFile = Join-Path $ProjectRoot ".agents\_auto-run-stderr.tmp"
-
-        $noBomUtf8 = New-Object System.Text.UTF8Encoding $false
-        [System.IO.File]::WriteAllText($promptFile, $fullPrompt, $noBomUtf8)
 
         # Build argument list
         $geminiArgs = @("--yolo")
         if ($GeminiModel -ne "") {
             $geminiArgs = @("-m", $GeminiModel) + $geminiArgs
         }
+        $geminiArgs += @("-p", $fullPrompt)
 
-        $output   = $null
+        # We cannot redirect or stream capture stdout/stderr safely on Windows
+        # because the internal @lydell/node-pty throws "AttachConsole failed" 
+        # when a TTY console handle is detached during pseudo-shell creation.
+        # Natively running the process binds it directly to the host frame perfectly.
+        $output   = "[Output streamed natively to host console. Capture disabled to preserve PTY handles.]"
         $exitCode = 0
         try {
-            $argString = $geminiArgs -join " "
-            $cmdArgs = "/c gemini $argString < `"$promptFile`" > `"$stdoutFile`" 2>&1"
-
-            $pinfo = New-Object System.Diagnostics.ProcessStartInfo
-            $pinfo.FileName = "cmd.exe"
-            $pinfo.Arguments = $cmdArgs
-            $pinfo.UseShellExecute = $false
-            $pinfo.CreateNoWindow = $false
+            Write-Host ""
+            Write-Host "    [Running: Gemini CLI. Output streaming live below...] $(Get-Date -f 'HH:mm:ss')" -ForegroundColor Cyan
+            Write-Host "    =========================================================================" -ForegroundColor DarkGray
             
-            $proc = New-Object System.Diagnostics.Process
-            $proc.StartInfo = $pinfo
+            & gemini @geminiArgs
+            $exitCode = $LASTEXITCODE
             
-            $proc.Start() | Out-Null
-            $startTime = Get-Date
-
-            # Heartbeat loop
-            while (-not $proc.HasExited) {
-                $elapsed = (Get-Date) - $startTime
-                $mins = [math]::Floor($elapsed.TotalMinutes).ToString("00")
-                $secs = $elapsed.Seconds.ToString("00")
-                Write-Host -NoNewline "`r    [Running: $mins`:$secs]..."
-                Start-Sleep -Seconds 1
-            }
-
-            $elapsed = (Get-Date) - $startTime
-            $mins = [math]::Floor($elapsed.TotalMinutes).ToString("00")
-            $secs = $elapsed.Seconds.ToString("00")
-            Write-Host "`r    [Completed: $mins`:$secs]      " -ForegroundColor Green
-
-            $exitCode = $proc.ExitCode
-            if (Test-Path $stdoutFile) {
-                $output = [System.IO.File]::ReadAllText($stdoutFile, [System.Text.Encoding]::UTF8)
-            }
-
-            # Show a tail of the output for visibility
-            $trimmedOutput = $output.Trim()
-            $tail = if ($trimmedOutput.Length -gt 2000) { $trimmedOutput.Substring($trimmedOutput.Length - 2000) } else { $trimmedOutput }
-            Write-Host $tail -ForegroundColor DarkGray
+            Write-Host "    =========================================================================" -ForegroundColor DarkGray
         }
         catch {
             $output   = $_.Exception.Message
             $exitCode = -1
-        }
-        finally {
-            # Clean up temp files
-            foreach ($f in @($promptFile, $stdoutFile, $stderrFile)) {
-                if (Test-Path $f) { Remove-Item $f -Force -ErrorAction SilentlyContinue }
-            }
         }
 
         if ($null -eq $exitCode) { $exitCode = 0 }

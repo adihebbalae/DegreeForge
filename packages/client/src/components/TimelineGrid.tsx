@@ -1,14 +1,16 @@
 import { useMemo } from 'react';
-import { useSemesters, usePlan } from '@/context/PlanContext';
+import { useSemesters, usePlan, useHoveredCourse } from '@/context/PlanContext';
 import {
   useUserProfile,
   useCatalogRecord,
-  usePrereqGraph,
+  usePrereqGraph as useRawPrereqGraph,
   useGradeDistributions,
   useDataLoading,
 } from '@/context/DataContext';
 import SemesterColumn from './SemesterColumn';
 import type { PrereqNode } from '@/types';
+import { useValidation } from '@/hooks/useValidation';
+import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -17,9 +19,21 @@ export default function TimelineGrid() {
   const plan = usePlan();
   const userProfile = useUserProfile();
   const catalog = useCatalogRecord();
-  const prereqGraph = usePrereqGraph();
+  const rawPrereqGraph = useRawPrereqGraph();
   const gradeDistributions = useGradeDistributions();
   const loading = useDataLoading();
+
+  // TASK-010: Validation and highlighting
+  const { violationsByCourse } = useValidation();
+  const hoveredCourse = useHoveredCourse();
+  const prereqGraph = usePrereqGraph();
+
+  const downstreamCourses = useMemo(() => {
+    if (!hoveredCourse) return new Set<string>();
+    // include the hovered course itself in the set of "related" courses? 
+    // Handoff says "highlight all its downstream courses"
+    return new Set(prereqGraph.getDownstream(hoveredCourse));
+  }, [hoveredCourse, prereqGraph]);
 
   // Build a map: courseId → letter grade from the user profile
   const gradeMap = useMemo<Record<string, string>>(() => {
@@ -33,8 +47,8 @@ export default function TimelineGrid() {
 
   // Extract prereq nodes for category inference
   const prereqNodes: Record<string, PrereqNode> = useMemo(
-    () => prereqGraph?.nodes ?? {},
-    [prereqGraph]
+    () => rawPrereqGraph?.nodes ?? {},
+    [rawPrereqGraph]
   );
 
   if (loading) {
@@ -61,6 +75,8 @@ export default function TimelineGrid() {
               catalog={catalog}
               prereqNodes={prereqNodes}
               gradeDistributions={gradeDistributions}
+              violationsByCourse={violationsByCourse}
+              downstreamCourses={downstreamCourses}
             />
           );
         })}

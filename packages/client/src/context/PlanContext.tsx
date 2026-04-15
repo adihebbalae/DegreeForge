@@ -10,7 +10,8 @@ export type PlanAction =
   | { type: 'REORDER_SEMESTER'; semesterId: string; courseIds: string[] }
   | { type: 'SET_PLAN'; plan: Record<string, string[]> }
   | { type: 'PIN_COURSE'; courseId: string }
-  | { type: 'UNPIN_COURSE'; courseId: string };
+  | { type: 'UNPIN_COURSE'; courseId: string }
+  | { type: 'SET_HOVERED_COURSE'; courseId: string | null };
 
 // ─── Context Shape ────────────────────────────────────────────────────────────
 
@@ -50,6 +51,7 @@ const INITIAL_STATE: PlanState = {
   semesters: SEMESTERS,
   plan: INITIAL_PLAN,
   pinnedCourses: [],
+  hoveredCourse: null,
 };
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
@@ -125,6 +127,10 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
       };
     }
 
+    case 'SET_HOVERED_COURSE': {
+      return { ...state, hoveredCourse: action.courseId };
+    }
+
     default:
       return state;
   }
@@ -164,6 +170,10 @@ export function usePlan(): Record<string, string[]> {
 
 export function usePinnedCourses(): string[] {
   return usePlanContext().state.pinnedCourses;
+}
+
+export function useHoveredCourse(): string | null {
+  return usePlanContext().state.hoveredCourse;
 }
 
 export function usePlanDispatch(): React.Dispatch<PlanAction> {

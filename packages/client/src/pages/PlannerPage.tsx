@@ -16,6 +16,7 @@ import { ProgressBars } from '@/components/ProgressBars';
 import TimelineGrid from '@/components/TimelineGrid';
 import CoursePalette from '@/components/CoursePalette';
 import CourseCard from '@/components/CourseCard';
+import ValidationBanner from '@/components/ValidationBanner';
 import {
   useCatalogRecord,
   usePrereqGraph,
@@ -154,6 +155,8 @@ export default function PlannerPage() {
         {/* ── Progress bars strip ─────────────────────────────────────────── */}
         <ProgressBars />
 
+        {/* ── Validation banner (TASK-010) ────────────────────────────────── */}
+        <ValidationBanner />
 
         {/* ── Main content row ────────────────────────────────────────────── */}
         <div className="flex-1 flex overflow-hidden">
