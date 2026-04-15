@@ -28,14 +28,14 @@
                 },
     "phase":  "3 -- Planning Complete, Ready to Build",
     "mode":  "mvp",
-    "last_updated":  "2026-04-06T14:28:00.0000000-05:00",
-    "last_updated_by":  "engineer",
+    "last_updated":  "2026-04-15T00:24:53.9394783-05:00",
+    "last_updated_by":  "auto-run",
     "status":  "building",
     "current_task":  {
-                         "id":  "TASK-003",
-                         "title":  "Prerequisite graph engine (DAG, toposort, validation)",
+                         "id":  "TASK-005",
+                         "title":  "App shell + page layout + routing",
                          "assigned_to":  "engineer",
-                         "status":  "pending",
+                         "status":  "in_progress",
                          "priority":  "high"
                      },
     "handoff":  {
@@ -67,7 +67,7 @@
                 },
     "security_status":  {
                             "last_scan":  "",
-                            "open_findings":  0,
+                            "open_findings":  1,
                             "cleared_for_push":  false
                         },
     "tasks":  {
@@ -110,7 +110,7 @@
                   "TASK-003":  {
                                    "title":  "Prerequisite graph engine (DAG, toposort, validation)",
                                    "assigned_to":  "engineer",
-                                   "status":  "pending",
+                                   "status":  "done",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-002"
@@ -129,7 +129,7 @@
                   "TASK-004":  {
                                    "title":  "Constraint solver / recommendation engine",
                                    "assigned_to":  "engineer",
-                                   "status":  "pending",
+                                   "status":  "deferred",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-003"
@@ -149,7 +149,7 @@
                   "TASK-005":  {
                                    "title":  "App shell + page layout + routing",
                                    "assigned_to":  "engineer",
-                                   "status":  "pending",
+                                   "status":  "in_progress",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-001"
@@ -408,10 +408,6 @@
               },
     "auto_run":  {
                      "task_order":  [
-                                        "TASK-001",
-                                        "TASK-002",
-                                        "TASK-003",
-                                        "TASK-004",
                                         "TASK-005",
                                         "TASK-006",
                                         "TASK-007",
@@ -424,6 +420,7 @@
                                         "TASK-014",
                                         "TASK-015",
                                         "TASK-016",
+                                        "TASK-004",
                                         "TASK-017"
                                     ],
                      "checkpoint_seconds":  45,

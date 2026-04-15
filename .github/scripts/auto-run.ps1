@@ -44,7 +44,8 @@ param(
     [int]$MaxRetries = 3,
     [double]$RateLimitWaitHours = 5,
     [switch]$SkipSecurity,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$ManualMode
 )
 
 $ErrorActionPreference = "Stop"
@@ -171,7 +172,48 @@ function Invoke-Claude {
         return @{ ExitCode = 0; Output = "[dry run - no execution]"; RateLimited = $false }
     }
 
-    # Run Claude CLI and capture combined output
+    # ── Manual Mode (GitHub Copilot Chat) ──────────────────────────────────────
+    if ($ManualMode) {
+        $agentLabel = switch ($Agent) {
+            "engineer" { "Engineer  --  implement the task" }
+            "security" { "Security  --  audit for vulnerabilities" }
+            default    { $Agent }
+        }
+        $border = [string]::new([char]0x2500, 62)
+        Write-Host ""
+        Write-Host "  $([char]0x250C)$border$([char]0x2510)" -ForegroundColor Cyan
+        Write-Host "  $([char]0x2502)  COPILOT CHAT  --  $($agentLabel.PadRight(43))$([char]0x2502)" -ForegroundColor Cyan
+        Write-Host "  $([char]0x2514)$border$([char]0x2518)" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "  Open VS Code Copilot Chat  (Ctrl+Alt+I)" -ForegroundColor White
+        Write-Host "  Switch to Agent mode, then paste this prompt:" -ForegroundColor White
+        Write-Host ""
+        Write-Host "  $([char]0x250C)$border$([char]0x2510)" -ForegroundColor Yellow
+        # Word-wrap prompt at 60 chars per line
+        $words = $Prompt -split ' '
+        $line  = "  $([char]0x2502)  "
+        foreach ($word in $words) {
+            if (($line.Length + $word.Length) -gt 64) {
+                Write-Host $line -ForegroundColor Yellow
+                $line = "  $([char]0x2502)  $word "
+            } else {
+                $line += "$word "
+            }
+        }
+        if ($line.Trim() -ne "$([char]0x2502)") { Write-Host $line -ForegroundColor Yellow }
+        Write-Host "  $([char]0x2514)$border$([char]0x2518)" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "  Full task details: .agents/handoff.md" -ForegroundColor DarkGray
+        Write-Host ""
+
+        $confirm = Read-Host "  Done? Press Enter to validate, or type 'skip' to skip this task"
+        if ($confirm -eq 'skip') {
+            return @{ ExitCode = 1; Output = "skipped by user"; RateLimited = $false }
+        }
+        return @{ ExitCode = 0; Output = "[manual completion confirmed]"; RateLimited = $false }
+    }
+
+    # ── Claude Code CLI ────────────────────────────────────────────────────────
     $output = $null
     try {
         $output = & claude --agent $Agent -p --dangerously-skip-permissions $Prompt 2>&1 |
@@ -238,10 +280,10 @@ function Wait-ForRateLimit {
 
 # ─── Pre-flight Checks ───────────────────────────────────────────────────────
 
-# Verify claude CLI exists
+# Verify claude CLI exists (skip check in ManualMode)
 $claudeCmd = Get-Command claude -ErrorAction SilentlyContinue
-if (-not $claudeCmd -and -not $DryRun) {
-    Write-Error "Claude Code CLI not found. Install it: https://github.com/anthropic-ai/claude-code"
+if (-not $claudeCmd -and -not $DryRun -and -not $ManualMode) {
+    Write-Error "Claude Code CLI not found. Install: https://github.com/anthropic-ai/claude-code`nOr run with -ManualMode to use GitHub Copilot Chat instead."
     exit 1
 }
 
@@ -294,13 +336,20 @@ Write-Host "  Checkpoint:  ${CheckpointSeconds}s" -ForegroundColor White
 Write-Host "  Retries:     $MaxRetries per task" -ForegroundColor White
 Write-Host "  Security:    $(if ($SkipSecurity) { 'SKIPPED' } else { 'after each task' })" -ForegroundColor White
 Write-Host "  Rate limit:  wait ${RateLimitWaitHours}h on throttle" -ForegroundColor White
-if ($DryRun) { Write-Host "  Mode:        DRY RUN" -ForegroundColor Yellow }
+if ($DryRun)     { Write-Host "  Mode:        DRY RUN" -ForegroundColor Yellow }
+if ($ManualMode) { Write-Host "  Mode:        MANUAL (GitHub Copilot Chat)" -ForegroundColor Magenta }
 Write-Host ""
 Write-Host "  Task queue:" -ForegroundColor Gray
 foreach ($t in $pendingTasks) {
     Write-Host "    $($t.id): $($t.data.title)" -ForegroundColor Gray
 }
 Write-Host ""
+
+if ($ManualMode) {
+    Write-Host "  Copilot Chat will be used for each task." -ForegroundColor Magenta
+    Write-Host "  The script pauses and shows you what to paste." -ForegroundColor Magenta
+    Write-Host ""
+}
 
 if (-not $DryRun) {
     Write-Host "  Starting in 5 seconds... (Ctrl+C to abort)" -ForegroundColor Yellow
@@ -350,11 +399,15 @@ for ($i = 0; $i -lt $pendingTasks.Count; $i++) {
 
         Write-TaskLine -TaskId $taskId -Title $taskTitle -Status "running" -Current $taskNum -Total $totalTasks
 
-        $engineerPrompt = "Read .agents/handoff.md and implement the assigned task ($taskId`: $taskTitle). " +
-            "When complete: (1) commit changes with git add -A and git commit -m 'feat($taskId): [description]', " +
-            "(2) update .agents/state.json - set tasks.$taskId.status to 'done', " +
-            "(3) update .agents/state.md with a summary, " +
-            "(4) update .agents/workspace-map.md if you created or moved files."
+        $engineerPrompt = "Read .agents/handoff.md carefully. It contains all context, acceptance criteria, and a 'Files to Read First' list. " +
+            "IMPORTANT: Do NOT scan the full file tree or read entire directories to discover the project structure. " +
+            "Use CLAUDE.md for project architecture overview. Read ONLY the files listed in the handoff's 'Files to Read First' section, " +
+            "plus any files you need to write or modify. This keeps token usage low. " +
+            "Implement task $taskId`: $taskTitle. " +
+            "When complete: (1) commit with git add -A and git commit -m 'feat($taskId): [description]', " +
+            "(2) set .agents/state.json tasks.$taskId.status to 'done', " +
+            "(3) append a one-line summary to .agents/state.md, " +
+            "(4) update .agents/workspace-map.md only if you created or moved files."
 
         $result = Invoke-Claude -Agent "engineer" -Prompt $engineerPrompt
 
@@ -419,9 +472,10 @@ for ($i = 0; $i -lt $pendingTasks.Count; $i++) {
         Write-TaskLine -TaskId $taskId -Title $taskTitle -Status "security" -Current $taskNum -Total $totalTasks
 
         $changedFiles  = Get-ChangedFiles
-        $securityPrompt = "Audit the following files for security vulnerabilities: $changedFiles. " +
-            "Task context: $taskId ($taskTitle). " +
-            "Report findings in compact format. Any CRITICAL finding is a hard blocker."
+        $securityPrompt = "Audit these specific files for security vulnerabilities (OWASP Top 10): $changedFiles. " +
+            "Read ONLY these files -- do not scan the full project tree. " +
+            "Report findings grouped by severity (CRITICAL, HIGH, MEDIUM, LOW). " +
+            "Keep output compact. CRITICAL findings are hard blockers."
 
         $secResult = Invoke-Claude -Agent "security" -Prompt $securityPrompt
 
@@ -480,6 +534,52 @@ if ($remainingIds.Count -gt 0) {
 }
 
 Write-Host ""
+
+# ─── Final Full-Codebase Security Scan ───────────────────────────────────────
+
+if (-not $halted -and -not $SkipSecurity -and $completed.Count -gt 0) {
+    Write-Banner "FINAL SECURITY SCAN" Cyan
+    Write-Host "  Auditing entire codebase before marking build complete..." -ForegroundColor White
+    Write-Host ""
+
+    $finalSecPrompt = "Perform a full security audit of the newly built application. " +
+        "Audit all files in packages/client/src/, packages/server/src/, and any config files " +
+        "(vite.config.ts, tsconfig*.json, package.json files). " +
+        "Focus on: OWASP Top 10, API key exposure, XSS, injection risks, insecure dependencies, " +
+        "and any auth/input validation issues in the Express proxy. " +
+        "Report all findings grouped by severity (CRITICAL, HIGH, MEDIUM, LOW). " +
+        "CRITICAL findings are hard blockers -- list them first."
+
+    $finalSecResult = Invoke-Claude -Agent "security" -Prompt $finalSecPrompt
+
+    if ($finalSecResult.RateLimited) {
+        Write-Host "  Final security scan rate limited -- run a manual audit before pushing." -ForegroundColor Yellow
+    }
+    elseif ($finalSecResult.Output -match "CRITICAL") {
+        Write-Banner "CRITICAL SECURITY FINDING -- DO NOT PUSH" Red
+        Write-Host $finalSecResult.Output -ForegroundColor Red
+
+        $state = Read-StateFile
+        $state.security_status.open_findings   += 1
+        $state.security_status.cleared_for_push = $false
+        $state.context.blocked_on               = "CRITICAL security finding in final scan"
+        $state.last_updated                     = (Get-Date -Format "o")
+        $state.last_updated_by                  = "auto-run"
+        Save-StateFile -State $state
+    }
+    else {
+        Write-Host "  Final security scan: PASS" -ForegroundColor Green
+        Write-Host $finalSecResult.Output -ForegroundColor DarkGray
+
+        $state = Read-StateFile
+        $state.security_status.cleared_for_push = $true
+        $state.last_updated                     = (Get-Date -Format "o")
+        $state.last_updated_by                  = "auto-run"
+        Save-StateFile -State $state
+    }
+    Write-Host ""
+}
+
 if (-not $halted) {
     Write-Host "  All tasks complete. Return to Copilot Manager for final review and push." -ForegroundColor Cyan
 }
