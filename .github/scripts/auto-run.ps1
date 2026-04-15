@@ -267,19 +267,43 @@ function Invoke-Claude {
             $geminiArgs = @("-m", $GeminiModel) + $geminiArgs
         }
 
-        # Save current preference and set to Continue to prevent powershell
-        # from throwing a terminating error when Node writes to stderr 
-        # (e.g. YOLO mode confirmation message)
-        $originalEAP = $ErrorActionPreference
-        $ErrorActionPreference = "Continue"
-
         $output   = $null
         $exitCode = 0
         try {
-            # Pipe prompt directly via stdin to gemini
-            $output = Get-Content $promptFile -Raw | & gemini @geminiArgs 2>&1 | Out-String
-            $exitCode = $LASTEXITCODE
+            $argString = $geminiArgs -join " "
+            $cmdArgs = "/c gemini $argString < `"$promptFile`" > `"$stdoutFile`" 2>&1"
+
+            $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+            $pinfo.FileName = "cmd.exe"
+            $pinfo.Arguments = $cmdArgs
+            $pinfo.UseShellExecute = $false
+            $pinfo.CreateNoWindow = $false
             
+            $proc = New-Object System.Diagnostics.Process
+            $proc.StartInfo = $pinfo
+            
+            $proc.Start() | Out-Null
+            $startTime = Get-Date
+
+            # Heartbeat loop
+            while (-not $proc.HasExited) {
+                $elapsed = (Get-Date) - $startTime
+                $mins = [math]::Floor($elapsed.TotalMinutes).ToString("00")
+                $secs = $elapsed.Seconds.ToString("00")
+                Write-Host -NoNewline "`r    [Running: $mins`:$secs]..."
+                Start-Sleep -Seconds 1
+            }
+
+            $elapsed = (Get-Date) - $startTime
+            $mins = [math]::Floor($elapsed.TotalMinutes).ToString("00")
+            $secs = $elapsed.Seconds.ToString("00")
+            Write-Host "`r    [Completed: $mins`:$secs]      " -ForegroundColor Green
+
+            $exitCode = $proc.ExitCode
+            if (Test-Path $stdoutFile) {
+                $output = [System.IO.File]::ReadAllText($stdoutFile, [System.Text.Encoding]::UTF8)
+            }
+
             # Show a tail of the output for visibility
             $trimmedOutput = $output.Trim()
             $tail = if ($trimmedOutput.Length -gt 2000) { $trimmedOutput.Substring($trimmedOutput.Length - 2000) } else { $trimmedOutput }
@@ -290,9 +314,10 @@ function Invoke-Claude {
             $exitCode = -1
         }
         finally {
-            $ErrorActionPreference = $originalEAP
-            # Clean up temp file
-            if (Test-Path $promptFile) { Remove-Item $promptFile -Force -ErrorAction SilentlyContinue }
+            # Clean up temp files
+            foreach ($f in @($promptFile, $stdoutFile, $stderrFile)) {
+                if (Test-Path $f) { Remove-Item $f -Force -ErrorAction SilentlyContinue }
+            }
         }
 
         if ($null -eq $exitCode) { $exitCode = 0 }

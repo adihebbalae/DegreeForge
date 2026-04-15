@@ -38,7 +38,7 @@ describe('computeProgress', () => {
       courses: ['ECE 402', 'ECE 406', 'ECE 419K', 'ECE 411', 'ECE 412', 'ECE 313'],
       notes: '',
       honors_variants: {
-        'ECE 402': 'ECE 302',
+        'ECE 402': 'ECE 302H',
         'ECE 412': 'ECE 312H',
         'ECE 419K': 'ECE 319H'
       },
@@ -48,7 +48,8 @@ describe('computeProgress', () => {
       slots: [
         { id: 'ugs', label: 'UGS', hours: 3, core_code: '090', options: ['UGS 303'], ap_eligible: false },
         { id: 'rhe', label: 'RHE', hours: 3, core_code: '010', options: ['RHE 306'], ap_eligible: true },
-        { id: 'vapa', label: 'VAPA', hours: 3, core_code: '050', options: ['CTI 301G'], ap_eligible: true },
+        { id: 'vapa', label: 'VAPA', hours: 3, core_code: '050', options: ['list_of_approved'], ap_eligible: true },
+        { id: 'humanities', label: 'Humanities', hours: 3, core_code: '040', options: ['list_of_approved'], ap_eligible: true },
       ]
     },
     tech_core: {
@@ -143,6 +144,22 @@ describe('computeProgress', () => {
     const result = computeProgress(plan, mockProfile, mockCatalog, mockPrereqNodes, mockDegreeReqs, mockTechCore);
     
     expect(result.techCoreCompleted).toBe(2);
+  });
+
+  it('counts CTI courses toward Gen Ed', () => {
+    const profileWithCTI: UserProfile = {
+      ...mockProfile,
+      completed_courses: [
+        ...mockProfile.completed_courses,
+        { course: 'CTI 301G', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+        { course: 'CTI 302', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+      ]
+    };
+    const plan: Plan = {};
+    const result = computeProgress(plan, profileWithCTI, mockCatalog, mockPrereqNodes, mockDegreeReqs, mockTechCore);
+    
+    // RHE 306 (1) + CTI 301G (1) + CTI 302 (1) = 3
+    expect(result.genEdCompleted).toBe(3);
   });
 
   it('counts advanced ECE electives for free electives bar', () => {
