@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { MessageSquare, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import TimelineGrid from '@/components/TimelineGrid'
+import CoursePalette from '@/components/CoursePalette'
 
 export default function PlannerPage() {
   const [chatOpen, setChatOpen] = useState(false)
@@ -23,10 +24,8 @@ export default function PlannerPage() {
         </div>
 
         {/* Course palette — right ~35% */}
-        <div className="flex-[35] overflow-y-auto p-4">
-          <p className="text-sm text-muted-foreground">
-            Course Palette — TASK-007
-          </p>
+        <div className="flex-[35] overflow-hidden">
+          <CoursePalette />
         </div>
       </div>
 
