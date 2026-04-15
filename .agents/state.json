@@ -28,14 +28,14 @@
                 },
     "phase":  "3 -- Planning Complete, Ready to Build",
     "mode":  "mvp",
-    "last_updated":  "2026-04-15T14:35:09.7395550-05:00",
-    "last_updated_by":  "auto-run",
+    "last_updated":  "2026-04-15T15:55:00.0000000-05:00",
+    "last_updated_by":  "gemini-cli",
     "status":  "building",
     "current_task":  {
-                         "id":  "TASK-010",
-                         "title":  "Prerequisite validation UI (borders, tooltips, highlights)",
+                         "id":  "TASK-012",
+                         "title":  "Claude chat panel + Express proxy endpoint",
                          "assigned_to":  "engineer",
-                         "status":  "in_progress",
+                         "status":  "pending",
                          "priority":  "high"
                      },
     "handoff":  {
@@ -53,7 +53,7 @@
                                              "Express proxy for Claude API (not direct frontend calls)",
                                              "Monorepo with npm workspaces (packages/client + packages/server)",
                                              "shadcn/ui + Tailwind (professional components for progress bars, tooltips, dialogs)",
-                                             "dnd-kit for drag-and-drop",
+                                             "dnd-kit for drag-and-drop",       
                                              "localStorage + JSON export/import for persistence",
                                              "V1 + V2 ship together (schedule optimizer in scope)",
                                              "Normalize E E -\u003e ECE at data load time",
@@ -79,7 +79,7 @@
                                    "depends_on":  [
 
                                                   ],
-                                   "description":  "Scaffold monorepo with npm workspaces. packages/client/ = Vite + React + TS + Tailwind + shadcn/ui. packages/server/ = Express + TypeScript. Root package.json with workspace scripts. Copy data/ JSONs into client public folder. Confirm npm run dev starts both.",
+                                   "description":  "Scaffold monorepo with npm workspaces. packages/client/ = Vite + React + TS + Tailwind + shadcn/ui. packages/server/ = Express + TypeScript. Root package.json with workspace scripts. Copy data/ JSONs into client public folder. Confirm npm run dev starts both.",       
                                    "acceptance_criteria":  [
                                                                "npm install from root installs both workspaces",
                                                                "npm run dev starts Vite dev server + Express proxy concurrently",
@@ -173,7 +173,7 @@
                                                       "TASK-002",
                                                       "TASK-005"
                                                   ],
-                                   "description":  "Build the horizontal semester timeline grid. Columns = semesters (past, current, future). Course cards show course number, title, category color, avg GPA badge. Past semesters are muted/checkmarked. Current semester highlighted. Future semesters have empty slots.",
+                                   "description":  "Build the horizontal semester timeline grid. Columns = semesters (past, current, future). Course cards show course number, title, category color, avg GPA badge. Past semesters are muted/checkmarked. Current semester highlighted. Future semesters have empty slots.",   
                                    "acceptance_criteria":  [
                                                                "Semester columns render from user profile data",
                                                                "Course cards show number, title, category color, GPA",
@@ -245,7 +245,7 @@
                   "TASK-010":  {
                                    "title":  "Prerequisite validation UI (borders, tooltips, highlights)",
                                    "assigned_to":  "engineer",
-                                   "status":  "in_progress",
+                                   "status":  "done",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-003",
@@ -264,7 +264,7 @@
                   "TASK-011":  {
                                    "title":  "What-if simulator (tech core switch, Math BA toggle, diffs)",
                                    "assigned_to":  "engineer",
-                                   "status":  "pending",
+                                   "status":  "done",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-004",
@@ -328,7 +328,7 @@
                                    "depends_on":  [
                                                       "TASK-008"
                                                   ],
-                                   "description":  "Auto-save full plan state to localStorage on every change. Add Export Plan (downloads JSON) and Import Plan (file upload) buttons. On app load, restore from localStorage if available.",
+                                   "description":  "Auto-save full plan state to localStorage on every change. Add Export Plan (downloads JSON) and Import Plan (file upload) buttons. On app load, restore from localStorage if available.",   
                                    "acceptance_criteria":  [
                                                                "Plan state auto-saves to localStorage on every change",
                                                                "App restores plan state from localStorage on load",
@@ -340,7 +340,7 @@
                                    "why":  "Auto-save plan state, export/import buttons"
                                },
                   "TASK-015":  {
-                                   "title":  "V2: Schedule optimizer engine",
+                                   "title":  "V2: Schedule optimizer engine",   
                                    "assigned_to":  "engineer",
                                    "status":  "pending",
                                    "model":  "sonnet",
@@ -433,16 +433,16 @@
                       "Monorepo with npm workspaces: packages/client/ + packages/server/",
                       "Express proxy for Claude API -- single /api/chat endpoint",
                       "shadcn/ui + Tailwind for professional accessible components",
-                      "localStorage + JSON export/import for plan persistence",
+                      "localStorage + JSON export/import for plan persistence", 
                       "V1 + V2 ship together -- schedule optimizer is in scope",
                       "Normalize E E -\u003e ECE at data load time",
-                      "Constraint solver is deterministic code, not LLM",
-                      "Grade distributions as primary quality signal (not RMP)"
+                      "Constraint solver is deterministic code, not LLM",       
+                      "Grade distributions as primary quality signal (not RMP)" 
                   ],
     "changelog":  [
                       "2025-07-17: Built corpus agent with search, lookup, and 5 extractors",
                       "2025-07-17: Generated 5 core data files (course-catalog, prereq-graph, tech-cores, degree-reqs, offering-schedule)",
-                      "2025-07-18: OCR\u0027d 53 schedule page images, built math-requirements.json, fall-2026-sections.json, grade-distributions placeholder",
+                      "2025-07-18: OCR\u0027d 53 schedule page images, built math-requirements.json, fall-2026-sections.json, grade-distributions placeholder", 
                       "2026-04-05: Parsed 5 grade distribution CSVs (249 courses), OCR\u0027d ECE upper-div (62 courses, 232 sections), built user-profile.json",
                       "2026-04-05: Completed init-project Phases 5-9 -- plan approved, 17 tasks scaffolded, all architecture decisions locked",
                       "2026-04-05: auto-run configured -- 17 handoff files generated in .agents/handoffs/, auto_run block added to state.json",
@@ -452,6 +452,8 @@
                       "2026-04-15: TASK-006 complete -- PlanContext (useReducer, 6 actions), 8-semester sequence pre-loaded with Adi transcript, CourseCard (category color border + GPA badge + past-card grade/checkmark), SemesterColumn (season icon + credit counter + EmptySlot), TimelineGrid horizontal scroll, tsc --noEmit: 0 errors",
                       "2026-04-15: TASK-007 complete -- CoursePalette (5 collapsible sections: ECE Core/Tech Core CA\u0026ES/Gen Ed/Free Electives/Math, real-time search, prereq dimming with lock icon), CollapsibleSection reusable accordion, CourseCard extended with variant=palette + prereqsMet props, PlannerPage right sidebar wired up, tsc --noEmit: 0 errors",
                       "2026-04-15: TASK-008 complete -- DndContext + DragOverlay in PlannerPage, SortableCourseCard (useSortable) for timeline reorder, DraggablePaletteCard (useDraggable) for palette, useDroppable + useDndMonitor for blue semester hover highlight, palette useDroppable id=palette with red overlay + remove banner, REORDER_SEMESTER action, cross-semester duplicate prevention in ADD_COURSE, past semester cards static, tsc --noEmit: 0 errors",
-                      "2026-04-15: TASK-009 complete -- ProgressBars component with 5 bars (Credit Hours, ECE Core, Gen Ed, Tech Core, Electives), computeProgress() logic in lib/progress.ts, 5 unit tests for progress calculation, ProgressBars integrated into PlannerPage header strip, tsc --noEmit: 0 errors"
+                      "2026-04-15: TASK-009 complete -- ProgressBars component with 5 bars (Credit Hours, ECE Core, Gen Ed, Tech Core, Electives), computeProgress() logic in lib/progress.ts, 5 unit tests for progress calculation, ProgressBars integrated into PlannerPage header strip, tsc --noEmit: 0 errors",
+                      "2026-04-15: TASK-010 complete -- Prerequisite validation UI: red/orange card borders, shadcn tooltips listing missing prereqs/coreqs, downstream dependent highlighting on hover (timeline + palette), ValidationBanner summary at top, 6 new unit tests for graph engine validation logic, tsc --noEmit: 0 errors",
+                      "2026-04-15: TASK-011 complete -- What-if simulator: Tech Core dropdown (9 tracks), Math BA toggle, WhatIfDiff summary panel, reactive progress bars + palette updates, 3 new Radix UI components (Select, Switch, Label) added, tsc --noEmit: 0 errors"
                   ]
 }

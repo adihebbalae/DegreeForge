@@ -1,0 +1,173 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, User, Bot, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { usePlan, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
+import { useUserProfile } from '@/context/DataContext';
+import ReactMarkdown from 'react-markdown';
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export default function ChatPanel() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const plan = usePlan();
+  const profile = useUserProfile();
+  const techCoreId = useTechCoreId();
+  const mathBAToggle = useMathBAToggle();
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMsg: Message = { role: 'user', content: input };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [...messages, userMsg],
+          context: { plan, profile, techCoreId, mathBAToggle },
+        }),
+      });
+
+      if (!response.ok) throw new Error('Chat API failed');
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No reader available');
+
+      let assistantMsg: Message = { role: 'assistant', content: '' };
+      setMessages((prev) => [...prev, assistantMsg]);
+
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') break;
+            try {
+              const { text } = JSON.parse(data);
+              assistantMsg.content += text;
+              setMessages((prev) => {
+                const updated = [...prev];
+                updated[updated.length - 1] = { ...assistantMsg };
+                return updated;
+              });
+            } catch (e) {
+              // Ignore parse errors from partial chunks
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Chat Error:', error);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: 'Sorry, I encountered an error connecting to the advisor.' },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-full bg-background">
+      {/* Messages */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.length === 0 && (
+          <div className="text-center py-8">
+            <Bot className="w-12 h-12 text-muted-foreground mx-auto mb-2 opacity-20" />
+            <p className="text-sm text-muted-foreground">
+              Ask me about your degree requirements, prerequisites, or course difficulty.
+            </p>
+          </div>
+        )}
+        {messages.map((m, i) => (
+          <div
+            key={i}
+            className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}
+          >
+            <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+              m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+            }`}>
+              {m.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+            </div>
+            <div className={`max-w-[85%] px-3 py-2 rounded-lg text-sm ${
+              m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+            }`}>
+              <div className="prose prose-sm dark:prose-invert max-w-none">
+                <ReactMarkdown>
+                  {m.content}
+                </ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        ))}
+        {isLoading && messages[messages.length - 1]?.role === 'user' && (
+          <div className="flex gap-3">
+            <div className="shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            </div>
+            <div className="max-w-[85%] px-3 py-2 rounded-lg bg-muted text-sm italic text-muted-foreground">
+              Thinking...
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Input */}
+      <div className="p-4 border-t border-border bg-background">
+        <form
+          className="relative"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSend();
+          }}
+        >
+          <input
+            autoFocus
+            type="text"
+            placeholder="Ask DegreeForge AI..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={isLoading}
+            className={[
+              'w-full pl-3 pr-10 py-2 text-sm',
+              'bg-muted border border-input rounded-md',
+              'placeholder:text-muted-foreground',
+              'focus:outline-none focus:ring-1 focus:ring-ring',
+              'disabled:opacity-50',
+            ].join(' ')}
+          />
+          <button
+            type="submit"
+            disabled={!input.trim() || isLoading}
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-primary disabled:opacity-50"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}

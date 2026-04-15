@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer } from 'react';
-import type { PlanState, Semester } from '../types';
+import type { PlanState, Semester, WhatIfState } from '../types';
 
 // ─── Action Types ─────────────────────────────────────────────────────────────
 
@@ -11,7 +11,11 @@ export type PlanAction =
   | { type: 'SET_PLAN'; plan: Record<string, string[]> }
   | { type: 'PIN_COURSE'; courseId: string }
   | { type: 'UNPIN_COURSE'; courseId: string }
-  | { type: 'SET_HOVERED_COURSE'; courseId: string | null };
+  | { type: 'SET_HOVERED_COURSE'; courseId: string | null }
+  | { type: 'SET_TECH_CORE'; techCoreId: string }
+  | { type: 'TOGGLE_MATH_BA'; enabled: boolean }
+  | { type: 'APPLY_WHAT_IF'; newPlan: Record<string, string[]> }
+  | { type: 'RESET_WHAT_IF' };
 
 // ─── Context Shape ────────────────────────────────────────────────────────────
 
@@ -52,6 +56,11 @@ const INITIAL_STATE: PlanState = {
   plan: INITIAL_PLAN,
   pinnedCourses: [],
   hoveredCourse: null,
+  whatIf: {
+    techCoreId: 'computer_architecture', // Default from Adi's profile
+    mathBAToggle: false,
+    isActive: false,
+  },
 };
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
@@ -131,6 +140,46 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
       return { ...state, hoveredCourse: action.courseId };
     }
 
+    case 'SET_TECH_CORE': {
+      return {
+        ...state,
+        whatIf: {
+          ...state.whatIf,
+          techCoreId: action.techCoreId,
+          isActive: true,
+        },
+      };
+    }
+
+    case 'TOGGLE_MATH_BA': {
+      return {
+        ...state,
+        whatIf: {
+          ...state.whatIf,
+          mathBAToggle: action.enabled,
+          isActive: true,
+        },
+      };
+    }
+
+    case 'APPLY_WHAT_IF': {
+      return {
+        ...state,
+        plan: action.newPlan,
+        whatIf: {
+          ...state.whatIf,
+          isActive: false,
+        },
+      };
+    }
+
+    case 'RESET_WHAT_IF': {
+      return {
+        ...state,
+        whatIf: INITIAL_STATE.whatIf,
+      };
+    }
+
     default:
       return state;
   }
@@ -174,6 +223,18 @@ export function usePinnedCourses(): string[] {
 
 export function useHoveredCourse(): string | null {
   return usePlanContext().state.hoveredCourse;
+}
+
+export function useWhatIf(): WhatIfState {
+  return usePlanContext().state.whatIf;
+}
+
+export function useTechCoreId(): string {
+  return usePlanContext().state.whatIf.techCoreId;
+}
+
+export function useMathBAToggle(): boolean {
+  return usePlanContext().state.whatIf.mathBAToggle;
 }
 
 export function usePlanDispatch(): React.Dispatch<PlanAction> {

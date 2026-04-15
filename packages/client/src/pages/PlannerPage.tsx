@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MessageSquare, X } from 'lucide-react';
+import { MessageSquare, X, Zap } from 'lucide-react';
 import {
   DndContext,
   DragOverlay,
@@ -17,6 +17,8 @@ import TimelineGrid from '@/components/TimelineGrid';
 import CoursePalette from '@/components/CoursePalette';
 import CourseCard from '@/components/CourseCard';
 import ValidationBanner from '@/components/ValidationBanner';
+import ChatPanel from '@/components/ChatPanel';
+import WhatIfPanel from '@/components/WhatIfPanel';
 import {
   useCatalogRecord,
   usePrereqGraph,
@@ -38,6 +40,7 @@ interface ActiveCardInfo {
 
 export default function PlannerPage() {
   const [chatOpen, setChatOpen] = useState(false);
+  const [whatIfOpen, setWhatIfOpen] = useState(false);
   const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
 
   // ── Dispatch + plan state (for duplicate detection + reorder) ─────────────
@@ -176,7 +179,7 @@ export default function PlannerPage() {
           className={[
             'absolute inset-y-0 right-0 w-80',
             'bg-background border-l border-border shadow-lg',
-            'flex flex-col transition-transform duration-300 ease-in-out',
+            'flex flex-col transition-transform duration-300 ease-in-out z-20',
             chatOpen ? 'translate-x-0' : 'translate-x-full',
           ].join(' ')}
           aria-label="AI chat panel"
@@ -192,22 +195,47 @@ export default function PlannerPage() {
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <div className="flex-1 overflow-y-auto p-4">
-            <p className="text-sm text-muted-foreground">Chat panel — TASK-013</p>
+          <div className="flex-1 overflow-y-auto">
+            <ChatPanel />
           </div>
         </aside>
 
-        {/* ── Chat floating toggle button ──────────────────────────────────── */}
-        {!chatOpen && (
-          <Button
-            className="absolute bottom-4 right-4 shadow-lg"
-            size="icon"
-            onClick={() => setChatOpen(true)}
-            aria-label="Open AI chat"
-          >
-            <MessageSquare className="h-4 w-4" />
-          </Button>
-        )}
+        {/* ── What-If slide-in panel ────────────────────────────────────────── */}
+        <aside
+          className={[
+            'absolute inset-y-0 right-0 w-80',
+            'bg-background border-l border-border shadow-lg',
+            'flex flex-col transition-transform duration-300 ease-in-out z-30',
+            whatIfOpen ? 'translate-x-0' : 'translate-x-full',
+          ].join(' ')}
+          aria-label="What-If simulator panel"
+        >
+          <WhatIfPanel onClose={() => setWhatIfOpen(false)} />
+        </aside>
+
+        {/* ── Floating toggle buttons ──────────────────────────────────────── */}
+        <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+          {!whatIfOpen && (
+            <Button
+              className="shadow-lg bg-yellow-500 hover:bg-yellow-600 text-white"
+              size="icon"
+              onClick={() => setWhatIfOpen(true)}
+              aria-label="Open What-If Simulator"
+            >
+              <Zap className="h-4 w-4 fill-current" />
+            </Button>
+          )}
+          {!chatOpen && (
+            <Button
+              className="shadow-lg"
+              size="icon"
+              onClick={() => setChatOpen(true)}
+              aria-label="Open AI chat"
+            >
+              <MessageSquare className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* ── Drag overlay — floats under cursor while dragging ──────────────── */}

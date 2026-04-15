@@ -20,7 +20,22 @@ export interface ProgressSummary {
   techCoreTotal: number;
   electiveHours: number;
   electiveTotalHours: number;
+  mathBACompleted?: number;
+  mathBATotal?: number;
 }
+
+/**
+ * Math courses relevant for the Math BA double-major,
+ * beyond what the BSECE already requires.
+ */
+const MATH_BA_ADDITIONAL = [
+  'M 361K', // Real Analysis I (Math BA: real_analysis option)
+  'M 365C', // Real Analysis I alternate
+  'M 362K', // Probability I (Math BA: probability)
+  'M 374M', // Numerical Analysis: Linear Algebra (Math BA: broadening)
+  'M 378K', // Introduction to Mathematical Statistics (Math BA: broadening)
+  'M 368K', // Numerical Methods for Applications (Math BA: broadening)
+];
 
 /**
  * Computes progress summary based on plan state, user profile, and requirements.
@@ -31,7 +46,8 @@ export function computeProgress(
   catalog: CourseCatalog,
   prereqNodes: Record<string, PrereqNode>,
   degreeReqs: DegreeRequirements,
-  techCore: TechCoreTrack
+  techCore: TechCoreTrack,
+  mathBAToggle: boolean = false
 ): ProgressSummary {
   // 1. Collect all unique courses from plan, profile (completed + in progress)
   const allPlacedOrCompleted = [
@@ -156,7 +172,15 @@ export function computeProgress(
 
   const techCoreTotal = 8;
 
-  // 6. Free Electives
+  // 6. Math BA (What-If)
+  let mathBACompleted = 0;
+  let mathBATotal = 0;
+  if (mathBAToggle) {
+    mathBACompleted = MATH_BA_ADDITIONAL.filter(id => unique.includes(id)).length;
+    mathBATotal = MATH_BA_ADDITIONAL.length;
+  }
+
+  // 7. Free Electives
   // Handoff: "Advanced ECE electives in plan"
   // Target: 11 hrs
   const eceCoreAllIds = new Set([
@@ -192,5 +216,7 @@ export function computeProgress(
     techCoreTotal,
     electiveHours,
     electiveTotalHours: 11,
+    mathBACompleted,
+    mathBATotal,
   };
 }

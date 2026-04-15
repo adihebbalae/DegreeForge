@@ -391,11 +391,18 @@ export interface Semester {
   season: 'Fall' | 'Spring' | 'Summer';
 }
 
+export interface WhatIfState {
+  techCoreId: string;
+  mathBAToggle: boolean;
+  isActive: boolean;
+}
+
 export interface PlanState {
   semesters: Semester[];       // Ordered list of semester objects
   plan: Record<string, string[]>; // semesterId → courseId[]
   pinnedCourses: string[];     // Cannot be moved by solver
   hoveredCourse: string | null; // For downstream highlighting
+  whatIf: WhatIfState;         // What-if simulation state (TASK-011)
 }
 
 /** Display category for color-coding course cards */
