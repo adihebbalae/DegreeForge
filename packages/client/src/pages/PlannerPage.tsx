@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { MessageSquare, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import TimelineGrid from '@/components/TimelineGrid'
 
 export default function PlannerPage() {
   const [chatOpen, setChatOpen] = useState(false)
@@ -10,23 +11,21 @@ export default function PlannerPage() {
       {/* ── Progress bars strip ─────────────────────────────────────────── */}
       <div className="h-12 shrink-0 border-b border-border flex items-center px-4 bg-muted/30">
         <span className="text-sm text-muted-foreground">
-          Progress bars — TASK-006
+          Progress bars — TASK-009
         </span>
       </div>
 
       {/* ── Main content row ────────────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden">
         {/* Semester timeline grid — left ~65% */}
-        <div className="flex-[65] overflow-x-auto border-r border-border p-4">
-          <p className="text-sm text-muted-foreground">
-            Semester Timeline Grid — TASK-007
-          </p>
+        <div className="flex-[65] overflow-hidden border-r border-border">
+          <TimelineGrid />
         </div>
 
         {/* Course palette — right ~35% */}
         <div className="flex-[35] overflow-y-auto p-4">
           <p className="text-sm text-muted-foreground">
-            Course Palette — TASK-008
+            Course Palette — TASK-007
           </p>
         </div>
       </div>
