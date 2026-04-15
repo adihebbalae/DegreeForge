@@ -1,0 +1,15 @@
+{
+  "useMarkdownLinks": false,
+  "newLinkFormat": "shortest",
+  "attachmentFolderPath": "wiki/assets",
+  "trashOption": "system",
+  "spellcheck": false,
+  "defaultViewMode": "preview",
+  "foldHeading": false,
+  "foldIndent": true,
+  "showLineNumber": false,
+  "readableLineLength": true,
+  "strictLineBreaks": false,
+  "showFrontmatter": false,
+  "livePreview": true
+}

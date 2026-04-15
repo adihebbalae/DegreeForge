@@ -7,6 +7,7 @@ export type PlanAction =
   | { type: 'ADD_COURSE'; semesterId: string; courseId: string }
   | { type: 'REMOVE_COURSE'; semesterId: string; courseId: string }
   | { type: 'MOVE_COURSE'; fromSemesterId: string; toSemesterId: string; courseId: string }
+  | { type: 'REORDER_SEMESTER'; semesterId: string; courseIds: string[] }
   | { type: 'SET_PLAN'; plan: Record<string, string[]> }
   | { type: 'PIN_COURSE'; courseId: string }
   | { type: 'UNPIN_COURSE'; courseId: string };
@@ -56,8 +57,12 @@ const INITIAL_STATE: PlanState = {
 function planReducer(state: PlanState, action: PlanAction): PlanState {
   switch (action.type) {
     case 'ADD_COURSE': {
+      // Prevent cross-semester duplicates — a course may only appear once in the entire plan
+      const alreadyPlaced = Object.values(state.plan).some((courses) =>
+        courses.includes(action.courseId)
+      );
+      if (alreadyPlaced) return state;
       const existing = state.plan[action.semesterId] ?? [];
-      if (existing.includes(action.courseId)) return state;
       return {
         ...state,
         plan: {
@@ -90,6 +95,16 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
           ...state.plan,
           [action.fromSemesterId]: fromCourses,
           [action.toSemesterId]: [...toCourses, action.courseId],
+        },
+      };
+    }
+
+    case 'REORDER_SEMESTER': {
+      return {
+        ...state,
+        plan: {
+          ...state.plan,
+          [action.semesterId]: action.courseIds,
         },
       };
     }

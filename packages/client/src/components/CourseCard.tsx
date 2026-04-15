@@ -18,6 +18,10 @@ interface CourseCardProps {
   variant?: 'palette';
   /** Whether all direct prereqs are met — palette only (default true) */
   prereqsMet?: boolean;
+  /** True while this card is being actively dragged — renders ghost at 0.5 opacity */
+  isDragging?: boolean;
+  /** True when rendered inside a DragOverlay — adds floating shadow + slight rotation */
+  isDragOverlay?: boolean;
 }
 
 export default function CourseCard({
@@ -30,6 +34,8 @@ export default function CourseCard({
   categoryOverride,
   variant,
   prereqsMet = true,
+  isDragging = false,
+  isDragOverlay = false,
 }: CourseCardProps) {
   const category = categoryOverride ?? inferCategory(courseId, prereqNodes);
   const borderClass = CATEGORY_BORDER[category];
@@ -56,7 +62,12 @@ export default function CourseCard({
         prereqDimmed && 'opacity-50',
         // Subtle hover unless past
         !isPast && 'hover:shadow-md hover:bg-accent/30 transition-shadow',
-        'cursor-default select-none'
+        // Drag states
+        isDragging && 'opacity-50',
+        isDragOverlay && 'shadow-xl rotate-1 scale-105 cursor-grabbing',
+        !isDragOverlay && !isPast && 'cursor-grab',
+        isPast && 'cursor-default',
+        'select-none'
       )}
       title={`${courseId} — ${title} (${credits} cr)`}
     >

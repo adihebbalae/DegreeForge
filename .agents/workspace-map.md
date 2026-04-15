@@ -76,7 +76,9 @@ packages/                        # Monorepo (npm workspaces)
       components/
         Header.tsx               # Wordmark + nav links (Planner/Schedule) + dark mode toggle (persisted to localStorage)
         Layout.tsx               # Shell: Header + Routes (/ → PlannerPage, /schedule → SchedulerPage)
-        CourseCard.tsx           # Course card: category left-border, GPA badge (color-coded), past-card muting + letter grade + checkmark overlay
+        CourseCard.tsx           # Course card: category left-border, GPA badge (color-coded), past-card muting + letter grade + checkmark overlay; variant="palette" + prereqsMet for palette mode
+        CollapsibleSection.tsx   # Reusable accordion: title + count badge + chevron toggle + children; used by CoursePalette
+        CoursePalette.tsx        # Right-sidebar palette: 5 collapsible sections (ECE Core, Tech Core CA&ES, Gen Ed, Free Electives, Math), real-time search, prereq dimming, equivalency map for old/honors course numbers
         SemesterColumn.tsx       # Semester column: header (season icon + label + credit counter + status badge), course cards list, EmptySlot drop-zone placeholders (future only)
         TimelineGrid.tsx         # Horizontal-scroll timeline: renders all 8 SemesterColumns, wires PlanContext + DataContext
         ui/
