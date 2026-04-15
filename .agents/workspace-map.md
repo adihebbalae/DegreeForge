@@ -56,19 +56,29 @@ package.json                     # Root — npm workspaces (packages/*)
 packages/                        # Monorepo (npm workspaces)
   client/                        # Vite + React + TypeScript + Tailwind + shadcn/ui
     src/
-      App.tsx                    # Root component — shadcn Button + Badge placeholder
-      main.tsx                   # React entry point
+      App.tsx                    # Root component — renders <Layout />
+      main.tsx                   # React entry point — BrowserRouter > DataProvider > App
       index.css                  # Tailwind base + shadcn CSS variables (Slate theme)
       types/
         index.ts                 # TypeScript interfaces for all 9 JSON schemas (CatalogCourse, PrereqGraph, GradeDistribution, UserProfile, DegreeRequirements, TechCores, OfferingSchedule, MathRequirements, FallSections + all nested types)
       context/
         DataContext.tsx           # DataProvider (loads all 9 files on mount, applies E E→ECE normalization) + 11 typed hooks (useCourseCatalog, usePrereqGraph, useTechCores, useDegreeRequirements, useOfferingSchedule, useMathRequirements, useFallSections, useGradeDistributions, useUserProfile, useDataLoading, useDataError)
+        PlanContext.tsx           # PlanProvider (useReducer: ADD/REMOVE/MOVE/SET_PLAN/PIN/UNPIN) + hooks (useSemesters, usePlan, usePinnedCourses, usePlanDispatch, useSemesterCourses). Pre-loaded with Adi's transcript. 8-semester sequence Fall 2025→Spring 2029.
       lib/
         utils.ts                 # cn() helper (clsx + tailwind-merge)
         normalize.ts             # normalizeEEtoECE(), normalizeDeptCode(), normalizeGradeDistributions() — single E E→ECE normalization boundary
         normalize.test.ts        # 19 vitest unit tests for normalization functions
         data-loaders.ts          # Typed fetch helpers for all 9 JSON endpoints (loadCourseCatalog, loadPrereqGraph, etc.)
+        course-utils.ts          # inferCategory(), getCourseCredits(), gpaColorClass(), getCourseTitle(), CATEGORY_BORDER, CATEGORY_LABEL
+      pages/
+        PlannerPage.tsx          # V1: progress strip + TimelineGrid + course palette + chat slide-in overlay
+        SchedulerPage.tsx        # V2: 2-col layout (course selector left ~40% / weekly calendar right ~60%)
       components/
+        Header.tsx               # Wordmark + nav links (Planner/Schedule) + dark mode toggle (persisted to localStorage)
+        Layout.tsx               # Shell: Header + Routes (/ → PlannerPage, /schedule → SchedulerPage)
+        CourseCard.tsx           # Course card: category left-border, GPA badge (color-coded), past-card muting + letter grade + checkmark overlay
+        SemesterColumn.tsx       # Semester column: header (season icon + label + credit counter + status badge), course cards list, EmptySlot drop-zone placeholders (future only)
+        TimelineGrid.tsx         # Horizontal-scroll timeline: renders all 8 SemesterColumns, wires PlanContext + DataContext
         ui/
           button.tsx             # shadcn Button component
           badge.tsx              # shadcn Badge component
@@ -133,6 +143,31 @@ scraped_data_corpus/             # Raw source data (PDFs, Excel, web text)
 
 convert_corpus.py               # PDF → text conversion script (PyMuPDF for text PDFs)
 render_image_pdfs.py            # PDF → PNG rendering for image-based PDFs
+
+wiki/                            # LLM-compiled knowledge base (Karpathy LLM-Wiki pattern)
+  SCHEMA.md                      # Wiki conventions, workflows, context budget guidelines
+  index.md                       # Master index — read this first every session
+  log.md                         # Append-only session log (grep-friendly format)
+  gaps.md                        # Known knowledge gaps — auto-updated by wiki-lint skill
+  degree-reqs/
+    overview.md                  # Full BSE ECE requirement map
+    ece-core.md                  # 10 required ECE core courses
+    tech-cores.md                # All 10 tech core tracks summary
+    math-sequence.md             # Math prereq chain + Math BA option
+    free-electives.md            # 14-hour free elective constraints
+  user/
+    adithya-profile.md           # Student profile (completed, in-progress, goals, GPA)
+  tech-cores/
+    computer-arch-embedded.md    # Declared track deep dive (CE, M 325K, ECE 316/460N)
+  scheduling/
+    offering-guide.md            # Course offering patterns (F/S/both/rare)
+
+.github/skills/wiki-lint/SKILL.md  # Weekly wiki health check — gaps, orphans, contradictions, learning resources
+
+.obsidian/                       # Obsidian vault config — open the repo root as an Obsidian vault
+  app.json                       # General app settings (wikilinks, attachments)
+  graph.json                     # Graph view settings (node size, link force)
+  workspace.json                 # Vault workspace config
 ocr_schedules.py                # Tesseract OCR: schedule page images → text files
 parse_sections.py               # Parse OCR'd schedule text → fall-2026-sections.json
 grade_distributions.py          # UT grade distribution pipeline (--parse for CSVs, --placeholder)
