@@ -1,123 +1,136 @@
-# Handoff: TASK-005 — App Shell + Page Layout + Routing
-**Task ID**: TASK-005
+# Handoff: TASK-008 — Drag-Drop System (dnd-kit)
+**Task ID**: TASK-008
 **Mode**: autonomous (no user interaction available)
 **Agent**: engineer | **Model**: sonnet
 
 ## Context
 
-DegreeForge is a single-user degree planner for UT Austin ECE. TASK-001 scaffolded the monorepo. TASK-002 built the data layer (DataContext, all hooks). The app currently shows a placeholder page.
+DegreeForge is a single-user degree planner for UT Austin ECE student Adi. Previous tasks complete:
+- TASK-006: Semester timeline grid with `PlanContext` (useReducer) + `CourseCard` components + empty `DroppableSlot` placeholder components
+- TASK-007: Course palette panel with palette `CourseCard` variants
 
-There are **two main views**:
-1. **V1 Planner** (`/`) — 4-year degree plan with timeline grid, course palette, progress bars, chat
-2. **V2 Scheduler** (`/schedule`) — next-semester schedule optimizer with weekly calendar view
+The app now shows a static layout: timeline on the left with Adi's placed courses, palette on the right with remaining courses. Drag-drop is not yet connected — cards and drop zones are visual-only.
 
-**Why this task matters**: This establishes the page structure, layout containers, and routing that every other UI task (TASK-006 through TASK-016) builds into. Component placement areas must be sized correctly now.
+**dnd-kit** is already installed in `packages/client/package.json` (from TASK-001): `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`.
+
+**Why this task matters**: This connects the palette and timeline. Without drag-drop, the user can't build their plan.
 
 ## Task
 
-### 1. Install React Router
+Implement the full drag-drop system using dnd-kit.
 
-```bash
-cd packages/client && npm install react-router-dom
-```
-
-### 2. App layout structure
+### Interaction model
 
 ```
-App.tsx
-  └── BrowserRouter
-        └── Layout (header + main area)
-              ├── Header (title, nav links V1/V2, dark mode toggle)
-              └── Routes
-                    ├── / → PlannerPage
-                    └── /schedule → SchedulerPage
+Palette card ──drag──→ Semester slot     (ADD_COURSE action)
+Semester card ──drag──→ Different slot   (MOVE_COURSE action)
+Semester card ──drag──→ Palette area     (REMOVE_COURSE action)
 ```
 
-### 3. `src/pages/PlannerPage.tsx`
+### Architecture
 
-Three-panel layout:
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Header: DegreeForge | [Planner] [Schedule]        [🌙]     │
-├────────────────────────────────────────┬────────────────────┤
-│  Progress bars (full width top strip)  │                    │
-├──────────────────────────┬─────────────┤  Course Palette    │
-│                          │             │  (right sidebar)   │
-│   Semester Timeline Grid │  Chat Panel │                    │
-│   (main area, scrollable)│  (slide-in) │                    │
-│                          │             │                    │
-└──────────────────────────┴─────────────┴────────────────────┘
-```
+`DndContext` from dnd-kit wraps the entire `PlannerPage`. Inside it:
+- **Draggable items**: Course cards in both palette and timeline — `useDraggable` or use `@dnd-kit/sortable`
+- **Droppable containers**: Each semester's course list area + the palette area — `useDroppable`
+- **Drag overlay**: Shows a floating copy of the card being dragged
 
-- **Left main area** (~65% width): Semester timeline — scrollable horizontally, contains semester columns
-- **Right sidebar** (~35% width): Course palette panel
-- **Top strip** (above timeline): Progress bars
-- **Chat panel**: Slide-in overlay from the right (not always visible) — floating button to open
+### Droppable areas
 
-### 4. `src/pages/SchedulerPage.tsx`
+Each semester column's course list zone is a `Droppable` with ID = `semesterId` (e.g., `"Fall 2026"`).
+The palette drop zone has ID = `"palette"`.
 
-Simple two-column layout:
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Header                                                      │
-├──────────────────────────────────┬──────────────────────────┤
-│  Course selector + ranked        │  Weekly calendar view    │
-│  schedule cards (left ~40%)      │  (right ~60%)            │
-└──────────────────────────────────┴──────────────────────────┘
+### Draggable course cards
+
+Each draggable `CourseCard` has:
+```typescript
+const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  id: `${source}-${courseId}`,  // e.g. "timeline-Fall 2026-ECE 460N" or "palette-ECE 460N"
+  data: { courseId, source, semesterId? }
+});
 ```
 
-Use placeholder `<div>` areas for now — TASK-015/016 will fill them.
+`isDragging` → reduce card opacity to 0.5 (ghost effect, original stays in place).
 
-### 5. Header component (`src/components/Header.tsx`)
+### `DragOverlay`
 
+Show a clean copy of the `CourseCard` while dragging (not the ghost):
 ```tsx
-- Left: "DegreeForge" logo/wordmark (text)
-- Center: Nav links — "Planner" (active when /) and "Schedule" (active when /schedule)
-- Right: Dark mode toggle button (sun/moon icon using lucide-react)
+<DragOverlay>
+  {activeCard && <CourseCard courseId={activeCard.courseId} isDragOverlay />}
+</DragOverlay>
 ```
 
-Use shadcn `Button` with `variant="ghost"` for nav links. Active link gets underline or different variant.
+### `onDragEnd` handler
 
-### 6. Dark mode
+```typescript
+function handleDragEnd(event: DragEndEvent) {
+  const { active, over } = event;
+  if (!over) return; // dropped outside any droppable
 
-Use Tailwind's `dark:` variant with class-based dark mode (`darkMode: 'class'` in tailwind.config). Toggle adds/removes `dark` class on `<html>`. Persist preference to `localStorage`.
+  const { courseId, source, semesterId: fromSemester } = active.data.current;
+  const targetId = over.id as string;
 
-### 7. Wrap in DataContext
+  if (targetId === 'palette') {
+    // Dropped back on palette → remove from plan
+    if (source === 'timeline') {
+      dispatch({ type: 'REMOVE_COURSE', semesterId: fromSemester, courseId });
+    }
+    return;
+  }
 
-`src/main.tsx` should look like:
-```tsx
-<BrowserRouter>
-  <DataProvider>
-    <App />
-  </DataProvider>
-</BrowserRouter>
+  // Dropped on a semester
+  const toSemester = targetId;
+  if (source === 'palette') {
+    dispatch({ type: 'ADD_COURSE', semesterId: toSemester, courseId });
+  } else if (source === 'timeline' && fromSemester !== toSemester) {
+    dispatch({ type: 'MOVE_COURSE', fromSemesterId: fromSemester, toSemesterId: toSemester, courseId });
+  }
+}
 ```
 
-`App.tsx` renders `<Layout>` which renders the routes.
+### Sortable within semesters (using @dnd-kit/sortable)
+
+Within a single semester, courses should be reorderable using `SortableContext` with `verticalListSortingStrategy`:
+1. Wrap each semester's course list in `<SortableContext items={courseIds} strategy={verticalListSortingStrategy}>`
+2. Course cards in the timeline use `useSortable` instead of `useDraggable`
+3. On `onDragEnd`, if `source === 'timeline' && fromSemester === toSemester`, reorder within semester (add `REORDER_SEMESTER` action to PlanContext if needed)
+
+### Duplicate prevention
+
+In `ADD_COURSE` reducer and `handleDragEnd`: check if `courseId` already exists anywhere in the plan. If yes, skip the add (don't duplicate a course).
+
+### Visual feedback on hover
+
+Droppable semester slots should show a highlighted background when a draggable is hovering over them:
+```typescript
+const { isOver } = useDroppable({ id: semesterId });
+// Apply: isOver ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200'
+```
 
 ## Acceptance Criteria
-- [ ] Two routes work: `/` renders PlannerPage, `/schedule` renders SchedulerPage
-- [ ] Header shows nav links, clicking switches routes
-- [ ] Dark mode toggle works and persists to localStorage
-- [ ] PlannerPage has 3 placeholder layout areas (timeline, palette, progress)
-- [ ] SchedulerPage has 2 placeholder layout areas  
-- [ ] DataContext wraps entire app (hooks available in all pages)
-- [ ] `tsc --noEmit` passes, no TypeScript errors
-- [ ] No console errors on load
+- [ ] Drag from palette → semester slot adds course to plan
+- [ ] Drag course between semesters moves it correctly
+- [ ] Drag course back over palette removes it from plan
+- [ ] Visual drag overlay shows card preview while dragging
+- [ ] Original card ghosts at 0.5 opacity while being dragged
+- [ ] Drop zones highlight blue on hover  
+- [ ] Cannot place the same course twice (duplicate prevention)
+- [ ] Sorting within a semester works (reorder cards in same column)
+- [ ] `tsc --noEmit` passes, no console errors
 
 ## Validation Gates
-- [ ] `npm run dev` — both pages load without errors
+- [ ] `npm run dev` — drag a card from palette to a future semester — it appears in timeline
+- [ ] Drag between semesters — course moves
+- [ ] Drag over palette — course removed from plan
 - [ ] `cd packages/client && npx tsc --noEmit` — no errors
-- [ ] Dark mode toggle works in browser
 
 ## Files to Read First
-- `packages/client/src/main.tsx` — current entry point
-- `packages/client/src/App.tsx` — current app root
-- `packages/client/src/context/DataContext.tsx` — from TASK-002
+- `packages/client/src/components/CourseCard.tsx` — to add drag attributes
+- `packages/client/src/context/PlanContext.tsx` — to use dispatch actions
+- `packages/client/src/pages/PlannerPage.tsx` — where to add DndContext wrapper
+- `packages/client/src/components/` — look for DroppableSlot from TASK-006
 
 ## Constraints
-- Do NOT add page content beyond layout containers/placeholders — TASK-006 through TASK-016 fill them
-- Do NOT use any routing library other than react-router-dom
-- Do NOT add CSS files or styled-components — Tailwind utility classes only
-- Use shadcn/ui components for all interactive elements (buttons, etc.)
-- Commit when done: `git add -A && git commit -m "feat(TASK-005): app shell, page layout, React Router routing, dark mode"`
+- Use dnd-kit exclusively — do NOT use react-dnd, HTML5 drag API, or other libraries
+- Do NOT add validation logic here — that's TASK-010. Drops should succeed visually even with prereq issues (red borders come in TASK-010)
+- Commit when done: `git add -A && git commit -m "feat(TASK-008): dnd-kit drag-drop (palette↔timeline, between semesters, remove)"`

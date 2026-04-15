@@ -1,0 +1,21 @@
+{
+  "collapse": false,
+  "colorGroups": [],
+  "displayOrphanNodes": false,
+  "hideAttachments": true,
+  "hideTagsNode": false,
+  "localBacklinks": true,
+  "localDepth": 2,
+  "localForelinks": true,
+  "localInterlinks": true,
+  "showArrow": true,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1.4,
+  "lineSizeMultiplier": 1,
+  "centerStrength": 0.518713248970312,
+  "repelStrength": 10,
+  "linkForce": 1,
+  "linkDistance": 250,
+  "scale": 1,
+  "close": false
+}

@@ -1,23 +1,69 @@
+import { useState } from 'react';
+import { useDroppable, useDndMonitor } from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import { getCourseCredits } from '@/lib/course-utils';
 import CourseCard from './CourseCard';
-import type { Semester, CourseCatalog, PrereqNode, CompletedCourse } from '@/types';
+import type { Semester, CourseCatalog, PrereqNode } from '@/types';
 
-// ─── Empty drop-zone placeholder ──────────────────────────────────────────────
-// TASK-008 will replace this with a live droppable surface.
+// ─── Sortable course card (timeline cards that can be dragged/reordered) ─────
 
-function EmptySlot({ semesterId }: { semesterId: string }) {
+interface SortableCourseCardProps {
+  /** Globally unique ID for dnd-kit (format: "timeline-{semesterId}-{courseId}") */
+  id: string;
+  courseId: string;
+  semesterId: string;
+  semesterStatus: 'past' | 'current' | 'future';
+  letterGrade?: string;
+  catalog: CourseCatalog | null;
+  prereqNodes: Record<string, PrereqNode>;
+  gradeDistributions: Record<string, { avg_gpa: number }>;
+}
+
+function SortableCourseCard({
+  id,
+  courseId,
+  semesterId,
+  semesterStatus,
+  letterGrade,
+  catalog,
+  prereqNodes,
+  gradeDistributions,
+}: SortableCourseCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id,
+    data: {
+      type: 'course',
+      courseId,
+      source: 'timeline',
+      semesterId,
+    },
+  });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform) ?? undefined,
+    transition,
+  };
+
   return (
-    <div
-      data-semester-id={semesterId}
-      className={cn(
-        'border-2 border-dashed border-gray-300 dark:border-gray-600',
-        'rounded-lg p-3 h-16',
-        'flex items-center justify-center',
-        'text-gray-400 dark:text-gray-500 text-sm'
-      )}
-    >
-      Drop course here
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="touch-none">
+      <CourseCard
+        courseId={courseId}
+        semesterStatus={semesterStatus}
+        letterGrade={letterGrade}
+        catalog={catalog}
+        prereqNodes={prereqNodes}
+        gradeDistributions={gradeDistributions}
+        isDragging={isDragging}
+      />
     </div>
   );
 }
@@ -64,6 +110,38 @@ export default function SemesterColumn({
   const { id, label, status, season } = semester;
   const isPast = status === 'past';
   const isCurrent = status === 'current';
+  const isDroppable = !isPast; // past semesters are fixed; current + future accept drops
+
+  // ── Droppable registration ─────────────────────────────────────────────────
+  const { setNodeRef: setDroppableRef, isOver: isOverDirect } = useDroppable({
+    id,
+    disabled: isPast,
+    data: { type: 'semester', semesterId: id },
+  });
+
+  // ── Highlight tracking via DnD monitor ────────────────────────────────────
+  // useDroppable's isOver only fires when directly over the container area
+  // (not when over sortable cards inside it). useDndMonitor captures the full
+  // hover state for visual feedback.
+  const [isActivelyOver, setIsActivelyOver] = useState(false);
+
+  useDndMonitor({
+    onDragOver({ over }) {
+      if (isPast) return;
+      const overData = over?.data.current;
+      const mine =
+        (overData?.type === 'semester' && overData.semesterId === id) ||
+        (overData?.type === 'course' && overData.source === 'timeline' && overData.semesterId === id);
+      setIsActivelyOver(Boolean(mine));
+    },
+    onDragEnd() { setIsActivelyOver(false); },
+    onDragCancel() { setIsActivelyOver(false); },
+  });
+
+  const showHighlight = isDroppable && (isActivelyOver || isOverDirect);
+
+  // ── Sort IDs for SortableContext ───────────────────────────────────────────
+  const sortableIds = courseIds.map((c) => `timeline-${id}-${c}`);
 
   // Compute total credits for the semester
   const totalCredits = courseIds.reduce(
@@ -88,7 +166,7 @@ export default function SemesterColumn({
           isPast && 'opacity-75'
         )}
       >
-        {/* Semester label + season icon + checkmark (past) */}
+        {/* Semester label + season icon + status badge */}
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold text-foreground flex items-center gap-1">
             <SeasonIcon season={season} />
@@ -112,25 +190,64 @@ export default function SemesterColumn({
         </span>
       </div>
 
-      {/* ── Course Cards ──────────────────────────────────────────── */}
-      <div className="flex flex-col gap-1.5">
-        {courseIds.map((courseId) => (
-          <CourseCard
-            key={courseId}
-            courseId={courseId}
-            semesterStatus={status}
-            letterGrade={gradeMap[courseId]}
-            catalog={catalog}
-            prereqNodes={prereqNodes}
-            gradeDistributions={gradeDistributions}
-          />
-        ))}
-      </div>
+      {/* ── Course List (droppable + sortable for non-past) ──────── */}
+      {isPast ? (
+        // Past semesters: static, non-draggable cards
+        <div className="flex flex-col gap-1.5">
+          {courseIds.map((courseId) => (
+            <CourseCard
+              key={courseId}
+              courseId={courseId}
+              semesterStatus={status}
+              letterGrade={gradeMap[courseId]}
+              catalog={catalog}
+              prereqNodes={prereqNodes}
+              gradeDistributions={gradeDistributions}
+            />
+          ))}
+        </div>
+      ) : (
+        // Current / future semesters: droppable + sortable
+        <div
+          ref={setDroppableRef}
+          className={cn(
+            'flex flex-col gap-1.5 min-h-[64px] rounded-md p-1 transition-colors duration-150',
+            showHighlight
+              ? 'bg-blue-50 dark:bg-blue-950/30 border border-blue-300 dark:border-blue-700'
+              : 'border border-transparent'
+          )}
+        >
+          <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+            {courseIds.map((courseId) => (
+              <SortableCourseCard
+                key={courseId}
+                id={`timeline-${id}-${courseId}`}
+                courseId={courseId}
+                semesterId={id}
+                semesterStatus={status}
+                letterGrade={gradeMap[courseId]}
+                catalog={catalog}
+                prereqNodes={prereqNodes}
+                gradeDistributions={gradeDistributions}
+              />
+            ))}
+          </SortableContext>
 
-      {/* ── Empty drop zones (future semesters) ──────────────────── */}
-      {status === 'future' && (
-        <div className="flex flex-col gap-1.5 mt-1">
-          <EmptySlot semesterId={id} />
+          {/* Empty drop hint */}
+          {courseIds.length === 0 && (
+            <div
+              className={cn(
+                'border-2 border-dashed rounded-lg p-3 h-14',
+                'flex items-center justify-center',
+                'text-sm transition-colors duration-150',
+                showHighlight
+                  ? 'border-blue-400 text-blue-500 dark:border-blue-500 dark:text-blue-400'
+                  : 'border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'
+              )}
+            >
+              Drop course here
+            </div>
+          )}
         </div>
       )}
     </div>

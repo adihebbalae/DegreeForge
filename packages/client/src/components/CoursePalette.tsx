@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
 import {
   useCatalogRecord,
   usePrereqGraph,
@@ -13,7 +14,53 @@ import { usePlan } from '@/context/PlanContext';
 import { getCourseTitle } from '@/lib/course-utils';
 import CollapsibleSection from './CollapsibleSection';
 import CourseCard from './CourseCard';
-import type { CourseCategory } from '@/types';
+import type { CourseCatalog, CourseCategory, PrereqNode } from '@/types';
+
+// ─── Draggable palette card ────────────────────────────────────────────────────
+
+interface DraggablePaletteCardProps {
+  courseId: string;
+  catalog: CourseCatalog | null;
+  prereqNodes: Record<string, PrereqNode>;
+  gradeDistributions: Record<string, { avg_gpa: number }>;
+  categoryOverride: CourseCategory;
+  prereqsMet: boolean;
+}
+
+function DraggablePaletteCard({
+  courseId,
+  catalog,
+  prereqNodes,
+  gradeDistributions,
+  categoryOverride,
+  prereqsMet,
+}: DraggablePaletteCardProps) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `palette-${courseId}`,
+    data: {
+      type: 'course',
+      courseId,
+      source: 'palette',
+    },
+  });
+
+  return (
+    // Don't apply transform — DragOverlay handles the moving visual.
+    // The original card ghosts in place via isDragging → opacity 0.5.
+    <div ref={setNodeRef} {...attributes} {...listeners} className="touch-none">
+      <CourseCard
+        courseId={courseId}
+        catalog={catalog}
+        prereqNodes={prereqNodes}
+        gradeDistributions={gradeDistributions}
+        categoryOverride={categoryOverride}
+        variant="palette"
+        prereqsMet={prereqsMet}
+        isDragging={isDragging}
+      />
+    </div>
+  );
+}
 
 // ─── Equivalency Map ─────────────────────────────────────────────────────────
 //
@@ -261,17 +308,24 @@ export default function CoursePalette() {
   const filteredGenEd = filterCourses(genEdRemaining);
   const filteredMath = filterCourses(mathRemaining);
 
+  // ── Palette drop zone ─────────────────────────────────────────────────────
+  // Courses dragged back over the palette area are removed from the plan.
+
+  const { setNodeRef: setPaletteDropRef, isOver: isPaletteOver } = useDroppable({
+    id: 'palette',
+    data: { type: 'palette' },
+  });
+
   // ── Render helpers ────────────────────────────────────────────────────────
 
   const renderCard = (courseId: string, category: CourseCategory) => (
-    <CourseCard
+    <DraggablePaletteCard
       key={courseId}
       courseId={courseId}
       catalog={catalog}
       prereqNodes={prereqGraph.nodes}
       gradeDistributions={gradeDistributions}
       categoryOverride={category}
-      variant="palette"
       prereqsMet={!hasUnmetPrereqs(courseId)}
     />
   );
@@ -285,7 +339,13 @@ export default function CoursePalette() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="h-full flex flex-col">
+    <div
+      ref={setPaletteDropRef}
+      className={[
+        'h-full flex flex-col transition-colors duration-150',
+        isPaletteOver ? 'bg-red-50 dark:bg-red-950/20' : '',
+      ].join(' ')}
+    >
       {/* Search bar */}
       <div className="px-2 pt-2 pb-1.5 shrink-0">
         <div className="relative">
@@ -309,6 +369,13 @@ export default function CoursePalette() {
       <p className="px-3 pb-1 text-[11px] font-medium text-muted-foreground uppercase tracking-wider shrink-0">
         Remaining courses
       </p>
+
+      {/* Drop-to-remove hint — shown when a timeline card hovers over the palette */}
+      {isPaletteOver && (
+        <div className="mx-2 mb-1 px-2 py-1.5 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-[11px] text-red-600 dark:text-red-400 text-center shrink-0">
+          Release to remove from plan
+        </div>
+      )}
 
       {/* Collapsible sections */}
       <div className="flex-1 overflow-y-auto px-1.5 pb-4">
