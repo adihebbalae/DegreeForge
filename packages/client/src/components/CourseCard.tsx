@@ -4,8 +4,8 @@ import type { CourseCatalog, CourseCategory, PrereqNode } from '@/types';
 
 interface CourseCardProps {
   courseId: string;
-  /** Status of the semester this card lives in */
-  semesterStatus: 'past' | 'current' | 'future';
+  /** Status of the semester this card lives in (defaults to 'future') */
+  semesterStatus?: 'past' | 'current' | 'future';
   /** Actual letter grade earned (past semesters only) */
   letterGrade?: string;
   /** Data from DataContext */
@@ -14,16 +14,22 @@ interface CourseCardProps {
   gradeDistributions: Record<string, { avg_gpa: number }>;
   /** Optional: override inferred category */
   categoryOverride?: CourseCategory;
+  /** 'palette' = compact mode used in the course palette sidebar */
+  variant?: 'palette';
+  /** Whether all direct prereqs are met — palette only (default true) */
+  prereqsMet?: boolean;
 }
 
 export default function CourseCard({
   courseId,
-  semesterStatus,
+  semesterStatus = 'future',
   letterGrade,
   catalog,
   prereqNodes,
   gradeDistributions,
   categoryOverride,
+  variant,
+  prereqsMet = true,
 }: CourseCardProps) {
   const category = categoryOverride ?? inferCategory(courseId, prereqNodes);
   const borderClass = CATEGORY_BORDER[category];
@@ -34,7 +40,9 @@ export default function CourseCard({
   const avgGpa = gradeDistributions[courseId]?.avg_gpa ?? null;
   const gpaBgClass = gpaColorClass(avgGpa);
 
+  const isPalette = variant === 'palette';
   const isPast = semesterStatus === 'past';
+  const prereqDimmed = isPalette && !prereqsMet;
 
   return (
     <div
@@ -44,6 +52,8 @@ export default function CourseCard({
         borderClass,
         // Past cards are visually muted
         isPast && 'opacity-70',
+        // Palette: dim cards with unmet prereqs
+        prereqDimmed && 'opacity-50',
         // Subtle hover unless past
         !isPast && 'hover:shadow-md hover:bg-accent/30 transition-shadow',
         'cursor-default select-none'
@@ -103,6 +113,17 @@ export default function CourseCard({
 
       {/* Prereq warning placeholder — TASK-010 will activate */}
       {/* <span className="absolute bottom-1 left-1 text-[10px] text-red-500">⚠</span> */}
+
+      {/* Palette: prereq lock icon */}
+      {prereqDimmed && (
+        <span
+          className="absolute bottom-1 left-1 text-[9px] text-amber-500"
+          aria-label="Prerequisites not met"
+          title="Prerequisites not met"
+        >
+          🔒
+        </span>
+      )}
     </div>
   );
 }
