@@ -10,7 +10,7 @@ import {
   useTechCoresRecord,
   useMathRequirements,
 } from '@/context/DataContext';
-import { usePlan, useHoveredCourse } from '@/context/PlanContext';
+import { usePlan, useHoveredCourse, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
 import { getCourseTitle } from '@/lib/course-utils';
 import CollapsibleSection from './CollapsibleSection';
 import CourseCard from './CourseCard';
@@ -124,6 +124,50 @@ const MATH_BA_ADDITIONAL = [
   'M 368K', // Numerical Methods for Applications (Math BA: broadening)
 ];
 
+// ─── What-If Diff Component ──────────────────────────────────────────────────
+
+function WhatIfDiff() {
+  const profile = useUserProfile();
+  const techCores = useTechCoresRecord();
+  const techCoreId = useTechCoreId();
+  const mathBAToggle = useMathBAToggle();
+
+  if (!profile || !techCores) return null;
+
+  const normalize = (s: string) => s.toLowerCase().replace(/&/g, 'and').replace(/\s+/g, ' ').trim();
+  const declaredNormalized = normalize(profile.tech_core.declared);
+  const originalTrackId = Object.keys(techCores).find(
+    (key) => normalize(techCores[key].name) === declaredNormalized
+  ) || 'computer_architecture';
+
+  const isChanged = techCoreId !== originalTrackId || mathBAToggle;
+
+  if (!isChanged) return null;
+
+  const originalTrack = techCores[originalTrackId];
+  const newTrack = techCores[techCoreId];
+
+  return (
+    <div className="mx-2 mb-3 p-2 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-md">
+      <p className="text-[10px] font-bold text-purple-700 dark:text-purple-400 uppercase tracking-tight mb-1">
+        What-If Active
+      </p>
+      <div className="space-y-1">
+        {techCoreId !== originalTrackId && (
+          <p className="text-[11px] text-foreground leading-tight">
+            • Using <span className="font-semibold">{newTrack?.name}</span> track
+          </p>
+        )}
+        {mathBAToggle && (
+          <p className="text-[11px] text-foreground leading-tight">
+            • <span className="font-semibold">Math BA</span> requirements active
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CoursePalette() {
@@ -142,6 +186,8 @@ export default function CoursePalette() {
   const plan = usePlan();
   const hoveredCourse = useHoveredCourse();
   const prereqGraphInstance = usePrereqGraph();
+  const techCoreId = useTechCoreId();
+  const mathBAToggle = useMathBAToggle();
 
   /** Set of courses to highlight as downstream dependents of the hovered course. */
   const downstreamCourses = useMemo(() => {
@@ -221,10 +267,10 @@ export default function CoursePalette() {
 
   // ── Tech core track ───────────────────────────────────────────────────────
 
-  /** Computer Architecture & Embedded Systems track from tech-cores.json. */
+  /** Selected tech core track from tech-cores.json. */
   const techTrack = useMemo(
-    () => techCoresRecord?.['computer_architecture'] ?? null,
-    [techCoresRecord]
+    () => techCoresRecord?.[techCoreId] ?? null,
+    [techCoresRecord, techCoreId]
   );
 
   // ── Category: ECE Core ────────────────────────────────────────────────────
@@ -295,12 +341,14 @@ export default function CoursePalette() {
     }
 
     // Math BA additional courses (for Adi's double-major consideration)
-    courses.push(...MATH_BA_ADDITIONAL);
+    if (mathBAToggle) {
+      courses.push(...MATH_BA_ADDITIONAL);
+    }
 
     return [...new Set(courses)].filter(
       (id) => !isCourseSatisfied(id, satisfiedSet)
     );
-  }, [degreeRequirements, techTrack, satisfiedSet]);
+  }, [degreeRequirements, techTrack, satisfiedSet, mathBAToggle]);
 
   // ── Search filter ─────────────────────────────────────────────────────────
 
@@ -378,6 +426,8 @@ export default function CoursePalette() {
         </div>
       </div>
 
+      <WhatIfDiff />
+
       {/* Palette label */}
       <p className="px-3 pb-1 text-[11px] font-medium text-muted-foreground uppercase tracking-wider shrink-0">
         Remaining courses
@@ -401,7 +451,7 @@ export default function CoursePalette() {
 
         {/* Tech Core */}
         <CollapsibleSection
-          title="Tech Core — CA&ES"
+          title={`Tech Core — ${techTrack?.name || 'Loading...'}`}
           count={filteredTechCore.length}
           defaultOpen
         >

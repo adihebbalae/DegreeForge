@@ -179,16 +179,31 @@ export default function CourseCard({
           {cardContent}
         </TooltipTrigger>
         <TooltipContent side="right" className="max-w-xs">
-          <div className="space-y-1">
-            <p className="font-semibold text-xs">
-              {isPrereqViolation ? 'Prerequisite issues:' : 'Corequisite issues:'}
-            </p>
-            {violation.missingPrereqs.map(p => (
-              <p key={p} className="text-[11px]">• {p} must be completed first</p>
-            ))}
-            {violation.unsatisfiedCoreqs.map(c => (
-              <p key={c} className="text-[11px]">• {c} must be taken same or earlier semester</p>
-            ))}
+          <div className="space-y-2">
+            {violation.missingPrereqs.length > 0 && (
+              <div className="space-y-1">
+                <p className="font-semibold text-[11px] text-red-500 uppercase tracking-wider">
+                  Missing Prerequisites:
+                </p>
+                {violation.missingPrereqs.map((p) => (
+                  <p key={p} className="text-[11px] leading-tight flex gap-1.5">
+                    <span className="shrink-0">•</span> {p} must be completed in an earlier semester
+                  </p>
+                ))}
+              </div>
+            )}
+            {violation.unsatisfiedCoreqs.length > 0 && (
+              <div className="space-y-1">
+                <p className="font-semibold text-[11px] text-amber-600 uppercase tracking-wider">
+                  Unsatisfied Corequisites:
+                </p>
+                {violation.unsatisfiedCoreqs.map((c) => (
+                  <p key={c} className="text-[11px] leading-tight flex gap-1.5">
+                    <span className="shrink-0">•</span> {c} must be taken in the same or earlier semester
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
         </TooltipContent>
       </Tooltip>

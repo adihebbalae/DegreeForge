@@ -30,9 +30,8 @@ export default function TimelineGrid() {
 
   const downstreamCourses = useMemo(() => {
     if (!hoveredCourse) return new Set<string>();
-    // include the hovered course itself in the set of "related" courses? 
-    // Handoff says "highlight all its downstream courses"
-    return new Set(prereqGraph.getDownstream(hoveredCourse));
+    const deps = prereqGraph.getDownstream(hoveredCourse);
+    return new Set([hoveredCourse, ...deps]);
   }, [hoveredCourse, prereqGraph]);
 
   // Build a map: courseId → letter grade from the user profile
