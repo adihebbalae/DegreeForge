@@ -66,8 +66,10 @@ packages/                        # Monorepo (npm workspaces)
         PlanContext.tsx           # PlanProvider (useReducer: ADD/REMOVE/MOVE/SET_PLAN/PIN/UNPIN) + hooks (useSemesters, usePlan, usePinnedCourses, usePlanDispatch, useSemesterCourses). Pre-loaded with Adi's transcript. 8-semester sequence Fall 2025→Spring 2029.
       lib/
         utils.ts                 # cn() helper (clsx + tailwind-merge)
-        normalize.ts             # normalizeEEtoECE(), normalizeDeptCode(), normalizeGradeDistributions() — single E E→ECE normalization boundary
+        normalize.ts             # normalizeEEtoECE(), normalizeDeptCode(), normalizeGradeDistributions() â€” single E Eâ†’ECE normalization boundary
         normalize.test.ts        # 19 vitest unit tests for normalization functions
+        progress.ts              # computeProgress() for degree requirements
+        progress.test.ts         # unit tests for degree progress calculation
         data-loaders.ts          # Typed fetch helpers for all 9 JSON endpoints (loadCourseCatalog, loadPrereqGraph, etc.)
         course-utils.ts          # inferCategory(), getCourseCredits(), gpaColorClass(), getCourseTitle(), CATEGORY_BORDER, CATEGORY_LABEL
       pages/
@@ -75,8 +77,10 @@ packages/                        # Monorepo (npm workspaces)
         SchedulerPage.tsx        # V2: 2-col layout (course selector left ~40% / weekly calendar right ~60%)
       components/
         Header.tsx               # Wordmark + nav links (Planner/Schedule) + dark mode toggle (persisted to localStorage)
-        Layout.tsx               # Shell: Header + Routes (/ → PlannerPage, /schedule → SchedulerPage)
+        Layout.tsx               # Shell: Header + Routes (/ â†’ PlannerPage, /schedule â†’ SchedulerPage)
+        ProgressBars.tsx         # TASK-009: 5 progress bars for degree requirements
         CourseCard.tsx           # Course card: category left-border, GPA badge (color-coded), past-card muting + letter grade + checkmark overlay; variant="palette" + prereqsMet for palette mode
+
         CollapsibleSection.tsx   # Reusable accordion: title + count badge + chevron toggle + children; used by CoursePalette
         CoursePalette.tsx        # Right-sidebar palette: 5 collapsible sections (ECE Core, Tech Core CA&ES, Gen Ed, Free Electives, Math), real-time search, prereq dimming, equivalency map for old/honors course numbers
         SemesterColumn.tsx       # Semester column: header (season icon + label + credit counter + status badge), course cards list, EmptySlot drop-zone placeholders (future only)

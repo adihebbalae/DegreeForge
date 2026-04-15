@@ -1,136 +1,133 @@
-# Handoff: TASK-008 — Drag-Drop System (dnd-kit)
-**Task ID**: TASK-008
+# Handoff: TASK-009 — Progress Bars
+**Task ID**: TASK-009
 **Mode**: autonomous (no user interaction available)
 **Agent**: engineer | **Model**: sonnet
 
 ## Context
 
-DegreeForge is a single-user degree planner for UT Austin ECE student Adi. Previous tasks complete:
-- TASK-006: Semester timeline grid with `PlanContext` (useReducer) + `CourseCard` components + empty `DroppableSlot` placeholder components
-- TASK-007: Course palette panel with palette `CourseCard` variants
+DegreeForge is a single-user degree planner for UT Austin ECE student Adi. TASK-001-005 complete:
+- Monorepo, data layer (DataContext with all 9 JSONs + TypeScript types), app shell (PlannerPage layout)
+- TASK-006 also complete: PlanContext (plan state with useReducer) is available
 
-The app now shows a static layout: timeline on the left with Adi's placed courses, palette on the right with remaining courses. Drag-drop is not yet connected — cards and drop zones are visual-only.
+The PlannerPage has a top area for progress bars that is currently a placeholder.
 
-**dnd-kit** is already installed in `packages/client/package.json` (from TASK-001): `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`.
+**Adi's BSECE requirements** (from degree-requirements.json):
+- Total: 128+ credit hours
+- ECE Core: specific required courses (approx 35-40 hours)
+- Core Curriculum (Gen Ed): 8 courses / ~42 hours (some already completed via credit-by-exam)
+- Tech Core: 8 specific courses from chosen track
+- Free Electives: 11 credit hours of advanced ECE electives
+- Plus Math requirements, physics, etc.
 
-**Why this task matters**: This connects the palette and timeline. Without drag-drop, the user can't build their plan.
+**Why this task matters**: Progress bars give Adi real-time feedback on how completed the degree is as they drag courses around. Every drop triggers a re-count.
 
 ## Task
 
-Implement the full drag-drop system using dnd-kit.
+Build `src/components/ProgressBars.tsx` — a responsive strip at the top of PlannerPage.
 
-### Interaction model
+### Five progress bars
+
+| Bar | Label | Target | What counts |
+|-----|-------|--------|-------------|
+| Total Hours | Credit Hours | 128 | Sum of credit_hours for all completed + placed courses |
+| ECE Core | ECE Core | varies | Completed required ECE core courses (not tech core) |
+| Core Curriculum | Gen Ed | 8 courses | Completed core curriculum requirements (RHE, GOV, UGS, etc.) |
+| Tech Core | Tech Core | 8 courses | Courses from selected tech core track that are completed/placed |
+| Free Electives | Electives | 11 hrs | Advanced ECE electives in plan |
+
+### Visual design
 
 ```
-Palette card ──drag──→ Semester slot     (ADD_COURSE action)
-Semester card ──drag──→ Different slot   (MOVE_COURSE action)
-Semester card ──drag──→ Palette area     (REMOVE_COURSE action)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  Credit Hours      [████████████████░░░░░░░░░] 87 / 128 hrs    68%         │
+│  ECE Core          [██████████████████████░░░░] 11 / 14 courses 79%        │
+│  Gen Ed            [████████████░░░░░░░░░░░░░░] 4 / 8 courses  50%        │
+│  Tech Core (CA&ES) [████████░░░░░░░░░░░░░░░░░░] 2 / 8 courses  25%        │
+│  Electives         [░░░░░░░░░░░░░░░░░░░░░░░░░░] 0 / 11 hrs     0%         │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Architecture
+Use shadcn `Progress` component. Each bar has:
+- Icon + label on the left
+- shadcn Progress bar in the center (filled portion)
+- Count text on the right (e.g., "87 / 128 hrs" or "4 / 8 courses")
 
-`DndContext` from dnd-kit wraps the entire `PlannerPage`. Inside it:
-- **Draggable items**: Course cards in both palette and timeline — `useDraggable` or use `@dnd-kit/sortable`
-- **Droppable containers**: Each semester's course list area + the palette area — `useDroppable`
-- **Drag overlay**: Shows a floating copy of the card being dragged
+Color coding:
+- 0-49%: red (`[&>*]:bg-red-500`)
+- 50-79%: yellow (`[&>*]:bg-yellow-500`)
+- 80-99%: blue (`[&>*]:bg-blue-500`)
+- 100%: green (`[&>*]:bg-green-500`)
 
-### Droppable areas
-
-Each semester column's course list zone is a `Droppable` with ID = `semesterId` (e.g., `"Fall 2026"`).
-The palette drop zone has ID = `"palette"`.
-
-### Draggable course cards
-
-Each draggable `CourseCard` has:
-```typescript
-const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-  id: `${source}-${courseId}`,  // e.g. "timeline-Fall 2026-ECE 460N" or "palette-ECE 460N"
-  data: { courseId, source, semesterId? }
-});
-```
-
-`isDragging` → reduce card opacity to 0.5 (ghost effect, original stays in place).
-
-### `DragOverlay`
-
-Show a clean copy of the `CourseCard` while dragging (not the ghost):
-```tsx
-<DragOverlay>
-  {activeCard && <CourseCard courseId={activeCard.courseId} isDragOverlay />}
-</DragOverlay>
-```
-
-### `onDragEnd` handler
+### Counting logic
 
 ```typescript
-function handleDragEnd(event: DragEndEvent) {
-  const { active, over } = event;
-  if (!over) return; // dropped outside any droppable
-
-  const { courseId, source, semesterId: fromSemester } = active.data.current;
-  const targetId = over.id as string;
-
-  if (targetId === 'palette') {
-    // Dropped back on palette → remove from plan
-    if (source === 'timeline') {
-      dispatch({ type: 'REMOVE_COURSE', semesterId: fromSemester, courseId });
-    }
-    return;
-  }
-
-  // Dropped on a semester
-  const toSemester = targetId;
-  if (source === 'palette') {
-    dispatch({ type: 'ADD_COURSE', semesterId: toSemester, courseId });
-  } else if (source === 'timeline' && fromSemester !== toSemester) {
-    dispatch({ type: 'MOVE_COURSE', fromSemesterId: fromSemester, toSemesterId: toSemester, courseId });
-  }
+function computeProgress(
+  plan: Plan,
+  profile: UserProfile,
+  catalog: Course[],
+  degreeReqs: DegreeRequirements,
+  techCore: TechCoreTrack
+): ProgressSummary {
+  const allPlacedOrCompleted = [
+    ...profile.completed_courses.map(c => c.course_id),
+    ...profile.in_progress_courses,
+    ...Object.values(plan).flat()
+  ];
+  // deduplicate
+  const unique = [...new Set(allPlacedOrCompleted)];
+  
+  return {
+    totalHours: sum of credit_hours for courses in unique that are in catalog,
+    eceCoreCompleted: count of degreeReqs.ece_core that are in unique,
+    eceCoreTotal: degreeReqs.ece_core.length,
+    genEdCompleted: count of degreeReqs.core_curriculum that are in unique,
+    genEdTotal: 8,
+    techCoreCompleted: count of techCore.courses that are in unique,
+    techCoreTotal: techCore.courses.length,
+    electiveHours: ...,
+    electiveTotalHours: 11,
+  };
 }
 ```
 
-### Sortable within semesters (using @dnd-kit/sortable)
+Place this logic in `src/lib/progress.ts` with unit tests.
 
-Within a single semester, courses should be reorderable using `SortableContext` with `verticalListSortingStrategy`:
-1. Wrap each semester's course list in `<SortableContext items={courseIds} strategy={verticalListSortingStrategy}>`
-2. Course cards in the timeline use `useSortable` instead of `useDraggable`
-3. On `onDragEnd`, if `source === 'timeline' && fromSemester === toSemester`, reorder within semester (add `REORDER_SEMESTER` action to PlanContext if needed)
+### Reactive updates
 
-### Duplicate prevention
+`ProgressBars` subscribes to `PlanContext`. Every ADD/REMOVE/MOVE action recalculates progress.
 
-In `ADD_COURSE` reducer and `handleDragEnd`: check if `courseId` already exists anywhere in the plan. If yes, skip the add (don't duplicate a course).
+### `src/lib/progress.test.ts`
 
-### Visual feedback on hover
-
-Droppable semester slots should show a highlighted background when a draggable is hovering over them:
 ```typescript
-const { isOver } = useDroppable({ id: semesterId });
-// Apply: isOver ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200'
+describe('computeProgress', () => {
+  it('counts Adi profile completed courses correctly')
+  it('adds placed courses to totals')
+  it('does not double-count completed + placed courses')
+  it('tech core counts only from selected track')
+})
 ```
 
 ## Acceptance Criteria
-- [ ] Drag from palette → semester slot adds course to plan
-- [ ] Drag course between semesters moves it correctly
-- [ ] Drag course back over palette removes it from plan
-- [ ] Visual drag overlay shows card preview while dragging
-- [ ] Original card ghosts at 0.5 opacity while being dragged
-- [ ] Drop zones highlight blue on hover  
-- [ ] Cannot place the same course twice (duplicate prevention)
-- [ ] Sorting within a semester works (reorder cards in same column)
-- [ ] `tsc --noEmit` passes, no console errors
+- [ ] 5 progress bars visible at top of PlannerPage
+- [ ] Correct initial values from Adi's transcript (completed courses count toward progress)
+- [ ] Values update reactively when courses are added/removed from plan
+- [ ] Color changes with percentage (red/yellow/blue/green)
+- [ ] `progress.ts` unit tests pass
+- [ ] `tsc --noEmit` passes
 
 ## Validation Gates
-- [ ] `npm run dev` — drag a card from palette to a future semester — it appears in timeline
-- [ ] Drag between semesters — course moves
-- [ ] Drag over palette — course removed from plan
+- [ ] `cd packages/client && npx vitest run src/lib/progress.test.ts` — all pass
 - [ ] `cd packages/client && npx tsc --noEmit` — no errors
+- [ ] Visual: bars show reasonable values for Adi's current state
 
 ## Files to Read First
-- `packages/client/src/components/CourseCard.tsx` — to add drag attributes
-- `packages/client/src/context/PlanContext.tsx` — to use dispatch actions
-- `packages/client/src/pages/PlannerPage.tsx` — where to add DndContext wrapper
-- `packages/client/src/components/` — look for DroppableSlot from TASK-006
+- `packages/client/src/context/PlanContext.tsx` — plan state from TASK-006
+- `packages/client/public/data/degree-requirements.json` — requirement lists
+- `packages/client/public/data/tech-cores.json` — CA&ES course list
+- `packages/client/public/data/user-profile.json` — completed courses
+- `packages/client/public/data/course-catalog.json` — credit hours per course
 
 ## Constraints
-- Use dnd-kit exclusively — do NOT use react-dnd, HTML5 drag API, or other libraries
-- Do NOT add validation logic here — that's TASK-010. Drops should succeed visually even with prereq issues (red borders come in TASK-010)
-- Commit when done: `git add -A && git commit -m "feat(TASK-008): dnd-kit drag-drop (palette↔timeline, between semesters, remove)"`
+- Do NOT calculate prereq violations here — that's TASK-010
+- Keep `progress.ts` pure (no React) — the component just calls it
+- Commit when done: `git add -A && git commit -m "feat(TASK-009): progress bars (credit hours, ECE core, gen ed, tech core, electives)"`

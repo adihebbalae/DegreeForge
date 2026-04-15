@@ -12,6 +12,7 @@ import {
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import { Button } from '@/components/ui/button';
+import { ProgressBars } from '@/components/ProgressBars';
 import TimelineGrid from '@/components/TimelineGrid';
 import CoursePalette from '@/components/CoursePalette';
 import CourseCard from '@/components/CourseCard';
@@ -151,11 +152,8 @@ export default function PlannerPage() {
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="h-full flex flex-col relative overflow-hidden">
         {/* ── Progress bars strip ─────────────────────────────────────────── */}
-        <div className="h-12 shrink-0 border-b border-border flex items-center px-4 bg-muted/30">
-          <span className="text-sm text-muted-foreground">
-            Progress bars — TASK-009
-          </span>
-        </div>
+        <ProgressBars />
+
 
         {/* ── Main content row ────────────────────────────────────────────── */}
         <div className="flex-1 flex overflow-hidden">
