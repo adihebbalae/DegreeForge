@@ -144,16 +144,19 @@ Tell the user:
 
 Run this in your terminal:
 
-  .\.github\scripts\auto-run.ps1
+  .\.github\scripts\auto-run.ps1              # Claude Code CLI (default)
+  .\.github\scripts\auto-run.ps1 -Gemini      # Gemini CLI
 
 Options:
-  -CheckpointSeconds 60    # Longer pause between tasks
-  -MaxRetries 2            # Fewer retries before halting
-  -SkipSecurity            # Skip security scans (not recommended)
-  -DryRun                  # Preview without executing
+  -Gemini                          # Use Gemini CLI instead of Claude
+  -GeminiModel gemini-2.5-pro     # Pick a specific Gemini model
+  -CheckpointSeconds 60           # Longer pause between tasks
+  -MaxRetries 2                   # Fewer retries before halting
+  -SkipSecurity                   # Skip security scans (not recommended)
+  -DryRun                         # Preview without executing
 
 The script will:
-1. Execute each task via Claude Code CLI
+1. Execute each task via the chosen CLI backend
 2. Run security audit after each task
 3. Pause [N]s between tasks (Ctrl+C to abort)
 4. Halt on failure or CRITICAL security finding
@@ -161,6 +164,11 @@ The script will:
 
 When complete, return here for final review and push.
 ```
+
+**Gemini CLI notes**: Since Gemini CLI has no `--agent` flag, the script
+automatically prepends agent role context (engineer / security) to each
+prompt. The `--yolo` flag auto-approves all tool calls (equivalent to
+Claude's `--dangerously-skip-permissions`).
 
 ### Step 4: Post-Completion Review
 
@@ -199,7 +207,7 @@ I'll review the finding and either:
   c) If it's a false positive, acknowledge and re-run with the task marked done
 ```
 
-### Claude CLI rate limited
+### CLI rate limited (Claude or Gemini)
 The script will pause and display options. If the user returns to Copilot:
 - Offer to continue remaining tasks via Copilot-native subagent loop (Section A)
 - Or advise waiting for the rate limit to reset
@@ -214,5 +222,7 @@ The script will pause and display options. If the user returns to Copilot:
 | Max retries per task | 3 | `-MaxRetries N` |
 | Rate limit cooldown | 5 hours | `-RateLimitWaitHours N` |
 | Security scans | Enabled | `-SkipSecurity` |
+| CLI backend | Claude Code CLI | `-Gemini` for Gemini CLI |
+| Gemini model | CLI default | `-GeminiModel <name>` |
 | Claude CLI agent | `engineer` | Configured in script |
 | Security CLI agent | `security` | Configured in script |

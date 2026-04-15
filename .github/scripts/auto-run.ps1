@@ -2,17 +2,24 @@
 <#
 .SYNOPSIS
     Autonomous task orchestrator for the Agent Boilerplate.
-    Executes all pending tasks via Claude Code CLI with security scans,
-    checkpoints, rate-limit handling, and hard-stop on failure.
+    Executes all pending tasks via Claude Code CLI, Gemini CLI, or
+    manual Copilot Chat — with security scans, checkpoints,
+    rate-limit handling, and hard-stop on failure.
 
 .DESCRIPTION
     Reads tasks from .agents/state.json, executes them sequentially via
-    Claude Code CLI (--agent engineer), runs security scans between tasks,
-    and handles rate limits gracefully.
+    the chosen CLI backend, runs security scans between tasks, and
+    handles rate limits gracefully.
+
+    Backends:
+    - Default: Claude Code CLI ('claude --agent engineer -p ...')
+    - Gemini:  Gemini CLI      ('gemini --yolo -p ...')
+    - Manual:  Copilot Chat     (shows prompts to paste in VS Code)
 
     Prerequisites:
-    - Claude Code CLI installed globally ('claude' command available)
-    - Tool auto-approval configured (--dangerously-skip-permissions or settings)
+    - Chosen CLI installed globally ('claude' or 'gemini' command available)
+    - Tool auto-approval configured (Claude: --dangerously-skip-permissions,
+      Gemini: --yolo flag is passed automatically)
     - Manager has pre-generated handoff files in .agents/handoffs/
     - Tasks defined in .agents/state.json with auto_run.task_order
 
@@ -24,16 +31,28 @@
     Maximum retry attempts per task before halting. Default: 3.
 
 .PARAMETER RateLimitWaitHours
-    Hours to wait if Claude CLI hits rate limits. Default: 5.
+    Hours to wait if CLI hits rate limits. Default: 5.
 
 .PARAMETER SkipSecurity
     Skip security scans between tasks. Not recommended.
 
 .PARAMETER DryRun
-    Preview the execution plan without invoking Claude CLI.
+    Preview the execution plan without invoking any CLI.
+
+.PARAMETER Gemini
+    Use Gemini CLI instead of Claude Code CLI.
+    Invokes 'gemini --yolo -p <prompt>' for each task.
+    Agent role context is prepended to the prompt automatically
+    (Gemini CLI has no --agent flag).
+
+.PARAMETER GeminiModel
+    Model to use with Gemini CLI (e.g. gemini-2.5-pro, gemini-2.5-flash).
+    Passed via 'gemini -m <model>'. Defaults to Gemini CLI's default model.
 
 .EXAMPLE
     .\.github\scripts\auto-run.ps1
+    .\.github\scripts\auto-run.ps1 -Gemini
+    .\.github\scripts\auto-run.ps1 -Gemini -GeminiModel gemini-2.5-pro
     .\.github\scripts\auto-run.ps1 -CheckpointSeconds 60 -MaxRetries 2
     .\.github\scripts\auto-run.ps1 -DryRun
 #>
@@ -45,7 +64,9 @@ param(
     [double]$RateLimitWaitHours = 5,
     [switch]$SkipSecurity,
     [switch]$DryRun,
-    [switch]$ManualMode
+    [switch]$ManualMode,
+    [switch]$Gemini,
+    [string]$GeminiModel = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -154,7 +175,8 @@ function Test-RateLimited {
     param([string]$Output, [int]$ExitCode)
     if ($ExitCode -eq 0) { return $false }
     $patterns = @("rate.limit", "usage.limit", "too many requests", "429",
-                   "throttl", "capacity", "overloaded", "quota")
+                   "throttl", "capacity", "overloaded", "quota",
+                   "resource.exhausted", "RESOURCE_EXHAUSTED")
     foreach ($p in $patterns) {
         if ($Output -match $p) { return $true }
     }
@@ -168,7 +190,8 @@ function Invoke-Claude {
     )
 
     if ($DryRun) {
-        Write-Host "    [DRY RUN] claude --agent $Agent -p ..." -ForegroundColor DarkGray
+        $cliLabel = if ($Gemini) { "gemini --yolo -p" } else { "claude --agent $Agent -p" }
+        Write-Host "    [DRY RUN] $cliLabel ..." -ForegroundColor DarkGray
         return @{ ExitCode = 0; Output = "[dry run - no execution]"; RateLimited = $false }
     }
 
@@ -213,7 +236,76 @@ function Invoke-Claude {
         return @{ ExitCode = 0; Output = "[manual completion confirmed]"; RateLimited = $false }
     }
 
-    # ── Claude Code CLI ────────────────────────────────────────────────────────
+    # ── Gemini CLI ─────────────────────────────────────────────────────────────
+    if ($Gemini) {
+        # Gemini CLI has no --agent flag; explicitly prepend the agent's persona.
+        # We read the actual agent instruction file and prepend it as context.
+        $agentFile = Join-Path $ProjectRoot ".github\agents\$Agent.agent.md"
+        $rolePrefix = ""
+        if (Test-Path $agentFile) {
+            $rolePrefix = [System.IO.File]::ReadAllText($agentFile, [System.Text.Encoding]::UTF8) + "`n`n--- END OF AGENT ROLE CONTEXT ---`n`n"
+        }
+        else {
+            $rolePrefix = "You are an AI assistant performing the role of '$Agent'. `n`n"
+        }
+        
+        $fullPrompt = $rolePrefix + $Prompt
+
+        # Write prompt to a temp file inside the project dir to avoid shell
+        # escaping issues with long prompts containing special characters.
+        # Then pipe it via stdin to gemini (more reliable than -p for long prompts).
+        $promptFile = Join-Path $ProjectRoot ".agents\_auto-run-prompt.tmp"
+        $stdoutFile = Join-Path $ProjectRoot ".agents\_auto-run-stdout.tmp"
+        $stderrFile = Join-Path $ProjectRoot ".agents\_auto-run-stderr.tmp"
+
+        $noBomUtf8 = New-Object System.Text.UTF8Encoding $false
+        [System.IO.File]::WriteAllText($promptFile, $fullPrompt, $noBomUtf8)
+
+        # Build argument list
+        $geminiArgs = @("--yolo")
+        if ($GeminiModel -ne "") {
+            $geminiArgs = @("-m", $GeminiModel) + $geminiArgs
+        }
+
+        # Save current preference and set to Continue to prevent powershell
+        # from throwing a terminating error when Node writes to stderr 
+        # (e.g. YOLO mode confirmation message)
+        $originalEAP = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+
+        $output   = $null
+        $exitCode = 0
+        try {
+            # Pipe prompt directly via stdin to gemini
+            $output = Get-Content $promptFile -Raw | & gemini @geminiArgs 2>&1 | Out-String
+            $exitCode = $LASTEXITCODE
+            
+            # Show a tail of the output for visibility
+            $trimmedOutput = $output.Trim()
+            $tail = if ($trimmedOutput.Length -gt 2000) { $trimmedOutput.Substring($trimmedOutput.Length - 2000) } else { $trimmedOutput }
+            Write-Host $tail -ForegroundColor DarkGray
+        }
+        catch {
+            $output   = $_.Exception.Message
+            $exitCode = -1
+        }
+        finally {
+            $ErrorActionPreference = $originalEAP
+            # Clean up temp file
+            if (Test-Path $promptFile) { Remove-Item $promptFile -Force -ErrorAction SilentlyContinue }
+        }
+
+        if ($null -eq $exitCode) { $exitCode = 0 }
+        $rateLimited = Test-RateLimited -Output $output -ExitCode $exitCode
+
+        return @{
+            ExitCode    = $exitCode
+            Output      = $output
+            RateLimited = $rateLimited
+        }
+    }
+
+    # ── Claude Code CLI (default) ──────────────────────────────────────────────
     $output = $null
     try {
         $output = & claude --agent $Agent -p --dangerously-skip-permissions $Prompt 2>&1 |
@@ -280,11 +372,28 @@ function Wait-ForRateLimit {
 
 # ─── Pre-flight Checks ───────────────────────────────────────────────────────
 
-# Verify claude CLI exists (skip check in ManualMode)
-$claudeCmd = Get-Command claude -ErrorAction SilentlyContinue
-if (-not $claudeCmd -and -not $DryRun -and -not $ManualMode) {
-    Write-Error "Claude Code CLI not found. Install: https://github.com/anthropic-ai/claude-code`nOr run with -ManualMode to use GitHub Copilot Chat instead."
+# Mutually exclusive modes
+if ($Gemini -and $ManualMode) {
+    Write-Error "-Gemini and -ManualMode are mutually exclusive. Pick one."
     exit 1
+}
+
+# Verify chosen CLI exists (skip in DryRun / ManualMode)
+if (-not $DryRun -and -not $ManualMode) {
+    if ($Gemini) {
+        $geminiCmd = Get-Command gemini -ErrorAction SilentlyContinue
+        if (-not $geminiCmd) {
+            Write-Error "Gemini CLI not found. Install: npm install -g @google/gemini-cli`nOr run with -ManualMode for Copilot Chat, or omit -Gemini for Claude Code CLI."
+            exit 1
+        }
+    }
+    else {
+        $claudeCmd = Get-Command claude -ErrorAction SilentlyContinue
+        if (-not $claudeCmd) {
+            Write-Error "Claude Code CLI not found. Install: https://github.com/anthropic-ai/claude-code`nOr run with -ManualMode to use GitHub Copilot Chat instead, or -Gemini to use Gemini CLI."
+            exit 1
+        }
+    }
 }
 
 # Read state
@@ -329,8 +438,14 @@ if ($missingHandoffs.Count -gt 0) {
 
 # ─── Display Plan ─────────────────────────────────────────────────────────────
 
+$backendLabel = if ($Gemini) { "Gemini CLI" } elseif ($ManualMode) { "Manual (Copilot Chat)" } else { "Claude Code CLI" }
+
 Write-Banner "AUTONOMOUS TASK RUNNER"
 Write-Host "  Project:     $($state.project)" -ForegroundColor White
+Write-Host "  Backend:     $backendLabel" -ForegroundColor White
+if ($Gemini -and $GeminiModel -ne "") {
+    Write-Host "  Model:       $GeminiModel" -ForegroundColor White
+}
 Write-Host "  Tasks:       $totalTasks pending" -ForegroundColor White
 Write-Host "  Checkpoint:  ${CheckpointSeconds}s" -ForegroundColor White
 Write-Host "  Retries:     $MaxRetries per task" -ForegroundColor White
@@ -338,6 +453,7 @@ Write-Host "  Security:    $(if ($SkipSecurity) { 'SKIPPED' } else { 'after each
 Write-Host "  Rate limit:  wait ${RateLimitWaitHours}h on throttle" -ForegroundColor White
 if ($DryRun)     { Write-Host "  Mode:        DRY RUN" -ForegroundColor Yellow }
 if ($ManualMode) { Write-Host "  Mode:        MANUAL (GitHub Copilot Chat)" -ForegroundColor Magenta }
+if ($Gemini)     { Write-Host ('  Mode:        GEMINI CLI (--yolo)') -ForegroundColor Green }
 Write-Host ""
 Write-Host "  Task queue:" -ForegroundColor Gray
 foreach ($t in $pendingTasks) {
@@ -348,6 +464,11 @@ Write-Host ""
 if ($ManualMode) {
     Write-Host "  Copilot Chat will be used for each task." -ForegroundColor Magenta
     Write-Host "  The script pauses and shows you what to paste." -ForegroundColor Magenta
+    Write-Host ""
+}
+if ($Gemini) {
+    Write-Host "  Gemini CLI will execute each task with --yolo (auto-approve tools)." -ForegroundColor Green
+    Write-Host "  Agent role context is prepended to prompts automatically." -ForegroundColor Green
     Write-Host ""
 }
 
@@ -376,16 +497,18 @@ for ($i = 0; $i -lt $pendingTasks.Count; $i++) {
     $srcHandoff = Join-Path $HandoffsDir "$taskId.md"
     Copy-Item $srcHandoff $HandoffFile -Force
 
-    # Update state: in_progress
-    $state = Read-StateFile
-    $state.current_task.id          = $taskId
-    $state.current_task.title       = $taskTitle
-    $state.current_task.status      = "in_progress"
-    $state.current_task.assigned_to = "engineer"
-    $state.tasks.$taskId.status     = "in_progress"
-    $state.last_updated             = (Get-Date -Format "o")
-    $state.last_updated_by          = "auto-run"
-    Save-StateFile -State $state
+    # Update state: in_progress (skip in DryRun to avoid corrupting state)
+    if (-not $DryRun) {
+        $state = Read-StateFile
+        $state.current_task.id          = $taskId
+        $state.current_task.title       = $taskTitle
+        $state.current_task.status      = "in_progress"
+        $state.current_task.assigned_to = "engineer"
+        $state.tasks.$taskId.status     = "in_progress"
+        $state.last_updated             = (Get-Date -Format "o")
+        $state.last_updated_by          = "auto-run"
+        Save-StateFile -State $state
+    }
 
     # ── Engineer Execution (with retries) ──
     $success    = $false
@@ -453,12 +576,14 @@ for ($i = 0; $i -lt $pendingTasks.Count; $i++) {
 
         [void]$failed.Add($taskId)
 
-        $state = Read-StateFile
-        $state.tasks.$taskId.status = "blocked"
-        $state.context.blocked_on   = "$taskId failed after $MaxRetries attempts"
-        $state.last_updated         = (Get-Date -Format "o")
-        $state.last_updated_by      = "auto-run"
-        Save-StateFile -State $state
+        if (-not $DryRun) {
+            $state = Read-StateFile
+            $state.tasks.$taskId.status = "blocked"
+            $state.context.blocked_on   = "$taskId failed after $MaxRetries attempts"
+            $state.last_updated         = (Get-Date -Format "o")
+            $state.last_updated_by      = "auto-run"
+            Save-StateFile -State $state
+        }
 
         $halted = $true
         break
@@ -581,7 +706,8 @@ if (-not $halted -and -not $SkipSecurity -and $completed.Count -gt 0) {
 }
 
 if (-not $halted) {
-    Write-Host "  All tasks complete. Return to Copilot Manager for final review and push." -ForegroundColor Cyan
+    $returnLabel = if ($Gemini) { "Gemini" } elseif ($ManualMode) { "Copilot" } else { "Copilot Manager" }
+    Write-Host "  All tasks complete. Return to $returnLabel for final review and push." -ForegroundColor Cyan
 }
 else {
     Write-Host "  Execution halted. Fix the issue, then re-run to continue." -ForegroundColor Yellow

@@ -71,7 +71,7 @@
 | TASK-005 | App shell + page layout + routing | engineer | 001 | ✅ done |
 | TASK-006 | Semester timeline grid + course cards | engineer | 002, 005 | ✅ done |
 | TASK-007 | Course palette panel | engineer | 002, 005 | ✅ done |
-| TASK-008 | Drag-drop system (dnd-kit: palette↔timeline) | engineer | 006, 007 | pending |
+| TASK-008 | Drag-drop system (dnd-kit: palette↔timeline) | engineer | 006, 007 | ✅ done |
 | TASK-009 | Progress bars (credit hours, ECE, gen ed, tech core, electives) | engineer | 002, 005 | pending |
 | TASK-010 | Prerequisite validation UI (borders, tooltips, highlights) | engineer | 003, 008 | pending |
 | TASK-011 | What-if simulator (tech core switch, Math BA toggle, diffs) | engineer | 004, 009 | pending |
@@ -107,3 +107,4 @@
 - `TASK-005`: App shell complete — BrowserRouter in main.tsx, Header (wordmark + nav links + dark mode toggle persisted to localStorage), Layout component, PlannerPage (progress strip + scrollable timeline + palette sidebar + chat slide-in overlay), SchedulerPage (2-col: selector left / calendar right), tsc --noEmit: 0 errors [2026-04-15]
 - `TASK-006`: Semester timeline grid + course cards complete — PlanContext (useReducer, ADD/REMOVE/MOVE/SET_PLAN/PIN/UNPIN), 8-semester sequence with past/current/future status pre-loaded from Adi's transcript, CourseCard (category color border, GPA badge, past-card muting + grade + checkmark), SemesterColumn (season icon, credit counter, EmptySlot drop-zone placeholders), TimelineGrid horizontal scroll, PlanProvider in main.tsx, tsc --noEmit: 0 errors [2026-04-15]
 - `TASK-007`: Course palette panel complete — CoursePalette with 5 collapsible sections (ECE Core, Tech Core CA&ES, Gen Ed, Free Electives, Math), remaining-course logic (excludes completed+in-progress+placed with ECE old-number/honors and math transfer equivalencies), prereq dimming (lock icon + opacity-50 when no direct prereq satisfied), real-time search across all sections, CollapsibleSection reusable accordion, CourseCard extended with variant=palette + prereqsMet props, PlannerPage right sidebar wired up, tsc --noEmit: 0 errors [2026-04-15]
+- `TASK-008`: Drag-drop system complete — DndContext + DragOverlay in PlannerPage (PointerSensor 8px threshold + KeyboardSensor), SortableCourseCard (useSortable) for timeline with within-semester reorder, DraggablePaletteCard (useDraggable) for palette, useDroppable on each semester + useDndMonitor for full-column blue hover highlight, palette registers useDroppable id=palette with red overlay + "Release to remove" banner, REORDER_SEMESTER action added to PlanContext, ADD_COURSE guards cross-semester duplicates, past semester cards are static, tsc --noEmit: 0 errors [2026-04-15]
