@@ -371,8 +371,19 @@ export type SemesterId = string; // e.g. "Fall 2025", "Spring 2026"
 /** semesterId → courseId[] */
 export type Plan = Record<SemesterId, string[]>;
 
-export interface PlanState {
-  semesters: SemesterId[];   // Ordered list of semester IDs
-  plan: Plan;                // Which courses are in each semester
-  pinnedCourses: string[];   // Cannot be moved by solver
+export interface Semester {
+  id: string;         // "Fall 2025"
+  label: string;      // "Fall '25" or "Sp '26"
+  status: 'past' | 'current' | 'future';
+  year: number;
+  season: 'Fall' | 'Spring' | 'Summer';
 }
+
+export interface PlanState {
+  semesters: Semester[];       // Ordered list of semester objects
+  plan: Record<string, string[]>; // semesterId → courseId[]
+  pinnedCourses: string[];     // Cannot be moved by solver
+}
+
+/** Display category for color-coding course cards */
+export type CourseCategory = 'ece_core' | 'tech_core' | 'gen_ed' | 'elective' | 'math';

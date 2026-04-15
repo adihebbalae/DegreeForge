@@ -1,0 +1,137 @@
+import type { CourseCatalog, PrereqNode, CourseCategory } from '../types';
+
+// ─── Category Inference ───────────────────────────────────────────────────────
+
+/**
+ * Infer a display category from the prereq-graph node category or course ID prefix.
+ *
+ * Mapping:
+ *  ece_core / ece_lower → 'ece_core'  (blue)
+ *  ece_upper            → 'tech_core' (green — upper-div ECE / tech core tier)
+ *  M prefix             → 'math'      (purple)
+ *  CTI / RHE / UGS …   → 'gen_ed'    (amber)
+ *  everything else      → 'elective'  (gray)
+ */
+export function inferCategory(
+  courseId: string,
+  prereqNodes: Record<string, PrereqNode>
+): CourseCategory {
+  const prefix = courseId.split(' ')[0];
+
+  // Math courses by prefix (M 427J, M 325K, etc.)
+  if (prefix === 'M') return 'math';
+
+  const node = prereqNodes[courseId];
+  if (node?.category) {
+    const cat = node.category;
+    if (cat === 'ece_core' || cat === 'ece_lower') return 'ece_core';
+    if (cat === 'ece_upper') return 'tech_core';
+    if (cat === 'tech_core') return 'tech_core';
+    if (cat === 'gen_ed') return 'gen_ed';
+    if (cat === 'elective') return 'elective';
+    if (cat === 'math') return 'math';
+  }
+
+  // Fallback for ECE not in prereq graph
+  if (prefix === 'ECE') return 'ece_core';
+
+  // Common gen-ed prefixes
+  const GEN_ED_PREFIXES = new Set(['CTI', 'RHE', 'UGS', 'GOV', 'HIS', 'SOC', 'PSY', 'SDS', 'WGS']);
+  if (GEN_ED_PREFIXES.has(prefix)) return 'gen_ed';
+
+  return 'elective';
+}
+
+/** Tailwind classes for left-border accent per category */
+export const CATEGORY_BORDER: Record<CourseCategory, string> = {
+  ece_core: 'border-l-4 border-blue-500',
+  tech_core: 'border-l-4 border-green-500',
+  gen_ed: 'border-l-4 border-amber-500',
+  elective: 'border-l-4 border-gray-400',
+  math: 'border-l-4 border-purple-500',
+};
+
+/** Human-readable label per category */
+export const CATEGORY_LABEL: Record<CourseCategory, string> = {
+  ece_core: 'ECE Core',
+  tech_core: 'Tech Core',
+  gen_ed: 'Gen Ed',
+  elective: 'Elective',
+  math: 'Math',
+};
+
+// ─── Credit Hours ─────────────────────────────────────────────────────────────
+
+/** Hardcoded credit hours for common non-catalog courses */
+const CREDIT_OVERRIDES: Record<string, number> = {
+  'CTI 301G': 3,
+  'CTI 302': 3,
+  'RHE 306': 3,
+  'M 427J': 4,
+  'M 325K': 3,
+  'M 408C': 4,
+  'M 408D': 4,
+  'M 340L': 3,
+  'M 341': 3,
+  'M 311': 3,
+  'M 362K': 3,
+  'M 365C': 3,
+  'M 372K': 3,
+  'M 373K': 3,
+  'M 374E': 3,
+  'M 374M': 3,
+  'M 375T': 3,
+  'M 378K': 3,
+  'M 383C': 3,
+  'M 508M': 5,
+  'M 411': 4,
+  'UGS 016': 0,
+};
+
+/**
+ * Get credit hours for a course, trying multiple sources in order:
+ * 1. Hardcoded overrides (for non-catalog courses)
+ * 2. Course catalog
+ * 3. Prereq-graph node
+ * 4. Default: 3
+ */
+export function getCourseCredits(
+  courseId: string,
+  catalog: CourseCatalog | null,
+  prereqNodes: Record<string, PrereqNode>
+): number {
+  if (CREDIT_OVERRIDES[courseId] !== undefined) return CREDIT_OVERRIDES[courseId];
+  const catalogEntry = catalog?.[courseId];
+  if (catalogEntry?.credits !== undefined) return catalogEntry.credits;
+  const node = prereqNodes[courseId];
+  if (node?.credits !== undefined) return node.credits;
+  return 3;
+}
+
+// ─── GPA Badge ────────────────────────────────────────────────────────────────
+
+/** Returns Tailwind bg color class for a GPA value */
+export function gpaColorClass(gpa: number | null | undefined): string {
+  if (gpa === null || gpa === undefined) return 'bg-gray-400';
+  if (gpa >= 3.5) return 'bg-green-500';
+  if (gpa >= 3.0) return 'bg-yellow-500';
+  if (gpa >= 2.5) return 'bg-orange-500';
+  return 'bg-red-500';
+}
+
+/** Get a course's average GPA from grade distributions */
+export function getCourseAvgGpa(
+  courseId: string,
+  gradeDistributions: Record<string, { avg_gpa: number }>
+): number | null {
+  return gradeDistributions[courseId]?.avg_gpa ?? null;
+}
+
+/** Get course title from catalog or prereq node (fallback to course ID) */
+export function getCourseTitle(
+  courseId: string,
+  catalog: CourseCatalog | null,
+  prereqNodes: Record<string, PrereqNode>
+): string {
+  return catalog?.[courseId]?.title ?? prereqNodes[courseId]?.title ?? courseId;
+}
