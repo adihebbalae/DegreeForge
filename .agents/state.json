@@ -28,12 +28,12 @@
                 },
     "phase":  "3 -- Planning Complete, Ready to Build",
     "mode":  "mvp",
-    "last_updated":  "2026-04-15T15:55:00.0000000-05:00",
+    "last_updated":  "2026-04-15T16:30:00.0000000-05:00",
     "last_updated_by":  "gemini-cli",
     "status":  "building",
     "current_task":  {
-                         "id":  "TASK-012",
-                         "title":  "Claude chat panel + Express proxy endpoint",
+                         "id":  "TASK-017",
+                         "title":  "Integration testing + visual polish",
                          "assigned_to":  "engineer",
                          "status":  "pending",
                          "priority":  "high"
@@ -284,7 +284,7 @@
                   "TASK-012":  {
                                    "title":  "Claude chat panel + Express proxy endpoint",
                                    "assigned_to":  "engineer",
-                                   "status":  "pending",
+                                   "status":  "done",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-005",
@@ -304,7 +304,7 @@
                   "TASK-013":  {
                                    "title":  "External links + course detail popover",
                                    "assigned_to":  "engineer",
-                                   "status":  "pending",
+                                   "status":  "done",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-006"
@@ -323,7 +323,7 @@
                   "TASK-014":  {
                                    "title":  "State persistence (localStorage + JSON export/import)",
                                    "assigned_to":  "engineer",
-                                   "status":  "pending",
+                                   "status":  "done",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-008"
@@ -342,7 +342,7 @@
                   "TASK-015":  {
                                    "title":  "V2: Schedule optimizer engine",   
                                    "assigned_to":  "engineer",
-                                   "status":  "pending",
+                                   "status":  "done",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-002"
@@ -362,7 +362,7 @@
                   "TASK-016":  {
                                    "title":  "V2: Schedule calendar view + selection UI",
                                    "assigned_to":  "engineer",
-                                   "status":  "pending",
+                                   "status":  "done",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-015",
@@ -454,6 +454,11 @@
                       "2026-04-15: TASK-008 complete -- DndContext + DragOverlay in PlannerPage, SortableCourseCard (useSortable) for timeline reorder, DraggablePaletteCard (useDraggable) for palette, useDroppable + useDndMonitor for blue semester hover highlight, palette useDroppable id=palette with red overlay + remove banner, REORDER_SEMESTER action, cross-semester duplicate prevention in ADD_COURSE, past semester cards static, tsc --noEmit: 0 errors",
                       "2026-04-15: TASK-009 complete -- ProgressBars component with 5 bars (Credit Hours, ECE Core, Gen Ed, Tech Core, Electives), computeProgress() logic in lib/progress.ts, 5 unit tests for progress calculation, ProgressBars integrated into PlannerPage header strip, tsc --noEmit: 0 errors",
                       "2026-04-15: TASK-010 complete -- Prerequisite validation UI: red/orange card borders, shadcn tooltips listing missing prereqs/coreqs, downstream dependent highlighting on hover (timeline + palette), ValidationBanner summary at top, 6 new unit tests for graph engine validation logic, tsc --noEmit: 0 errors",
-                      "2026-04-15: TASK-011 complete -- What-if simulator: Tech Core dropdown (9 tracks), Math BA toggle, WhatIfDiff summary panel, reactive progress bars + palette updates, 3 new Radix UI components (Select, Switch, Label) added, tsc --noEmit: 0 errors"
+                      "2026-04-15: TASK-011 complete -- What-if simulator: Tech Core dropdown (9 tracks), Math BA toggle, WhatIfDiff summary panel, reactive progress bars + palette updates, 3 new Radix UI components (Select, Switch, Label) added, tsc --noEmit: 0 errors",
+                      "2026-04-15: TASK-012 complete -- Claude chat panel: slide-out UI with streaming response, ReactMarkdown rendering, context-aware system prompt (plan + profile), Express proxy endpoint with Anthropic SDK integration, tsc --noEmit: 0 errors",
+                      "2026-04-15: TASK-013 complete -- External links + course detail popover: shadcn Dialog on course card click, full description + prereqs + unlocks display, CSS-based grade distribution mini-chart, links to RMP/UTGradesPlus/Syllabi/CIS, tsc --noEmit: 0 errors",
+                      "2026-04-15: TASK-014 complete -- State persistence: localStorage auto-save/restore, Export/Import JSON buttons in header, Reset Plan button with confirmation, SET_FULL_STATE action for seamless import, tsc --noEmit: 0 errors",
+                      "2026-04-15: TASK-015 complete -- V2: Schedule optimizer engine: backtrack-based search for conflict-free section combinations, weighted scoring (GPA + instruction mode), top 5 candidates returned, tsc --noEmit: 0 errors",
+                      "2026-04-15: TASK-016 complete -- V2: Schedule UI: Course selector from plan, ranked candidate cards, weekly calendar view with color-coded blocks, Copy Unique Numbers button, tsc --noEmit: 0 errors"
                   ]
 }

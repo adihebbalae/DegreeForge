@@ -2,8 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
-import fs from 'fs';
-import path from 'path';
 
 dotenv.config({ path: '../../.env' });
 
@@ -15,52 +13,77 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-// Load static data once at startup
-const DATA_DIR = path.join(__dirname, '../../../data');
-const prereqGraph = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'prerequisite-graph.json'), 'utf8'));
-const gradeDistributions = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'grade-distributions.json'), 'utf8'));
+interface ChatPlanContext {
+  techCore: string;
+  completedCourses: string[];
+  inProgress: string[];
+  targetGraduation: string;
+  totalCoursesPlanned: number;
+  semesterCount: number;
+}
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+function buildSystemPrompt(ctx: ChatPlanContext): string {
+  return `You are a helpful academic advisor for a UT Austin ECE student named Adi.
+
+Current Plan Summary:
+- Tech Core: ${ctx.techCore}
+- Completed courses: ${ctx.completedCourses.join(', ')}
+- Spring 2026 (in progress): ${ctx.inProgress.join(', ')}
+- Target graduation: ${ctx.targetGraduation}
+
+${ctx.totalCoursesPlanned > 0 ? `Current plan includes ${ctx.totalCoursesPlanned} courses across ${ctx.semesterCount} semesters.` : ''}
+
+Your role:
+- Explain course tradeoffs and why prerequisites matter
+- Help Adi understand what courses to prioritize
+- Answer questions about UT ECE degree requirements
+- Do NOT generate a full course plan — the planner tool handles that automatically
+- Keep responses concise (2-4 paragraphs max)
+- Reference specific UT ECE courses by their correct names`;
+}
+
+function stripHtml(text: string): string {
+  return text.replace(/<[^>]*>?/gm, '');
+}
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
 app.post('/api/chat', async (req, res) => {
-  const { messages, context } = req.body;
+  const { messages, planContext } = req.body;
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured on server' });
   }
 
+  // Input validation
+  if (!messages || !Array.isArray(messages) || messages.length > 50) {
+    return res.status(400).json({ error: 'Invalid messages format or too many messages' });
+  }
+
+  for (const msg of messages) {
+    if (!msg.role || !['user', 'assistant'].includes(msg.role) || typeof msg.content !== 'string' || msg.content.length > 2000) {
+      return res.status(400).json({ error: 'Invalid message format or content length' });
+    }
+    msg.content = stripHtml(msg.content);
+  }
+
+  if (!planContext) {
+    return res.status(400).json({ error: 'Missing planContext' });
+  }
+
   try {
-    // We only send a SUMMARY of the grade data and prereqs to keep context manageable
-    // Actually, for now we'll just send the core info and let Claude ask if it needs more.
-    
-    const systemPrompt = `
-You are DegreeForge AI, an expert academic advisor for ECE and Math at UT Austin.
-You are helping a student (Adi) plan their degree path (2026-2028 catalog).
-
-CONTEXT:
-- User Profile: ${JSON.stringify(context.profile)}
-- Current Plan: ${JSON.stringify(context.plan)}
-- Tech Core: ${context.techCoreId}
-- Math BA Toggle: ${context.mathBAToggle}
-
-DATA REFERENCE:
-- You have access to the full prerequisite graph and grade distributions for UT Austin ECE courses.
-- Adi's current GPA is ${context.profile?.gpa?.cumulative ?? 'unknown'}.
-
-GUIDELINES:
-- Your role is EXPLANATION and TRADEOFF ANALYSIS.
-- DO NOT generate full plans; help the student make their own decisions.
-- Explain prerequisite chains and why certain courses are difficult.
-- Use the average GPA data to warn about "weed-out" or heavy-load semesters.
-- Be encouraging but realistic about course loads.
-- Keep responses concise and formatted with markdown.
-`;
+    const systemPrompt = buildSystemPrompt(planContext);
 
     const stream = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 1024,
       system: systemPrompt,
-      messages: messages,
+      messages: messages.slice(-10), // Only last 10 messages to limit tokens
       stream: true,
     });
 

@@ -54,15 +54,17 @@ packages/                        # Monorepo (npm workspaces)
       lib/
         utils.ts                 # cn() helper
         normalize.ts             # E E -> ECE normalization boundary
-        graph-engine.ts          # TASK-003: Core prerequisite graph logic
+        graph-engine.ts          # TASK-003: Core prerequisite graph logic      
         graph-engine.test.ts     # TASK-010: Tests for validation logic
         progress.ts              # computeProgress() for degree requirements    
-        course-utils.ts          # inferCategory(), gpaColorClass(), etc.
+        course-utils.ts          # inferCategory(), gpaColorClass(), etc.       
+        what-if.ts               # TASK-011: What-if diff calculation logic
+        what-if.test.ts          # TASK-011: Tests for what-if logic
       pages/
         PlannerPage.tsx          # V1: progress strip + ValidationBanner + TimelineGrid + CoursePalette
         SchedulerPage.tsx        # V2: 2-col layout (course selector / weekly calendar)
       components/
-        Header.tsx               # Wordmark + nav links + dark mode toggle
+        Header.tsx               # Wordmark + nav links + dark mode toggle      
         Layout.tsx               # Shell: Header + Routes
         ProgressBars.tsx         # TASK-009: 5 progress bars for degree requirements
         ValidationBanner.tsx     # TASK-010: Alert banner for prerequisite issues
@@ -70,8 +72,11 @@ packages/                        # Monorepo (npm workspaces)
         CoursePalette.tsx        # Right-sidebar: collapsible categories, search, highlights
         SemesterColumn.tsx       # Semester column: course cards list, drop-zones
         TimelineGrid.tsx         # Horizontal-scroll timeline grid
+        WhatIfPanel.tsx          # TASK-011: What-if simulator panel (slide-over)
+        ChatPanel.tsx            # TASK-012: AI chat interface
         ui/
           button.tsx             # shadcn Button component
+
           tooltip.tsx            # shadcn Tooltip component
           progress.tsx           # shadcn Progress component
     public/

@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, User, Bot, Loader2 } from 'lucide-react';
+import { Send, User, Bot, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { usePlan, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
+import { usePlan, useTechCoreId, useSemesters } from '@/context/PlanContext';
 import { useUserProfile } from '@/context/DataContext';
 import ReactMarkdown from 'react-markdown';
+import type { ChatPlanContext } from '@/types';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -17,9 +18,9 @@ export default function ChatPanel() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const plan = usePlan();
+  const semesters = useSemesters();
   const profile = useUserProfile();
   const techCoreId = useTechCoreId();
-  const mathBAToggle = useMathBAToggle();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -27,25 +28,51 @@ export default function ChatPanel() {
     }
   }, [messages]);
 
+  const getChatPlanContext = (): ChatPlanContext => {
+    const completedCourses: string[] = [];
+    const inProgress: string[] = [];
+    let totalCoursesPlanned = 0;
+
+    semesters.forEach(sem => {
+      const courses = plan[sem.id] || [];
+      totalCoursesPlanned += courses.length;
+      if (sem.status === 'past') {
+        completedCourses.push(...courses);
+      } else if (sem.status === 'current') {
+        inProgress.push(...courses);
+      }
+    });
+
+    return {
+      techCore: techCoreId,
+      completedCourses,
+      inProgress,
+      targetGraduation: profile?.graduation_target || 'Unknown',
+      totalCoursesPlanned,
+      semesterCount: semesters.length,
+    };
+  };
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
     const userMsg: Message = { role: 'user', content: input };
-    setMessages((prev) => [...prev, userMsg]);
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
     setInput('');
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/chat', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [...messages, userMsg],
-          context: { plan, profile, techCoreId, mathBAToggle },
+          messages: newMessages.slice(-20), // Session history limit
+          planContext: getChatPlanContext(),
         }),
       });
 
-      if (!response.ok) throw new Error('Chat API failed');
+      if (!response.ok) throw new Error('Chat API failed. Check your API key.');
 
       const reader = response.body?.getReader();
       if (!reader) throw new Error('No reader available');
@@ -79,11 +106,11 @@ export default function ChatPanel() {
           }
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Chat Error:', error);
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: 'Sorry, I encountered an error connecting to the advisor.' },
+        { role: 'assistant', content: error.message || 'Sorry, something went wrong. Check your API key.' },
       ]);
     } finally {
       setIsLoading(false);
@@ -98,7 +125,7 @@ export default function ChatPanel() {
           <div className="text-center py-8">
             <Bot className="w-12 h-12 text-muted-foreground mx-auto mb-2 opacity-20" />
             <p className="text-sm text-muted-foreground">
-              Ask me about your degree requirements, prerequisites, or course difficulty.
+              Ask Adi's advisor about degree requirements, prerequisites, or course difficulty.
             </p>
           </div>
         )}
@@ -129,7 +156,7 @@ export default function ChatPanel() {
               <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
             </div>
             <div className="max-w-[85%] px-3 py-2 rounded-lg bg-muted text-sm italic text-muted-foreground">
-              Thinking...
+              Consulting advisor...
             </div>
           </div>
         )}
@@ -138,7 +165,7 @@ export default function ChatPanel() {
       {/* Input */}
       <div className="p-4 border-t border-border bg-background">
         <form
-          className="relative"
+          className="relative flex gap-2"
           onSubmit={(e) => {
             e.preventDefault();
             handleSend();
@@ -147,25 +174,25 @@ export default function ChatPanel() {
           <input
             autoFocus
             type="text"
-            placeholder="Ask DegreeForge AI..."
+            placeholder="Ask about your plan..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isLoading}
             className={[
-              'w-full pl-3 pr-10 py-2 text-sm',
+              'flex-1 pl-3 pr-10 py-2 text-sm',
               'bg-muted border border-input rounded-md',
               'placeholder:text-muted-foreground',
               'focus:outline-none focus:ring-1 focus:ring-ring',
               'disabled:opacity-50',
             ].join(' ')}
           />
-          <button
+          <Button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-primary disabled:opacity-50"
+            size="sm"
           >
-            <Send className="w-4 h-4" />
-          </button>
+            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send'}
+          </Button>
         </form>
       </div>
     </div>

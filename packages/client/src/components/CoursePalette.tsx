@@ -14,7 +14,7 @@ import { usePlan, useHoveredCourse, useTechCoreId, useMathBAToggle } from '@/con
 import { getCourseTitle } from '@/lib/course-utils';
 import CollapsibleSection from './CollapsibleSection';
 import CourseCard from './CourseCard';
-import type { CourseCatalog, CourseCategory, PrereqNode } from '@/types';
+import type { CourseCatalog, CourseCategory, PrereqNode, GradeDistributions } from '@/types';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 
 // ─── Draggable palette card ────────────────────────────────────────────────────
@@ -23,7 +23,7 @@ interface DraggablePaletteCardProps {
   courseId: string;
   catalog: CourseCatalog | null;
   prereqNodes: Record<string, PrereqNode>;
-  gradeDistributions: Record<string, { avg_gpa: number }>;
+  gradeDistributions: GradeDistributions;
   categoryOverride: CourseCategory;
   prereqsMet: boolean;
   isDownstreamHighlight?: boolean;
