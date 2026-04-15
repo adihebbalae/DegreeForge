@@ -51,9 +51,17 @@ export function computeProgress(
   const honorsToCore = Object.fromEntries(
     Object.entries(degreeReqs.ece_core.honors_variants).map(([core, honors]) => [honors, core])
   );
+  
+  // Legacy/Old number mapping (pre-2026)
+  const legacyToCore: Record<string, string> = {
+    'ECE 302': 'ECE 402',
+    'ECE 306': 'ECE 406',
+    'ECE 312': 'ECE 412',
+    'ECE 319K': 'ECE 419K',
+  };
 
   const completedEceCore = unique.filter((courseId) => {
-    const normalizedId = honorsToCore[courseId] || courseId;
+    const normalizedId = honorsToCore[courseId] || legacyToCore[courseId] || courseId;
     return eceCoreList.includes(normalizedId);
   });
   const eceCoreCompleted = completedEceCore.length;
@@ -71,16 +79,16 @@ export function computeProgress(
       if (his1Slot) options = his1Slot.options;
     }
 
-    if (options.some((opt) => unique.includes(opt))) {
+    // Include common CTI equivalents for VAPA and Humanities
+    const enhancedOptions = [...options];
+    if (slot.id === 'vapa') enhancedOptions.push('CTI 301G');
+    if (slot.id === 'humanities') enhancedOptions.push('CTI 302');
+
+    if (enhancedOptions.some((opt) => unique.includes(opt))) {
       completedGenEdSlots.add(slot.id);
     }
   });
 
-  // Special case: CTI courses often count for core too.
-  // Profile has CTI 301G and CTI 302.
-  // We'll count them toward Gen Ed if they are not explicitly in slots but are 'gen_ed' category
-  // Actually, let's stick to the slots for now.
-  
   const genEdTotal = 8;
   const genEdCompleted = Math.min(completedGenEdSlots.size, genEdTotal);
 
@@ -151,7 +159,11 @@ export function computeProgress(
   // 6. Free Electives
   // Handoff: "Advanced ECE electives in plan"
   // Target: 11 hrs
-  const eceCoreNormalized = new Set(completedEceCore.map(id => honorsToCore[id] || id));
+  const eceCoreAllIds = new Set([
+    ...eceCoreList,
+    ...Object.keys(honorsToCore),
+    ...Object.keys(legacyToCore),
+  ]);
   
   const electiveHours = unique
     .filter((courseId) => {
@@ -162,7 +174,7 @@ export function computeProgress(
       const isEce = prefix === 'ECE';
       const isAdvanced = num >= 320;
       
-      const isEceCore = eceCoreNormalized.has(courseId) || honorsToCore[courseId] !== undefined;
+      const isEceCore = eceCoreAllIds.has(courseId);
       const isTechCore = techCoreUsed.has(courseId);
 
       return isEce && isAdvanced && !isEceCore && !isTechCore;

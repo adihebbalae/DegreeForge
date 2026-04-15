@@ -26,9 +26,11 @@ export function ProgressBars() {
   const progress = useMemo(() => {
     if (!catalog || !prereqNodes || !degreeReqs || !profile || !techCores) return null;
     
-    // Find Adi's tech core track
+    // Find Adi's tech core track — handle '&' vs 'and' normalization
+    const normalize = (s: string) => s.toLowerCase().replace(/&/g, 'and').replace(/\s+/g, ' ').trim();
+    const declaredNormalized = normalize(profile.tech_core.declared);
     const trackSlug = Object.keys(techCores).find(
-      (key) => techCores[key].name === profile.tech_core.declared
+      (key) => normalize(techCores[key].name) === declaredNormalized
     ) || 'computer_architecture';
     const techCore = techCores[trackSlug];
 
