@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun, Download, Upload, RotateCcw } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { usePlanContext, usePlanDispatch } from '@/context/PlanContext'
 
 export default function Header() {
+  const { state } = usePlanContext()
+  const dispatch = usePlanDispatch()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const [dark, setDark] = useState<boolean>(() => {
     const stored = localStorage.getItem('theme')
     if (stored) return stored === 'dark'
@@ -21,10 +26,51 @@ export default function Header() {
     }
   }, [dark])
 
+  const handleExport = () => {
+    const dataStr = JSON.stringify(state, null, 2)
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr)
+    const exportFileDefaultName = `degreeforge-plan-${new Date().toISOString().split('T')[0]}.json`
+
+    const linkElement = document.createElement('a')
+    linkElement.setAttribute('href', dataUri)
+    linkElement.setAttribute('download', exportFileDefaultName)
+    linkElement.click()
+  }
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string
+        const parsed = JSON.parse(content)
+        if (parsed.semesters && parsed.plan) {
+          dispatch({ type: 'SET_FULL_STATE', state: parsed })
+        } else {
+          alert('Invalid plan file format')
+        }
+      } catch (err) {
+        console.error('Import failed:', err)
+        alert('Failed to parse plan file')
+      }
+    }
+    reader.readAsText(file)
+    // Reset input so the same file can be uploaded again if needed
+    event.target.value = ''
+  }
+
+  const handleReset = () => {
+    if (window.confirm('Are you sure you want to reset your plan to the initial state? This cannot be undone.')) {
+      dispatch({ type: 'RESET_PLAN' })
+    }
+  }
+
   return (
-    <header className="h-14 border-b border-border flex items-center px-4 gap-4 bg-background">
+    <header className="h-14 border-b border-border flex items-center px-4 gap-2 bg-background">
       {/* Logo / wordmark */}
-      <span className="text-lg font-bold text-foreground select-none">DegreeForge</span>
+      <span className="text-lg font-bold text-foreground select-none mr-2">DegreeForge</span>
 
       {/* Nav links (centered) */}
       <nav className="flex gap-1 flex-1 justify-center">
@@ -53,15 +99,58 @@ export default function Header() {
         </NavLink>
       </nav>
 
-      {/* Dark mode toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setDark((d) => !d)}
-        aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-      >
-        {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-      </Button>
+      {/* Actions */}
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleExport}
+          title="Export Plan (JSON)"
+          aria-label="Export Plan"
+        >
+          <Download className="h-4 w-4" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => fileInputRef.current?.click()}
+          title="Import Plan (JSON)"
+          aria-label="Import Plan"
+        >
+          <Upload className="h-4 w-4" />
+        </Button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="hidden"
+          accept=".json"
+          onChange={handleImport}
+        />
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleReset}
+          title="Reset Plan"
+          aria-label="Reset Plan"
+          className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+        >
+          <RotateCcw className="h-4 w-4" />
+        </Button>
+
+        <div className="w-px h-6 bg-border mx-1" />
+
+        {/* Dark mode toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setDark((d) => !d)}
+          aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </Button>
+      </div>
     </header>
   )
 }

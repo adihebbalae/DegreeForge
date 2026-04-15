@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { inferCategory, CATEGORY_BORDER, getCourseCredits, getCourseTitle, gpaColorClass } from '@/lib/course-utils';
-import type { CourseCatalog, CourseCategory, PrereqNode, PrereqViolation } from '@/types';
+import type { CourseCatalog, CourseCategory, PrereqNode, PrereqViolation, GradeDistributions } from '@/types';
 import { usePlanDispatch } from '@/context/PlanContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import CourseDetailDialog from './CourseDetailDialog';
 
 interface CourseCardProps {
   courseId: string;
@@ -13,7 +15,7 @@ interface CourseCardProps {
   /** Data from DataContext */
   catalog: CourseCatalog | null;
   prereqNodes: Record<string, PrereqNode>;
-  gradeDistributions: Record<string, { avg_gpa: number }>;
+  gradeDistributions: GradeDistributions;
   /** Optional: override inferred category */
   categoryOverride?: CourseCategory;
   /** 'palette' = compact mode used in the course palette sidebar */
@@ -46,6 +48,8 @@ export default function CourseCard({
   isDownstreamHighlight = false,
 }: CourseCardProps) {
   const dispatch = usePlanDispatch();
+  const [detailOpen, setDetailOpen] = useState(false);
+
   const category = categoryOverride ?? inferCategory(courseId, prereqNodes);
   const borderClass = CATEGORY_BORDER[category];
 
@@ -77,6 +81,7 @@ export default function CourseCard({
     <div
       onMouseEnter={() => !isDragOverlay && dispatch({ type: 'SET_HOVERED_COURSE', courseId })}
       onMouseLeave={() => !isDragOverlay && dispatch({ type: 'SET_HOVERED_COURSE', courseId: null })}
+      onClick={() => !isDragOverlay && setDetailOpen(true)}
       className={cn(
         'relative rounded-md bg-card shadow-sm overflow-hidden',
         'border border-border',
@@ -92,8 +97,8 @@ export default function CourseCard({
         // Drag states
         isDragging && 'opacity-50',
         isDragOverlay && 'shadow-xl rotate-1 scale-105 cursor-grabbing',
-        !isDragOverlay && !isPast && 'cursor-grab',
-        isPast && 'cursor-default',
+        !isDragOverlay && !isPast && 'cursor-pointer',
+        isPast && 'cursor-pointer',
         'select-none'
       )}
       title={`${courseId} — ${title} (${credits} cr)`}
@@ -172,43 +177,54 @@ export default function CourseCard({
     </div>
   );
 
-  if (violation) {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          {cardContent}
-        </TooltipTrigger>
-        <TooltipContent side="right" className="max-w-xs">
-          <div className="space-y-2">
-            {violation.missingPrereqs.length > 0 && (
-              <div className="space-y-1">
-                <p className="font-semibold text-[11px] text-red-500 uppercase tracking-wider">
-                  Missing Prerequisites:
-                </p>
-                {violation.missingPrereqs.map((p) => (
-                  <p key={p} className="text-[11px] leading-tight flex gap-1.5">
-                    <span className="shrink-0">•</span> {p} must be completed in an earlier semester
+  return (
+    <>
+      {violation ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            {cardContent}
+          </TooltipTrigger>
+          <TooltipContent side="right" className="max-w-xs">
+            <div className="space-y-2">
+              {violation.missingPrereqs.length > 0 && (
+                <div className="space-y-1">
+                  <p className="font-semibold text-[11px] text-red-500 uppercase tracking-wider">
+                    Missing Prerequisites:
                   </p>
-                ))}
-              </div>
-            )}
-            {violation.unsatisfiedCoreqs.length > 0 && (
-              <div className="space-y-1">
-                <p className="font-semibold text-[11px] text-amber-600 uppercase tracking-wider">
-                  Unsatisfied Corequisites:
-                </p>
-                {violation.unsatisfiedCoreqs.map((c) => (
-                  <p key={c} className="text-[11px] leading-tight flex gap-1.5">
-                    <span className="shrink-0">•</span> {c} must be taken in the same or earlier semester
+                  {violation.missingPrereqs.map((p) => (
+                    <p key={p} className="text-[11px] leading-tight flex gap-1.5">
+                      <span className="shrink-0">•</span> {p} must be completed in an earlier semester
+                    </p>
+                  ))}
+                </div>
+              )}
+              {violation.unsatisfiedCoreqs.length > 0 && (
+                <div className="space-y-1">
+                  <p className="font-semibold text-[11px] text-amber-600 uppercase tracking-wider">
+                    Unsatisfied Corequisites:
                   </p>
-                ))}
-              </div>
-            )}
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
+                  {violation.unsatisfiedCoreqs.map((c) => (
+                    <p key={c} className="text-[11px] leading-tight flex gap-1.5">
+                      <span className="shrink-0">•</span> {c} must be taken in the same or earlier semester
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        cardContent
+      )}
 
-  return cardContent;
+      <CourseDetailDialog
+        courseId={courseId}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        catalog={catalog}
+        gradeDistributions={gradeDistributions}
+        prereqNodes={prereqNodes}
+      />
+    </>
+  );
 }

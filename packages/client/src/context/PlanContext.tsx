@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import type { PlanState, Semester, WhatIfState } from '../types';
 
 // ─── Action Types ─────────────────────────────────────────────────────────────
@@ -15,7 +15,9 @@ export type PlanAction =
   | { type: 'SET_TECH_CORE'; techCoreId: string }
   | { type: 'TOGGLE_MATH_BA'; enabled: boolean }
   | { type: 'APPLY_WHAT_IF'; newPlan: Record<string, string[]> }
-  | { type: 'RESET_WHAT_IF' };
+  | { type: 'RESET_WHAT_IF' }
+  | { type: 'RESET_PLAN' }
+  | { type: 'SET_FULL_STATE'; state: PlanState };
 
 // ─── Context Shape ────────────────────────────────────────────────────────────
 
@@ -63,12 +65,13 @@ const INITIAL_STATE: PlanState = {
   },
 };
 
+const STORAGE_KEY = 'degreeforge-plan-state';
+
 // ─── Reducer ──────────────────────────────────────────────────────────────────
 
 function planReducer(state: PlanState, action: PlanAction): PlanState {
   switch (action.type) {
     case 'ADD_COURSE': {
-      // Prevent cross-semester duplicates — a course may only appear once in the entire plan
       const alreadyPlaced = Object.values(state.plan).some((courses) =>
         courses.includes(action.courseId)
       );
@@ -180,6 +183,14 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
       };
     }
 
+    case 'RESET_PLAN': {
+      return INITIAL_STATE;
+    }
+
+    case 'SET_FULL_STATE': {
+      return action.state;
+    }
+
     default:
       return state;
   }
@@ -190,7 +201,25 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
 const PlanContext = createContext<PlanContextValue | null>(null);
 
 export function PlanProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(planReducer, INITIAL_STATE);
+  const [state, dispatch] = useReducer(planReducer, INITIAL_STATE, (initial) => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        // Basic validation: ensure semesters and plan exist
+        if (parsed.semesters && parsed.plan) {
+          return { ...initial, ...parsed, hoveredCourse: null };
+        }
+      } catch (e) {
+        console.error('Failed to parse stored plan state:', e);
+      }
+    }
+    return initial;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [state]);
 
   return (
     <PlanContext.Provider value={{ state, dispatch }}>

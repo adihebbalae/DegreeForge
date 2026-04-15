@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import { getCourseCredits } from '@/lib/course-utils';
 import CourseCard from './CourseCard';
-import type { Semester, CourseCatalog, PrereqNode, PrereqViolation } from '@/types';
+import type { Semester, CourseCatalog, PrereqNode, PrereqViolation, GradeDistributions } from '@/types';
 
 // ─── Sortable course card (timeline cards that can be dragged/reordered) ─────
 
@@ -18,7 +18,7 @@ interface SortableCourseCardProps {
   letterGrade?: string;
   catalog: CourseCatalog | null;
   prereqNodes: Record<string, PrereqNode>;
-  gradeDistributions: Record<string, { avg_gpa: number }>;
+  gradeDistributions: GradeDistributions;
   violation?: PrereqViolation;
   isDownstreamHighlight?: boolean;
 }
@@ -100,7 +100,7 @@ interface SemesterColumnProps {
   /** Data from DataContext */
   catalog: CourseCatalog | null;
   prereqNodes: Record<string, PrereqNode>;
-  gradeDistributions: Record<string, { avg_gpa: number }>;
+  gradeDistributions: GradeDistributions;
   /** Violation data from useValidation (TASK-010) */
   violationsByCourse: Record<string, PrereqViolation>;
   /** Set of courses to highlight as downstream dependents (TASK-010) */

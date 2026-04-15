@@ -407,3 +407,12 @@ export interface PlanState {
 
 /** Display category for color-coding course cards */
 export type CourseCategory = 'ece_core' | 'tech_core' | 'gen_ed' | 'elective' | 'math';
+
+export interface ChatPlanContext {
+  techCore: string;
+  completedCourses: string[];
+  inProgress: string[];
+  targetGraduation: string;
+  totalCoursesPlanned: number;
+  semesterCount: number;
+}
