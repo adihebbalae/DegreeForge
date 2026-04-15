@@ -60,7 +60,7 @@
 | TASK-002 | Data layer + TypeScript types + E E→ECE normalization | engineer | 001 | ✅ done |
 | TASK-003 | Prerequisite graph engine (DAG, toposort, validation) | engineer | 002 | pending |
 | TASK-004 | Constraint solver / recommendation engine | engineer | 003 | pending |
-| TASK-005 | App shell + page layout + routing | engineer | 001 | pending |
+| TASK-005 | App shell + page layout + routing | engineer | 001 | ✅ done |
 | TASK-006 | Semester timeline grid + course cards | engineer | 002, 005 | pending |
 | TASK-007 | Course palette panel | engineer | 002, 005 | pending |
 | TASK-008 | Drag-drop system (dnd-kit: palette↔timeline) | engineer | 006, 007 | pending |
@@ -96,3 +96,5 @@
 ## Changelog (cont.)
 - `TASK-001`: Monorepo scaffolded — packages/client (Vite+React+TS+Tailwind+shadcn), packages/server (Express+TS), 9 JSON data files in public/data/, tsc clean on both packages [2026-04-06]
 - `TASK-002`: Data layer complete — TypeScript interfaces for all 9 JSON schemas, normalizeEEtoECE() with 19 passing unit tests, DataProvider with 11 typed hooks, DataProvider wraps React tree in main.tsx, tsc --noEmit: 0 errors [2026-04-06]
+- `TASK-005`: App shell complete — BrowserRouter in main.tsx, Header (wordmark + nav links + dark mode toggle persisted to localStorage), Layout component, PlannerPage (progress strip + scrollable timeline + palette sidebar + chat slide-in overlay), SchedulerPage (2-col: selector left / calendar right), tsc --noEmit: 0 errors [2026-04-15]
+- `TASK-006`: Semester timeline grid + course cards complete — PlanContext (useReducer, ADD/REMOVE/MOVE/SET_PLAN/PIN/UNPIN), 8-semester sequence with past/current/future status pre-loaded from Adi's transcript, CourseCard (category color border, GPA badge, past-card muting + grade + checkmark), SemesterColumn (season icon, credit counter, EmptySlot drop-zone placeholders), TimelineGrid horizontal scroll, PlanProvider in main.tsx, tsc --noEmit: 0 errors [2026-04-15]
