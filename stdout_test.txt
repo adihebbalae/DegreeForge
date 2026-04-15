@@ -1,5 +1,0 @@
-YOLO mode is enabled. All tool calls will be automatically approved.
-YOLO mode is enabled. All tool calls will be automatically approved.
-Hello! I'm Gemini CLI, your autonomous engineering assistant. I see you're working on **DegreeForge**, which appears to be a degree planning and course scheduling application for UT Austin students, featuring a React/TypeScript frontend and a Node.js backend.
-
-I've indexed your workspace, including your course data, degree requirements, and extraction tools. How can I help you with the project today?

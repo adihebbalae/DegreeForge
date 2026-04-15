@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import { getCourseCredits } from '@/lib/course-utils';
 import CourseCard from './CourseCard';
-import type { Semester, CourseCatalog, PrereqNode } from '@/types';
+import type { Semester, CourseCatalog, PrereqNode, PrereqViolation } from '@/types';
 
 // ─── Sortable course card (timeline cards that can be dragged/reordered) ─────
 
@@ -19,6 +19,8 @@ interface SortableCourseCardProps {
   catalog: CourseCatalog | null;
   prereqNodes: Record<string, PrereqNode>;
   gradeDistributions: Record<string, { avg_gpa: number }>;
+  violation?: PrereqViolation;
+  isDownstreamHighlight?: boolean;
 }
 
 function SortableCourseCard({
@@ -30,6 +32,8 @@ function SortableCourseCard({
   catalog,
   prereqNodes,
   gradeDistributions,
+  violation,
+  isDownstreamHighlight,
 }: SortableCourseCardProps) {
   const {
     attributes,
@@ -63,6 +67,8 @@ function SortableCourseCard({
         prereqNodes={prereqNodes}
         gradeDistributions={gradeDistributions}
         isDragging={isDragging}
+        violation={violation}
+        isDownstreamHighlight={isDownstreamHighlight}
       />
     </div>
   );
@@ -95,6 +101,10 @@ interface SemesterColumnProps {
   catalog: CourseCatalog | null;
   prereqNodes: Record<string, PrereqNode>;
   gradeDistributions: Record<string, { avg_gpa: number }>;
+  /** Violation data from useValidation (TASK-010) */
+  violationsByCourse: Record<string, PrereqViolation>;
+  /** Set of courses to highlight as downstream dependents (TASK-010) */
+  downstreamCourses: Set<string>;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -106,6 +116,8 @@ export default function SemesterColumn({
   catalog,
   prereqNodes,
   gradeDistributions,
+  violationsByCourse,
+  downstreamCourses,
 }: SemesterColumnProps) {
   const { id, label, status, season } = semester;
   const isPast = status === 'past';
@@ -203,6 +215,8 @@ export default function SemesterColumn({
               catalog={catalog}
               prereqNodes={prereqNodes}
               gradeDistributions={gradeDistributions}
+              violation={violationsByCourse[courseId]}
+              isDownstreamHighlight={downstreamCourses.has(courseId)}
             />
           ))}
         </div>
@@ -229,6 +243,8 @@ export default function SemesterColumn({
                 catalog={catalog}
                 prereqNodes={prereqNodes}
                 gradeDistributions={gradeDistributions}
+                violation={violationsByCourse[courseId]}
+                isDownstreamHighlight={downstreamCourses.has(courseId)}
               />
             ))}
           </SortableContext>

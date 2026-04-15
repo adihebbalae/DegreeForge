@@ -9,23 +9,11 @@
  *   → M 408C must be taken BEFORE ECE 302
  */
 
-import type { PrereqGraphData } from '../types';
+import type { PrereqGraphData, PrereqViolation } from '../types';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
 export type { Plan, SemesterId, PlanState } from '../types';
-
-export interface PrereqViolation {
-  /** The course whose placement is invalid */
-  courseId: string;
-  /** The semester it was (mis)placed in */
-  semesterId: string;
-  /** Prerequisites that are not yet completed before this semester */
-  missingPrereqs: string[];
-  /** Corequisites not placed in same or earlier semester */
-  unsatisfiedCoreqs: string[];
-  violationType: 'prereq' | 'coreq' | 'both';
-}
 
 // ─── PrereqGraph class ────────────────────────────────────────────────────────
 

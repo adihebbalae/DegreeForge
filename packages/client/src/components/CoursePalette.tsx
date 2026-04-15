@@ -3,18 +3,19 @@ import { Search } from 'lucide-react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import {
   useCatalogRecord,
-  usePrereqGraph,
+  usePrereqGraph as useRawPrereqGraph,
   useGradeDistributions,
   useUserProfile,
   useDegreeRequirements,
   useTechCoresRecord,
   useMathRequirements,
 } from '@/context/DataContext';
-import { usePlan } from '@/context/PlanContext';
+import { usePlan, useHoveredCourse } from '@/context/PlanContext';
 import { getCourseTitle } from '@/lib/course-utils';
 import CollapsibleSection from './CollapsibleSection';
 import CourseCard from './CourseCard';
 import type { CourseCatalog, CourseCategory, PrereqNode } from '@/types';
+import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 
 // ─── Draggable palette card ────────────────────────────────────────────────────
 
@@ -25,6 +26,7 @@ interface DraggablePaletteCardProps {
   gradeDistributions: Record<string, { avg_gpa: number }>;
   categoryOverride: CourseCategory;
   prereqsMet: boolean;
+  isDownstreamHighlight?: boolean;
 }
 
 function DraggablePaletteCard({
@@ -34,6 +36,7 @@ function DraggablePaletteCard({
   gradeDistributions,
   categoryOverride,
   prereqsMet,
+  isDownstreamHighlight,
 }: DraggablePaletteCardProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `palette-${courseId}`,
@@ -57,6 +60,7 @@ function DraggablePaletteCard({
         variant="palette"
         prereqsMet={prereqsMet}
         isDragging={isDragging}
+        isDownstreamHighlight={isDownstreamHighlight}
       />
     </div>
   );
@@ -127,7 +131,7 @@ export default function CoursePalette() {
 
   // ── Data ──────────────────────────────────────────────────────────────────
   const catalog = useCatalogRecord();
-  const prereqGraph = usePrereqGraph();
+  const rawPrereqGraph = useRawPrereqGraph();
   const gradeDistributions = useGradeDistributions();
   const userProfile = useUserProfile();
   const degreeRequirements = useDegreeRequirements();
@@ -136,6 +140,14 @@ export default function CoursePalette() {
   useMathRequirements();
 
   const plan = usePlan();
+  const hoveredCourse = useHoveredCourse();
+  const prereqGraphInstance = usePrereqGraph();
+
+  /** Set of courses to highlight as downstream dependents of the hovered course. */
+  const downstreamCourses = useMemo(() => {
+    if (!hoveredCourse) return new Set<string>();
+    return new Set(prereqGraphInstance.getDownstream(hoveredCourse));
+  }, [hoveredCourse, prereqGraphInstance]);
 
   // ── Derived sets ──────────────────────────────────────────────────────────
 
@@ -183,14 +195,14 @@ export default function CoursePalette() {
    */
   const prereqsOf = useMemo(() => {
     const map: Record<string, string[]> = {};
-    for (const edge of prereqGraph.edges) {
+    for (const edge of rawPrereqGraph.edges) {
       if (edge.type === 'prerequisite') {
         if (!map[edge.to]) map[edge.to] = [];
         map[edge.to].push(edge.from);
       }
     }
     return map;
-  }, [prereqGraph.edges]);
+  }, [rawPrereqGraph.edges]);
 
   /**
    * Returns true when a course should be dimmed (no satisfying prereq found).
@@ -297,7 +309,7 @@ export default function CoursePalette() {
     const q = query.toLowerCase();
     return courses.filter((id) => {
       if (id.toLowerCase().includes(q)) return true;
-      const title = getCourseTitle(id, catalog, prereqGraph.nodes);
+      const title = getCourseTitle(id, catalog, rawPrereqGraph.nodes);
       return title.toLowerCase().includes(q);
     });
   };
@@ -323,10 +335,11 @@ export default function CoursePalette() {
       key={courseId}
       courseId={courseId}
       catalog={catalog}
-      prereqNodes={prereqGraph.nodes}
+      prereqNodes={rawPrereqGraph.nodes}
       gradeDistributions={gradeDistributions}
       categoryOverride={category}
       prereqsMet={!hasUnmetPrereqs(courseId)}
+      isDownstreamHighlight={downstreamCourses.has(courseId)}
     />
   );
 

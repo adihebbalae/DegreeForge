@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import { DataProvider } from './context/DataContext.tsx'
 import { PlanProvider } from './context/PlanContext.tsx'
+import { TooltipProvider } from './components/ui/tooltip'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -11,7 +12,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <DataProvider>
         <PlanProvider>
-          <App />
+          <TooltipProvider>
+            <App />
+          </TooltipProvider>
         </PlanProvider>
       </DataProvider>
     </BrowserRouter>
