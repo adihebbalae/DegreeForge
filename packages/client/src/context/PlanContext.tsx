@@ -29,7 +29,7 @@ interface PlanContextValue {
 // ─── Static Semester Sequence ─────────────────────────────────────────────────
 // Today = April 15, 2026 → Spring 2026 is current.
 
-const SEMESTERS: Semester[] = [
+export const SEMESTERS: Semester[] = [
   { id: 'Fall 2025',   label: "Fall '25", status: 'past',    year: 2025, season: 'Fall'   },
   { id: 'Spring 2026', label: "Sp '26",   status: 'current', year: 2026, season: 'Spring' },
   { id: 'Fall 2026',   label: "Fall '26", status: 'future',  year: 2026, season: 'Fall'   },
@@ -42,7 +42,7 @@ const SEMESTERS: Semester[] = [
 
 // ─── Initial Plan (from Adi's transcript) ─────────────────────────────────────
 
-const INITIAL_PLAN: Record<string, string[]> = {
+export const INITIAL_PLAN: Record<string, string[]> = {
   'Fall 2025':   ['ECE 302', 'ECE 306', 'CTI 301G', 'M 427J', 'UGS 016'],
   'Spring 2026': ['ECE 312H', 'M 325K', 'CTI 302', 'ECE 319H'],
   'Fall 2026':   [],
@@ -53,7 +53,7 @@ const INITIAL_PLAN: Record<string, string[]> = {
   'Spring 2029': [],
 };
 
-const INITIAL_STATE: PlanState = {
+export const INITIAL_STATE: PlanState = {
   semesters: SEMESTERS,
   plan: INITIAL_PLAN,
   pinnedCourses: [],
@@ -69,7 +69,7 @@ const STORAGE_KEY = 'degreeforge-plan-state';
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
 
-function planReducer(state: PlanState, action: PlanAction): PlanState {
+export function planReducer(state: PlanState, action: PlanAction): PlanState {
   switch (action.type) {
     case 'ADD_COURSE': {
       const alreadyPlaced = Object.values(state.plan).some((courses) =>

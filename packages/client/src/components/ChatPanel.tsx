@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, User, Bot, Loader2, X } from 'lucide-react';
+import { User, Bot, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePlan, useTechCoreId, useSemesters } from '@/context/PlanContext';
 import { useUserProfile } from '@/context/DataContext';

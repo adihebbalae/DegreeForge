@@ -85,6 +85,7 @@ export default function CourseCard({
       className={cn(
         'relative rounded-md bg-card shadow-sm overflow-hidden',
         'border border-border',
+        'min-h-[72px]',       // Consistent card height across all variants
         borderClass,
         violationBorder,
         highlightClass,
