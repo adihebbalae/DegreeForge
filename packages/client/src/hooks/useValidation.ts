@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { usePlanContext } from '../context/PlanContext';
 import { usePrereqGraph } from './usePrereqGraph';
 import { useUserProfile } from '../context/DataContext';
@@ -67,24 +68,30 @@ export function useValidation(): ValidationResult {
   const prereqGraph = usePrereqGraph();
   const profile = useUserProfile();
 
-  const { effectivePlan, semesterOrder } = buildEffectivePlan(plan, profile, semesters);
-  
-  // validatePlan returns an array of violations (one per courseId)
-  const allViolations = prereqGraph.validatePlan(effectivePlan, semesterOrder);
+  // Memoize the full validation computation — only reruns when plan, semesters,
+  // prereqGraph, or profile changes. Avoids re-running validatePlan on every render.
+  const result = useMemo<ValidationResult>(() => {
+    const { effectivePlan, semesterOrder } = buildEffectivePlan(plan, profile, semesters);
 
-  // Filter out violations for courses that are already completed
-  const completedIds = new Set(profile?.completed_courses.map(c => c.course) ?? []);
-  const violations = allViolations.filter(v => !completedIds.has(v.courseId));
+    // validatePlan returns an array of violations (one per courseId)
+    const allViolations = prereqGraph.validatePlan(effectivePlan, semesterOrder);
 
-  // Map to Record for O(1) lookup by course card
-  const violationsByCourse: Record<string, PrereqViolation> = {};
-  violations.forEach(v => {
-    violationsByCourse[v.courseId] = v;
-  });
+    // Filter out violations for courses that are already completed
+    const completedIds = new Set(profile?.completed_courses.map(c => c.course) ?? []);
+    const violations = allViolations.filter(v => !completedIds.has(v.courseId));
 
-  return {
-    violations,
-    violationsByCourse,
-    hasViolations: violations.length > 0,
-  };
+    // Map to Record for O(1) lookup by course card
+    const violationsByCourse: Record<string, PrereqViolation> = {};
+    violations.forEach(v => {
+      violationsByCourse[v.courseId] = v;
+    });
+
+    return {
+      violations,
+      violationsByCourse,
+      hasViolations: violations.length > 0,
+    };
+  }, [plan, semesters, prereqGraph, profile]);
+
+  return result;
 }
