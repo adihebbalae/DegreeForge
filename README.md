@@ -1,276 +1,158 @@
-# Agent Boilerplate
+# DegreeForge
 
-**PRD → Project.** Paste a product requirements doc, answer a few questions, and a multi-agent system plans, builds, tests, and commits the code — while you review.
+Interactive 4-year degree planner + next-semester schedule optimizer for UT Austin ECE. Replaces the Google Sheets planning workflow with a visual timeline, drag-and-drop course placement, prerequisite validation, and AI-powered tradeoff analysis.
 
-Orchestration layer for GitHub Copilot + Claude Code: Manager (Haiku) coordinates, Engineer (Sonnet) implements, Security audits before every push. Works in VS Code and Claude Code CLI, both sharing the same state files.
+> **Localhost only.** No deployment, no auth, no multi-user support. Single user, `localhost:3000`.
 
-## Quick Start
+---
+
+## What It Does
+
+**V1 — Degree Planner**
+- Visual semester timeline with color-coded course cards (ECE core, gen ed, tech core, math, electives)
+- Drag courses from the palette into semesters, or between semesters
+- Live prerequisite validation — red border for violations, orange for coreq issues, downstream impact on hover
+- Progress bars updating in real-time: credit hours, ECE core, gen ed, tech core, free electives
+- What-if simulator: switch tech core track (9 options) or toggle Math BA double major, see the diff
+- Course detail popover: full prereqs, unlocks, grade distribution chart, links to RMP / UTGradesPlus / syllabi / CIS surveys
+- Claude chat panel for natural-language tradeoff analysis (plan stays yours — Claude explains, not generates)
+- Export / Import plan as JSON; auto-saves to localStorage
+
+**V2 — Schedule Optimizer**
+- Select courses for next semester, generate all conflict-free section combinations
+- Weighted ranking: avg GPA > time preference > schedule fit > instruction mode
+- Weekly calendar view with color-coded course blocks, top 5 candidates
+- Copy unique numbers for registration in one click
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- An [Anthropic API key](https://console.anthropic.com) (for the chat panel)
+
+### Install & Run
 
 ```powershell
-# One command: creates a new GitHub repo from this template AND clones it
-gh repo create my-project-name --template adihebbalae/copilot-code --public --clone
-cd my-project-name
+# From repo root
+npm install
+
+# Copy env template and add your API key
+cp .env.example packages/server/.env
+# Edit packages/server/.env — set ANTHROPIC_API_KEY=sk-ant-...
+
+# Start both client (Vite) and server (Express) concurrently
+npm run dev
 ```
 
-Then:
-1. Open the folder in VS Code with GitHub Copilot + Claude models enabled
-2. Select the **Manager** agent in the Copilot chat panel
-3. For any project: use `/init-project` with your PRD
-4. Manager runs: PRD → Research → Setup Questions → Clarifications → Scaffold
-   - **Research Phase**: Researcher gathers competitive/market/tech intelligence
-   - **Setup Questions**: Tools & budget adapted automatically
-   - **Clarifications**: PRD edge cases resolved
-   - **Scaffold**: All decisions grounded in research findings
+Client runs at `http://localhost:5173`, Express proxy at `http://localhost:3001`.
 
-Paste your PRD. Research runs automatically. That's it — **PRD → Research → Project.**
+---
 
-> **Note**: `/init-project` handles the `.gitignore.project` rename automatically.
+## Project Structure
 
-## Adaptive Workflow (Tools & Budget)
+```
+packages/
+  client/          # Vite + React + TypeScript + Tailwind + shadcn/ui
+    src/
+      components/  # CourseCard, SemesterColumn, CoursePalette, ProgressBars, ...
+      context/     # PlanContext (plan state), DataContext (all 9 data files)
+      hooks/       # usePlan, useValidation, useCourseCatalog, ...
+      lib/         # graph-engine.ts, progress.ts, schedule-optimizer.ts, ...
+      pages/       # PlannerPage (V1), SchedulerPage (V2)
+      types/       # TypeScript interfaces for all data shapes
+  server/          # Express proxy
+    src/
+      index.ts     # POST /api/chat → Anthropic SDK (streaming)
 
-When you run `/init-project`, Manager asks two setup questions to adapt the workflow:
-
-| Question | Options | Impact |
-|----------|---------|--------|
-| **Do you have Claude Code CLI?** | Yes / No | No CLI? Everything routes through GitHub Copilot (160k context). Have CLI? Unlock Complex Project Mode for 20+ file projects. |
-| **What's your budget?** | Free tier / Paid / TBD | Free? Manager adds a research task to find free deployment options. Paid? Use production-grade tools from day one. |
-
-**Why?** This ensures the boilerplate works for everyone: Copilot-only users, budget-conscious teams, and power users with CLI access. Your answers are saved in `.agents/state.json` and used by Manager for routing decisions.
-
-**Want to change your answers later?** Run `/setup-budget` anytime.
-
-## Version History
-
-**Current version**: `v2.1.0` — See [CHANGELOG.md](CHANGELOG.md) for full version history and upgrade notes.
-
-To update an existing project to the latest boilerplate version, run `/update-boilerplate` from the Manager agent.
-
-## Dual-Mode Workflow
-
-This boilerplate works in two modes. Both use the same agent definitions.
-
-### Mode 1: VS Code (GitHub Copilot)
-
-Agents live in `.github/agents/*.agent.md`. Open the Copilot chat panel, select **Manager**, and start.
-
-- **Autonomous (VS Code Feb 2026+)**: Manager spawns subagents automatically after you approve the plan. No copy-pasting prompts. Requires `github.copilot.chat.claudeAgent.enabled: true` in VS Code settings.
-- **Manual (any VS Code version)**: Manager writes handoffs to `.agents/handoff.md`. You copy them to the target agent using `/handoff-to-[agent]` prompts.
-
-### Mode 2: Claude Code CLI
-
-Agents live in `.claude/agents/*.md`. Install Claude Code, run `claude` from the project root. Claude reads `CLAUDE.md` as a bootstrap and uses `.claude/agents/` for subagent definitions.
-
-```bash
-# Install
-npm install -g @anthropic-ai/claude-code
-
-# Start from project root
-claude
+data/              # 9 static JSON files (read-only at runtime)
+  course-catalog.json
+  degree-requirements.json
+  prerequisite-graph.json
+  tech-cores.json
+  math-requirements.json
+  offering-schedule.json
+  grade-distributions.json
+  fall-2026-sections.json
+  user-profile.json
 ```
 
-Hooks in `.claude/settings.json` automatically run lint after every file edit — no manual gate-running needed.
-
-### Switching Modes
-
-Both modes share the same state files (`.agents/state.json`, `.agents/state.md`). You can switch mid-project:
-
-| What you need | Use |
-|---------------|-----|
-| VS Code native IDE experience, Copilot billing | Mode 1 |
-| Terminal-first, long-running autonomous tasks, Claude billing | Mode 2 |
-| Maximum autonomy (1M context, hooks, extended thinking) | Mode 2 |
-| Tight VS Code integration (extensions, LSP, editor tools) | Mode 1 |
+---
 
 ## Architecture
 
-```
-YOU ←→ Manager (Haiku) ←→ Engineer (Sonnet)
-                        ←→ Security (Sonnet)
-                        ←→ Designer (Haiku)
-                        ←→ Researcher (Sonnet)
-                        ←→ Medic (Opus) [emergency]
-                        ←→ Consultant (Opus) [rare]
-```
+| Decision | Choice | Why |
+|----------|--------|-----|
+| Frontend | Vite + React + TypeScript | Fast dev, no SSR needed for localhost SPA |
+| Styling | Tailwind CSS + shadcn/ui | Professional components, no CSS modules |
+| Drag-drop | dnd-kit | Modern React-first DnD, no HTML5 API |
+| State | React Context + useReducer | No Redux needed for single-user local tool |
+| Persistence | localStorage + JSON export/import | No database for V1 |
+| Prerequisite solver | Deterministic TypeScript (toposort + CSP) | LLMs hallucinate edge cases; code is 100% reliable |
+| Claude | Chat/explanation only | Plan generation stays deterministic; Claude explains tradeoffs |
+| API key | Server-side Express proxy | Frontend never sees `ANTHROPIC_API_KEY` |
 
-### Agents
+---
 
-| Agent | Model | Role | Writes Code? |
-|-------|-------|------|-----------|
-| **Manager** | Haiku | Plans, delegates, coordinates, pushes | No |
-| **Engineer** | Sonnet | Implements features, fixes bugs, commits | Yes |
-| **Security** | Sonnet | Adversarial auditing, finds vulnerabilities | No |
-| **Designer** | Haiku | UI/UX review and design specs | No |
-| **Researcher** | Sonnet | Competitive analysis, market research, feature gaps | No || **Medic** | Opus | Emergency incident response, autonomous fix+deploy | Yes || **Consultant** | Opus | Deep architectural reasoning | No |
+## Data
 
-### Workflow
+All 9 JSON files in `data/` are static and treated as read-only at runtime. They are copied into `packages/client/public/data/` at build time.
 
-**Autonomous mode (v2.0 default — VS Code Feb 2026+ or Claude Code CLI)**:
-1. **You → Manager**: Paste PRD, answer clarifying questions, approve the plan
-2. **Manager**: Spawns Engineer, Security, and other agents automatically as subagents
-3. **Manager**: Reports final result when complete or surfaces blockers to you
+**Important:** The data normalizes `E E` → `ECE` at load time via `normalizeEEtoECE()` in the data layer. All internal references use `ECE`.
 
-**Manual mode (backward compatible — any VS Code version)**:
-1. **You → Manager**: Describe what you want
-2. **Manager**: Plans the work, writes a handoff to `.agents/handoff.md`
-3. **Manager → You**: "Copy `.agents/handoff.md` to @engineer using Sonnet"
-4. **You → Engineer**: Paste the handoff, Engineer implements & commits
-5. **You → Manager**: Report completion, continue to next task
-6. **Before push**: Manager generates security review → You send to Security agent
-7. **Security**: Reports findings → Engineer fixes → repeat until clean
-8. **Manager**: Pushes to repo
+| File | Contents |
+|------|----------|
+| `course-catalog.json` | Course metadata: title, credits, description, offering pattern |
+| `prerequisite-graph.json` | DAG of all ECE + Math courses with prereq/coreq edges |
+| `degree-requirements.json` | ECE core, gen ed slots, free elective constraints |
+| `tech-cores.json` | All 9 tech core tracks with required courses and elective pools |
+| `math-requirements.json` | Math BA / Applied Math Cert / Jefferson Scholars requirements |
+| `offering-schedule.json` | Fall-only / spring-only / both patterns per course |
+| `grade-distributions.json` | Per-course, per-professor avg GPA (249 courses, 5 years of data) |
+| `fall-2026-sections.json` | Specific sections for V2 schedule optimizer |
+| `user-profile.json` | Transcript, completed courses, preferences, tech core intent |
 
-### Complex Project Mode
+---
 
-**Requirements**: 3+ modules in your PRD AND Claude Code CLI available.
+## Tech Core Tracks
 
-**What it does:**
-- **Module registry** — tracks status, owner, and dependencies for every functional area across sessions
-- **Context routing** — routes ≤3-file tasks to Copilot (160k context), 10+-file or multi-module tasks to Claude Code CLI (1M context) automatically
-- **Dependency ordering** — identifies which modules can be built in parallel vs must be sequential
-- **Cross-session continuity** — MODULES.md persists so you never lose track across a 3-month build
+The what-if simulator supports all 9 ECE tech core tracks:
+
+| Track | Required Math |
+|-------|---------------|
+| Computer Architecture & Embedded Systems | M 325K |
+| Software Engineering & Design | M 325K |
+| Data Science & Information Processing | M 325K |
+| Electrical Engineering | M 427L |
+| Communications, Signal Processing, Networks & Systems | M 427L |
+| Electronics & Integrated Circuits | M 427L |
+| Energy Systems & Renewable Energy | M 427L |
+| Fields, Waves & Electromagnetic Systems | M 427L |
+| Nanotechnology & Nanoelectronics | M 427L |
+
+Switching between M 325K and M 427L tracks has a significant prereq impact (M 427L requires M 427J). The diff panel shows added/removed courses and graduation timeline impact.
+
+---
+
+## Tests
 
 ```powershell
-# After /init-project generates MODULES.md:
-/list-modules    # Status table: done / in-progress / blocked / design
-/show-graph      # ASCII dependency graph + critical path + parallel build plan
+# Run all tests (49 total: unit + integration)
+npm test --workspace=packages/client
 ```
 
-### Handoff Flow (solving the copy-paste problem)
+Critical paths with test coverage: prerequisite validation, constraint solver, data normalization, progress calculation, schedule optimizer conflict detection.
 
-Instead of copying full prompts, agents write to `.agents/handoff.md` and you use the `/handoff-to-*` prompts:
+---
 
-- `/handoff-to-engineer` — Sends current handoff to Engineer
-- `/handoff-to-security` — Sends current handoff to Security
-- `/handoff-to-designer` — Sends current handoff to Designer
-- `/handoff-to-consultant` — Sends current handoff to Consultant
+## Environment Variables
 
-### Vibe Mode (Compact Reporting)
-
-For rapid iteration projects, reduce context usage by ~20%:
-
-In the handoff, add:
-```
-vibe_mode: true
+```env
+# packages/server/.env
+ANTHROPIC_API_KEY=sk-ant-...
+PORT=3001                    # optional, defaults to 3001
 ```
 
-Engineer will suppress all intermediate explanations and only report final result:
-```
-✅ COMPLETE | Commit: [hash]
-Files changed: [count]
-Tests: [count] passed
-```
-
-Use when you just want the end result, not step-by-step narration of the work.
-
-### State Files
-
-| File | Purpose | Updated By |
-|------|---------|-----------|
-| `.agents/state.json` | Machine-readable project state | All agents |
-| `.agents/state.md` | Human-readable dashboard | All agents |
-| `.agents/workspace-map.md` | Directory structure reference | Engineer, Manager |
-| `.agents/handoff.md` | Current inter-agent prompt | Sending agent |
-
-### Skills
-
-| Skill | Purpose |
-|-------|----------|
-| `code-review` | On-demand code review checklist |
-| `security-audit` | OWASP Top 10 security audit checklist |
-| `tdd` | TDD workflow enforcing RED → GREEN → REFACTOR |
-| `quality-gate` | Pre-push gate: lint + type-check + test + security scan |
-| `update-workspace-map` | Auto-regenerate `.agents/workspace-map.md` post-commit |
-| `supply-chain` | Standalone 4-gate supply chain security (submittable to [awesome-copilot](https://github.com/github/awesome-copilot)) |
-| `sbom` | Native SBOM generation via syft/cdxgen + CVE scan via osv-scanner |
-| `product-research` | Research frameworks: ICP analysis, competitive landscape, TAM/SAM/SOM, JTBD, positioning gaps, GTM patterns |
-| `incident-response` | Emergency runbooks: triage, diagnosis, rollback vs patch, incident logs, postmortems |
-
-## Supply Chain Security
-
-**Engineer cannot add arbitrary packages.** We use defense-in-depth to prevent malware/typosquats from reaching production:
-
-```
-Gate 1: Handoff         →  Manager approves dependencies before handoff
-        Constraint       →  Engineer forbidden from adding unapproved packages
-        
-Gate 2: Pre-Review      →  /review-dependencies vets packages (typosquats, abandoned, trust)
-        
-Gate 3: Quality Gate    →  Lint + Type + Test + Dependency Audit (direct + transitive)
-        
-Gate 4: Security Audit  →  @security agent reviews SBOM, maintainers, lock files
-        (Mandatory       →  Required before ANY push with dependency changes
-         on changes)
-```
-
-**Workflow**:
-1. **Task needs a package?** Manager calls `/review-dependencies` first — vets typosquats, maintainers, CVEs
-2. **Approved?** Added to handoff; Engineer implements with it locked
-3. **Engineer finishes?** Quality gate runs — catches HIGH/CRITICAL vulns
-4. **Dependencies changed?** Security agent MUST review before push — full SBOM generation
-5. **Passed all checks?** Safe to ship
-
-See [Security Agent](Security.agent.md) for full dependency review process.
-
-
-
-| Prompt | Purpose |
-|--------|----------|
-| `/quickstart` | Interactive onboarding for first-time users (start here!) |
-| `/prd-builder` | Build a comprehensive PRD from scratch using Socratic questioning |
-| `/init-project` | PRD intake (file, paste, or idea), full scaffolding, research, GitHub Issues, Context7 MCP |
-| `/mvp` | Max velocity mode: aggressive parallelization, deferred gates, scope razor, parallel Engineer sessions |
-| `/review-dependencies` | Pre-handoff dependency vetting (supply chain security) |
-| `/remember-handoff` | Write handoff to Copilot Memory — next agent reads it automatically |
-| `/retrofit` | Retrofit existing projects (VS Code, JetBrains, Eclipse, Xcode) |
-| `/handoff-to-engineer` | Trigger handoff to Engineer agent |
-| `/handoff-to-security` | Trigger handoff to Security agent |
-| `/handoff-to-designer` | Trigger handoff to Designer agent |
-| `/handoff-to-consultant` | Trigger handoff to Consultant agent |
-| `/handoff-to-researcher` | Trigger handoff to Researcher agent |
-| `/learn` | Extract session patterns into `copilot-instructions.md` + Copilot Memory |
-| `/meta` | Answer framework meta questions (agents, tools, skills, workflow) |
-| `/git` | Query GitHub repo state (issues, PRs, commits, workflows, branches) |
-| `/hotfix` | Emergency production incident response via Medic agent |
-| `/setup-budget` | Reconfigure your tools and budget (run after `/init-project` if you want to change settings) |
-| `/list-modules` | Status table of all project modules: complete/in-progress/blocked (complex projects) |
-| `/show-graph` | ASCII dependency graph with build order and critical path (complex projects) |
-
-## Package Age Policy
-
-**All new dependencies must be ≥30 days old** to allow time for vulnerabilities to surface and be patched.
-
-- **Exception**: Security patches (Z-version bumps, e.g., 1.2.5 → 1.2.6) can be applied immediately if all tests pass
-- **Enforced by**: `/review-dependencies` (Manager), quality gate, and `@security` agent
-
-## Retrofitting Existing Projects
-
-Already have a project? Use `/retrofit` to add agents **without disrupting existing code**:
-
-```bash
-@manager: /retrofit
-```
-
-Manager detects your IDE (VS Code, JetBrains, Eclipse, Xcode), audits your project, and generates a customized retrofit plan. The `.agent.md` format is cross-IDE — one boilerplate works everywhere.
-
-See [RETROFIT.md](RETROFIT.md) for full migration guide.
-
-## For New Projects
-
-This template uses a **two-gitignore strategy**:
-
-| File | Purpose |
-|------|---------|
-| `.gitignore` | Template version — commits all agent files so GitHub has the full boilerplate |
-| `.gitignore.project` | Project version — excludes agent orchestration files from project repos |
-
-After cloning for a new project, rename `.gitignore.project` → `.gitignore`. This keeps your project repo clean (just code), while the template repo stays complete on GitHub.
-
-The Manager will add project-specific MCPs, skills, and instructions based on your PRD during `/init-project`.
-
-## Requirements
-
-- VS Code (or JetBrains / Eclipse / Xcode) with GitHub Copilot
-- Claude models enabled (Haiku, Sonnet, Opus)
-- Context7 MCP — auto-configured by `/init-project` based on your stack
-- GitHub CLI (`gh`) — required for GitHub Issues task backlog
-- `syft` or `cdxgen` — required for SBOM generation (installed automatically by `sbom` skill if missing)
+See `.env.example` for the full template.
