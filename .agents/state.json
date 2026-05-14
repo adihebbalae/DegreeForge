@@ -28,7 +28,7 @@
                 },
     "phase":  "3 -- Planning Complete, Ready to Build",
     "mode":  "mvp",
-    "last_updated":  "2026-04-16T09:13:00.000-05:00",
+    "last_updated":  "2026-05-12T16:55:00.000-04:00",
     "last_updated_by":  "engineer",
     "status":  "complete",
     "current_task":  {
@@ -129,14 +129,14 @@
                   "TASK-004":  {
                                    "title":  "Constraint solver / recommendation engine",
                                    "assigned_to":  "engineer",
-                                   "status":  "deferred",
+                                   "status":  "done",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-003"
                                                   ],
                                    "description":  "Build the Recommend 4-Year Plan engine. Takes remaining requirements, prereq graph, tech core, user profile (load tolerance), pinned courses. Distributes courses across semesters respecting prereqs, coreqs, offering patterns, course load limits, and pins.",
                                    "acceptance_criteria":  [
-                                                               "Generates valid semester-by-semester plan for Adi\u0027s profile",
+                                                               "Generates valid semester-by-semester plan for Adi's profile",
                                                                "Respects prerequisite ordering (no prereq violations in output)",
                                                                "Respects offering patterns (fall-only, spring-only)",
                                                                "Honors pinned courses as fixed constraints",
@@ -304,7 +304,7 @@
                   "TASK-013":  {
                                    "title":  "External links + course detail popover",
                                    "assigned_to":  "engineer",
-                                   "status":  "in_progress",
+                                   "status":  "done",
                                    "model":  "sonnet",
                                    "depends_on":  [
                                                       "TASK-006"
@@ -460,6 +460,9 @@
                       "2026-04-15: TASK-014 complete -- State persistence: localStorage auto-save/restore, Export/Import JSON buttons in header, Reset Plan button with confirmation, SET_FULL_STATE action for seamless import, tsc --noEmit: 0 errors",
                       "2026-04-15: TASK-015 complete -- V2: Schedule optimizer engine: backtrack-based search for conflict-free section combinations, weighted scoring (GPA + instruction mode), top 5 candidates returned, tsc --noEmit: 0 errors",
                       "2026-04-15: TASK-016 complete -- V2: Schedule UI: Course selector from plan, ranked candidate cards, weekly calendar view with color-coded blocks, Copy Unique Numbers button, tsc --noEmit: 0 errors",
-                      "2026-04-16: TASK-017 complete -- 49-test integration suite (7 full flows + 7 edge cases), useValidation memoized, progress bar duration-300, unused imports cleaned, .env.example added, tsc: 0 errors both packages"
+                      "2026-04-16: TASK-017 complete -- 49-test integration suite (7 full flows + 7 edge cases), useValidation memoized, progress bar duration-300, unused imports cleaned, .env.example added, tsc: 0 errors both packages",
+                      "2026-05-12: TASK-004 complete -- constraint solver (solver.ts): greedy toposort placement, offering schedule filtering, pinned courses, credit hour limits, honors variant handling; requirements.ts builder; 7/7 unit tests passing, tsc --noEmit: 0 errors",
+                      "2026-05-12: TASK-013 finalized -- CourseDetailDialog: Fall 2026 section info display (unique, instructor, meetings, room), instructor-specific RMP links with schoolID=1255, UTGradesPlus URL fix, CIS Surveys URL fix, tsc --noEmit: 0 errors",
+                      "2026-05-12: MODULES.md reconciled -- all 5 modules updated to Complete status, state.json + state.md synchronized, 56/56 tests passing"
                   ]
 }

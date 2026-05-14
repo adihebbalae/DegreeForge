@@ -14,12 +14,23 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   usePlanDispatch,
   usePlan,
   useWhatIf,
   useTechCoreId,
   useMathBAToggle,
+  usePlanContext,
+  useGradeEntries,
 } from '@/context/PlanContext';
 import {
   useTechCores,
@@ -30,23 +41,37 @@ import {
 } from '@/context/DataContext';
 import { computeWhatIfDiff } from '@/lib/what-if';
 import { TechCoreTrack } from '@/types';
-
+import { generatePlan } from '@/lib/solver';
+import { buildRemainingRequirements } from '@/lib/requirements';
+import { usePrereqGraph, useDegreeRequirements, useOfferingSchedule } from '@/context/DataContext';
+import { usePrereqGraph as useEngineGraph } from '@/hooks/usePrereqGraph';
+import { Loader2, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { QuestionnaireDialog } from './QuestionnaireDialog';
 
 interface WhatIfPanelProps {
   onClose: () => void;
 }
 
 export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
-  const dispatch = usePlanDispatch();
-  const plan = usePlan();
-  const whatIf = useWhatIf();
-  const currentTechCoreId = useTechCoreId();
-  const currentMathBA = useMathBAToggle();
+  const { state, dispatch } = usePlanContext(); // Get full state
+  const plan = state.plan;
+  const whatIf = state.whatIf;
+  const currentTechCoreId = state.whatIf.techCoreId; // Using whatIf context here initially
+  const currentMathBA = state.whatIf.mathBAToggle;
+  const [isSolving, setIsSolving] = useState(false);
+  const [isRecommending, setIsRecommending] = useState(false);
+  const [recommendationData, setRecommendationData] = useState<{ techCoreId: string; mathBA: boolean; reasoning: string } | null>(null);
+  const [customInput, setCustomInput] = useState('');
+  const gradeEntries = useGradeEntries();
 
   const techCores = useTechCoresRecord();
   const mathReqs = useMathRequirements();
   const catalog = useCatalogRecord();
   const profile = useUserProfile();
+  const degreeReqs = useDegreeRequirements();
+  const offeringSchedule = useOfferingSchedule();
+  const engineGraph = useEngineGraph();
 
   const techCoreList = (Object.entries(techCores || {}) as [string, TechCoreTrack][]).map(([id, track]) => ({
     id,
@@ -81,19 +106,107 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
   ]);
 
   const handleApply = () => {
-    // For now, we'll just update the settings. 
-    // In a full implementation, this would call generatePlan()
-    // to redistribute courses.
+    if (!techCores || !mathReqs || !profile || !degreeReqs) return;
+
+    setIsSolving(true);
+
+    setTimeout(() => {
+      try {
+        // Build remaining requirements based on the NEW what-if settings
+        const remaining = buildRemainingRequirements(
+          degreeReqs,
+          techCores,
+          whatIf.techCoreId,
+          whatIf.mathBAToggle,
+          mathReqs,
+          profile
+        );
+
+        // Run the solver to map the new courses into the timeline
+        const newPlanOutput = generatePlan({
+          completedCourses: completedCourses,
+          remainingRequirements: remaining,
+          prereqGraph: engineGraph,
+          offeringSchedule: offeringSchedule,
+          pinnedCourses: state.pinnedCourses.reduce((acc, courseId) => {
+            for (const [semId, courses] of Object.entries(plan)) {
+              if (courses.includes(courseId)) acc[courseId] = semId;
+            }
+            return acc;
+          }, {} as Record<string, string>),
+          maxHoursPerSemester: profile.preferences.course_load === 'Max possible' ? 18 : 17,
+          semesters: state.semesters,
+          existingPlan: state.plan
+        });
+
+        // Apply both the what-if state AND the new plan
+        dispatch({ type: 'APPLY_WHAT_IF', newPlan: newPlanOutput.plan });
+        onClose();
+      } catch (error) {
+        console.error('What-If solver failed:', error);
+        alert('Failed to re-calculate plan: ' + (error as Error).message);
+      } finally {
+        setIsSolving(false);
+      }
+    }, 50);
+  };
+
+  const handleAIRecommend = async (overrideInput?: string, autoAccept = false) => {
+    if (!techCores || !profile) return;
+    setIsRecommending(true);
+    const finalInput = typeof overrideInput === 'string' ? overrideInput : customInput;
     
-    // Minimal "solver" replacement:
-    // Just update the settings and let the user handle the palette updates.
-    // The palette will show new courses that are now required.
+    try {
+      const response = await fetch('/api/recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profile,
+          gradeEntries,
+          techCores,
+          customInput: finalInput,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || response.statusText);
+      }
+
+      const data = await response.json();
+
+      if (autoAccept) {
+        // Questionnaire flow: skip the confirmation dialog and apply immediately
+        dispatch({ type: 'SET_TECH_CORE', techCoreId: data.techCoreId });
+        dispatch({ type: 'TOGGLE_MATH_BA', enabled: data.mathBA });
+        setIsRecommending(false);
+        setTimeout(() => {
+          handleApply();
+        }, 100);
+        return;
+      }
+
+      setRecommendationData(data);
+    } catch (err: any) {
+      console.error('AI Recommend failed:', err);
+      alert('AI Recommendation failed: ' + err.message);
+    } finally {
+      setIsRecommending(false);
+    }
+  };
+
+  const acceptRecommendation = () => {
+    if (!recommendationData) return;
     
-    const newPlan = { ...plan };
-    // TODO: Actually implement the redistribution logic if required by TASK-004
+    // Set the whatIf state to the recommended track
+    dispatch({ type: 'SET_TECH_CORE', techCoreId: recommendationData.techCoreId });
+    dispatch({ type: 'TOGGLE_MATH_BA', enabled: recommendationData.mathBA });
     
-    dispatch({ type: 'APPLY_WHAT_IF', newPlan });
-    onClose();
+    // We delay the handleApply call to let the state update propagate
+    setTimeout(() => {
+      handleApply();
+      setRecommendationData(null);
+    }, 100);
   };
 
   const handleCancel = () => {
@@ -117,6 +230,38 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-6">
+          <div className="space-y-3 p-4 bg-purple-500/10 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-900/50">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold flex items-center gap-2 text-purple-700 dark:text-purple-400">
+                <Sparkles className="h-4 w-4" />
+                AI Smart Auto-Plan
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Let the AI analyze your transcript and instantly generate your optimal remaining semesters.
+              </p>
+            </div>
+            <Textarea 
+              placeholder="Any custom preferences? (e.g. 'I want to focus heavily on robotics')"
+              className="min-h-[80px] text-sm resize-none bg-background"
+              value={customInput}
+              onChange={(e) => setCustomInput(e.target.value)}
+            />
+            <Button
+              className="w-full gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md border-0"
+              onClick={() => handleAIRecommend()}
+              disabled={isRecommending || isSolving}
+            >
+              {isRecommending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {isRecommending ? 'Analyzing Profile...' : 'Generate Plan'}
+            </Button>
+            <QuestionnaireDialog 
+              onComplete={(answers) => {
+                setCustomInput(answers);
+                handleAIRecommend(answers, true);
+              }}
+            />
+          </div>
+
           {/* ── Configuration ────────────────────────────────────────────── */}
           <div className="space-y-4">
             <div className="space-y-2">
@@ -231,10 +376,10 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
         <Button 
           className="w-full gap-2" 
           onClick={handleApply}
-          disabled={!whatIf.isActive}
+          disabled={!whatIf.isActive || isSolving}
         >
-          <Check className="h-4 w-4" />
-          Apply to Plan
+          {isSolving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+          {isSolving ? 'Calculating...' : 'Apply to Plan'}
         </Button>
         <Button 
           variant="outline" 
@@ -244,6 +389,41 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
           Cancel Simulation
         </Button>
       </div>
+
+      <Dialog open={!!recommendationData} onOpenChange={(open) => !open && setRecommendationData(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-purple-500" />
+              AI Recommendation
+            </DialogTitle>
+            <DialogDescription>
+              Based on your transcript and preferences, here is your customized track.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Recommended Track</Label>
+              <div className="font-semibold text-lg">
+                {recommendationData && techCoreList.find(t => t.id === recommendationData.techCoreId)?.name}
+                {recommendationData?.mathBA && ' + Math BA'}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Why this track?</Label>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {recommendationData?.reasoning}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRecommendationData(null)}>Cancel</Button>
+            <Button onClick={acceptRecommendation} disabled={isSolving}>
+              {isSolving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Accept & Generate Plan'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

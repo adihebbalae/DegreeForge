@@ -1,14 +1,18 @@
 import { useEffect, useState, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Moon, Sun, Download, Upload, RotateCcw } from 'lucide-react'
+import { Moon, Sun, Download, Upload, RotateCcw, Undo2, Redo2 } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { usePlanContext, usePlanDispatch } from '@/context/PlanContext'
+import { usePlanContext, usePlanDispatch, useCanUndo, useCanRedo } from '@/context/PlanContext'
+import SemesterTransitionDialog from './SemesterTransitionDialog'
 
 export default function Header() {
   const { state } = usePlanContext()
   const dispatch = usePlanDispatch()
+  const canUndo = useCanUndo()
+  const canRedo = useCanRedo()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [transitionOpen, setTransitionOpen] = useState(false)
 
   const [dark, setDark] = useState<boolean>(() => {
     const stored = localStorage.getItem('theme')
@@ -104,6 +108,27 @@ export default function Header() {
         <Button
           variant="ghost"
           size="icon"
+          onClick={() => dispatch({ type: 'UNDO' })}
+          disabled={!canUndo}
+          title="Undo"
+          aria-label="Undo"
+        >
+          <Undo2 className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => dispatch({ type: 'REDO' })}
+          disabled={!canRedo}
+          title="Redo"
+          aria-label="Redo"
+        >
+          <Redo2 className="h-4 w-4" />
+        </Button>
+        <div className="w-[1px] h-4 bg-border mx-1" />
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={handleExport}
           title="Export Plan (JSON)"
           aria-label="Export Plan"
@@ -139,6 +164,15 @@ export default function Header() {
           <RotateCcw className="h-4 w-4" />
         </Button>
 
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-xs font-medium mr-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/30 dark:hover:bg-blue-900/50"
+          onClick={() => setTransitionOpen(true)}
+        >
+          Advance Semester ▶
+        </Button>
+
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Dark mode toggle */}
@@ -151,6 +185,8 @@ export default function Header() {
           {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
       </div>
+
+      <SemesterTransitionDialog open={transitionOpen} onOpenChange={setTransitionOpen} />
     </header>
   )
 }

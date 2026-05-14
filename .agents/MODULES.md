@@ -9,33 +9,33 @@
 - **Tech**: Vite + React + TypeScript + Tailwind + shadcn/ui + dnd-kit
 - **Purpose**: Interactive degree planner UI — timeline grid, palette, progress bars, chat, drag-drop
 - **Depends On**: Data Layer, Core Logic
-- **Status**: 🔴 Not Started
-- **Tasks**: TASK-001 (scaffold), TASK-005 (shell), TASK-006 (timeline), TASK-007 (palette), TASK-008 (dnd), TASK-009 (progress), TASK-010 (validation UI), TASK-011 (what-if), TASK-013 (links), TASK-016 (schedule UI)
-- **Last Updated**: —
+- **Status**: ✅ Complete
+- **Tasks**: TASK-001 (scaffold), TASK-005 (shell), TASK-006 (timeline), TASK-007 (palette), TASK-008 (dnd), TASK-009 (progress), TASK-010 (validation UI), TASK-011 (what-if), TASK-013 (links + course detail), TASK-016 (schedule UI)
+- **Last Updated**: 2026-05-12
 
 ### 2. Server Proxy (`packages/server/`)
 - **Tech**: Express + TypeScript
 - **Purpose**: Minimal proxy for Claude API — single `/api/chat` endpoint, keeps API key server-side
 - **Depends On**: None
-- **Status**: 🔴 Not Started
+- **Status**: ✅ Complete
 - **Tasks**: TASK-001 (scaffold), TASK-012 (chat endpoint)
-- **Last Updated**: —
+- **Last Updated**: 2026-04-15
 
-### 3. Data Layer (`packages/client/src/data/` or shared)
+### 3. Data Layer (`packages/client/src/context/` + `src/types/`)
 - **Tech**: TypeScript
 - **Purpose**: Load 9 JSON files, normalize E E → ECE, provide typed interfaces for all data shapes
 - **Depends On**: `data/` JSON files (complete)
-- **Status**: 🔴 Not Started
+- **Status**: ✅ Complete
 - **Tasks**: TASK-002
-- **Last Updated**: —
+- **Last Updated**: 2026-04-06
 
 ### 4. Core Logic (`packages/client/src/lib/`)
 - **Tech**: TypeScript (deterministic, no LLM)
-- **Purpose**: Graph engine (DAG, toposort), constraint solver, prerequisite validation, schedule optimizer
+- **Purpose**: Graph engine (DAG, toposort), constraint solver, prerequisite validation, schedule optimizer, requirements builder
 - **Depends On**: Data Layer
-- **Status**: 🔴 Not Started
+- **Status**: ✅ Complete
 - **Tasks**: TASK-003 (graph engine), TASK-004 (solver), TASK-015 (schedule optimizer)
-- **Last Updated**: —
+- **Last Updated**: 2026-05-12
 
 ### 5. Static Data (`data/`)
 - **Tech**: JSON (9 files)
@@ -48,12 +48,12 @@
 ## Dependency Graph
 
 ```
-Static Data (✅) ──→ Data Layer ──→ Core Logic ──→ Client Frontend
-                                                      ↑
-                                     Server Proxy ────┘ (chat only)
+Static Data (✅) ──→ Data Layer (✅) ──→ Core Logic (✅) ──→ Client Frontend (✅)
+                                                              ↑
+                                         Server Proxy (✅) ───┘ (chat only)
 ```
 
 ## Notes
-- Client Frontend is the largest module (~12 tasks touch it). Break into sub-tasks as needed.
-- Core Logic has no UI dependencies — can be built and tested independently.
-- Server Proxy is tiny — scaffold + one endpoint. Can parallelize with everything after TASK-001.
+- All 17 tasks complete. TASK-004 (constraint solver) was last to ship.
+- Core Logic has no UI dependencies — built and tested independently.
+- Server Proxy is tiny — scaffold + one endpoint.

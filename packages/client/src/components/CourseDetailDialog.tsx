@@ -8,10 +8,11 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ExternalLink, Book, Users, Link as LinkIcon, TrendingUp } from 'lucide-react';
+import { ExternalLink, Book, Users, Link as LinkIcon, TrendingUp, Calendar } from 'lucide-react';
 import { getCourseTitle, getCourseCredits, gpaColorClass, inferCategory } from '@/lib/course-utils';
-import type { CourseCatalog, PrereqNode, GradeDistributions } from '@/types';
+import type { CourseCatalog, PrereqNode, GradeDistributions, FallSections, CourseSection } from '@/types';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
+import { useFallSections } from '@/context/DataContext';
 
 interface CourseDetailDialogProps {
   courseId: string | null;
@@ -32,6 +33,8 @@ export default function CourseDetailDialog({
 }: CourseDetailDialogProps) {
   const prereqGraph = usePrereqGraph();
 
+  const fallSectionsList = useFallSections();
+
   const details = useMemo(() => {
     if (!courseId) return null;
     const cat = catalog?.[courseId];
@@ -42,6 +45,17 @@ export default function CourseDetailDialog({
     const coreqs = prereqGraph.getCoreqs(courseId);
     const downstream = prereqGraph.getDownstream(courseId);
     const category = inferCategory(courseId, prereqNodes);
+
+    // Fall 2026 section info
+    const courseSections = fallSectionsList.find((cs) => cs.course === courseId);
+    const activeSections = courseSections?.sections.filter(
+      (s) => s.status !== 'cancelled'
+    ) ?? [];
+
+    // Get first non-Staff instructor for RMP link
+    const primaryInstructor = activeSections.find(
+      (s) => s.instructor && s.instructor !== 'Staff'
+    )?.instructor ?? null;
 
     return {
       id: courseId,
@@ -55,21 +69,30 @@ export default function CourseDetailDialog({
       coreqs,
       downstream,
       gradeData: grade,
+      activeSections,
+      primaryInstructor,
     };
-  }, [courseId, catalog, gradeDistributions, prereqNodes, prereqGraph]);
+  }, [courseId, catalog, gradeDistributions, prereqNodes, prereqGraph, fallSectionsList]);
 
   if (!details) return null;
 
+  // Build RMP link — use instructor name if available, otherwise search by course
+  const rmpQuery = details.primaryInstructor
+    ? encodeURIComponent(details.primaryInstructor)
+    : encodeURIComponent(details.id);
+
   const externalLinks = [
     {
-      label: 'RateMyProfessors',
+      label: details.primaryInstructor
+        ? `RMP: ${details.primaryInstructor.split(' ').slice(-1)[0]}`
+        : 'RateMyProfessors',
       icon: Users,
-      url: `https://www.ratemyprofessors.com/search/professors?q=${details.id}`,
+      url: `https://www.ratemyprofessors.com/search/teachers?query=${rmpQuery}&schoolID=1255`,
     },
     {
       label: 'UTGradesPlus',
       icon: TrendingUp,
-      url: `https://utgrades.com/search?q=${details.id.replace(' ', '')}`,
+      url: `https://utgradesplus.com/?course=${details.id.replace(' ', '+')}`,
     },
     {
       label: 'Past Syllabi',
@@ -79,7 +102,7 @@ export default function CourseDetailDialog({
     {
       label: 'CIS Surveys',
       icon: LinkIcon,
-      url: `https://utdirect.utexas.edu/ctl/cis/results/`,
+      url: `https://utexas.bluera.com/utexas/`,
     },
   ];
 
@@ -192,6 +215,47 @@ export default function CourseDetailDialog({
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Fall 2026 Section Info */}
+          {details.activeSections.length > 0 && (
+            <>
+              <Separator />
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <Calendar className="w-4 h-4" /> Fall 2026 Sections
+                </h4>
+                <div className="space-y-2">
+                  {details.activeSections.slice(0, 5).map((section) => (
+                    <div
+                      key={section.unique}
+                      className="flex items-start gap-3 p-2 rounded-md bg-muted/30 text-xs"
+                    >
+                      <Badge variant="outline" className="text-[10px] font-mono shrink-0">
+                        {section.unique}
+                      </Badge>
+                      <div className="flex-1 space-y-0.5">
+                        <p className="font-medium">{section.instructor}</p>
+                        {section.meetings.map((m, idx) => (
+                          <p key={idx} className="text-muted-foreground">
+                            {m.days ? `${m.days} ` : ''}{m.time}
+                            {m.room ? ` — ${m.room}` : ''}
+                          </p>
+                        ))}
+                        <p className="text-muted-foreground/70">
+                          {section.instruction_mode} • {section.status}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {details.activeSections.length > 5 && (
+                    <p className="text-[10px] text-muted-foreground text-center">
+                      +{details.activeSections.length - 5} more sections
+                    </p>
+                  )}
+                </div>
+              </div>
+            </>
           )}
 
           {/* External Links */}
