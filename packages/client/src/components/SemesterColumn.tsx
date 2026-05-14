@@ -21,6 +21,8 @@ interface SortableCourseCardProps {
   gradeDistributions: GradeDistributions;
   violation?: PrereqViolation;
   isDownstreamHighlight?: boolean;
+  isPinned?: boolean;
+  onTogglePin?: (courseId: string) => void;
 }
 
 function SortableCourseCard({
@@ -34,6 +36,8 @@ function SortableCourseCard({
   gradeDistributions,
   violation,
   isDownstreamHighlight,
+  isPinned,
+  onTogglePin,
 }: SortableCourseCardProps) {
   const {
     attributes,
@@ -69,6 +73,8 @@ function SortableCourseCard({
         isDragging={isDragging}
         violation={violation}
         isDownstreamHighlight={isDownstreamHighlight}
+        isPinned={isPinned}
+        onTogglePin={onTogglePin}
       />
     </div>
   );
@@ -105,6 +111,13 @@ interface SemesterColumnProps {
   violationsByCourse: Record<string, PrereqViolation>;
   /** Set of courses to highlight as downstream dependents (TASK-010) */
   downstreamCourses: Set<string>;
+  // TASK-019: pin + ghost
+  pinnedCourses?: string[];
+  onTogglePin?: (courseId: string) => void;
+  /** Ghost course IDs proposed by the solver for this semester */
+  ghostCourseIds?: string[];
+  onAcceptGhost?: (courseId: string, semesterId: string) => void;
+  onRejectGhost?: (courseId: string) => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -118,6 +131,11 @@ export default function SemesterColumn({
   gradeDistributions,
   violationsByCourse,
   downstreamCourses,
+  pinnedCourses = [],
+  onTogglePin,
+  ghostCourseIds = [],
+  onAcceptGhost,
+  onRejectGhost,
 }: SemesterColumnProps) {
   const { id, label, status, season } = semester;
   const isPast = status === 'past';
@@ -269,12 +287,34 @@ export default function SemesterColumn({
                 gradeDistributions={gradeDistributions}
                 violation={violationsByCourse[courseId]}
                 isDownstreamHighlight={downstreamCourses.has(courseId)}
+                isPinned={pinnedCourses.includes(courseId)}
+                onTogglePin={onTogglePin}
               />
             ))}
           </SortableContext>
 
+          {/* Ghost cards — solver proposals */}
+          {ghostCourseIds.length > 0 && (
+            <div className="flex flex-col gap-1.5 mt-0.5">
+              {ghostCourseIds.map((courseId) => (
+                <CourseCard
+                  key={`ghost-${courseId}`}
+                  courseId={courseId}
+                  semesterStatus={status}
+                  catalog={catalog}
+                  prereqNodes={prereqNodes}
+                  gradeDistributions={gradeDistributions}
+                  isGhost
+                  ghostSemesterId={id}
+                  onAcceptGhost={onAcceptGhost}
+                  onRejectGhost={onRejectGhost}
+                />
+              ))}
+            </div>
+          )}
+
           {/* Empty drop hint */}
-          {courseIds.length === 0 && (
+          {courseIds.length === 0 && ghostCourseIds.length === 0 && (
             <div
               className={cn(
                 'border-2 border-dashed rounded-lg p-3 h-14',

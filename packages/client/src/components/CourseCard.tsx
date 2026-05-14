@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Pin, PinOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { inferCategory, CATEGORY_BORDER, getCourseCredits, getCourseTitle, gpaColorClass } from '@/lib/course-utils';
 import type { CourseCatalog, CourseCategory, PrereqNode, PrereqViolation, GradeDistributions } from '@/types';
@@ -30,6 +31,19 @@ interface CourseCardProps {
   violation?: PrereqViolation;
   /** Highlight as a downstream dependent of the hovered course (TASK-010) */
   isDownstreamHighlight?: boolean;
+  // TASK-019: pin + ghost
+  /** Whether this course is currently pinned by the user */
+  isPinned?: boolean;
+  /** Called when the pin button is clicked */
+  onTogglePin?: (courseId: string) => void;
+  /** Ghost card: solver-proposed, not yet in real plan */
+  isGhost?: boolean;
+  /** Called when ghost is accepted (click) */
+  onAcceptGhost?: (courseId: string, semesterId: string) => void;
+  /** Called when ghost is rejected (right-click / context menu) */
+  onRejectGhost?: (courseId: string) => void;
+  /** Semester this ghost belongs to (required when isGhost is true) */
+  ghostSemesterId?: string;
 }
 
 export default function CourseCard({
@@ -46,6 +60,12 @@ export default function CourseCard({
   isDragOverlay = false,
   violation,
   isDownstreamHighlight = false,
+  isPinned = false,
+  onTogglePin,
+  isGhost = false,
+  onAcceptGhost,
+  onRejectGhost,
+  ghostSemesterId,
 }: CourseCardProps) {
   const dispatch = usePlanDispatch();
   const [detailOpen, setDetailOpen] = useState(false);
@@ -77,6 +97,48 @@ export default function CourseCard({
     ? 'ring-1 ring-purple-400 bg-purple-50 dark:bg-purple-900/20' 
     : '';
 
+  // ── Ghost card (solver-proposed, not yet accepted) ──────────────────────────
+  if (isGhost) {
+    return (
+      <div
+        onClick={() => ghostSemesterId && onAcceptGhost?.(courseId, ghostSemesterId)}
+        onContextMenu={(e) => { e.preventDefault(); onRejectGhost?.(courseId); }}
+        title={`${courseId} — ${title} (${credits} cr) · Click to accept, right-click to skip`}
+        className={cn(
+          'relative rounded-md overflow-hidden select-none',
+          'border-2 border-dashed',
+          'min-h-[72px] opacity-60',
+          borderClass,
+          'cursor-pointer hover:opacity-80 transition-opacity',
+          'bg-card/50'
+        )}
+      >
+        <div className="px-2 py-1.5">
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-xs font-semibold text-foreground/70 italic leading-tight">
+              {courseId}
+            </span>
+            {avgGpa !== null && (
+              <span
+                className={cn('text-[10px] font-bold px-1 rounded text-white/80 leading-tight', gpaBgClass)}
+                title={`Avg GPA: ${avgGpa.toFixed(2)}`}
+              >
+                {avgGpa.toFixed(1)}
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] leading-tight mt-0.5 line-clamp-2 text-muted-foreground/60 italic">
+            {title}
+          </p>
+        </div>
+        {/* Ghost badge */}
+        <span className="absolute bottom-1 right-1 text-[9px] text-muted-foreground/60 italic">
+          suggestion
+        </span>
+      </div>
+    );
+  }
+
   const cardContent = (
     <div
       onMouseEnter={() => !isDragOverlay && dispatch({ type: 'SET_HOVERED_COURSE', courseId })}
@@ -89,6 +151,8 @@ export default function CourseCard({
         borderClass,
         violationBorder,
         highlightClass,
+        // Pinned: subtle ring
+        isPinned && 'ring-2 ring-blue-400/50 dark:ring-blue-500/40',
         // Past cards are visually muted
         isPast && 'opacity-70',
         // Palette: dim cards with unmet prereqs
@@ -100,7 +164,7 @@ export default function CourseCard({
         isDragOverlay && 'shadow-xl rotate-1 scale-105 cursor-grabbing',
         !isDragOverlay && !isPast && 'cursor-pointer',
         isPast && 'cursor-pointer',
-        'select-none'
+        'select-none group'
       )}
       title={`${courseId} — ${title} (${credits} cr)`}
     >
@@ -153,6 +217,23 @@ export default function CourseCard({
         >
           ✓
         </span>
+      )}
+
+      {/* Pin button — visible on hover or when pinned (timeline only, non-past) */}
+      {!isPalette && !isPast && onTogglePin && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onTogglePin(courseId); }}
+          className={cn(
+            'absolute top-0.5 right-0.5 p-0.5 rounded transition-opacity',
+            isPinned
+              ? 'opacity-100 text-blue-500 dark:text-blue-400'
+              : 'opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-blue-500'
+          )}
+          title={isPinned ? 'Unpin course' : 'Pin course (hold position in auto-plan)'}
+          aria-label={isPinned ? 'Unpin' : 'Pin'}
+        >
+          {isPinned ? <Pin className="h-3 w-3 fill-current" /> : <PinOff className="h-3 w-3" />}
+        </button>
       )}
 
       {/* Prereq warning icon */}

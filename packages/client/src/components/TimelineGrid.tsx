@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useSemesters, usePlan, useHoveredCourse, useGradeEntries } from '@/context/PlanContext';
+import { useSemesters, usePlan, useHoveredCourse, useGradeEntries, usePinnedCourses, useGhostCourses, usePlanDispatch } from '@/context/PlanContext';
 import {
   useUserProfile,
   useCatalogRecord,
@@ -11,7 +11,7 @@ import SemesterColumn from './SemesterColumn';
 import type { PrereqNode } from '@/types';
 import { useValidation } from '@/hooks/useValidation';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -23,12 +23,33 @@ export default function TimelineGrid() {
   const rawPrereqGraph = useRawPrereqGraph();
   const gradeDistributions = useGradeDistributions();
   const loading = useDataLoading();
+  const dispatch = usePlanDispatch();
 
   // TASK-010: Validation and highlighting
   const { violationsByCourse } = useValidation();
   const hoveredCourse = useHoveredCourse();
   const prereqGraph = usePrereqGraph();
   const gradeEntries = useGradeEntries();
+
+  // TASK-019: Pin + ghost state
+  const pinnedCourses = usePinnedCourses();
+  const ghostCourses = useGhostCourses();
+
+  const handleTogglePin = useCallback((courseId: string) => {
+    if (pinnedCourses.includes(courseId)) {
+      dispatch({ type: 'UNPIN_COURSE', courseId });
+    } else {
+      dispatch({ type: 'PIN_COURSE', courseId });
+    }
+  }, [pinnedCourses, dispatch]);
+
+  const handleAcceptGhost = useCallback((courseId: string, semesterId: string) => {
+    dispatch({ type: 'ACCEPT_GHOST', courseId, semesterId });
+  }, [dispatch]);
+
+  const handleRejectGhost = useCallback((courseId: string) => {
+    dispatch({ type: 'REJECT_GHOST', courseId });
+  }, [dispatch]);
 
   const downstreamCourses = useMemo(() => {
     if (!hoveredCourse) return new Set<string>();
@@ -93,6 +114,11 @@ export default function TimelineGrid() {
                 gradeDistributions={gradeDistributions}
                 violationsByCourse={violationsByCourse}
                 downstreamCourses={downstreamCourses}
+                pinnedCourses={pinnedCourses}
+                onTogglePin={handleTogglePin}
+                ghostCourseIds={ghostCourses[semester.id] ?? []}
+                onAcceptGhost={handleAcceptGhost}
+                onRejectGhost={handleRejectGhost}
               />
             </div>
           );
