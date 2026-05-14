@@ -405,6 +405,10 @@ export interface PlanState {
   whatIf: WhatIfState;         // What-if simulation state (TASK-011)
   /** User-entered grades: semesterId → courseId → letter grade (e.g. "A-", "B+") */
   gradeEntries?: Record<string, Record<string, string>>;
+  // TASK-019: ghost-card autocomplete
+  ghostCourses: Record<string, string[]>; // semesterId → courseId[] (solver proposals)
+  rejectedGhosts: string[];               // courseIds excluded from current ghost run
+  focusedGhostId: string | null;          // which ghost Tab will accept
 }
 
 /** Display category for color-coding course cards */

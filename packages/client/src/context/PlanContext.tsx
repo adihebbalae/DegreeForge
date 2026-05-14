@@ -19,6 +19,11 @@ export type PlanAction =
   | { type: 'RESET_PLAN' }
   | { type: 'SET_FULL_STATE'; state: PlanState }
   | { type: 'ADVANCE_SEMESTER'; grades: Record<string, string> }
+  | { type: 'SET_GHOST_COURSES'; ghostCourses: Record<string, string[]> }
+  | { type: 'ACCEPT_GHOST'; courseId: string; semesterId: string }
+  | { type: 'DISMISS_GHOSTS' }
+  | { type: 'REJECT_GHOST'; courseId: string }
+  | { type: 'SET_FOCUSED_GHOST'; courseId: string | null }
   | { type: 'UNDO' }
   | { type: 'REDO' };
 
@@ -69,6 +74,9 @@ export const INITIAL_STATE: PlanState = {
     isActive: false,
   },
   gradeEntries: {},
+  ghostCourses: {},
+  rejectedGhosts: [],
+  focusedGhostId: null,
 };
 
 const STORAGE_KEY = 'degreeforge-plan-state';
@@ -189,6 +197,62 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
       };
     }
 
+    case 'SET_GHOST_COURSES': {
+      const allGhosts: string[] = (Object.values(action.ghostCourses) as string[][]).flat();
+      const firstGhost: string | null = allGhosts[0] ?? null;
+      return { ...state, ghostCourses: action.ghostCourses, focusedGhostId: firstGhost };
+    }
+
+    case 'ACCEPT_GHOST': {
+      const { courseId, semesterId } = action;
+      // Remove from ghosts
+      const newGhosts = { ...state.ghostCourses };
+      if (newGhosts[semesterId]) {
+        newGhosts[semesterId] = newGhosts[semesterId].filter((id) => id !== courseId);
+        if (newGhosts[semesterId].length === 0) delete newGhosts[semesterId];
+      }
+      // Add to real plan (guard: don't double-add)
+      const alreadyInPlan = Object.values(state.plan).some((ids) => ids.includes(courseId));
+      const updatedPlan = alreadyInPlan
+        ? state.plan
+        : { ...state.plan, [semesterId]: [...(state.plan[semesterId] ?? []), courseId] };
+      // Advance focusedGhostId to next remaining ghost
+      const remaining = Object.values(newGhosts).flat();
+      return {
+        ...state,
+        plan: updatedPlan,
+        ghostCourses: newGhosts,
+        focusedGhostId: remaining[0] ?? null,
+      };
+    }
+
+    case 'REJECT_GHOST': {
+      const rejected = state.rejectedGhosts.includes(action.courseId)
+        ? state.rejectedGhosts
+        : [...state.rejectedGhosts, action.courseId];
+      // Remove from ghost display — hook will recompute with rejection
+      const newGhosts: Record<string, string[]> = Object.fromEntries(
+        Object.entries(state.ghostCourses)
+          .map(([semId, ids]): [string, string[]] => [semId, ids.filter((id) => id !== action.courseId)])
+          .filter(([, ids]) => ids.length > 0)
+      );
+      const remaining: string[] = Object.values(newGhosts).flat();
+      return {
+        ...state,
+        ghostCourses: newGhosts,
+        rejectedGhosts: rejected,
+        focusedGhostId: remaining[0] ?? null,
+      };
+    }
+
+    case 'DISMISS_GHOSTS': {
+      return { ...state, ghostCourses: {}, rejectedGhosts: [], focusedGhostId: null };
+    }
+
+    case 'SET_FOCUSED_GHOST': {
+      return { ...state, focusedGhostId: action.courseId };
+    }
+
     case 'RESET_PLAN': {
       return { ...INITIAL_STATE, gradeEntries: state.gradeEntries };
     }
@@ -271,7 +335,14 @@ export function historyReducer(state: HistoryState, action: PlanAction): History
   if (nextPresent === state.present) return state; // no state change
 
   // Actions that should NOT save history
-  if (action.type === 'SET_HOVERED_COURSE') {
+  const noHistoryActions: PlanAction['type'][] = [
+    'SET_HOVERED_COURSE',
+    'SET_GHOST_COURSES',
+    'DISMISS_GHOSTS',
+    'REJECT_GHOST',
+    'SET_FOCUSED_GHOST',
+  ];
+  if (noHistoryActions.includes(action.type)) {
     return { ...state, present: nextPresent };
   }
 
@@ -415,4 +486,18 @@ export function useSemesterCourses(semesterId: string): string[] {
 /** Returns user-entered grades: semesterId → courseId → letter grade */
 export function useGradeEntries(): Record<string, Record<string, string>> {
   return usePlanContext().state.gradeEntries ?? {};
+}
+
+// ─── TASK-019: Ghost-card hooks ───────────────────────────────────────────────
+
+export function useGhostCourses(): Record<string, string[]> {
+  return usePlanContext().state.ghostCourses;
+}
+
+export function useRejectedGhosts(): string[] {
+  return usePlanContext().state.rejectedGhosts;
+}
+
+export function useFocusedGhostId(): string | null {
+  return usePlanContext().state.focusedGhostId;
 }

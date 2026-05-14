@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageSquare, X, Zap } from 'lucide-react';
 import {
   DndContext,
@@ -24,8 +24,9 @@ import {
   usePrereqGraph,
   useGradeDistributions,
 } from '@/context/DataContext';
-import { usePlanDispatch, usePlan } from '@/context/PlanContext';
+import { usePlanDispatch, usePlan, useGhostCourses, useFocusedGhostId } from '@/context/PlanContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useGhostPlan } from '@/hooks/useGhostPlan';
 import type { PrereqNode } from '@/types';
 
 // ─── Active card shape ────────────────────────────────────────────────────────
@@ -50,6 +51,47 @@ export default function PlannerPage() {
   // ── Dispatch + plan state (for duplicate detection + reorder) ─────────────
   const dispatch = usePlanDispatch();
   const plan = usePlan();
+
+  // TASK-019: ghost-card autocomplete
+  useGhostPlan();
+  const ghostCourses = useGhostCourses();
+  const focusedGhostId = useFocusedGhostId();
+
+  // Keyboard: Tab=accept focused ghost, Shift+Tab=reject, Esc=dismiss all
+  useEffect(() => {
+    const hasGhosts = Object.values(ghostCourses).flat().length > 0;
+    if (!hasGhosts) return;
+
+    function onKeyDown(e: KeyboardEvent) {
+      const ghosts = Object.values(ghostCourses).flat();
+      if (ghosts.length === 0) return;
+
+      if (e.key === 'Escape') {
+        dispatch({ type: 'DISMISS_GHOSTS' });
+        return;
+      }
+
+      // Tab / Shift+Tab only when ghosts exist
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const targetId = focusedGhostId ?? ghosts[0];
+        // Find which semester this ghost is in
+        const semesterId = Object.entries(ghostCourses).find(([, ids]) =>
+          ids.includes(targetId)
+        )?.[0];
+        if (!semesterId) return;
+
+        if (e.shiftKey) {
+          dispatch({ type: 'REJECT_GHOST', courseId: targetId });
+        } else {
+          dispatch({ type: 'ACCEPT_GHOST', courseId: targetId, semesterId });
+        }
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [ghostCourses, focusedGhostId, dispatch]);
 
   // ── Data for the DragOverlay CourseCard ───────────────────────────────────
   const catalog = useCatalogRecord();
