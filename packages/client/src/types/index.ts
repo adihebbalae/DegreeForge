@@ -403,6 +403,8 @@ export interface PlanState {
   pinnedCourses: string[];     // Cannot be moved by solver
   hoveredCourse: string | null; // For downstream highlighting
   whatIf: WhatIfState;         // What-if simulation state (TASK-011)
+  /** User-entered grades: semesterId → courseId → letter grade (e.g. "A-", "B+") */
+  gradeEntries?: Record<string, Record<string, string>>;
 }
 
 /** Display category for color-coding course cards */

@@ -375,7 +375,7 @@ if (-not $DryRun -and -not $ManualMode) {
 
 # Read state
 $state = Read-StateFile
-$pendingTasks = Get-PendingTasks -State $state
+[array]$pendingTasks = Get-PendingTasks -State $state
 $totalTasks = $pendingTasks.Count
 
 if ($totalTasks -eq 0) {

@@ -25,6 +25,7 @@ import {
   useGradeDistributions,
 } from '@/context/DataContext';
 import { usePlanDispatch, usePlan } from '@/context/PlanContext';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type { PrereqNode } from '@/types';
 
 // ─── Active card shape ────────────────────────────────────────────────────────
@@ -41,7 +42,10 @@ interface ActiveCardInfo {
 export default function PlannerPage() {
   const [chatOpen, setChatOpen] = useState(false);
   const [whatIfOpen, setWhatIfOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
+
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   // ── Dispatch + plan state (for duplicate detection + reorder) ─────────────
   const dispatch = usePlanDispatch();
@@ -154,7 +158,7 @@ export default function PlannerPage() {
 
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="h-full flex flex-col relative overflow-hidden">
+      <div className="h-full flex flex-col overflow-hidden">
         {/* ── Progress bars strip ─────────────────────────────────────────── */}
         <ProgressBars />
 
@@ -163,21 +167,51 @@ export default function PlannerPage() {
 
         {/* ── Main content row ────────────────────────────────────────────── */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Semester timeline grid — left ~65% */}
-          <div className="flex-[65] overflow-hidden border-r border-border">
+          {/* Semester timeline grid */}
+          <div className="flex-1 overflow-hidden border-r border-border">
             <TimelineGrid />
           </div>
 
-          {/* Course palette — right ~35% */}
-          <div className="flex-[35] overflow-hidden">
-            <CoursePalette />
-          </div>
+          {/* Course palette — right ~35% on desktop */}
+          {isDesktop && (
+            <div className="w-[35%] min-w-[320px] max-w-[450px] overflow-hidden shrink-0">
+              <CoursePalette />
+            </div>
+          )}
         </div>
 
-        {/* ── Chat slide-in panel ──────────────────────────────────────────── */}
+        {/* ── Mobile Palette Drawer ─────────────────────────────────────────── */}
+        {!isDesktop && (
+          <>
+            {/* Overlay */}
+            {paletteOpen && (
+              <div 
+                className="fixed inset-0 bg-black/50 z-40"
+                onClick={() => setPaletteOpen(false)}
+              />
+            )}
+            <aside
+              className={[
+                'fixed bottom-0 left-0 right-0 h-[65vh] rounded-t-xl',
+                'bg-background border-t border-border shadow-[0_-10px_40px_rgba(0,0,0,0.1)]',
+                'flex flex-col transition-transform duration-300 ease-in-out z-50',
+                paletteOpen ? 'translate-y-0' : 'translate-y-full',
+              ].join(' ')}
+            >
+              <div className="w-full flex justify-center py-2 shrink-0 cursor-pointer" onClick={() => setPaletteOpen(false)}>
+                <div className="w-12 h-1.5 bg-muted rounded-full" />
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <CoursePalette />
+              </div>
+            </aside>
+          </>
+        )}
+
+        {/* ── Slide-in panels — fixed positioning to avoid affecting layout scroll ── */}
         <aside
           className={[
-            'absolute inset-y-0 right-0 w-80',
+            'fixed top-[56px] bottom-0 right-0 w-80',
             'bg-background border-l border-border shadow-lg',
             'flex flex-col transition-transform duration-300 ease-in-out z-20',
             chatOpen ? 'translate-x-0' : 'translate-x-full',
@@ -200,10 +234,9 @@ export default function PlannerPage() {
           </div>
         </aside>
 
-        {/* ── What-If slide-in panel ────────────────────────────────────────── */}
         <aside
           className={[
-            'absolute inset-y-0 right-0 w-80',
+            'fixed top-[56px] bottom-0 right-0 w-80',
             'bg-background border-l border-border shadow-lg',
             'flex flex-col transition-transform duration-300 ease-in-out z-30',
             whatIfOpen ? 'translate-x-0' : 'translate-x-full',
@@ -214,7 +247,15 @@ export default function PlannerPage() {
         </aside>
 
         {/* ── Floating toggle buttons ──────────────────────────────────────── */}
-        <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+        <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-30">
+          {!isDesktop && !paletteOpen && (
+            <Button
+              className="shadow-lg bg-blue-500 hover:bg-blue-600 text-white font-medium px-4"
+              onClick={() => setPaletteOpen(true)}
+            >
+              + Add Courses
+            </Button>
+          )}
           {!whatIfOpen && (
             <Button
               className="shadow-lg bg-yellow-500 hover:bg-yellow-600 text-white"

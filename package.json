@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace=packages/server\" \"npm run dev --workspace=packages/client\"",
+    "predev": "node -e \"try { require('child_process').execSync('taskkill /F /IM ollama.exe', {stdio: 'ignore'}) } catch(e) {}\"",
+    "dev": "concurrently \"ollama serve\" \"npm run dev --workspace=packages/server\" \"npm run dev --workspace=packages/client\"",
     "build": "npm run build --workspace=packages/client",
     "test": "vitest run"
   },

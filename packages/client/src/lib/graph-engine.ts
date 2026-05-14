@@ -197,10 +197,11 @@ export class PrereqGraph {
     courseId: string,
     semesterIndex: number,
     plan: import('../types').Plan,
-    semesterOrder: string[]
+    semesterOrder: string[],
+    completedSet?: Set<string>
   ): PrereqViolation[] {
     // Courses available before the target semester
-    const before = new Set<string>();
+    const before = new Set<string>(completedSet || []);
     for (let i = 0; i < semesterIndex; i++) {
       for (const c of plan[semesterOrder[i]] ?? []) before.add(c);
     }
@@ -237,12 +238,13 @@ export class PrereqGraph {
    */
   validatePlan(
     plan: import('../types').Plan,
-    semesterOrder: string[]
+    semesterOrder: string[],
+    completedSet?: Set<string>
   ): PrereqViolation[] {
     const violations: PrereqViolation[] = [];
     for (let i = 0; i < semesterOrder.length; i++) {
       for (const courseId of plan[semesterOrder[i]] ?? []) {
-        violations.push(...this.validatePlacement(courseId, i, plan, semesterOrder));
+        violations.push(...this.validatePlacement(courseId, i, plan, semesterOrder, completedSet));
       }
     }
     return violations;

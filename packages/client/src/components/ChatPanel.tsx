@@ -11,6 +11,26 @@ interface Message {
   content: string;
 }
 
+function parseThought(raw: string) {
+  let thought = '';
+  let answer = raw;
+
+  const thoughtMatch = raw.match(/<thought>([\s\S]*?)<\/thought>/);
+  if (thoughtMatch) {
+    thought = thoughtMatch[1].trim();
+    answer = raw.replace(/<thought>[\s\S]*?<\/thought>/, '').replace(/<\/?answer>/g, '').trim();
+  } else {
+    const partialThoughtMatch = raw.match(/<thought>([\s\S]*)/);
+    if (partialThoughtMatch && !raw.includes('</thought>')) {
+      thought = partialThoughtMatch[1].trim();
+      answer = '';
+    } else {
+      answer = raw.replace(/<\/?answer>/g, '').trim();
+    }
+  }
+  return { thought, answer };
+}
+
 export default function ChatPanel() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -72,7 +92,10 @@ export default function ChatPanel() {
         }),
       });
 
-      if (!response.ok) throw new Error('Chat API failed. Check your API key.');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Chat API failed (${response.status})`);
+      }
 
       const reader = response.body?.getReader();
       if (!reader) throw new Error('No reader available');
@@ -110,7 +133,7 @@ export default function ChatPanel() {
       console.error('Chat Error:', error);
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: error.message || 'Sorry, something went wrong. Check your API key.' },
+        { role: 'assistant', content: error.message || 'Sorry, something went wrong communicating with the chat backend.' },
       ]);
     } finally {
       setIsLoading(false);
@@ -129,27 +152,44 @@ export default function ChatPanel() {
             </p>
           </div>
         )}
-        {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}
-          >
-            <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-              m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}>
-              {m.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-            </div>
-            <div className={`max-w-[85%] px-3 py-2 rounded-lg text-sm ${
-              m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
-            }`}>
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <ReactMarkdown>
-                  {m.content}
-                </ReactMarkdown>
+        {messages.map((m, i) => {
+          const { thought, answer } = m.role === 'assistant' ? parseThought(m.content) : { thought: '', answer: m.content };
+          return (
+            <div
+              key={i}
+              className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}
+            >
+              <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+              }`}>
+                {m.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+              </div>
+              <div className={`max-w-[85%] px-3 py-2 rounded-lg text-sm ${
+                m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              }`}>
+                {m.role === 'assistant' && thought && (
+                  <details className="mb-2 border border-border rounded bg-background/50">
+                    <summary className="cursor-pointer text-xs font-semibold text-muted-foreground p-2 select-none hover:bg-background/80 rounded transition-colors">
+                      AI is thinking...
+                    </summary>
+                    <div className="p-3 text-xs font-mono text-muted-foreground border-t border-border whitespace-pre-wrap">
+                      {thought}
+                    </div>
+                  </details>
+                )}
+                {answer ? (
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown>
+                      {answer}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  m.role === 'assistant' && <span className="text-muted-foreground text-xs animate-pulse">Thinking...</span>
+                )}
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         {isLoading && messages[messages.length - 1]?.role === 'user' && (
           <div className="flex gap-3">
             <div className="shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">

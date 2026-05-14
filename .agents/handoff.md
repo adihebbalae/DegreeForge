@@ -1,185 +1,131 @@
-# Handoff: TASK-012 — Claude Chat Panel + Express Proxy Endpoint
-**Task ID**: TASK-012
+# Handoff: TASK-017 — Integration Testing + Visual Polish
+**Task ID**: TASK-017
 **Mode**: autonomous (no user interaction available)
 **Agent**: engineer | **Model**: sonnet
 
 ## Context
 
-DegreeForge is a single-user degree planner for UT Austin ECE. Previous tasks complete:
-- TASK-001: Express server running at port 3001 with `/api/health` and a stub `/api/chat`
-- TASK-002: Full data layer — all 9 JSONs typed, DataContext available
-- TASK-005: App shell with PlannerPage layout
+DegreeForge is a single-user degree planner for UT Austin ECE. ALL previous tasks (TASK-001 through TASK-016) are complete. The full app is built:
+- V1 Planner: timeline grid, course palette, progress bars, drag-drop, prereq validation, what-if, chat panel, course detail popovers, external links, localStorage persistence
+- V2 Scheduler: schedule optimizer engine, weekly calendar view, copy unique numbers
 
-**CRITICAL security constraint**: The `ANTHROPIC_API_KEY` must NEVER reach the browser. It lives in `packages/server/.env` (or root `.env`) and is accessed only by the Express server. The frontend calls `/api/chat` — it never calls Anthropic directly.
+This is the final task — integration testing and visual polish pass.
 
-**Claude's role**: Chat/explanation only. Claude is NOT used for plan generation (that's the deterministic solver). Examples of valid Claude uses:
-- "Why should I take ECE 460N before ECE 461L?"
-- "What's the difference between Computer Architecture and Embedded Systems tech cores?"
-- "I'm struggling with math — which courses are the hardest prerequisites?"
-
-**Why this task matters**: The chat panel is how Adi gets qualitative guidance on her plan. Without it, the app is just a scheduler with no explanations.
+**Why this task matters**: Individual features may work in isolation but have subtle integration bugs. The polish pass ensures the app looks and feels coherent, not like a collection of disconnected components.
 
 ## Task
 
-### Server: Replace the stub in `packages/server/src/index.ts`
+### 1. Integration test suite (`src/__tests__/integration.test.tsx`)
 
-**Critical**: Load API key from environment — never hardcode.
-
-```typescript
-import Anthropic from '@anthropic-ai/sdk';
-
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-app.post('/api/chat', async (req, res) => {
-  const { messages, planContext } = req.body;
-  
-  // Input validation
-  if (!messages || !Array.isArray(messages)) {
-    return res.status(400).json({ error: 'Invalid messages format' });
-  }
-  
-  // Build system prompt with plan context
-  const systemPrompt = buildSystemPrompt(planContext);
-  
-  // Streaming response
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-  
-  const stream = await anthropic.messages.stream({
-    model: 'claude-3-5-sonnet-20241022',
-    max_tokens: 1024,
-    system: systemPrompt,
-    messages: messages.slice(-10), // Only last 10 messages to limit tokens
-  });
-  
-  for await (const chunk of stream) {
-    if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-      res.write(`data: ${JSON.stringify({ text: chunk.delta.text })}\n\n`);
-    }
-  }
-  
-  res.write('data: [DONE]\n\n');
-  res.end();
-});
-```
-
-**`buildSystemPrompt(planContext)`**:
-```typescript
-function buildSystemPrompt(ctx: PlanContext): string {
-  return `You are a helpful academic advisor for a UT Austin ECE student named Adi.
-
-Current Plan Summary:
-- Tech Core: ${ctx.techCore}
-- Completed courses: ${ctx.completedCourses.join(', ')}
-- Spring 2026 (in progress): ${ctx.inProgress.join(', ')}
-- Target graduation: ${ctx.targetGraduation}
-
-${ctx.currentSemesterPlan ? `Current plan includes ${ctx.totalCoursesPlanned} courses across ${ctx.semesterCount} semesters.` : ''}
-
-Your role:
-- Explain course tradeoffs and why prerequisites matter
-- Help Adi understand what courses to prioritize
-- Answer questions about UT ECE degree requirements
-- Do NOT generate a full course plan — the planner tool handles that automatically
-- Keep responses concise (2-4 paragraphs max)
-- Reference specific UT ECE courses by their correct names`;
-}
-```
-
-**Security**: 
-- Validate `messages` array length (max 50 items)
-- Validate each message has `role` (user/assistant) and `content` (string, max 2000 chars)
-- Strip any HTML from input messages before sending to Claude
-
-### Client: Chat panel component (`src/components/ChatPanel.tsx`)
-
-A **slide-in panel** from the right side of PlannerPage:
-
-```
-┌──────────────────────────────────────────┐
-│ 💬 Academic Advisor           [×]        │
-├──────────────────────────────────────────┤
-│                                          │
-│  You: Why is ECE 302 a prereq for so    │
-│  many courses?                           │
-│                                          │
-│  Claude: ECE 302 (Intro to Electrical   │
-│  Engineering Lab) establishes the       │
-│  foundational... [streaming token by    │
-│  token]                                 │
-│                                          │
-│                                          │
-├──────────────────────────────────────────┤
-│  Ask about your plan...       [Send]     │
-└──────────────────────────────────────────┘
-```
-
-**Slide-in behavior**: Triggered by a floating "💬" button in PlannerPage. Uses CSS transform/transition or shadcn Sheet component.
-
-**Streaming**: Read the Server-Sent Events stream and append tokens as they arrive.
+Use `@testing-library/react` with `vitest`. Test the full user flows:
 
 ```typescript
-const response = await fetch('/api/chat', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ messages, planContext: getPlanContext() }),
-});
-
-const reader = response.body!.getReader();
-const decoder = new TextDecoder();
-
-while (true) {
-  const { done, value } = await reader.read();
-  if (done) break;
-  const lines = decoder.decode(value).split('\n');
-  for (const line of lines) {
-    if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-      const data = JSON.parse(line.slice(6));
-      setCurrentMessage(prev => prev + data.text);
-    }
-  }
-}
+describe('Full planner flow', () => {
+  it('loads Adi profile data on startup')
+  it('displays completed courses in Fall 2025 and Spring 2026')
+  it('dragging a course from palette to empty semester updates progress bars')
+  it('adding a course with unmet prereqs shows red border')
+  it('what-if: switching tech core updates palette contents')
+  it('export plan → clear → import plan → plan is restored')
+  it('V2: selecting courses and optimizing returns conflict-free schedules')
+})
 ```
 
-**Plan context** sent with each request (from PlanContext + DataContext):
+These are integration tests that mount the full component tree (with DataContext.Provider and PlanContext.Provider). Use mock data for JSON files to avoid network requests in tests.
+
+### 2. Bug hunt — check these known edge cases
+
+Run through these manually and fix any issues found:
+
+| Edge Case | What to check |
+|-----------|--------------|
+| ECE courses under "E E" prefix in grade data | Normalization is working — no "E E" visible in UI |
+| Placing a course that's already completed | Should not appear in palette; can't be placed in future semesters |
+| Moving a course away that has dependents | Downstream courses should get validation errors |
+| Tech core courses appear in both tech core section AND free electives | Should only appear in one category |
+| Progress bar total hours: credit-by-exam courses (CR grade) | CR courses should still count toward hours |
+| Dragging to a past semester | Should be prevented or ignored (past semesters are locked) |
+| Empty plan state (all courses removed) | No crash, shows empty semesters with drop zones |
+| Very long course title truncation | Cards should truncate with ellipsis, title in tooltip |
+
+### 3. Visual consistency pass
+
+Walk through each component and apply these fixes if needed:
+
+**Typography**:
+- Page headings: `text-xl font-semibold` (not `text-2xl bold` — too big)
+- Card labels: `text-sm` for secondary info
+- Consistent spacing: use `gap-2`, `gap-4`, `p-3`, `p-4` — no random values
+
+**Course cards**:
+- All cards same height (use `min-h-[72px]`)
+- Titles truncate consistently with `truncate` class
+- GPA badge always right-aligned
+
+**Color consistency**:
+- Category colors must match between timeline cards and palette cards
+- Badge GPA colors consistent (green/yellow/orange/red thresholds same everywhere)
+
+**Dark mode**:
+- All backgrounds flip correctly (no hardcoded `bg-white` — use `bg-background`)
+- Text contrast adequate in dark mode
+
+**Progress bars**:
+- Bars animate on value change (Tailwind `transition-all duration-300`)
+- No overflow (completed courses can't push past 100%)
+
+**Loading states**:
+- While JSON files are loading, show skeleton cards or a spinner (not a blank page)
+
+### 4. Performance check
+
+- Open DevTools → Performance
+- Drag a course — drag should feel smooth (no jank)
+- If progress bar recalculation or validation is slow, memoize the expensive computations with `useMemo`
+
+Key places to check:
 ```typescript
-interface ChatPlanContext {
-  techCore: string;
-  completedCourses: string[];
-  inProgress: string[];
-  targetGraduation: string;
-  totalCoursesPlanned: number;
-  semesterCount: number;
-}
+// In PlannerPage or wherever validation runs on every render:
+const validationResult = useMemo(
+  () => prereqGraph.validatePlan(effectivePlan, semesterOrder),
+  [effectivePlan, semesterOrder]  // only recomputes when plan changes
+);
 ```
 
-**Chat history**: Keep last 20 messages in component state (not localStorage — ephemeral per session).
+### 5. Final checklist before declaring done
 
-**Error handling**: Show "Sorry, something went wrong. Check your API key." on network/API errors.
+- [ ] `npm run dev` — both server and client start without errors
+- [ ] Node: no warnings about missing .env (drop a `.env` stub in `packages/server/`)
+- [ ] Console: zero warnings or errors in normal usage
+- [ ] TypeScript: `cd packages/client && npx tsc --noEmit` passes
+- [ ] TypeScript: `cd packages/server && npx tsc --noEmit` passes
+- [ ] Tests: `npm run test` from root — all pass
+- [ ] Dark mode: toggle in header works, persists, no visual glitches
+- [ ] Responsive: usable at 1280px wide (don't need mobile)
 
 ## Acceptance Criteria
-- [ ] Express `/api/chat` endpoint streams responses from Claude API
-- [ ] API key loaded from `.env`, never sent to client
-- [ ] Chat panel slides in/out smoothly
-- [ ] Messages stream token-by-token in the UI
-- [ ] Plan context included in system prompt (tech core, completed courses visible)
-- [ ] Error message shown if API key missing or network failure
-- [ ] Input validated server-side (max length, format)
-- [ ] Chat history shows last N messages in session
+- [ ] Integration tests cover the 7 flows above and pass
+- [ ] All identified edge cases fixed
+- [ ] Visual consistency across cards, colors, typography
+- [ ] Dark mode works without visual glitches
+- [ ] No console errors in normal usage
+- [ ] `npm run test` from root — all test suites pass
+- [ ] Both TypeScript compiles pass
 
 ## Validation Gates
-- [ ] `curl -X POST http://localhost:3001/api/chat -H "Content-Type: application/json" -d '{"messages":[{"role":"user","content":"What is ECE 302?"}],"planContext":{}}' ` — streams SSE response
-- [ ] Browser: open chat panel, send a message, see streaming response
+- [ ] `npm test` from root — all pass
+- [ ] Manual: full flow from loading → building plan → export → import
+- [ ] Manual: V1 to V2 flow (V1 plan → open schedule → optimize → copy numbers)
+- [ ] `cd packages/client && npx tsc --noEmit` — no errors
 - [ ] `cd packages/server && npx tsc --noEmit` — no errors
 
 ## Files to Read First
-- `packages/server/src/index.ts` — stub implementation to replace
-- `packages/client/src/context/PlanContext.tsx` — to get plan context for system prompt
-- `packages/client/src/pages/PlannerPage.tsx` — where to add chat open button
+- ALL previous task output (check git log for what was built)
+- `.agents/workspace-map.md` — locate all component files
+- `packages/client/src/` — full directory scan
 
 ## Constraints
-- API key MUST NOT appear in any client-side code, logs, or network responses
-- Do NOT use Claude for plan generation — chat/Q&A only
-- Vite proxy config: add in `vite.config.ts` `server.proxy: { '/api': 'http://localhost:3001' }` so frontend can call `/api/chat` without CORS in dev
-- Commit when done: `git add -A && git commit -m "feat(TASK-012): Claude chat panel with streaming SSE proxy endpoint"`
+- Do NOT add new features — only fix integration bugs and polish
+- Do NOT change core data structures (types, context shapes) unless a bug requires it
+- Do NOT refactor working code for "cleanliness" — only touch what's broken or visually wrong
+- Commit when done: `git add -A && git commit -m "feat(TASK-017): integration tests, edge case fixes, visual polish"`

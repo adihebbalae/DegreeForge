@@ -55,11 +55,16 @@ packages/                        # Monorepo (npm workspaces)
         utils.ts                 # cn() helper
         normalize.ts             # E E -> ECE normalization boundary
         graph-engine.ts          # TASK-003: Core prerequisite graph logic      
-        graph-engine.test.ts     # TASK-010: Tests for validation logic
+        graph-engine.test.ts     # TASK-003: Tests for graph engine + validation
+        solver.ts                # TASK-004: Constraint solver — greedy toposort plan generator
+        solver.test.ts           # TASK-004: 7 unit tests for solver
+        requirements.ts          # TASK-004: Remaining requirements builder (degree + tech core)
         progress.ts              # computeProgress() for degree requirements    
+        progress.test.ts         # Tests for progress computation
         course-utils.ts          # inferCategory(), gpaColorClass(), etc.       
         what-if.ts               # TASK-011: What-if diff calculation logic
         what-if.test.ts          # TASK-011: Tests for what-if logic
+        normalize.test.ts        # 19 tests for normalization logic
       pages/
         PlannerPage.tsx          # V1: progress strip + ValidationBanner + TimelineGrid + CoursePalette
         SchedulerPage.tsx        # V2: 2-col layout (course selector / weekly calendar)
@@ -72,6 +77,7 @@ packages/                        # Monorepo (npm workspaces)
         CoursePalette.tsx        # Right-sidebar: collapsible categories, search, highlights
         SemesterColumn.tsx       # Semester column: course cards list, drop-zones
         TimelineGrid.tsx         # Horizontal-scroll timeline grid
+        CourseDetailDialog.tsx   # TASK-013: Course detail dialog (grade dist, prereqs, Fall 2026 sections, external links)
         WhatIfPanel.tsx          # TASK-011: What-if simulator panel (slide-over)
         ChatPanel.tsx            # TASK-012: AI chat interface
         ui/

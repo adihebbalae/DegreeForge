@@ -161,6 +161,23 @@ export default function SemesterColumn({
     0
   );
 
+  // Compute estimated GPA for future/current semesters (Feature 4)
+  const estimatedGPA = !isPast && totalCredits > 0 ? (() => {
+    let weightedGpaSum = 0;
+    let gpaCredits = 0;
+
+    courseIds.forEach(courseId => {
+      const dist = gradeDistributions[courseId];
+      if (dist && dist.avg_gpa > 0) {
+        const credits = getCourseCredits(courseId, catalog, prereqNodes);
+        weightedGpaSum += (dist.avg_gpa * credits);
+        gpaCredits += credits;
+      }
+    });
+
+    return gpaCredits > 0 ? (weightedGpaSum / gpaCredits).toFixed(2) : null;
+  })() : null;
+
   return (
     <div
       className={cn(
@@ -196,10 +213,17 @@ export default function SemesterColumn({
           )}
         </div>
 
-        {/* Credit count */}
-        <span className={cn('text-[11px]', creditCountClass(totalCredits))}>
-          {totalCredits} / 18 hrs
-        </span>
+        {/* Credit count & optional GPA */}
+        <div className="flex items-center justify-between">
+          <span className={cn('text-[11px]', creditCountClass(totalCredits))}>
+            {totalCredits} / 18 hrs
+          </span>
+          {estimatedGPA && (
+            <span className="text-[10px] text-muted-foreground" title="Estimated GPA based on historical data">
+              ~{estimatedGPA} est. GPA
+            </span>
+          )}
+        </div>
       </div>
 
       {/* ── Course List (droppable + sortable for non-past) ──────── */}

@@ -17,13 +17,18 @@ export type PlanAction =
   | { type: 'APPLY_WHAT_IF'; newPlan: Record<string, string[]> }
   | { type: 'RESET_WHAT_IF' }
   | { type: 'RESET_PLAN' }
-  | { type: 'SET_FULL_STATE'; state: PlanState };
+  | { type: 'SET_FULL_STATE'; state: PlanState }
+  | { type: 'ADVANCE_SEMESTER'; grades: Record<string, string> }
+  | { type: 'UNDO' }
+  | { type: 'REDO' };
 
 // ─── Context Shape ────────────────────────────────────────────────────────────
 
 interface PlanContextValue {
   state: PlanState;
   dispatch: React.Dispatch<PlanAction>;
+  canUndo: boolean;
+  canRedo: boolean;
 }
 
 // ─── Static Semester Sequence ─────────────────────────────────────────────────
@@ -63,6 +68,7 @@ export const INITIAL_STATE: PlanState = {
     mathBAToggle: false,
     isActive: false,
   },
+  gradeEntries: {},
 };
 
 const STORAGE_KEY = 'degreeforge-plan-state';
@@ -184,11 +190,34 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
     }
 
     case 'RESET_PLAN': {
-      return INITIAL_STATE;
+      return { ...INITIAL_STATE, gradeEntries: state.gradeEntries };
     }
 
     case 'SET_FULL_STATE': {
       return action.state;
+    }
+
+    case 'ADVANCE_SEMESTER': {
+      const currentIdx = state.semesters.findIndex((s) => s.status === 'current');
+      if (currentIdx === -1) return state;
+      const nextFutureIdx = state.semesters.findIndex((s) => s.status === 'future');
+      if (nextFutureIdx === -1) return state;
+
+      const currentSemId = state.semesters[currentIdx].id;
+      const newSemesters = state.semesters.map((sem, idx) => {
+        if (idx === currentIdx) return { ...sem, status: 'past' as const };
+        if (idx === nextFutureIdx) return { ...sem, status: 'current' as const };
+        return sem;
+      });
+
+      return {
+        ...state,
+        semesters: newSemesters,
+        gradeEntries: {
+          ...state.gradeEntries,
+          [currentSemId]: action.grades,
+        },
+      };
     }
 
     default:
@@ -196,19 +225,114 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
   }
 }
 
+// ─── Undo / Redo Engine ───────────────────────────────────────────────────────
+
+export interface HistoryState {
+  past: PlanState[];
+  present: PlanState;
+  future: PlanState[];
+}
+
+export function historyReducer(state: HistoryState, action: PlanAction): HistoryState {
+  if (action.type === 'UNDO') {
+    if (state.past.length === 0) return state;
+    const previous = state.past[state.past.length - 1];
+    const newPast = state.past.slice(0, state.past.length - 1);
+    return {
+      past: newPast,
+      present: previous,
+      future: [state.present, ...state.future],
+    };
+  }
+
+  if (action.type === 'REDO') {
+    if (state.future.length === 0) return state;
+    const next = state.future[0];
+    const newFuture = state.future.slice(1);
+    return {
+      past: [...state.past, state.present],
+      present: next,
+      future: newFuture,
+    };
+  }
+
+  if (action.type === 'RESET_PLAN') {
+    return {
+      past: [...state.past, state.present],
+      present: {
+        ...INITIAL_STATE,
+        gradeEntries: state.present.gradeEntries // Preserve grades during reset
+      },
+      future: [],
+    };
+  }
+
+  const nextPresent = planReducer(state.present, action);
+  if (nextPresent === state.present) return state; // no state change
+
+  // Actions that should NOT save history
+  if (action.type === 'SET_HOVERED_COURSE') {
+    return { ...state, present: nextPresent };
+  }
+
+  const newPast = [...state.past, state.present].slice(-30); // keep last 30 states
+  return {
+    past: newPast,
+    present: nextPresent,
+    future: [],
+  };
+}
+
 // ─── Context + Provider ───────────────────────────────────────────────────────
 
 const PlanContext = createContext<PlanContextValue | null>(null);
 
 export function PlanProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(planReducer, INITIAL_STATE, (initial) => {
+  const [historyState, dispatch] = useReducer(historyReducer, {
+    past: [],
+    present: INITIAL_STATE,
+    future: [],
+  }, (initial) => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        // Basic validation: ensure semesters and plan exist
+
+        // Helper: repair corrupted plans where the solver dumped all completed
+        // courses into a single past semester (the "44 hours in Fall 2025" bug).
+        const repairPlan = (state: PlanState): PlanState => {
+          const maxCoursesInPastSemester = 8; // No real semester should have >8
+          let needsRepair = false;
+          for (const sem of state.semesters) {
+            if (sem.status === 'past' || sem.status === 'current') {
+              const courses = state.plan[sem.id] || [];
+              if (courses.length > maxCoursesInPastSemester) {
+                needsRepair = true;
+                break;
+              }
+            }
+          }
+          if (!needsRepair) return state;
+
+          // Restore past/current semesters from INITIAL_PLAN, keep future
+          const repairedPlan = { ...state.plan };
+          for (const sem of state.semesters) {
+            if (sem.status === 'past' || sem.status === 'current') {
+              repairedPlan[sem.id] = [...(INITIAL_PLAN[sem.id] || [])];
+            }
+          }
+          return { ...state, plan: repairedPlan };
+        };
+
+        // If it has present, it's the new HistoryState format
+        if (parsed.present && parsed.present.semesters) {
+          const repairedPresent = repairPlan(parsed.present);
+          return { ...initial, ...parsed, present: repairedPresent, past: [], future: [] };
+        }
+        // Legacy migration
         if (parsed.semesters && parsed.plan) {
-          return { ...initial, ...parsed, hoveredCourse: null };
+          const restored = { ...INITIAL_STATE, ...parsed, hoveredCourse: null };
+          return { ...initial, present: repairPlan(restored) };
         }
       } catch (e) {
         console.error('Failed to parse stored plan state:', e);
@@ -218,11 +342,16 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(historyState));
+  }, [historyState]);
 
   return (
-    <PlanContext.Provider value={{ state, dispatch }}>
+    <PlanContext.Provider value={{
+      state: historyState.present,
+      dispatch,
+      canUndo: historyState.past.length > 0,
+      canRedo: historyState.future.length > 0,
+    }}>
       {children}
     </PlanContext.Provider>
   );
@@ -270,7 +399,20 @@ export function usePlanDispatch(): React.Dispatch<PlanAction> {
   return usePlanContext().dispatch;
 }
 
+export function useCanUndo(): boolean {
+  return usePlanContext().canUndo;
+}
+
+export function useCanRedo(): boolean {
+  return usePlanContext().canRedo;
+}
+
 /** Returns the course IDs placed in a specific semester */
 export function useSemesterCourses(semesterId: string): string[] {
   return usePlanContext().state.plan[semesterId] ?? [];
+}
+
+/** Returns user-entered grades: semesterId → courseId → letter grade */
+export function useGradeEntries(): Record<string, Record<string, string>> {
+  return usePlanContext().state.gradeEntries ?? {};
 }
