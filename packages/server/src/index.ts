@@ -10,8 +10,25 @@ dotenv.config({ path: '../../.env' });
 
 const app = express();
 
-// Security headers
-app.use(helmet());
+// Security headers — CSP is set here (HTTP header) instead of an HTML <meta>
+// so dev tooling (Vite HMR inline scripts) isn't blocked. In production, the
+// static client should be served behind a host that applies the same policy.
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        connectSrc: ["'self'", 'http://localhost:3001'],
+        imgSrc: ["'self'", 'data:'],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+      },
+    },
+  })
+);
 
 // CORS — configurable via env, defaults to localhost dev server
 const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
