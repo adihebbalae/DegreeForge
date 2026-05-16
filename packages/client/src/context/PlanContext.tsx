@@ -143,13 +143,15 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
 
     case 'PIN_COURSE': {
       if (state.pinnedCourses.includes(action.courseId)) return state;
-      return { ...state, pinnedCourses: [...state.pinnedCourses, action.courseId] };
+      // Clear rejected ghosts so the solver reruns fresh on each new pin
+      return { ...state, pinnedCourses: [...state.pinnedCourses, action.courseId], rejectedGhosts: [] };
     }
 
     case 'UNPIN_COURSE': {
       return {
         ...state,
         pinnedCourses: state.pinnedCourses.filter((id) => id !== action.courseId),
+        rejectedGhosts: [],
       };
     }
 
@@ -246,7 +248,10 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
     }
 
     case 'DISMISS_GHOSTS': {
-      return { ...state, ghostCourses: {}, rejectedGhosts: [], focusedGhostId: null };
+      // Add current ghosts to rejected so the hook doesn't immediately re-propose them
+      const dismissed: string[] = (Object.values(state.ghostCourses) as string[][]).flat();
+      const newRejected = [...new Set([...state.rejectedGhosts, ...dismissed])];
+      return { ...state, ghostCourses: {}, rejectedGhosts: newRejected, focusedGhostId: null };
     }
 
     case 'SET_FOCUSED_GHOST': {
