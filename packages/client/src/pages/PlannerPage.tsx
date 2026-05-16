@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { MessageSquare, X, Zap } from 'lucide-react';
+import { useState } from 'react';
+import { MessageSquare, X, Zap, Wand2 } from 'lucide-react';
 import {
   DndContext,
   DragOverlay,
@@ -21,12 +21,16 @@ import ChatPanel from '@/components/ChatPanel';
 import WhatIfPanel from '@/components/WhatIfPanel';
 import {
   useCatalogRecord,
-  usePrereqGraph,
+  usePrereqGraph as useRawPrereqGraph,
   useGradeDistributions,
+  useUserProfile,
+  useDegreeRequirements,
+  useTechCoresRecord,
+  useMathRequirements,
 } from '@/context/DataContext';
-import { usePlanDispatch, usePlan, useGhostCourses, useFocusedGhostId } from '@/context/PlanContext';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { useGhostPlan } from '@/hooks/useGhostPlan';
+import { usePrereqGraph } from '@/hooks/usePrereqGraph';
+import { usePlanDispatch, usePlan, useTechCoreId, useMathBAToggle, useSemesters } from '@/context/PlanContext';
+import { generateAutoPlan } from '@/lib/auto-planner';
 import type { PrereqNode } from '@/types';
 
 // ─── Active card shape ────────────────────────────────────────────────────────
@@ -43,61 +47,78 @@ interface ActiveCardInfo {
 export default function PlannerPage() {
   const [chatOpen, setChatOpen] = useState(false);
   const [whatIfOpen, setWhatIfOpen] = useState(false);
-  const [paletteOpen, setPaletteOpen] = useState(false);
   const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
-
-  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   // ── Dispatch + plan state (for duplicate detection + reorder) ─────────────
   const dispatch = usePlanDispatch();
   const plan = usePlan();
-
-  // TASK-019: ghost-card autocomplete
-  useGhostPlan();
-  const ghostCourses = useGhostCourses();
-  const focusedGhostId = useFocusedGhostId();
-
-  // Keyboard: Tab=accept focused ghost, Shift+Tab=reject, Esc=dismiss all
-  useEffect(() => {
-    const hasGhosts = Object.values(ghostCourses).flat().length > 0;
-    if (!hasGhosts) return;
-
-    function onKeyDown(e: KeyboardEvent) {
-      const ghosts = Object.values(ghostCourses).flat();
-      if (ghosts.length === 0) return;
-
-      if (e.key === 'Escape') {
-        dispatch({ type: 'DISMISS_GHOSTS' });
-        return;
-      }
-
-      // Tab / Shift+Tab only when ghosts exist
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        const targetId = focusedGhostId ?? ghosts[0];
-        // Find which semester this ghost is in
-        const semesterId = Object.entries(ghostCourses).find(([, ids]) =>
-          ids.includes(targetId)
-        )?.[0];
-        if (!semesterId) return;
-
-        if (e.shiftKey) {
-          dispatch({ type: 'REJECT_GHOST', courseId: targetId });
-        } else {
-          dispatch({ type: 'ACCEPT_GHOST', courseId: targetId, semesterId });
-        }
-      }
-    }
-
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [ghostCourses, focusedGhostId, dispatch]);
+  const semesters = useSemesters();
+  const techCoreId = useTechCoreId();
+  const mathBAToggle = useMathBAToggle();
 
   // ── Data for the DragOverlay CourseCard ───────────────────────────────────
   const catalog = useCatalogRecord();
-  const prereqGraph = usePrereqGraph();
+  const rawPrereqGraph = useRawPrereqGraph();
+  const prereqGraphInstance = usePrereqGraph();
   const gradeDistributions = useGradeDistributions();
-  const prereqNodes: Record<string, PrereqNode> = prereqGraph?.nodes ?? {};
+  const userProfile = useUserProfile();
+  const degreeReqs = useDegreeRequirements();
+  const techCores = useTechCoresRecord();
+  const mathReqs = useMathRequirements();
+  const prereqNodes: Record<string, PrereqNode> = rawPrereqGraph?.nodes ?? {};
+
+  // ── Recommend 4-Year Plan handler ─────────────────────────────────────────
+
+  const handleRecommendPlan = () => {
+    if (!userProfile || !degreeReqs || !techCores || !mathReqs) {
+      alert('Data not yet loaded. Try again in a moment.');
+      return;
+    }
+    const techCore = techCores[techCoreId];
+    if (!techCore) {
+      alert(`Unknown tech core: ${techCoreId}`);
+      return;
+    }
+
+    // Confirm overwrite if any future semester already has content
+    const futureHasContent = semesters.some(
+      (s) => s.status === 'future' && (plan[s.id] ?? []).length > 0
+    );
+    if (futureHasContent) {
+      const ok = window.confirm(
+        'This will overwrite courses in your future semesters with a recommended plan. Continue?'
+      );
+      if (!ok) return;
+    }
+
+    const result = generateAutoPlan({
+      prereqGraph: prereqGraphInstance,
+      prereqNodes,
+      userProfile,
+      degreeReqs,
+      techCore,
+      mathReqs,
+      mathBAToggle,
+      semesters,
+      currentPlan: plan,
+    });
+
+    dispatch({ type: 'SET_PLAN', plan: result.plan });
+
+    // Surface diagnostics
+    const msgs: string[] = [];
+    if (result.unplacedCourses.length > 0) {
+      msgs.push(
+        `Could not place ${result.unplacedCourses.length} course(s): ${result.unplacedCourses.join(', ')}`
+      );
+    }
+    if (result.warnings.length > 0) {
+      msgs.push('Notes:\n• ' + result.warnings.join('\n• '));
+    }
+    if (msgs.length > 0) {
+      alert(msgs.join('\n\n'));
+    }
+  };
 
   // ── Sensors ───────────────────────────────────────────────────────────────
   // Require 8px movement before activating drag — prevents accidental drags on click.
@@ -200,7 +221,20 @@ export default function PlannerPage() {
 
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="h-full flex flex-col overflow-hidden">
+      <div className="h-full flex flex-col relative overflow-hidden">
+        {/* ── Recommend Plan action ───────────────────────────────────────── */}
+        <div className="flex justify-end px-4 pt-2">
+          <Button
+            onClick={handleRecommendPlan}
+            size="sm"
+            className="gap-2"
+            title="Auto-generate a 4-year plan based on your profile and tech core"
+          >
+            <Wand2 className="h-4 w-4" />
+            Recommend 4-Year Plan
+          </Button>
+        </div>
+
         {/* ── Progress bars strip ─────────────────────────────────────────── */}
         <ProgressBars />
 
@@ -209,51 +243,21 @@ export default function PlannerPage() {
 
         {/* ── Main content row ────────────────────────────────────────────── */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Semester timeline grid */}
-          <div className="flex-1 overflow-hidden border-r border-border">
+          {/* Semester timeline grid — left ~65% */}
+          <div className="flex-[65] overflow-hidden border-r border-border">
             <TimelineGrid />
           </div>
 
-          {/* Course palette — right ~35% on desktop */}
-          {isDesktop && (
-            <div className="w-[35%] min-w-[320px] max-w-[450px] overflow-hidden shrink-0">
-              <CoursePalette />
-            </div>
-          )}
+          {/* Course palette — right ~35% */}
+          <div className="flex-[35] overflow-hidden">
+            <CoursePalette />
+          </div>
         </div>
 
-        {/* ── Mobile Palette Drawer ─────────────────────────────────────────── */}
-        {!isDesktop && (
-          <>
-            {/* Overlay */}
-            {paletteOpen && (
-              <div 
-                className="fixed inset-0 bg-black/50 z-40"
-                onClick={() => setPaletteOpen(false)}
-              />
-            )}
-            <aside
-              className={[
-                'fixed bottom-0 left-0 right-0 h-[65vh] rounded-t-xl',
-                'bg-background border-t border-border shadow-[0_-10px_40px_rgba(0,0,0,0.1)]',
-                'flex flex-col transition-transform duration-300 ease-in-out z-50',
-                paletteOpen ? 'translate-y-0' : 'translate-y-full',
-              ].join(' ')}
-            >
-              <div className="w-full flex justify-center py-2 shrink-0 cursor-pointer" onClick={() => setPaletteOpen(false)}>
-                <div className="w-12 h-1.5 bg-muted rounded-full" />
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <CoursePalette />
-              </div>
-            </aside>
-          </>
-        )}
-
-        {/* ── Slide-in panels — fixed positioning to avoid affecting layout scroll ── */}
+        {/* ── Chat slide-in panel ──────────────────────────────────────────── */}
         <aside
           className={[
-            'fixed top-[56px] bottom-0 right-0 w-80',
+            'absolute inset-y-0 right-0 w-80',
             'bg-background border-l border-border shadow-lg',
             'flex flex-col transition-transform duration-300 ease-in-out z-20',
             chatOpen ? 'translate-x-0' : 'translate-x-full',
@@ -276,9 +280,10 @@ export default function PlannerPage() {
           </div>
         </aside>
 
+        {/* ── What-If slide-in panel ────────────────────────────────────────── */}
         <aside
           className={[
-            'fixed top-[56px] bottom-0 right-0 w-80',
+            'absolute inset-y-0 right-0 w-80',
             'bg-background border-l border-border shadow-lg',
             'flex flex-col transition-transform duration-300 ease-in-out z-30',
             whatIfOpen ? 'translate-x-0' : 'translate-x-full',
@@ -289,15 +294,7 @@ export default function PlannerPage() {
         </aside>
 
         {/* ── Floating toggle buttons ──────────────────────────────────────── */}
-        <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-30">
-          {!isDesktop && !paletteOpen && (
-            <Button
-              className="shadow-lg bg-blue-500 hover:bg-blue-600 text-white font-medium px-4"
-              onClick={() => setPaletteOpen(true)}
-            >
-              + Add Courses
-            </Button>
-          )}
+        <div className="absolute bottom-4 right-4 flex flex-col gap-2">
           {!whatIfOpen && (
             <Button
               className="shadow-lg bg-yellow-500 hover:bg-yellow-600 text-white"

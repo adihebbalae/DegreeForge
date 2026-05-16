@@ -85,6 +85,16 @@ When work needs to transfer between agents:
 - Run tests before declaring work complete
 - Run the `quality-gate` skill before every push (lint → type-check → tests → security scan). Do not push with any stage failing.
 
+## UI Verification — Mandatory for any .tsx / .jsx change
+Before declaring a UI task done, you MUST exercise the feature in a running browser via the Preview MCP tools. Tests + tsc + build are not enough.
+
+1. Start the dev server: `mcp__Claude_Preview__preview_start` with name `client` (create `.claude/launch.json` if missing — `npm run dev --workspace=packages/client`, port 5173).
+2. Exercise the new behavior via `preview_click` / `preview_eval` (stub `window.confirm` / `window.alert` first if needed).
+3. Verify `preview_console_logs` (level: error) is empty.
+4. Stop with `preview_stop`.
+
+**Do NOT ask the user "want me to verify?" or "are you good to test it yourself?"** — that wastes their tokens. Verification is part of the task; if a tool exists for it, use the tool. Permission-seeking is only correct for *destructive* or *externally-visible* actions (git push, deleting files). Screenshots may time out on Windows; fall back to `preview_inspect` for visual checks and proceed.
+
 ## Communication Principles
 - **Always include WHY**: When making a decision, choosing a priority, or recommending an approach, explain the reasoning. "Do X because Y" not just "Do X."
 - **Research first**: Before making changes, search the codebase for existing patterns and conventions. Understand what exists before creating something new.
