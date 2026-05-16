@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pin, PinOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { inferCategory, CATEGORY_BORDER, getCourseCredits, getCourseTitle, gpaColorClass } from '@/lib/course-utils';
+import { inferCategory, CATEGORY_BORDER, getCourseCredits, getCourseTitle, gpaColorClass, buildTranscriptCredits } from '@/lib/course-utils';
 import type { CourseCatalog, CourseCategory, PrereqNode, PrereqViolation, GradeDistributions } from '@/types';
 import { usePlanDispatch } from '@/context/PlanContext';
+import { useUserProfile } from '@/context/DataContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import CourseDetailDialog from './CourseDetailDialog';
 
@@ -68,13 +69,16 @@ export default function CourseCard({
   ghostSemesterId,
 }: CourseCardProps) {
   const dispatch = usePlanDispatch();
+  const profile = useUserProfile();
   const [detailOpen, setDetailOpen] = useState(false);
+
+  const transcriptCredits = useMemo(() => buildTranscriptCredits(profile), [profile]);
 
   const category = categoryOverride ?? inferCategory(courseId, prereqNodes);
   const borderClass = CATEGORY_BORDER[category];
 
   const title = getCourseTitle(courseId, catalog, prereqNodes);
-  const credits = getCourseCredits(courseId, catalog, prereqNodes);
+  const credits = getCourseCredits(courseId, catalog, prereqNodes, transcriptCredits);
 
   const avgGpa = gradeDistributions[courseId]?.avg_gpa ?? null;
   const gpaBgClass = gpaColorClass(avgGpa);

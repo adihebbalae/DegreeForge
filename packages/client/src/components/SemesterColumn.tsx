@@ -107,6 +107,8 @@ interface SemesterColumnProps {
   catalog: CourseCatalog | null;
   prereqNodes: Record<string, PrereqNode>;
   gradeDistributions: GradeDistributions;
+  /** courseId → credit_hours from user transcript (overrides catalog) */
+  transcriptCredits: Record<string, number>;
   /** Violation data from useValidation (TASK-010) */
   violationsByCourse: Record<string, PrereqViolation>;
   /** Set of courses to highlight as downstream dependents (TASK-010) */
@@ -129,6 +131,7 @@ export default function SemesterColumn({
   catalog,
   prereqNodes,
   gradeDistributions,
+  transcriptCredits,
   violationsByCourse,
   downstreamCourses,
   pinnedCourses = [],
@@ -175,7 +178,7 @@ export default function SemesterColumn({
 
   // Compute total credits for the semester
   const totalCredits = courseIds.reduce(
-    (sum, courseId) => sum + getCourseCredits(courseId, catalog, prereqNodes),
+    (sum, courseId) => sum + getCourseCredits(courseId, catalog, prereqNodes, transcriptCredits),
     0
   );
 

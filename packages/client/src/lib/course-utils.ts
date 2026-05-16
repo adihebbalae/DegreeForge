@@ -1,4 +1,4 @@
-import type { CourseCatalog, PrereqNode, CourseCategory } from '../types';
+import type { CourseCatalog, PrereqNode, CourseCategory, UserProfile } from '../types';
 
 // ─── Category Inference ───────────────────────────────────────────────────────
 
@@ -89,17 +89,41 @@ const CREDIT_OVERRIDES: Record<string, number> = {
 };
 
 /**
- * Get credit hours for a course, trying multiple sources in order:
- * 1. Hardcoded overrides (for non-catalog courses)
- * 2. Course catalog
- * 3. Prereq-graph node
- * 4. Default: 3
+ * Build a course-id → credit_hours map from the user's transcript
+ * (completed_courses + in_progress_courses). The transcript is the
+ * authoritative source for what the student actually got credit for —
+ * it can legitimately differ from the catalog (e.g. ECE 302 catalog
+ * lists 5 hrs but a student may have earned it for 3).
+ */
+export function buildTranscriptCredits(
+  profile: UserProfile | null
+): Record<string, number> {
+  if (!profile) return {};
+  const map: Record<string, number> = {};
+  for (const c of profile.completed_courses ?? []) {
+    map[c.course] = c.credit_hours;
+  }
+  for (const c of profile.in_progress_courses ?? []) {
+    map[c.course] = c.credit_hours;
+  }
+  return map;
+}
+
+/**
+ * Get credit hours for a course, trying sources in priority order:
+ * 1. User transcript (completed/in-progress) — authoritative for past courses
+ * 2. Hardcoded overrides (for non-catalog courses)
+ * 3. Course catalog
+ * 4. Prereq-graph node
+ * 5. Default: 3
  */
 export function getCourseCredits(
   courseId: string,
   catalog: CourseCatalog | null,
-  prereqNodes: Record<string, PrereqNode>
+  prereqNodes: Record<string, PrereqNode>,
+  transcriptCredits?: Record<string, number>
 ): number {
+  if (transcriptCredits?.[courseId] !== undefined) return transcriptCredits[courseId];
   if (CREDIT_OVERRIDES[courseId] !== undefined) return CREDIT_OVERRIDES[courseId];
   const catalogEntry = catalog?.[courseId];
   if (catalogEntry?.credits !== undefined) return catalogEntry.credits;

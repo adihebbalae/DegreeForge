@@ -12,6 +12,7 @@ import type { PrereqNode } from '@/types';
 import { useValidation } from '@/hooks/useValidation';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { useEffect, useRef, useCallback } from 'react';
+import { buildTranscriptCredits } from '@/lib/course-utils';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -88,6 +89,12 @@ export default function TimelineGrid() {
     }
   }, [loading]);
 
+  // Per-course transcript credit_hours (overrides catalog where present)
+  const transcriptCredits = useMemo(
+    () => buildTranscriptCredits(userProfile),
+    [userProfile]
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
@@ -112,6 +119,7 @@ export default function TimelineGrid() {
                 catalog={catalog}
                 prereqNodes={prereqNodes}
                 gradeDistributions={gradeDistributions}
+                transcriptCredits={transcriptCredits}
                 violationsByCourse={violationsByCourse}
                 downstreamCourses={downstreamCourses}
                 pinnedCourses={pinnedCourses}
