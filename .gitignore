@@ -65,3 +65,9 @@ UT_Grade_Parser/
 # Logs
 *.log
 npm-debug.log*
+
+# Local Ollama prompt cache + fine-tune dataset (do not commit)
+packages/server/ollama_log/
+
+# Local Claude Code worktrees
+.claude/worktrees/
