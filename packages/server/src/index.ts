@@ -49,10 +49,15 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+interface ChatCourseRef {
+  course: string;
+  title: string;
+}
+
 interface ChatPlanContext {
   techCore: string;
-  completedCourses: string[];
-  inProgress: string[];
+  completedCourses: ChatCourseRef[];
+  inProgress: ChatCourseRef[];
   targetGraduation: string;
   totalCoursesPlanned: number;
   semesterCount: number;
@@ -63,13 +68,18 @@ interface ChatMessage {
   content: string;
 }
 
+function formatCourseList(refs: ChatCourseRef[]): string {
+  if (refs.length === 0) return 'none';
+  return refs.map(r => `${r.course} (${r.title})`).join('; ');
+}
+
 function buildSystemPrompt(ctx: ChatPlanContext): string {
   return `You are a helpful academic advisor for a UT Austin ECE student named Adi.
 
 Current Plan Summary:
 - Tech Core: ${ctx.techCore}
-- Completed courses: ${ctx.completedCourses.join(', ')}
-- Spring 2026 (in progress): ${ctx.inProgress.join(', ')}
+- Completed courses: ${formatCourseList(ctx.completedCourses)}
+- Spring 2026 (in progress): ${formatCourseList(ctx.inProgress)}
 - Target graduation: ${ctx.targetGraduation}
 
 ${ctx.totalCoursesPlanned > 0 ? `Current plan includes ${ctx.totalCoursesPlanned} courses across ${ctx.semesterCount} semesters.` : ''}
@@ -80,15 +90,25 @@ Your role:
 - Answer questions about UT ECE degree requirements
 - Do NOT generate a full course plan — the planner tool handles that automatically
 - Keep responses concise (2-4 paragraphs max)
-- Reference specific UT ECE courses by their correct names
 
-IMPORTANT COMMAND: 
-Before providing your final answer, you MUST "think out loud" about the student's request. 
-Wrap your internal reasoning, calculations, and thoughts inside <thought>...</thought> XML tags.
-After you have finished thinking, provide your final response to the user inside <answer>...</answer> XML tags.
-Example format:
+Grounding rules — read carefully:
+- The course list above is the ONLY authoritative source for course titles.
+  Each entry is in the form "DEPT NUM (Title)". When the user asks what a
+  course is, look it up there first and quote the title verbatim.
+- If a course code is NOT in the list above, do not guess its title or
+  description. Say you don't have that course in context and ask the user
+  to confirm. Never invent a plausible-sounding title.
+- Do not confuse similar-looking codes (e.g. ECE 302 is distinct from
+  ECE 316; ECE 312 from ECE 319K). Always quote the exact code the user
+  asked about.
+
+Output format — required:
+Before your final answer, "think out loud" about the student's request inside
+<thought>...</thought> XML tags. Then provide your response to the user inside
+<answer>...</answer> XML tags.
+Example:
 <thought>
-Let's see, they asked about ECE 312H. That's honors software. They have already taken ECE 306.
+They asked about ECE 312H — honors software. They have already taken ECE 306.
 </thought>
 <answer>
 ECE 312H is a great class! Since you've taken ECE 306, you are well prepared...
@@ -128,12 +148,15 @@ app.post('/api/chat', chatLimiter, async (req, res) => {
   if (typeof planContext.techCore !== 'string' || planContext.techCore.length > 100) {
     return res.status(400).json({ error: 'Invalid techCore field' });
   }
-  if (!Array.isArray(planContext.completedCourses) ||
-      planContext.completedCourses.some((c: unknown) => typeof c !== 'string' || (c as string).length > 20)) {
+  const isValidCourseRef = (c: unknown): boolean =>
+    typeof c === 'object' && c !== null &&
+    typeof (c as ChatCourseRef).course === 'string' && (c as ChatCourseRef).course.length <= 20 &&
+    typeof (c as ChatCourseRef).title === 'string' && (c as ChatCourseRef).title.length <= 200;
+
+  if (!Array.isArray(planContext.completedCourses) || !planContext.completedCourses.every(isValidCourseRef)) {
     return res.status(400).json({ error: 'Invalid completedCourses field' });
   }
-  if (!Array.isArray(planContext.inProgress) ||
-      planContext.inProgress.some((c: unknown) => typeof c !== 'string' || (c as string).length > 20)) {
+  if (!Array.isArray(planContext.inProgress) || !planContext.inProgress.every(isValidCourseRef)) {
     return res.status(400).json({ error: 'Invalid inProgress field' });
   }
   if (typeof planContext.targetGraduation !== 'string' || planContext.targetGraduation.length > 30) {

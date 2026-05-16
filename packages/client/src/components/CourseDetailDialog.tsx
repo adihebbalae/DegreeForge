@@ -9,10 +9,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ExternalLink, Book, Users, Link as LinkIcon, TrendingUp, Calendar } from 'lucide-react';
-import { getCourseTitle, getCourseCredits, gpaColorClass, inferCategory } from '@/lib/course-utils';
+import { getCourseTitle, getCourseCredits, gpaColorClass, inferCategory, buildTranscriptCredits } from '@/lib/course-utils';
 import type { CourseCatalog, PrereqNode, GradeDistributions, FallSections, CourseSection } from '@/types';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
-import { useFallSections } from '@/context/DataContext';
+import { useFallSections, useUserProfile } from '@/context/DataContext';
 
 interface CourseDetailDialogProps {
   courseId: string | null;
@@ -32,6 +32,8 @@ export default function CourseDetailDialog({
   prereqNodes,
 }: CourseDetailDialogProps) {
   const prereqGraph = usePrereqGraph();
+  const profile = useUserProfile();
+  const transcriptCredits = useMemo(() => buildTranscriptCredits(profile), [profile]);
 
   const fallSectionsList = useFallSections();
 
@@ -40,7 +42,7 @@ export default function CourseDetailDialog({
     const cat = catalog?.[courseId];
     const node = prereqNodes[courseId];
     const grade = gradeDistributions[courseId];
-    
+
     const prereqs = prereqGraph.getPrereqs(courseId);
     const coreqs = prereqGraph.getCoreqs(courseId);
     const downstream = prereqGraph.getDownstream(courseId);
@@ -60,7 +62,7 @@ export default function CourseDetailDialog({
     return {
       id: courseId,
       title: getCourseTitle(courseId, catalog, prereqNodes),
-      credits: getCourseCredits(courseId, catalog, prereqNodes),
+      credits: getCourseCredits(courseId, catalog, prereqNodes, transcriptCredits),
       description: cat?.description ?? 'No description available.',
       category,
       avgGpa: grade?.avg_gpa ?? null,
@@ -72,7 +74,7 @@ export default function CourseDetailDialog({
       activeSections,
       primaryInstructor,
     };
-  }, [courseId, catalog, gradeDistributions, prereqNodes, prereqGraph, fallSectionsList]);
+  }, [courseId, catalog, gradeDistributions, prereqNodes, prereqGraph, fallSectionsList, transcriptCredits]);
 
   if (!details) return null;
 

@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { User, Bot, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePlan, useTechCoreId, useSemesters } from '@/context/PlanContext';
-import { useUserProfile } from '@/context/DataContext';
+import { useUserProfile, useCatalogRecord } from '@/context/DataContext';
 import ReactMarkdown from 'react-markdown';
-import type { ChatPlanContext } from '@/types';
+import { getCourseTitle } from '@/lib/course-utils';
+import type { ChatCourseRef, ChatPlanContext } from '@/types';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -40,6 +41,7 @@ export default function ChatPanel() {
   const plan = usePlan();
   const semesters = useSemesters();
   const profile = useUserProfile();
+  const catalog = useCatalogRecord();
   const techCoreId = useTechCoreId();
 
   useEffect(() => {
@@ -49,17 +51,29 @@ export default function ChatPanel() {
   }, [messages]);
 
   const getChatPlanContext = (): ChatPlanContext => {
-    const completedCourses: string[] = [];
-    const inProgress: string[] = [];
+    // Title resolver: prefers user transcript (authoritative for past),
+    // then catalog. Falls back to course id so the model never sees a bare code
+    // without a label.
+    const profileTitles: Record<string, string> = {};
+    for (const c of profile?.completed_courses ?? []) profileTitles[c.course] = c.title;
+    for (const c of profile?.in_progress_courses ?? []) profileTitles[c.course] = c.title;
+
+    const toRef = (id: string): ChatCourseRef => ({
+      course: id,
+      title: profileTitles[id] ?? getCourseTitle(id, catalog, {}),
+    });
+
+    const completedCourses: ChatCourseRef[] = [];
+    const inProgress: ChatCourseRef[] = [];
     let totalCoursesPlanned = 0;
 
     semesters.forEach(sem => {
       const courses = plan[sem.id] || [];
       totalCoursesPlanned += courses.length;
       if (sem.status === 'past') {
-        completedCourses.push(...courses);
+        completedCourses.push(...courses.map(toRef));
       } else if (sem.status === 'current') {
-        inProgress.push(...courses);
+        inProgress.push(...courses.map(toRef));
       }
     });
 

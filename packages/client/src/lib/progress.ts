@@ -6,7 +6,7 @@ import type {
   TechCoreTrack, 
   PrereqNode,
 } from '../types';
-import { getCourseCredits } from './course-utils';
+import { getCourseCredits, buildTranscriptCredits } from './course-utils';
 import { isTechCorePickOne } from '../types';
 
 export interface ProgressSummary {
@@ -57,9 +57,12 @@ export function computeProgress(
   ];
   const unique = [...new Set(allPlacedOrCompleted)];
 
+  // Transcript credit_hours win over catalog (e.g. ECE 302 catalog=5 but Adi got it for 3).
+  const transcriptCredits = buildTranscriptCredits(profile);
+
   // 2. Total Credit Hours
   const totalHours = unique.reduce((sum, courseId) => {
-    return sum + getCourseCredits(courseId, catalog, prereqNodes);
+    return sum + getCourseCredits(courseId, catalog, prereqNodes, transcriptCredits);
   }, 0);
 
   // 3. ECE Core
@@ -194,16 +197,16 @@ export function computeProgress(
       const prefix = courseId.split(' ')[0];
       const numStr = courseId.split(' ')[1];
       const num = parseInt(numStr);
-      
+
       const isEce = prefix === 'ECE';
       const isAdvanced = num >= 320;
-      
+
       const isEceCore = eceCoreAllIds.has(courseId);
       const isTechCore = techCoreUsed.has(courseId);
 
       return isEce && isAdvanced && !isEceCore && !isTechCore;
     })
-    .reduce((sum, id) => sum + getCourseCredits(id, catalog, prereqNodes), 0);
+    .reduce((sum, id) => sum + getCourseCredits(id, catalog, prereqNodes, transcriptCredits), 0);
 
   return {
     totalHours,

@@ -373,8 +373,8 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
       </ScrollArea>
 
       <div className="p-4 border-t border-border bg-muted/20 space-y-2">
-        <Button 
-          className="w-full gap-2" 
+        <Button
+          className="w-full gap-2"
           onClick={handleApply}
           disabled={!whatIf.isActive || isSolving}
         >
