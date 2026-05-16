@@ -71,3 +71,8 @@ packages/server/ollama_log/
 
 # Local Claude Code worktrees
 .claude/worktrees/
+
+# Playwright artifacts (reports, traces); keep checked-in baselines in __screenshots__
+packages/client/test-results/
+packages/client/playwright-report/
+packages/client/blob-report/

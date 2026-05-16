@@ -22,5 +22,6 @@ export default defineConfig({
   test: {
     globals: false,          // explicit imports from 'vitest' in test files
     environment: 'node',     // pure TS unit tests; switch to 'jsdom' for React component tests
+    exclude: ['**/node_modules/**', '**/e2e/**'], // Playwright lives in e2e/
   },
 })
