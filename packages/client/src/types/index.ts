@@ -54,6 +54,26 @@ export interface GradeSection {
   gpa: number;
 }
 
+/**
+ * Per-instructor grade statistics for a course.
+ *
+ * Instructor name format: "First [Middle] Last" — verbatim from
+ * fall-2026-sections.json (e.g. "Nina K Telang", "Shyam Shankar").
+ * Sections with no instructor listed are keyed as "Unknown".
+ *
+ * NOTE: As of 2026-05-18 the source CSVs (UTGradesPlus 2021-2026) do not
+ * include an instructor column. Values are estimated by attributing a
+ * proportional share of the course-level aggregate to each instructor based
+ * on their Fall 2026 section count. Per-instructor accuracy will improve when
+ * UTGradesPlus exports include instructor names.
+ */
+export interface InstructorGradeStats {
+  avg_gpa: number;
+  total_enrollment: number;
+  /** Grade letter → student count */
+  distribution: Record<string, number>;
+}
+
 export interface GradeDistribution {
   department: string;
   /** Always "ECE" after normalization (was "E E" for older sections) */
@@ -69,6 +89,14 @@ export interface GradeDistribution {
   f_pct: number;
   total_enrollment: number;
   total_sections: number;
+  /**
+   * Per-instructor grade statistics. Populated by scripts/grade-dist/reparse.ts.
+   * Key: instructor full name ("First [Middle] Last") or "Unknown".
+   * Present on all entries after reparse; empty object {} if no instructor
+   * data is available for that course. Optional for backward compatibility
+   * with test fixtures and data produced before TASK-028.
+   */
+  byInstructor?: Record<string, InstructorGradeStats>;
 }
 
 /** grade-distributions.json — after normalization: keyed by "ECE NNN" */
