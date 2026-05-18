@@ -88,7 +88,7 @@ interface FallSectionsData {
 const ROOT = path.resolve(__dirname, '..', '..');
 const CSV_DIR = path.join(ROOT, 'utgradesdist_21-26');
 const GRADE_DIST_PATH = path.join(ROOT, 'packages', 'client', 'public', 'data', 'grade-distributions.json');
-const FALL_SECTIONS_PATH = path.join(ROOT, 'packages', 'client', 'public', 'data', 'fall-2026-sections.json');
+const FALL_SECTIONS_PATH = path.join(ROOT, 'packages', 'client', 'public', 'data', 'fall-2026.json');
 
 const GRADE_LETTERS = [
   'A+', 'A', 'A-',

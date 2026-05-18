@@ -13,6 +13,7 @@ import type {
   MathRequirements,
   FallSections,
   CourseSections,
+  SectionsIndex,
 } from '../types';
 import { normalizeGradeDistributions } from '../lib/normalize';
 import {
@@ -24,7 +25,8 @@ import {
   loadTechCores,
   loadOfferingSchedule,
   loadMathRequirements,
-  loadFallSections,
+  loadSectionsIndex,
+  loadTermSections,
 } from '../lib/data-loaders';
 
 // ─── Context shape ───────────────────────────────────────────────────────────
@@ -41,6 +43,7 @@ interface DataContextValue {
   offeringSchedule: OfferingSchedule | null;
   mathRequirements: MathRequirements | null;
   fallSections: FallSections | null;
+  sectionsIndex: SectionsIndex | null;
 }
 
 const INITIAL_STATE: DataContextValue = {
@@ -55,6 +58,7 @@ const INITIAL_STATE: DataContextValue = {
   offeringSchedule: null,
   mathRequirements: null,
   fallSections: null,
+  sectionsIndex: null,
 };
 
 // ─── Context + Provider ──────────────────────────────────────────────────────
@@ -69,6 +73,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
     const fetchAll = async () => {
       try {
+        // Sections live in per-term files discovered via sections-index.json.
+        // We load the manifest first, then the default term's section file.
+        // See scripts/sections/README.md for how this manifest is maintained.
+        const sectionsIndex = await loadSectionsIndex();
+
         const [
           catalog,
           prereqGraph,
@@ -88,7 +97,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           loadTechCores(),
           loadOfferingSchedule(),
           loadMathRequirements(),
-          loadFallSections(),
+          loadTermSections(sectionsIndex.default_term),
         ]);
 
         if (cancelled) return;
@@ -109,6 +118,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           offeringSchedule,
           mathRequirements,
           fallSections,
+          sectionsIndex,
         });
       } catch (err) {
         if (cancelled) return;
@@ -213,12 +223,25 @@ export function useMathRequirements(): MathRequirements | null {
 }
 
 /**
- * Returns fall 2026 sections as a flat array of course section groups.
- * Empty array while loading.
+ * Returns the default-term sections as a flat array of course section groups.
+ * The default term is whichever slug `sections-index.json#default_term` points
+ * at (typically the most-recently-published term). Empty array while loading.
+ *
+ * Name retained for backwards compatibility — existing call sites
+ * (SchedulerPage, CourseDetailDialog) continue to work unchanged.
  */
 export function useFallSections(): CourseSections[] {
   const { fallSections } = useDataContext();
   return fallSections ? Object.values(fallSections.courses) : [];
+}
+
+/**
+ * Returns the sections manifest describing which per-term section files are
+ * available in `/data/`. Null while loading. Use this to drive a term-picker
+ * UI when more than one term is available.
+ */
+export function useSectionsIndex(): SectionsIndex | null {
+  return useDataContext().sectionsIndex;
 }
 
 /**

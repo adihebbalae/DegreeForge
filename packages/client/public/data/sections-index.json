@@ -1,0 +1,11 @@
+{
+  "default_term": "fall-2026",
+  "terms": [
+    {
+      "slug": "fall-2026",
+      "label": "Fall 2026",
+      "code": "20269",
+      "file": "fall-2026.json"
+    }
+  ]
+}
