@@ -385,12 +385,26 @@ export interface CourseSections {
   sections: CourseSection[];
 }
 
-/** fall-2026-sections.json */
+/** Per-term sections file, e.g. fall-2026.json */
 export interface FallSections {
   semester: string;
   semester_code: string;
   source: string;
   courses: Record<string, CourseSections>;
+}
+
+/** Entry in sections-index.json */
+export interface SectionsIndexEntry {
+  slug: string;
+  label: string;
+  code: string;
+  file: string;
+}
+
+/** sections-index.json — manifest of available per-term section files */
+export interface SectionsIndex {
+  default_term: string;
+  terms: SectionsIndexEntry[];
 }
 
 export interface PrereqViolation {

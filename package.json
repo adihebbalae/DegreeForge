@@ -1,14 +1,24 @@
 {
   "name": "degreeforge",
   "private": true,
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "predev": "node -e \"try { require('child_process').execSync('taskkill /F /IM ollama.exe', {stdio: 'ignore'}) } catch(e) {}\"",
     "dev": "concurrently \"ollama serve\" \"npm run dev --workspace=packages/server\" \"npm run dev --workspace=packages/client\"",
     "build": "npm run build --workspace=packages/client",
-    "test": "vitest run"
+    "test": "vitest run",
+    "fetch:sections": "tsx scripts/sections/fetch-term.ts",
+    "privacy:paths": "node scripts/security/check-protected-paths.mjs --tracked",
+    "privacy:secrets": "node scripts/security/check-secrets.mjs --tracked",
+    "privacy:check": "npm run privacy:paths && npm run privacy:secrets",
+    "privacy:staged": "node scripts/security/check-protected-paths.mjs --staged && node scripts/security/check-secrets.mjs --staged",
+    "hooks:install": "powershell -ExecutionPolicy Bypass -File scripts/security/install-git-hooks.ps1"
   },
   "devDependencies": {
+    "@types/node": "25.9.0",
+    "cheerio": "1.2.0",
     "concurrently": "^9.0.0"
   }
 }
