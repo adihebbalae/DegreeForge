@@ -1,13 +1,24 @@
 import React, { useState, useMemo } from 'react';
-import { usePlan, useSemesters } from '@/context/PlanContext';
+import { usePlan } from '@/context/PlanContext';
 import { useFallSections, useGradeDistributions } from '@/context/DataContext';
-import { generateSchedules, type CandidateSchedule } from '@/lib/scheduler';
-import { Check, Calendar as CalendarIcon, Info, ExternalLink, Copy, ChevronRight } from 'lucide-react';
+import { generateSchedules, type CandidateSchedule, type ScoreWeights } from '@/lib/scheduler';
+import { DEFAULT_WEIGHTS } from '@/lib/score';
+import { Check, Calendar as CalendarIcon, Copy, ChevronDown, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+
+// TODO: read from SettingsContext (TASK-022)
+const FACTOR_LABELS: Record<keyof ScoreWeights, string> = {
+  gpa: 'Course GPA',
+  timeOfDay: 'Time of Day',
+  buildingBreak: 'Building Distance',
+  instructionMode: 'Instruction Mode',
+  professor: 'Instructor GPA',
+  daySpread: 'Day Spread',
+};
 
 export default function SchedulerPage() {
   const plan = usePlan();
@@ -20,21 +31,26 @@ export default function SchedulerPage() {
   const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>(nextSemesterCourses);
   const [activeScheduleIndex, setActiveScheduleIndex] = useState(0);
 
+  // TODO: read from SettingsContext (TASK-022)
+  const [weights, setWeights] = useState<ScoreWeights>(DEFAULT_WEIGHTS);
+  const [weightsOpen, setWeightsOpen] = useState(false);
+  const [whyOpenIndex, setWhyOpenIndex] = useState<number | null>(null);
+
   // 2. Filter sections data for selected courses
   const selectedCourseData = useMemo(() => {
     return allSections.filter(c => selectedCourseIds.includes(c.course));
   }, [allSections, selectedCourseIds]);
 
-  // 3. Generate candidate schedules
+  // 3. Generate candidate schedules, using 6-factor composite with current weights
   const candidates = useMemo(() => {
     if (selectedCourseData.length === 0) return [];
-    return generateSchedules(selectedCourseData, gradeDistributions);
-  }, [selectedCourseData, gradeDistributions]);
+    return generateSchedules(selectedCourseData, gradeDistributions, { weights });
+  }, [selectedCourseData, gradeDistributions, weights]);
 
   const activeSchedule = candidates[activeScheduleIndex] || null;
 
   const toggleCourse = (id: string) => {
-    setSelectedCourseIds(prev => 
+    setSelectedCourseIds(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
     setActiveScheduleIndex(0);
@@ -45,6 +61,11 @@ export default function SchedulerPage() {
     const uniques = activeSchedule.sections.map(s => s.unique).join(', ');
     navigator.clipboard.writeText(uniques);
     alert(`Copied uniques: ${uniques}`);
+  };
+
+  const handleWeightChange = (factor: keyof ScoreWeights, value: number) => {
+    setWeights(prev => ({ ...prev, [factor]: value }));
+    setActiveScheduleIndex(0);
   };
 
   return (
@@ -61,7 +82,59 @@ export default function SchedulerPage() {
           </p>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {/* ── Weights Panel ────────────────────────────────────────────── */}
+          <div className="border border-border rounded-md overflow-hidden">
+            <button
+              className="w-full flex items-center justify-between px-3 py-2 bg-muted/30 hover:bg-muted/50 transition-colors text-sm font-medium"
+              onClick={() => setWeightsOpen(prev => !prev)}
+            >
+              <span className="flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
+                Scoring Weights
+              </span>
+              {weightsOpen ? (
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              )}
+            </button>
+
+            {weightsOpen && (
+              <div className="p-3 space-y-3 bg-background">
+                <p className="text-[10px] text-muted-foreground">
+                  Drag sliders to adjust how each factor contributes to schedule ranking.
+                  Weights are normalized automatically.
+                </p>
+                {(Object.keys(weights) as Array<keyof ScoreWeights>).map(factor => (
+                  <div key={factor} className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-foreground">{FACTOR_LABELS[factor]}</label>
+                      <span className="text-[10px] font-mono text-muted-foreground w-8 text-right">
+                        {weights[factor].toFixed(2)}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={1}
+                      step={0.05}
+                      value={weights[factor]}
+                      onChange={e => handleWeightChange(factor, parseFloat(e.target.value))}
+                      className="w-full h-1.5 accent-blue-500 cursor-pointer"
+                    />
+                  </div>
+                ))}
+                <button
+                  className="text-[10px] text-blue-500 hover:underline"
+                  onClick={() => setWeights(DEFAULT_WEIGHTS)}
+                >
+                  Reset to defaults
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Course Selector */}
           <div className="space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
@@ -74,12 +147,12 @@ export default function SchedulerPage() {
                 </p>
               ) : (
                 nextSemesterCourses.map(id => (
-                  <label 
-                    key={id} 
+                  <label
+                    key={id}
                     className={cn(
                       "flex items-center justify-between p-2 rounded-md border cursor-pointer transition-colors",
-                      selectedCourseIds.includes(id) 
-                        ? "bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800" 
+                      selectedCourseIds.includes(id)
+                        ? "bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800"
                         : "hover:bg-accent border-transparent"
                     )}
                   >
@@ -92,9 +165,9 @@ export default function SchedulerPage() {
                       </div>
                       <span className="text-sm font-medium">{id}</span>
                     </div>
-                    <input 
-                      type="checkbox" 
-                      className="hidden" 
+                    <input
+                      type="checkbox"
+                      className="hidden"
                       checked={selectedCourseIds.includes(id)}
                       onChange={() => toggleCourse(id)}
                     />
@@ -113,47 +186,28 @@ export default function SchedulerPage() {
                 Top Candidates ({candidates.length})
               </h3>
               {candidates.length > 0 && (
-                <Badge variant="secondary" className="text-[10px]">Ranked by GPA</Badge>
+                <Badge variant="secondary" className="text-[10px]">Ranked by Score</Badge>
               )}
             </div>
 
             <div className="space-y-2">
               {candidates.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-8">
-                  {selectedCourseIds.length > 0 
-                    ? "No conflict-free schedules found for this selection." 
+                  {selectedCourseIds.length > 0
+                    ? "No conflict-free schedules found for this selection."
                     : "Select courses above to begin."}
                 </p>
               ) : (
                 candidates.map((c, i) => (
-                  <Card 
-                    key={i} 
-                    className={cn(
-                      "cursor-pointer transition-all hover:shadow-md border-2",
-                      activeScheduleIndex === i 
-                        ? "border-blue-500 shadow-sm" 
-                        : "border-transparent"
-                    )}
-                    onClick={() => setActiveScheduleIndex(i)}
-                  >
-                    <CardContent className="p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-bold text-blue-600">Option #{i + 1}</span>
-                        <div className="flex gap-1">
-                          <Badge className="bg-green-500 text-white text-[10px]">
-                            {c.avgGpa.toFixed(2)} GPA
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {c.sections.map(s => (
-                          <span key={s.courseId} className="text-[10px] bg-muted px-1 rounded">
-                            {s.courseId}
-                          </span>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <CandidateCard
+                    key={i}
+                    candidate={c}
+                    index={i}
+                    isActive={activeScheduleIndex === i}
+                    onSelect={() => setActiveScheduleIndex(i)}
+                    whyOpen={whyOpenIndex === i}
+                    onToggleWhy={() => setWhyOpenIndex(whyOpenIndex === i ? null : i)}
+                  />
                 ))
               )}
             </div>
@@ -185,12 +239,104 @@ export default function SchedulerPage() {
   );
 }
 
+// ─── Sub-Component: Candidate Card ────────────────────────────────────────────
+
+interface CandidateCardProps {
+  candidate: CandidateSchedule;
+  index: number;
+  isActive: boolean;
+  onSelect: () => void;
+  whyOpen: boolean;
+  onToggleWhy: () => void;
+}
+
+function CandidateCard({ candidate, index, isActive, onSelect, whyOpen, onToggleWhy }: CandidateCardProps) {
+  const { factorScores, weights } = candidate;
+
+  const totalWeight = weights
+    ? (Object.values(weights) as number[]).reduce((s, w) => s + w, 0)
+    : 1;
+
+  return (
+    <Card
+      className={cn(
+        "cursor-pointer transition-all hover:shadow-md border-2",
+        isActive ? "border-blue-500 shadow-sm" : "border-transparent"
+      )}
+      onClick={onSelect}
+    >
+      <CardContent className="p-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-bold text-blue-600">Option #{index + 1}</span>
+          <div className="flex gap-1">
+            <Badge className="bg-green-500 text-white text-[10px]">
+              {candidate.avgGpa.toFixed(2)} GPA
+            </Badge>
+            <Badge variant="outline" className="text-[10px]">
+              {(candidate.score * 100).toFixed(0)} pts
+            </Badge>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-1 mb-2">
+          {candidate.sections.map(s => (
+            <span key={s.courseId} className="text-[10px] bg-muted px-1 rounded">
+              {s.courseId}
+            </span>
+          ))}
+        </div>
+
+        {/* Why this schedule? */}
+        {factorScores && weights && (
+          <div>
+            <button
+              className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+              onClick={e => { e.stopPropagation(); onToggleWhy(); }}
+            >
+              {whyOpen ? (
+                <ChevronDown className="w-3 h-3" />
+              ) : (
+                <ChevronRight className="w-3 h-3" />
+              )}
+              Why this schedule?
+            </button>
+
+            {whyOpen && (
+              <div className="mt-2 space-y-1 bg-muted/20 rounded p-2">
+                {(Object.keys(factorScores) as Array<keyof typeof factorScores>).map(factor => {
+                  const fScore = factorScores[factor];
+                  const w = weights[factor];
+                  const contribution = totalWeight > 0 ? (fScore * w) / totalWeight : 0;
+                  return (
+                    <div key={factor} className="flex items-center justify-between text-[9px] font-mono">
+                      <span className="text-muted-foreground capitalize w-28 truncate">
+                        {FACTOR_LABELS[factor]}
+                      </span>
+                      <span className="text-foreground">
+                        {fScore.toFixed(2)} × {w.toFixed(2)} = {contribution.toFixed(3)}
+                      </span>
+                    </div>
+                  );
+                })}
+                <Separator className="my-1" />
+                <div className="flex items-center justify-between text-[9px] font-mono font-bold">
+                  <span>Composite</span>
+                  <span>{candidate.score.toFixed(3)}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 // ─── Sub-Component: Weekly Calendar ───────────────────────────────────────────
 
 function WeeklyCalendar({ schedule }: { schedule: CandidateSchedule }) {
   const days = ['M', 'T', 'W', 'R', 'F'];
   const dayLabels = { M: 'Mon', T: 'Tue', W: 'Wed', R: 'Thu', F: 'Fri' };
-  
+
   // 8 AM to 9 PM
   const startHour = 8;
   const endHour = 21;
@@ -205,7 +351,7 @@ function WeeklyCalendar({ schedule }: { schedule: CandidateSchedule }) {
     let m = parseInt(mStr);
     if (ampm.startsWith('p') && h < 12) h += 12;
     if (ampm.startsWith('a') && h === 12) h = 0;
-    
+
     const minutesSinceStart = (h * 60 + m) - (startHour * 60);
     return (minutesSinceStart / (13 * 60)) * 100; // 13 hours total (8am to 9pm)
   };
@@ -213,7 +359,7 @@ function WeeklyCalendar({ schedule }: { schedule: CandidateSchedule }) {
   const getDuration = (intervalStr: string) => {
     const parts = intervalStr.split('-');
     if (parts.length !== 2) return 0;
-    
+
     const parse = (s: string) => {
       const m = s.toLowerCase().match(/(\d+):(\d+)\s*([ap]\.m\.)/);
       if (!m) return 0;
@@ -268,10 +414,10 @@ function WeeklyCalendar({ schedule }: { schedule: CandidateSchedule }) {
               <div key={d} className="flex-1 border-l border-muted/30 relative bg-muted/5">
                 {/* Horizontal grid lines */}
                 {hours.map(h => (
-                  <div 
-                    key={h} 
-                    className="absolute w-full border-t border-muted/20" 
-                    style={{ top: `${((h - startHour) / 13) * 100}%` }} 
+                  <div
+                    key={h}
+                    className="absolute w-full border-t border-muted/20"
+                    style={{ top: `${((h - startHour) / 13) * 100}%` }}
                   />
                 ))}
               </div>

@@ -1,4 +1,13 @@
 import type { CourseSections, CourseSection, SectionMeeting, GradeDistributions } from '../types';
+import {
+  scoreScheduleFull,
+  DEFAULT_WEIGHTS,
+  type ScoreWeights,
+  type FactorScores,
+  type ScheduleScoringOptions,
+} from './score';
+
+export type { ScoreWeights, FactorScores };
 
 export interface ScheduledSection extends CourseSection {
   courseId: string;
@@ -10,6 +19,10 @@ export interface CandidateSchedule {
   totalGpa: number;
   avgGpa: number;
   score: number; // Weighted composite score
+  /** Per-factor breakdown for "Why this schedule?" display */
+  factorScores?: FactorScores;
+  /** Weights used during scoring (for breakdown display) */
+  weights?: ScoreWeights;
 }
 
 // ─── Time Parsing ────────────────────────────────────────────────────────────
@@ -71,44 +84,36 @@ function sectionConflicts(section: CourseSection, scheduled: ScheduledSection[])
 // ─── Scoring ──────────────────────────────────────────────────────────────────
 
 /**
- * Computes a weighted score for a schedule based on:
- * - Average GPA (40%)
- * - Time preference (Morning vs Afternoon) (30%) - Placeholder
- * - Instruction mode (Face-to-face preferred) (30%)
+ * Computes a composite score for a schedule using all 6 factors from score.ts.
+ * Backward-compatible: pass only a subset of weights; unset factors default to 0.
+ *
+ * Returns both the numeric composite and per-factor breakdown.
  */
-function scoreSchedule(
+function scoreScheduleComposite(
   sections: ScheduledSection[],
-  gradeDistributions: GradeDistributions
-): number {
-  let gpaSum = 0;
-  let faceToFaceCount = 0;
-
-  sections.forEach(s => {
-    // Average GPA for this course
-    const courseGrades = gradeDistributions[s.courseId];
-    if (courseGrades) {
-      gpaSum += courseGrades.avg_gpa;
-    } else {
-      gpaSum += 3.0; // Fallback
-    }
-
-    if (s.instruction_mode === 'Face-to-face') faceToFaceCount++;
+  options: Partial<ScheduleScoringOptions> & { gradeDistributions: GradeDistributions }
+): { score: number; factorScores: FactorScores; weights: ScoreWeights } {
+  const weights: ScoreWeights = {
+    ...DEFAULT_WEIGHTS,
+    ...(options.weights ?? {}),
+  };
+  const result = scoreScheduleFull(sections, {
+    weights,
+    gradeDistributions: options.gradeDistributions,
+    preferredWindows: options.preferredWindows ?? [],
+    buildingDistances: options.buildingDistances ?? {},
+    preferredMode: options.preferredMode ?? null,
+    daySpreadPreference: options.daySpreadPreference ?? null,
   });
-
-  const avgGpa = gpaSum / sections.length;
-  const faceToFacePct = faceToFaceCount / sections.length;
-
-  // Normalized GPA (assuming 2.5 to 4.0 range)
-  const gpaScore = Math.max(0, (avgGpa - 2.5) / 1.5);
-
-  return (gpaScore * 0.7) + (faceToFacePct * 0.3);
+  return { score: result.composite, factorScores: result.factors, weights };
 }
 
 // ─── Generation ───────────────────────────────────────────────────────────────
 
 export function generateSchedules(
   selectedCourses: CourseSections[],
-  gradeDistributions: GradeDistributions
+  gradeDistributions: GradeDistributions,
+  scoringOptions?: Partial<ScheduleScoringOptions>
 ): CandidateSchedule[] {
   const results: CandidateSchedule[] = [];
 
@@ -119,12 +124,19 @@ export function generateSchedules(
         return sum + (grade?.avg_gpa ?? 3.0);
       }, 0);
       const avgGpa = gpaSum / current.length;
-      
+
+      const { score, factorScores, weights } = scoreScheduleComposite(current, {
+        ...scoringOptions,
+        gradeDistributions,
+      });
+
       results.push({
         sections: [...current],
         totalGpa: gpaSum,
         avgGpa,
-        score: scoreSchedule(current, gradeDistributions),
+        score,
+        factorScores,
+        weights,
       });
       return;
     }
@@ -138,7 +150,7 @@ export function generateSchedules(
           { ...section, courseId: course.course, courseTitle: course.title },
         ]);
       }
-      
+
       // Limit to first 1000 combinations to prevent hang
       if (results.length >= 1000) return;
     }
