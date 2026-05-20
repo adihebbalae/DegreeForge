@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useDroppable, useDndMonitor } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 import { getCourseCredits } from '@/lib/course-utils';
 import CourseCard from './CourseCard';
 import type { Semester, CourseCatalog, PrereqNode, PrereqViolation, GradeDistributions } from '@/types';
+// TASK-024: workload heat stripe
+import { computeSemesterDifficulty, type HeatBucket } from '@/lib/workload';
 
 // ─── Sortable course card (timeline cards that can be dragged/reordered) ─────
 
@@ -21,6 +23,7 @@ interface SortableCourseCardProps {
   gradeDistributions: GradeDistributions;
   violation?: PrereqViolation;
   isDownstreamHighlight?: boolean;
+  isUpstreamHighlight?: boolean;
   isPinned?: boolean;
   onTogglePin?: (courseId: string) => void;
 }
@@ -36,6 +39,7 @@ function SortableCourseCard({
   gradeDistributions,
   violation,
   isDownstreamHighlight,
+  isUpstreamHighlight,
   isPinned,
   onTogglePin,
 }: SortableCourseCardProps) {
@@ -73,6 +77,7 @@ function SortableCourseCard({
         isDragging={isDragging}
         violation={violation}
         isDownstreamHighlight={isDownstreamHighlight}
+        isUpstreamHighlight={isUpstreamHighlight}
         isPinned={isPinned}
         onTogglePin={onTogglePin}
       />
@@ -96,6 +101,15 @@ function creditCountClass(credits: number): string {
   return 'text-green-600 dark:text-green-400';
 }
 
+// ─── Heat stripe color ────────────────────────────────────────────────────────
+
+const HEAT_STRIPE_COLOR: Record<HeatBucket, string> = {
+  green:  'bg-green-400',
+  yellow: 'bg-yellow-400',
+  orange: 'bg-orange-400',
+  red:    'bg-red-500',
+};
+
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface SemesterColumnProps {
@@ -113,6 +127,8 @@ interface SemesterColumnProps {
   violationsByCourse: Record<string, PrereqViolation>;
   /** Set of courses to highlight as downstream dependents (TASK-010) */
   downstreamCourses: Set<string>;
+  /** Set of courses to highlight as upstream prerequisites (TASK-024) */
+  upstreamCourses?: Set<string>;
   // TASK-019: pin + ghost
   pinnedCourses?: string[];
   onTogglePin?: (courseId: string) => void;
@@ -134,6 +150,7 @@ export default function SemesterColumn({
   transcriptCredits,
   violationsByCourse,
   downstreamCourses,
+  upstreamCourses = new Set(),
   pinnedCourses = [],
   onTogglePin,
   ghostCourseIds = [],
@@ -199,90 +216,76 @@ export default function SemesterColumn({
     return gpaCredits > 0 ? (weightedGpaSum / gpaCredits).toFixed(2) : null;
   })() : null;
 
+  // TASK-024: workload heat-stripe — build a minimal plan object for the helper
+  const { bucket: heatBucket } = useMemo(() => {
+    const minimalPlan: Record<string, string[]> = { [id]: courseIds };
+    return computeSemesterDifficulty(semester, minimalPlan, gradeDistributions, catalog, prereqNodes);
+  }, [id, courseIds, semester, gradeDistributions, catalog, prereqNodes]);
+
   return (
     <div
       className={cn(
-        'flex flex-col gap-2 min-w-[180px] w-[180px] shrink-0 rounded-lg p-2',
+        'flex flex-col gap-2 min-w-[180px] w-[180px] shrink-0 rounded-lg overflow-hidden',
         // Background tint by status
         isPast && 'bg-gray-50 dark:bg-gray-900/50',
         isCurrent && 'bg-background ring-2 ring-blue-500 dark:ring-blue-400',
         !isPast && !isCurrent && 'bg-background'
       )}
     >
-      {/* ── Column Header ─────────────────────────────────────────── */}
+      {/* TASK-024: heat stripe — 4px decorative bar at top of column */}
       <div
-        className={cn(
-          'flex flex-col gap-0.5 px-1 pb-1 border-b border-border',
-          isPast && 'opacity-75'
-        )}
-      >
-        {/* Semester label + season icon + status badge */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-foreground flex items-center gap-1">
-            <SeasonIcon season={season} />
-            {label}
-          </span>
-          {isPast && (
-            <span className="text-green-600 dark:text-green-400 text-sm font-bold" aria-label="Past semester">
-              ✓
-            </span>
-          )}
-          {isCurrent && (
-            <span className="text-[10px] bg-blue-500 text-white px-1 rounded font-medium">
-              NOW
-            </span>
-          )}
-        </div>
+        aria-hidden="true"
+        className={cn('h-1 w-full shrink-0', HEAT_STRIPE_COLOR[heatBucket])}
+      />
 
-        {/* Credit count & optional GPA */}
-        <div className="flex items-center justify-between">
-          <span className={cn('text-[11px]', creditCountClass(totalCredits))}>
-            {totalCredits} / 18 hrs
-          </span>
-          {estimatedGPA && (
-            <span className="text-[10px] text-muted-foreground" title="Estimated GPA based on historical data">
-              ~{estimatedGPA} est. GPA
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* ── Course List (droppable + sortable for non-past) ──────── */}
-      {isPast ? (
-        // Past semesters: static, non-draggable cards
-        <div className="flex flex-col gap-1.5">
-          {courseIds.map((courseId) => (
-            <CourseCard
-              key={courseId}
-              courseId={courseId}
-              semesterStatus={status}
-              letterGrade={gradeMap[courseId]}
-              catalog={catalog}
-              prereqNodes={prereqNodes}
-              gradeDistributions={gradeDistributions}
-              violation={violationsByCourse[courseId]}
-              isDownstreamHighlight={downstreamCourses.has(courseId)}
-            />
-          ))}
-        </div>
-      ) : (
-        // Current / future semesters: droppable + sortable
+      {/* Inner content with padding (moved from outer to preserve stripe flush positioning) */}
+      <div className="flex flex-col gap-2 px-2 pb-2">
+        {/* ── Column Header ─────────────────────────────────────────── */}
         <div
-          ref={setDroppableRef}
           className={cn(
-            'flex flex-col gap-1.5 min-h-[64px] rounded-md p-1 transition-colors duration-150',
-            showHighlight
-              ? 'bg-blue-50 dark:bg-blue-950/30 border border-blue-300 dark:border-blue-700'
-              : 'border border-transparent'
+            'flex flex-col gap-0.5 px-1 pb-1 border-b border-border',
+            isPast && 'opacity-75'
           )}
         >
-          <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+          {/* Semester label + season icon + status badge */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-foreground flex items-center gap-1">
+              <SeasonIcon season={season} />
+              {label}
+            </span>
+            {isPast && (
+              <span className="text-green-600 dark:text-green-400 text-sm font-bold" aria-label="Past semester">
+                ✓
+              </span>
+            )}
+            {isCurrent && (
+              <span className="text-[10px] bg-blue-500 text-white px-1 rounded font-medium">
+                NOW
+              </span>
+            )}
+          </div>
+
+          {/* Credit count & optional GPA */}
+          <div className="flex items-center justify-between">
+            <span className={cn('text-[11px]', creditCountClass(totalCredits))}>
+              {totalCredits} / 18 hrs
+            </span>
+            {estimatedGPA && (
+              <span className="text-[10px] text-muted-foreground" title="Estimated GPA based on historical data">
+                ~{estimatedGPA} est. GPA
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* ── Course List (droppable + sortable for non-past) ──────── */}
+        {isPast ? (
+          // Past semesters: static, non-draggable cards
+          <div className="flex flex-col gap-1.5">
             {courseIds.map((courseId) => (
-              <SortableCourseCard
+              <CourseCard
                 key={courseId}
-                id={`timeline-${id}-${courseId}`}
                 courseId={courseId}
-                semesterId={id}
                 semesterStatus={status}
                 letterGrade={gradeMap[courseId]}
                 catalog={catalog}
@@ -290,49 +293,80 @@ export default function SemesterColumn({
                 gradeDistributions={gradeDistributions}
                 violation={violationsByCourse[courseId]}
                 isDownstreamHighlight={downstreamCourses.has(courseId)}
-                isPinned={pinnedCourses.includes(courseId)}
-                onTogglePin={onTogglePin}
+                isUpstreamHighlight={upstreamCourses.has(courseId)}
               />
             ))}
-          </SortableContext>
-
-          {/* Ghost cards — solver proposals */}
-          {ghostCourseIds.length > 0 && (
-            <div className="flex flex-col gap-1.5 mt-0.5">
-              {ghostCourseIds.map((courseId) => (
-                <CourseCard
-                  key={`ghost-${courseId}`}
+          </div>
+        ) : (
+          // Current / future semesters: droppable + sortable
+          <div
+            ref={setDroppableRef}
+            className={cn(
+              'flex flex-col gap-1.5 min-h-[64px] rounded-md p-1 transition-colors duration-150',
+              showHighlight
+                ? 'bg-blue-50 dark:bg-blue-950/30 border border-blue-300 dark:border-blue-700'
+                : 'border border-transparent'
+            )}
+          >
+            <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+              {courseIds.map((courseId) => (
+                <SortableCourseCard
+                  key={courseId}
+                  id={`timeline-${id}-${courseId}`}
                   courseId={courseId}
+                  semesterId={id}
                   semesterStatus={status}
+                  letterGrade={gradeMap[courseId]}
                   catalog={catalog}
                   prereqNodes={prereqNodes}
                   gradeDistributions={gradeDistributions}
-                  isGhost
-                  ghostSemesterId={id}
-                  onAcceptGhost={onAcceptGhost}
-                  onRejectGhost={onRejectGhost}
+                  violation={violationsByCourse[courseId]}
+                  isDownstreamHighlight={downstreamCourses.has(courseId)}
+                  isUpstreamHighlight={upstreamCourses.has(courseId)}
+                  isPinned={pinnedCourses.includes(courseId)}
+                  onTogglePin={onTogglePin}
                 />
               ))}
-            </div>
-          )}
+            </SortableContext>
 
-          {/* Empty drop hint */}
-          {courseIds.length === 0 && ghostCourseIds.length === 0 && (
-            <div
-              className={cn(
-                'border-2 border-dashed rounded-lg p-3 h-14',
-                'flex items-center justify-center',
-                'text-sm transition-colors duration-150',
-                showHighlight
-                  ? 'border-blue-400 text-blue-500 dark:border-blue-500 dark:text-blue-400'
-                  : 'border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'
-              )}
-            >
-              Drop course here
-            </div>
-          )}
-        </div>
-      )}
+            {/* Ghost cards — solver proposals */}
+            {ghostCourseIds.length > 0 && (
+              <div className="flex flex-col gap-1.5 mt-0.5">
+                {ghostCourseIds.map((courseId) => (
+                  <CourseCard
+                    key={`ghost-${courseId}`}
+                    courseId={courseId}
+                    semesterStatus={status}
+                    catalog={catalog}
+                    prereqNodes={prereqNodes}
+                    gradeDistributions={gradeDistributions}
+                    isGhost
+                    ghostSemesterId={id}
+                    onAcceptGhost={onAcceptGhost}
+                    onRejectGhost={onRejectGhost}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Empty drop hint */}
+            {courseIds.length === 0 && ghostCourseIds.length === 0 && (
+              <div
+                className={cn(
+                  'border-2 border-dashed rounded-lg p-3 h-14',
+                  'flex items-center justify-center',
+                  'text-sm transition-colors duration-150',
+                  showHighlight
+                    ? 'border-blue-400 text-blue-500 dark:border-blue-500 dark:text-blue-400'
+                    : 'border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'
+                )}
+              >
+                Drop course here
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

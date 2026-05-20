@@ -124,8 +124,12 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.post('/api/chat', chatLimiter, async (req, res) => {
   const { messages, planContext } = req.body;
 
+  // ?provider=ollama forces Ollama even if ANTHROPIC_API_KEY is set
+  const providerParam = req.query.provider;
+  const forceOllama = providerParam === 'ollama';
+
   // We will either use Anthropic or fallback to Ollama
-  const useAnthropic = !!process.env.ANTHROPIC_API_KEY;
+  const useAnthropic = !forceOllama && !!process.env.ANTHROPIC_API_KEY;
 
   // Input validation
   if (!messages || !Array.isArray(messages) || messages.length > 50) {

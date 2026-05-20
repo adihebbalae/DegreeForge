@@ -58,6 +58,12 @@ export default function TimelineGrid() {
     return new Set([hoveredCourse, ...deps]);
   }, [hoveredCourse, prereqGraph]);
 
+  // TASK-024: upstream prereq chain — all transitive prerequisites of the hovered course
+  const upstreamCourses = useMemo(() => {
+    if (!hoveredCourse) return new Set<string>();
+    return new Set(prereqGraph.getAllPrereqs(hoveredCourse));
+  }, [hoveredCourse, prereqGraph]);
+
   // Build a map: courseId → letter grade from the user profile and plan state
   const gradeMap = useMemo<Record<string, string>>(() => {
     const map: Record<string, string> = {};
@@ -122,6 +128,7 @@ export default function TimelineGrid() {
                 transcriptCredits={transcriptCredits}
                 violationsByCourse={violationsByCourse}
                 downstreamCourses={downstreamCourses}
+                upstreamCourses={upstreamCourses}
                 pinnedCourses={pinnedCourses}
                 onTogglePin={handleTogglePin}
                 ghostCourseIds={ghostCourses[semester.id] ?? []}
