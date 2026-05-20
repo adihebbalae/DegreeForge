@@ -3,10 +3,13 @@ import { Pin, PinOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { inferCategory, CATEGORY_BORDER, getCourseCredits, getCourseTitle, gpaColorClass, buildTranscriptCredits } from '@/lib/course-utils';
 import type { CourseCatalog, CourseCategory, PrereqNode, PrereqViolation, GradeDistributions } from '@/types';
-import { usePlanDispatch } from '@/context/PlanContext';
-import { useUserProfile } from '@/context/DataContext';
+import { usePlanDispatch, usePlan, useSemesters, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
+import { useUserProfile, useDegreeRequirements, useTechCoresRecord, useMathRequirements } from '@/context/DataContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import CourseDetailDialog from './CourseDetailDialog';
+// TASK-024: graduation-delay tooltip
+import { computeGraduationDelay } from '@/lib/workload';
+import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 
 interface CourseCardProps {
   courseId: string;
@@ -32,6 +35,8 @@ interface CourseCardProps {
   violation?: PrereqViolation;
   /** Highlight as a downstream dependent of the hovered course (TASK-010) */
   isDownstreamHighlight?: boolean;
+  /** Highlight as an upstream prerequisite of the hovered course (TASK-024) */
+  isUpstreamHighlight?: boolean;
   // TASK-019: pin + ghost
   /** Whether this course is currently pinned by the user */
   isPinned?: boolean;
@@ -61,6 +66,7 @@ export default function CourseCard({
   isDragOverlay = false,
   violation,
   isDownstreamHighlight = false,
+  isUpstreamHighlight = false,
   isPinned = false,
   onTogglePin,
   isGhost = false,
@@ -91,15 +97,55 @@ export default function CourseCard({
   const isPrereqViolation = violation?.violationType === 'prereq' || violation?.violationType === 'both';
   const isCoreqViolation = violation?.violationType === 'coreq';
 
-  const violationBorder = isPrereqViolation 
-    ? 'border-l-4 border-l-red-500 ring-1 ring-red-400' 
-    : isCoreqViolation 
+  const violationBorder = isPrereqViolation
+    ? 'border-l-4 border-l-red-500 ring-1 ring-red-400'
+    : isCoreqViolation
       ? 'border-l-4 border-l-amber-500 ring-1 ring-amber-400'
       : '';
 
-  const highlightClass = isDownstreamHighlight 
-    ? 'ring-1 ring-purple-400 bg-purple-50 dark:bg-purple-900/20' 
-    : '';
+  // TASK-024: upstream / downstream chain highlight
+  const highlightClass = isDownstreamHighlight
+    ? 'ring-1 ring-purple-400 bg-purple-50 dark:bg-purple-900/20'
+    : isUpstreamHighlight
+      ? 'ring-1 ring-indigo-400 bg-indigo-50 dark:bg-indigo-900/20'
+      : '';
+
+  // TASK-024: graduation delay — computed via memoized auto-planner re-run.
+  // Only for future/current non-palette cards.
+  const plan = usePlan();
+  const semesters = useSemesters();
+  const techCoreId = useTechCoreId();
+  const mathBAToggle = useMathBAToggle();
+  const degreeReqs = useDegreeRequirements();
+  const techCoresRecord = useTechCoresRecord();
+  const mathReqs = useMathRequirements();
+  const prereqGraphInstance = usePrereqGraph();
+
+  const graduationDelay = useMemo(() => {
+    if (isPalette || isPast || isDragOverlay) return 0;
+    if (!profile || !degreeReqs || !techCoresRecord || !mathReqs) return 0;
+    const techCore = techCoresRecord[techCoreId];
+    if (!techCore) return 0;
+    try {
+      return computeGraduationDelay(courseId, {
+        prereqGraph: prereqGraphInstance,
+        prereqNodes,
+        userProfile: profile,
+        degreeReqs,
+        techCore,
+        mathReqs,
+        mathBAToggle,
+        semesters,
+        currentPlan: plan,
+      });
+    } catch {
+      return 0;
+    }
+  }, [
+    courseId, plan, semesters, techCoreId, mathBAToggle,
+    degreeReqs, techCoresRecord, mathReqs, prereqGraphInstance,
+    prereqNodes, isPalette, isPast, isDragOverlay, profile,
+  ]);
 
   // ── Ghost card (solver-proposed, not yet accepted) ──────────────────────────
   if (isGhost) {
@@ -263,38 +309,52 @@ export default function CourseCard({
     </div>
   );
 
+  // Show tooltip when there is a violation OR a graduation delay > 0
+  const hasTooltip = Boolean(violation) || graduationDelay > 0;
+
   return (
     <>
-      {violation ? (
+      {hasTooltip ? (
         <Tooltip>
           <TooltipTrigger asChild>
             {cardContent}
           </TooltipTrigger>
           <TooltipContent side="right" className="max-w-xs">
             <div className="space-y-2">
-              {violation.missingPrereqs.length > 0 && (
-                <div className="space-y-1">
-                  <p className="font-semibold text-[11px] text-red-500 uppercase tracking-wider">
-                    Missing Prerequisites:
-                  </p>
-                  {violation.missingPrereqs.map((p) => (
-                    <p key={p} className="text-[11px] leading-tight flex gap-1.5">
-                      <span className="shrink-0">•</span> {p} must be completed in an earlier semester
-                    </p>
-                  ))}
-                </div>
+              {/* TASK-024: graduation delay */}
+              {graduationDelay > 0 && (
+                <p className="text-[11px] leading-tight text-orange-600 dark:text-orange-400 font-medium">
+                  Removing {courseId} delays graduation by {graduationDelay} semester{graduationDelay !== 1 ? 's' : ''}.
+                </p>
               )}
-              {violation.unsatisfiedCoreqs.length > 0 && (
-                <div className="space-y-1">
-                  <p className="font-semibold text-[11px] text-amber-600 uppercase tracking-wider">
-                    Unsatisfied Corequisites:
-                  </p>
-                  {violation.unsatisfiedCoreqs.map((c) => (
-                    <p key={c} className="text-[11px] leading-tight flex gap-1.5">
-                      <span className="shrink-0">•</span> {c} must be taken in the same or earlier semester
-                    </p>
-                  ))}
-                </div>
+              {/* Prereq / coreq violations */}
+              {violation && (
+                <>
+                  {violation.missingPrereqs.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="font-semibold text-[11px] text-red-500 uppercase tracking-wider">
+                        Missing Prerequisites:
+                      </p>
+                      {violation.missingPrereqs.map((p) => (
+                        <p key={p} className="text-[11px] leading-tight flex gap-1.5">
+                          <span className="shrink-0">•</span> {p} must be completed in an earlier semester
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                  {violation.unsatisfiedCoreqs.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="font-semibold text-[11px] text-amber-600 uppercase tracking-wider">
+                        Unsatisfied Corequisites:
+                      </p>
+                      {violation.unsatisfiedCoreqs.map((c) => (
+                        <p key={c} className="text-[11px] leading-tight flex gap-1.5">
+                          <span className="shrink-0">•</span> {c} must be taken in the same or earlier semester
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </TooltipContent>

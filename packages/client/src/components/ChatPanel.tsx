@@ -1,15 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User, Bot, Loader2 } from 'lucide-react';
+import { User, Bot, Loader2, Check, X, Pin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { usePlan, useTechCoreId, useSemesters } from '@/context/PlanContext';
+import { usePlan, useTechCoreId, useSemesters, usePlanDispatch } from '@/context/PlanContext';
 import { useUserProfile, useCatalogRecord } from '@/context/DataContext';
 import ReactMarkdown from 'react-markdown';
 import { getCourseTitle } from '@/lib/course-utils';
 import type { ChatCourseRef, ChatPlanContext } from '@/types';
+import type { ProposedPlanEdit, PlanEditOperation } from '@/lib/agent-tools/types';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  /** Present when this assistant message contains a plan proposal */
+  proposal?: ProposedPlanEdit;
+  /** Which proposal operations have been acted on (by index) */
+  actedOps?: Set<number>;
 }
 
 function parseThought(raw: string) {
@@ -32,6 +37,93 @@ function parseThought(raw: string) {
   return { thought, answer };
 }
 
+/**
+ * Attempt to extract a plan_edit_proposal from a JSON response string.
+ * The agent-loop returns JSON.stringify(result.content) when a tool is called.
+ */
+function extractProposal(text: string): ProposedPlanEdit | null {
+  try {
+    const parsed = JSON.parse(text);
+    if (parsed.type === 'plan_edit_proposal' && parsed.proposal) {
+      return parsed.proposal as ProposedPlanEdit;
+    }
+  } catch {
+    // Not JSON or not a proposal — that's fine
+  }
+  return null;
+}
+
+function operationLabel(op: PlanEditOperation): string {
+  if (op.op === 'add') return `Add ${op.courseId} → ${op.semesterId}`;
+  if (op.op === 'remove') return `Remove ${op.courseId} from ${op.semesterId}`;
+  if (op.op === 'move') return `Move ${op.courseId}: ${op.fromSemesterId} → ${op.toSemesterId}`;
+  return 'Unknown operation';
+}
+
+interface ProposalCardProps {
+  proposal: ProposedPlanEdit;
+  actedOps: Set<number>;
+  onAccept: (idx: number, op: PlanEditOperation) => void;
+  onReject: (idx: number) => void;
+  onPin: (idx: number, op: PlanEditOperation) => void;
+}
+
+function ProposalCard({ proposal, actedOps, onAccept, onReject, onPin }: ProposalCardProps) {
+  return (
+    <div className="mt-2 border border-border rounded-lg overflow-hidden bg-background text-sm">
+      <div className="px-3 py-2 bg-muted/60 border-b border-border font-semibold text-xs text-muted-foreground uppercase tracking-wide">
+        Proposed Plan Changes
+      </div>
+      <div className="px-3 py-2 text-xs text-muted-foreground border-b border-border">
+        {proposal.reasoning}
+      </div>
+      <ul className="divide-y divide-border">
+        {proposal.operations.map((op, idx) => {
+          const acted = actedOps.has(idx);
+          return (
+            <li key={idx} className={`flex items-center gap-2 px-3 py-2 ${acted ? 'opacity-40' : ''}`}>
+              <span className="flex-1 font-mono text-xs">{operationLabel(op)}</span>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 px-2 text-xs text-green-600 hover:bg-green-50 dark:hover:bg-green-950"
+                disabled={acted}
+                onClick={() => onAccept(idx, op)}
+                title="Accept"
+              >
+                <Check className="w-3 h-3 mr-1" />
+                Accept
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 px-2 text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+                disabled={acted || op.op !== 'add'}
+                onClick={() => onPin(idx, op)}
+                title="Accept and Pin"
+              >
+                <Pin className="w-3 h-3 mr-1" />
+                Pin
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 px-2 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                disabled={acted}
+                onClick={() => onReject(idx)}
+                title="Reject"
+              >
+                <X className="w-3 h-3 mr-1" />
+                Reject
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 export default function ChatPanel() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -43,6 +135,7 @@ export default function ChatPanel() {
   const profile = useUserProfile();
   const catalog = useCatalogRecord();
   const techCoreId = useTechCoreId();
+  const dispatch = usePlanDispatch();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -51,9 +144,6 @@ export default function ChatPanel() {
   }, [messages]);
 
   const getChatPlanContext = (): ChatPlanContext => {
-    // Title resolver: prefers user transcript (authoritative for past),
-    // then catalog. Falls back to course id so the model never sees a bare code
-    // without a label.
     const profileTitles: Record<string, string> = {};
     for (const c of profile?.completed_courses ?? []) profileTitles[c.course] = c.title;
     for (const c of profile?.in_progress_courses ?? []) profileTitles[c.course] = c.title;
@@ -87,6 +177,39 @@ export default function ChatPanel() {
     };
   };
 
+  const handleAccept = (msgIdx: number, opIdx: number, op: PlanEditOperation) => {
+    // Dispatch the action to plan state
+    if (op.op === 'add') {
+      dispatch({ type: 'ADD_COURSE', semesterId: op.semesterId, courseId: op.courseId });
+    } else if (op.op === 'remove') {
+      dispatch({ type: 'REMOVE_COURSE', semesterId: op.semesterId, courseId: op.courseId });
+    } else if (op.op === 'move') {
+      dispatch({ type: 'MOVE_COURSE', fromSemesterId: op.fromSemesterId, toSemesterId: op.toSemesterId, courseId: op.courseId });
+    }
+    markActed(msgIdx, opIdx);
+  };
+
+  const handlePin = (msgIdx: number, opIdx: number, op: PlanEditOperation) => {
+    if (op.op === 'add') {
+      dispatch({ type: 'ADD_COURSE', semesterId: op.semesterId, courseId: op.courseId });
+      dispatch({ type: 'PIN_COURSE', courseId: op.courseId });
+    }
+    markActed(msgIdx, opIdx);
+  };
+
+  const handleReject = (msgIdx: number, opIdx: number) => {
+    markActed(msgIdx, opIdx);
+  };
+
+  const markActed = (msgIdx: number, opIdx: number) => {
+    setMessages(prev => prev.map((m, i) => {
+      if (i !== msgIdx) return m;
+      const newActed = new Set(m.actedOps ?? []);
+      newActed.add(opIdx);
+      return { ...m, actedOps: newActed };
+    }));
+  };
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -101,7 +224,7 @@ export default function ChatPanel() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: newMessages.slice(-20), // Session history limit
+          messages: newMessages.slice(-20).map(m => ({ role: m.role, content: m.content })),
           planContext: getChatPlanContext(),
         }),
       });
@@ -114,6 +237,7 @@ export default function ChatPanel() {
       const reader = response.body?.getReader();
       if (!reader) throw new Error('No reader available');
 
+      let assistantContent = '';
       let assistantMsg: Message = { role: 'assistant', content: '' };
       setMessages((prev) => [...prev, assistantMsg]);
 
@@ -131,23 +255,30 @@ export default function ChatPanel() {
             if (data === '[DONE]') break;
             try {
               const { text } = JSON.parse(data);
-              assistantMsg.content += text;
+              assistantContent += text;
+              const proposal = extractProposal(assistantContent);
               setMessages((prev) => {
                 const updated = [...prev];
-                updated[updated.length - 1] = { ...assistantMsg };
+                updated[updated.length - 1] = {
+                  role: 'assistant',
+                  content: assistantContent,
+                  proposal: proposal ?? undefined,
+                  actedOps: new Set(),
+                };
                 return updated;
               });
-            } catch (e) {
+            } catch {
               // Ignore parse errors from partial chunks
             }
           }
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Sorry, something went wrong communicating with the chat backend.';
       console.error('Chat Error:', error);
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: error.message || 'Sorry, something went wrong communicating with the chat backend.' },
+        { role: 'assistant', content: msg },
       ]);
     } finally {
       setIsLoading(false);
@@ -168,6 +299,7 @@ export default function ChatPanel() {
         )}
         {messages.map((m, i) => {
           const { thought, answer } = m.role === 'assistant' ? parseThought(m.content) : { thought: '', answer: m.content };
+          const isProposal = m.role === 'assistant' && !!m.proposal;
           return (
             <div
               key={i}
@@ -191,7 +323,15 @@ export default function ChatPanel() {
                     </div>
                   </details>
                 )}
-                {answer ? (
+                {isProposal ? (
+                  <ProposalCard
+                    proposal={m.proposal!}
+                    actedOps={m.actedOps ?? new Set()}
+                    onAccept={(opIdx, op) => handleAccept(i, opIdx, op)}
+                    onReject={(opIdx) => handleReject(i, opIdx)}
+                    onPin={(opIdx, op) => handlePin(i, opIdx, op)}
+                  />
+                ) : answer ? (
                   <div className="prose prose-sm dark:prose-invert max-w-none">
                     <ReactMarkdown>
                       {answer}
