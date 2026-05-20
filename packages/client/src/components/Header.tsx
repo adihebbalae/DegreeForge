@@ -101,6 +101,17 @@ export default function Header() {
         >
           Schedule
         </NavLink>
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            cn(
+              buttonVariants({ variant: 'ghost' }),
+              isActive && 'underline underline-offset-4 font-semibold',
+            )
+          }
+        >
+          Settings
+        </NavLink>
       </nav>
 
       {/* Actions */}
