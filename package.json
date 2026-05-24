@@ -8,7 +8,7 @@
     "predev": "node -e \"try { require('child_process').execSync('taskkill /F /IM ollama.exe', {stdio: 'ignore'}) } catch(e) {}\"",
     "dev": "concurrently \"ollama serve\" \"npm run dev --workspace=packages/server\" \"npm run dev --workspace=packages/client\"",
     "build": "npm run build --workspace=packages/client",
-    "test": "vitest run",
+    "test": "npm test --workspaces --if-present",
     "fetch:sections": "tsx scripts/sections/fetch-term.ts",
     "privacy:paths": "node scripts/security/check-protected-paths.mjs --tracked",
     "privacy:secrets": "node scripts/security/check-secrets.mjs --tracked",
