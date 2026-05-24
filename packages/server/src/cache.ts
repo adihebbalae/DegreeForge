@@ -32,27 +32,31 @@ export async function getCachedResponse(prompt: string): Promise<any | null> {
   return null;
 }
 
-export async function setCachedResponse(prompt: string, response: any, type: 'chat' | 'json'): Promise<void> {
+export async function setCachedResponse(prompt: string, response: any, type: 'chat' | 'json', durationMs?: number): Promise<void> {
   await ensureLogDir();
   const hash = hashPrompt(prompt);
-  
+
   // 1. Update cache.json
   let cache: Record<string, any> = {};
   try {
     const data = await fs.readFile(CACHE_FILE, 'utf-8');
     cache = JSON.parse(data);
   } catch (e) {}
-  
+
   cache[hash] = response;
   await fs.writeFile(CACHE_FILE, JSON.stringify(cache, null, 2));
 
-  // 2. Append to history.jsonl
+  // 2. Append to history.jsonl — metadata only, no raw prompt/response bodies
+  const responseStr = typeof response === 'string' ? response : JSON.stringify(response);
   const logEntry = {
     timestamp: new Date().toISOString(),
     type,
-    hash,
-    prompt,
-    response
+    prompt_hash: hash.substring(0, 12),
+    response_hash: crypto.createHash('sha256').update(responseStr).digest('hex').substring(0, 12),
+    prompt_token_count: Math.round(prompt.length / 4), // rough estimate: ~4 chars/token
+    response_token_count: Math.round(responseStr.length / 4),
+    duration_ms: durationMs ?? null,
+    cache_hit: false,
   };
   await fs.appendFile(HISTORY_FILE, JSON.stringify(logEntry) + '\n');
 }

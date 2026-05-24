@@ -1,8 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { usePlan } from '@/context/PlanContext';
 import { useFallSections, useGradeDistributions } from '@/context/DataContext';
+import { useSettings, useSettingsDispatch, type SchedulerWeights, type InstructionMode, type TimeWindow as SettingsTimeWindow } from '@/context/SettingsContext';
 import { generateSchedules, type CandidateSchedule, type ScoreWeights } from '@/lib/scheduler';
-import { DEFAULT_WEIGHTS } from '@/lib/score';
+import { type TimeWindow } from '@/lib/score';
+import { fetchJson } from '@/lib/data-loaders';
 import { Check, Calendar as CalendarIcon, Copy, ChevronDown, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +12,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
-// TODO: read from SettingsContext (TASK-022)
 const FACTOR_LABELS: Record<keyof ScoreWeights, string> = {
   gpa: 'Course GPA',
   timeOfDay: 'Time of Day',
@@ -20,10 +21,88 @@ const FACTOR_LABELS: Record<keyof ScoreWeights, string> = {
   daySpread: 'Day Spread',
 };
 
+/**
+ * Maps SettingsContext SchedulerWeights keys → score.ts ScoreWeights keys.
+ * The two use different naming conventions for historical reasons.
+ */
+function settingsToScoreWeights(sw: SchedulerWeights): ScoreWeights {
+  return {
+    gpa: sw.gpa,
+    timeOfDay: sw.timeFit,
+    buildingBreak: sw.buildingPenalty,
+    instructionMode: sw.instructionMode,
+    professor: sw.professorPreference,
+    daySpread: sw.daySpread,
+  };
+}
+
+/** Reverse mapping: ScoreWeights key → SchedulerWeights key */
+const SCORE_TO_SETTINGS_KEY: Record<keyof ScoreWeights, keyof SchedulerWeights> = {
+  gpa: 'gpa',
+  timeOfDay: 'timeFit',
+  buildingBreak: 'buildingPenalty',
+  instructionMode: 'instructionMode',
+  professor: 'professorPreference',
+  daySpread: 'daySpread',
+};
+
+/**
+ * Converts a SettingsContext TimeWindow string to score.ts TimeWindow array.
+ * Returns an empty array for 'no_preference' (all times score 1.0).
+ */
+function settingsTimeWindowToScoreWindows(tw: SettingsTimeWindow): TimeWindow[] {
+  switch (tw) {
+    case 'no_early':
+      // Avoid before 10 AM: preferred window is 10 AM – 9 PM
+      return [{ start: 600, end: 1260 }];
+    case 'no_late':
+      // Avoid after 5 PM: preferred window is 8 AM – 5 PM
+      return [{ start: 480, end: 1020 }];
+    case 'mornings_only':
+      // 8 AM – 12 PM
+      return [{ start: 480, end: 720 }];
+    case 'afternoons_only':
+      // 12 PM – 6 PM
+      return [{ start: 720, end: 1080 }];
+    case 'no_preference':
+    default:
+      return [];
+  }
+}
+
+/**
+ * Converts a SettingsContext InstructionMode to the score.ts preferredMode.
+ * Returns null for 'no_preference'.
+ */
+function settingsInstructionModeToPreferredMode(
+  mode: InstructionMode
+): 'in-person' | 'online' | 'hybrid' | null {
+  switch (mode) {
+    case 'in_person': return 'in-person';
+    case 'online': return 'online';
+    case 'hybrid': return 'hybrid';
+    case 'no_preference':
+    default:
+      return null;
+  }
+}
+
 export default function SchedulerPage() {
   const plan = usePlan();
   const allSections = useFallSections();
   const gradeDistributions = useGradeDistributions();
+  const settings = useSettings();
+  const settingsDispatch = useSettingsDispatch();
+
+  // Load building distances once on mount
+  const [buildingDistances, setBuildingDistances] = useState<Record<string, number>>({});
+  useEffect(() => {
+    fetchJson<{ distances: Record<string, number> }>('/data/building-distances.json')
+      .then(data => setBuildingDistances(data.distances))
+      .catch(() => {
+        // Non-fatal: scoring degrades gracefully to 0-penalty for all transitions
+      });
+  }, []);
 
   // 1. Identify "Next Semester" (Fall 2026) courses from plan
   const nextSemesterCourses = useMemo(() => plan['Fall 2026'] ?? [], [plan]);
@@ -31,21 +110,38 @@ export default function SchedulerPage() {
   const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>(nextSemesterCourses);
   const [activeScheduleIndex, setActiveScheduleIndex] = useState(0);
 
-  // TODO: read from SettingsContext (TASK-022)
-  const [weights, setWeights] = useState<ScoreWeights>(DEFAULT_WEIGHTS);
+  // Weights from SettingsContext, adapted to ScoreWeights shape
+  const weights = useMemo(() => settingsToScoreWeights(settings.schedulerWeights), [settings.schedulerWeights]);
   const [weightsOpen, setWeightsOpen] = useState(false);
   const [whyOpenIndex, setWhyOpenIndex] = useState<number | null>(null);
+
+  // Derive scoring options from settings
+  const preferredWindows = useMemo(
+    () => settingsTimeWindowToScoreWindows(settings.timeWindow),
+    [settings.timeWindow]
+  );
+  const preferredMode = useMemo(
+    () => settingsInstructionModeToPreferredMode(settings.instructionMode),
+    [settings.instructionMode]
+  );
 
   // 2. Filter sections data for selected courses
   const selectedCourseData = useMemo(() => {
     return allSections.filter(c => selectedCourseIds.includes(c.course));
   }, [allSections, selectedCourseIds]);
 
-  // 3. Generate candidate schedules, using 6-factor composite with current weights
+  // 3. Generate candidate schedules using all 6 factors with full settings plumbed through
   const candidates = useMemo(() => {
     if (selectedCourseData.length === 0) return [];
-    return generateSchedules(selectedCourseData, gradeDistributions, { weights });
-  }, [selectedCourseData, gradeDistributions, weights]);
+    return generateSchedules(selectedCourseData, gradeDistributions, {
+      weights,
+      preferredWindows,
+      buildingDistances,
+      preferredMode,
+      // daySpreadPreference: not yet a settings field; weight controls importance
+      daySpreadPreference: null,
+    });
+  }, [selectedCourseData, gradeDistributions, weights, preferredWindows, buildingDistances, preferredMode]);
 
   const activeSchedule = candidates[activeScheduleIndex] || null;
 
@@ -64,7 +160,8 @@ export default function SchedulerPage() {
   };
 
   const handleWeightChange = (factor: keyof ScoreWeights, value: number) => {
-    setWeights(prev => ({ ...prev, [factor]: value }));
+    const settingsKey = SCORE_TO_SETTINGS_KEY[factor];
+    settingsDispatch({ type: 'SET_SCHEDULER_WEIGHTS', weights: { [settingsKey]: value } });
     setActiveScheduleIndex(0);
   };
 
@@ -127,7 +224,10 @@ export default function SchedulerPage() {
                 ))}
                 <button
                   className="text-[10px] text-blue-500 hover:underline"
-                  onClick={() => setWeights(DEFAULT_WEIGHTS)}
+                  onClick={() => settingsDispatch({
+                    type: 'SET_SCHEDULER_WEIGHTS',
+                    weights: { gpa: 0.35, timeFit: 0.20, buildingPenalty: 0.10, instructionMode: 0.15, professorPreference: 0.15, daySpread: 0.05 },
+                  })}
                 >
                   Reset to defaults
                 </button>

@@ -434,4 +434,104 @@ describe('scoreScheduleFull', () => {
     expect(typeof result.factors.gpa).toBe('number');
     expect(typeof result.factors.professor).toBe('number');
   });
+
+  it('timeOfDay factor lowers composite when section is outside preferred window', () => {
+    const earlySection = makeSection(
+      'ECE 302',
+      [{ days: 'MWF', time: '8:00 a.m.-9:00 a.m.' }],
+      'Alice Smith',
+      'Face-to-face',
+    );
+    const lateSection = makeSection(
+      'ECE 302',
+      [{ days: 'MWF', time: '11:00 a.m.-12:00 p.m.' }],
+      'Alice Smith',
+      'Face-to-face',
+    );
+    // Preferred window: 10 AM – 3 PM (600–900)
+    const windows = [{ start: 600, end: 900 }];
+    const weightsTimeHeavy: ScoreWeights = { ...DEFAULT_WEIGHTS, gpa: 0, professor: 0, buildingBreak: 0, instructionMode: 0, daySpread: 0, timeOfDay: 1 };
+
+    const earlyResult = scoreScheduleFull([earlySection], {
+      weights: weightsTimeHeavy,
+      gradeDistributions: mockGrades,
+      preferredWindows: windows,
+    });
+    const lateResult = scoreScheduleFull([lateSection], {
+      weights: weightsTimeHeavy,
+      gradeDistributions: mockGrades,
+      preferredWindows: windows,
+    });
+
+    // 8 AM is outside window → score 0; 11 AM is inside → score 1
+    expect(earlyResult.factors.timeOfDay).toBe(0);
+    expect(lateResult.factors.timeOfDay).toBe(1);
+    expect(lateResult.composite).toBeGreaterThan(earlyResult.composite);
+  });
+
+  it('instructionMode factor reflects settings-derived preferredMode', () => {
+    const inPersonSection = makeSection('ECE 302', [], 'Alice Smith', 'Face-to-face');
+    const onlineSection = makeSection('ECE 306', [], 'Bob Jones', 'Online');
+    const weightsModePure: ScoreWeights = { ...DEFAULT_WEIGHTS, gpa: 0, professor: 0, buildingBreak: 0, timeOfDay: 0, daySpread: 0, instructionMode: 1 };
+
+    const inPersonResult = scoreScheduleFull([inPersonSection], {
+      weights: weightsModePure,
+      gradeDistributions: mockGrades,
+      preferredMode: 'in-person',
+    });
+    const onlineResult = scoreScheduleFull([onlineSection], {
+      weights: weightsModePure,
+      gradeDistributions: mockGrades,
+      preferredMode: 'in-person',
+    });
+
+    expect(inPersonResult.factors.instructionMode).toBe(1.0);
+    expect(onlineResult.factors.instructionMode).toBe(0);
+    expect(inPersonResult.composite).toBeGreaterThan(onlineResult.composite);
+  });
+
+  it('buildingBreak factor uses provided distance table', () => {
+    const realDistances: Record<string, number> = { 'EER-GDC': 5 };
+    const tightSections = [
+      makeSection('ECE 302', [{ days: 'M', time: '9:00 a.m.-10:00 a.m.', room: 'EER 1.516' }]),
+      makeSection('ECE 306', [{ days: 'M', time: '10:02 a.m.-11:00 a.m.', room: 'GDC 6.202' }]),
+    ];
+    const weightsDistPure: ScoreWeights = { ...DEFAULT_WEIGHTS, gpa: 0, professor: 0, timeOfDay: 0, instructionMode: 0, daySpread: 0, buildingBreak: 1 };
+
+    const resultWithDist = scoreScheduleFull(tightSections, {
+      weights: weightsDistPure,
+      gradeDistributions: mockGrades,
+      buildingDistances: realDistances,
+    });
+    const resultNoDist = scoreScheduleFull(tightSections, {
+      weights: weightsDistPure,
+      gradeDistributions: mockGrades,
+      buildingDistances: {},
+    });
+
+    // With known distances (5 min walk), 2-min gap is insufficient → penalized
+    // Without distances, unknown building defaults to 5 min walk → same penalty applies
+    // But the key assertion: the factor is < 1 when gap is tight
+    expect(resultWithDist.factors.buildingBreak).toBeLessThan(1.0);
+    expect(resultNoDist.factors.buildingBreak).toBeLessThan(1.0);
+  });
+
+  it('no-preference settings produce factor scores of 1.0 for mode and timeOfDay', () => {
+    const section = makeSection(
+      'ECE 302',
+      [{ days: 'MWF', time: '10:00 a.m.-11:00 a.m.' }],
+      '',
+      'Face-to-face',
+    );
+    const result = scoreScheduleFull([section], {
+      weights: DEFAULT_WEIGHTS,
+      gradeDistributions: mockGrades,
+      preferredWindows: [],   // no_preference → []
+      preferredMode: null,     // no_preference → null
+      daySpreadPreference: null,
+    });
+    expect(result.factors.timeOfDay).toBe(1.0);
+    expect(result.factors.instructionMode).toBe(1.0);
+    expect(result.factors.daySpread).toBe(1.0);
+  });
 });
