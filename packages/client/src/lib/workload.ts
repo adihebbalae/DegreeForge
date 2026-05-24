@@ -211,8 +211,6 @@ export function computeGraduationDelay(
   const baselineLastIdx = lastUsedSemesterIndex(baseline.plan, plannerInput.semesters);
 
   // ── Modified input: remove courseId from every semester + from future pins.
-  // Strip from currentPlan across ALL semesters (past, current, and future) so
-  // the solver treats the course as if it never existed.
   const modifiedPlan: Plan = {};
   for (const [semId, courses] of Object.entries(plannerInput.currentPlan)) {
     modifiedPlan[semId] = courses.filter((c) => c !== courseId);

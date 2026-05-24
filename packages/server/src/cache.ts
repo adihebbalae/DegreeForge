@@ -46,7 +46,6 @@ export async function setCachedResponse(prompt: string, response: any, type: 'ch
   cache[hash] = response;
   await fs.writeFile(CACHE_FILE, JSON.stringify(cache, null, 2));
 
-  // 2. Append to history.jsonl — metadata only, no raw prompt/response bodies
   const responseStr = typeof response === 'string' ? response : JSON.stringify(response);
   const logEntry = {
     timestamp: new Date().toISOString(),
