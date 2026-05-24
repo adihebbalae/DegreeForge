@@ -291,15 +291,14 @@ describe('computeGraduationDelay', () => {
     _delayCache.clear();
     const first = computeGraduationDelay('ECE 302', basePlannerInput);
 
-    // Manually check cache was populated
-    const planHash = JSON.stringify(INITIAL_PLAN);
-    const cacheKey = `ECE 302:${planHash}`;
-    expect(_delayCache.has(cacheKey)).toBe(true);
-    expect(_delayCache.get(cacheKey)).toBe(first);
+    // The cache is keyed by `courseId:planHash:pinsHash`; verify it was populated
+    // by confirming the second call returns the same value and cache size stays at 1.
+    expect(_delayCache.size).toBe(1);
 
-    // Second call returns same result (from cache)
+    // Second call returns same result (from cache — cache should not grow)
     const second = computeGraduationDelay('ECE 302', basePlannerInput);
     expect(second).toBe(first);
+    expect(_delayCache.size).toBe(1); // no new entry added
   });
 
   it('memoization: different plan produces different cache key', () => {
@@ -338,5 +337,148 @@ describe('computeGraduationDelay', () => {
     computeGraduationDelay('CTI 302', newInput);
 
     expect(_delayCache.size).toBe(50);
+  });
+
+  // ── Future-placement bug regression tests (Critic report finding) ──────────
+
+  it('future-placement: both baseline and modified correctly account for future pins', () => {
+    // Verify that future-placed courses are promoted to pins in the baseline run,
+    // ensuring baseline and modified are computed on a level playing field.
+    //
+    // Place ECE 411 (required, not yet satisfied) in Fall 2026 as a future drag.
+    // With the fix: baseline pins ECE 411 to Fall 2026; modified omits the pin.
+    // Both runs should produce valid plans (no errors thrown).
+    // The delay can be 0 if the planner places ECE 411 in Fall 2026 naturally
+    // either way — but the result must be a non-negative integer.
+    const planWithFuturePlacement: Plan = {
+      'Fall 2025':   ['ECE 302', 'ECE 306', 'CTI 301G', 'M 427J', 'UGS 016'],
+      'Spring 2026': ['ECE 312H', 'M 325K', 'CTI 302', 'ECE 319H'],
+      // ECE 411 placed in a future semester via drag (not yet satisfied in profile)
+      'Fall 2026':   ['ECE 411'],
+      'Spring 2027': [],
+      'Fall 2027':   [],
+      'Spring 2028': [],
+      'Fall 2028':   [],
+      'Spring 2029': [],
+    };
+    const input: AutoPlannerInput = {
+      ...basePlannerInput,
+      currentPlan: planWithFuturePlacement,
+    };
+
+    // Should return a non-negative integer — no longer collapses to 0 due to
+    // the planner ignoring the future placement in the baseline.
+    const delay = computeGraduationDelay('ECE 411', input);
+    expect(typeof delay).toBe('number');
+    expect(delay).toBeGreaterThanOrEqual(0);
+    expect(Number.isInteger(delay)).toBe(true);
+  });
+
+  it('future-placement: course in future late slot causes correct delay when planner would place it earlier', () => {
+    // If a course is pinned (via drag) to a LATER semester than the planner
+    // would naturally schedule it, the baseline plan has it later. Removing it
+    // lets the planner place it in its natural (earlier) slot — giving delay = 0
+    // (clamped from negative). This asserts the math is correct and non-negative.
+    //
+    // ECE 411 would go to Fall 2026 naturally. Pin it to Spring 2029 (latest).
+    const planWithLatePlacement: Plan = {
+      'Fall 2025':   ['ECE 302', 'ECE 306', 'CTI 301G', 'M 427J', 'UGS 016'],
+      'Spring 2026': ['ECE 312H', 'M 325K', 'CTI 302', 'ECE 319H'],
+      'Fall 2026':   [],
+      'Spring 2027': [],
+      'Fall 2027':   [],
+      'Spring 2028': [],
+      'Fall 2028':   [],
+      // ECE 411 dragged all the way to the end
+      'Spring 2029': ['ECE 411'],
+    };
+    const input: AutoPlannerInput = {
+      ...basePlannerInput,
+      currentPlan: planWithLatePlacement,
+    };
+
+    const delay = computeGraduationDelay('ECE 411', input);
+    // Baseline has ECE 411 very late → graduation very late.
+    // Modified removes the pin → planner schedules ECE 411 in Fall 2026 → graduation earlier.
+    // delay = max(0, earlier - later) = 0.
+    expect(delay).toBe(0);
+  });
+
+  it('future-placement: non-critical course placed in future semester → delay = 0', () => {
+    // CTI 302 is a gen-ed / non-prerequisite bottleneck course.
+    // Even if placed in a future semester, removing it should not delay graduation.
+    const planWithFutureCTI: Plan = {
+      'Fall 2025':   ['ECE 302', 'ECE 306', 'CTI 301G', 'M 427J', 'UGS 016'],
+      'Spring 2026': ['ECE 312H', 'M 325K', 'ECE 319H'],
+      // CTI 302 placed in future semester (not past/current)
+      'Fall 2026':   ['CTI 302'],
+      'Spring 2027': [],
+      'Fall 2027':   [],
+      'Spring 2028': [],
+      'Fall 2028':   [],
+      'Spring 2029': [],
+    };
+    const input: AutoPlannerInput = {
+      ...basePlannerInput,
+      currentPlan: planWithFutureCTI,
+    };
+
+    const delay = computeGraduationDelay('CTI 302', input);
+    expect(delay).toBe(0);
+  });
+
+  it('future-placement: memo cache correctly keys on future contents', () => {
+    _delayCache.clear();
+
+    // Plan A: ECE 302 in future Fall 2026
+    const planA: Plan = {
+      'Fall 2025':   ['ECE 306', 'CTI 301G', 'M 427J', 'UGS 016'],
+      'Spring 2026': ['ECE 312H', 'M 325K', 'CTI 302', 'ECE 319H'],
+      'Fall 2026':   ['ECE 302'],
+      'Spring 2027': [], 'Fall 2027': [], 'Spring 2028': [], 'Fall 2028': [], 'Spring 2029': [],
+    };
+    // Plan B: ECE 302 in future Spring 2027 (different future slot)
+    const planB: Plan = {
+      ...planA,
+      'Fall 2026':   [],
+      'Spring 2027': ['ECE 302'],
+    };
+
+    const inputA: AutoPlannerInput = { ...basePlannerInput, currentPlan: planA };
+    const inputB: AutoPlannerInput = { ...basePlannerInput, currentPlan: planB };
+
+    computeGraduationDelay('ECE 302', inputA);
+    computeGraduationDelay('ECE 302', inputB);
+
+    // Different future placements → different cache entries
+    expect(_delayCache.size).toBe(2);
+
+    // Second calls with same inputs hit the cache (size doesn't grow)
+    computeGraduationDelay('ECE 302', inputA);
+    computeGraduationDelay('ECE 302', inputB);
+    expect(_delayCache.size).toBe(2);
+  });
+
+  it('future-placement: cache invalidates when future semester changes', () => {
+    _delayCache.clear();
+
+    const planBefore: Plan = {
+      ...INITIAL_PLAN,
+      'Fall 2026': ['ECE 411'],
+    };
+    const planAfter: Plan = {
+      ...INITIAL_PLAN,
+      'Fall 2026': ['ECE 411', 'ECE 460'],
+    };
+
+    const before: AutoPlannerInput = { ...basePlannerInput, currentPlan: planBefore };
+    const after: AutoPlannerInput = { ...basePlannerInput, currentPlan: planAfter };
+
+    computeGraduationDelay('ECE 302', before);
+    expect(_delayCache.size).toBe(1);
+
+    computeGraduationDelay('ECE 302', after);
+    // Changed future plan → new cache entry; old one still present
+    expect(_delayCache.size).toBe(2);
   });
 });

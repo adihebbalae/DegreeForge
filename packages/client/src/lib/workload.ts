@@ -149,39 +149,84 @@ export function computeSemesterDifficulty(
 // ─── computeGraduationDelay ───────────────────────────────────────────────────
 
 /**
+ * Build a pinnedCourses map (courseId -> semesterId) from future-semester
+ * entries in the full plan. This converts user-dragged future placements into
+ * planner-visible pins so the solver respects them when re-running.
+ *
+ * Merges with any existing pinnedCourses already present in the input.
+ */
+function buildFuturePins(
+  plannerInput: AutoPlannerInput
+): Record<string, string> {
+  const pins: Record<string, string> = { ...(plannerInput.pinnedCourses ?? {}) };
+  for (const sem of plannerInput.semesters) {
+    if (sem.status !== 'future') continue;
+    for (const cId of plannerInput.currentPlan[sem.id] ?? []) {
+      // Don't overwrite an already-existing pin for this course
+      if (!(cId in pins)) {
+        pins[cId] = sem.id;
+      }
+    }
+  }
+  return pins;
+}
+
+/**
  * Returns the number of additional semesters required to graduate if `courseId`
  * is removed from the plan (i.e. treated as never taken).
  *
  * Returns 0 if the course is not on the critical path (removing it doesn't
  * push graduation further out).
  *
- * Memoised by `${courseId}:${planHash}` with LRU cap 50.
+ * Correctly handles courses placed in future semesters (by drag or prior planner
+ * run) by converting future placements to pinnedCourses before re-running the
+ * planner. Without this, the planner blanks future semesters and never sees the
+ * course, so delay always collapses to 0 for future-placed cards.
+ *
+ * Memoised by `${courseId}:${planHash}:${pinsHash}` with LRU cap 50.
  */
 export function computeGraduationDelay(
   courseId: string,
   plannerInput: AutoPlannerInput
 ): number {
   const planHash = JSON.stringify(plannerInput.currentPlan);
-  const key = `${courseId}:${planHash}`;
+  const pinsHash = JSON.stringify(plannerInput.pinnedCourses ?? {});
+  const key = `${courseId}:${planHash}:${pinsHash}`;
 
   const cached = memoGet(key);
   if (cached !== undefined) return cached;
 
-  // ── Baseline: how many future semesters does the plan use? ───────────────
-  const baseline = generateAutoPlan(plannerInput);
+  // ── Build future-semester pins so both runs respect user-placed future courses.
+  // The auto-planner blanks future semesters (step 1) and only re-adds courses
+  // via pinnedCourses (step 3), so entries in currentPlan[futureSem] are otherwise
+  // invisible to the solver. We promote them to pins here.
+  const futurePins = buildFuturePins(plannerInput);
+
+  // ── Baseline: how many semesters does the plan use with all courses present?
+  const baselineInput: AutoPlannerInput = {
+    ...plannerInput,
+    pinnedCourses: futurePins,
+  };
+  const baseline = generateAutoPlan(baselineInput);
   const baselineLastIdx = lastUsedSemesterIndex(baseline.plan, plannerInput.semesters);
 
-  // ── Modified input: remove courseId from past/current semesters ──────────
-  // The planner takes currentPlan which includes past + current. We strip
-  // courseId from every semester in the plan so the solver thinks it was never taken.
+  // ── Modified input: remove courseId from every semester + from future pins.
+  // Strip from currentPlan across ALL semesters (past, current, and future) so
+  // the solver treats the course as if it never existed.
   const modifiedPlan: Plan = {};
   for (const [semId, courses] of Object.entries(plannerInput.currentPlan)) {
     modifiedPlan[semId] = courses.filter((c) => c !== courseId);
   }
 
+  const modifiedPins: Record<string, string> = {};
+  for (const [cId, semId] of Object.entries(futurePins)) {
+    if (cId !== courseId) modifiedPins[cId] = semId;
+  }
+
   const modified: AutoPlannerInput = {
     ...plannerInput,
     currentPlan: modifiedPlan,
+    pinnedCourses: modifiedPins,
   };
 
   const withoutCourse = generateAutoPlan(modified);
