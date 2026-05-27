@@ -22,7 +22,6 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [step, setStep] = useState(1);
   const totalSteps = 6;
 
-  // Form State
   const [major, setMajor] = useState('ece-bse');
   const [catalogYear, setCatalogYear] = useState('2024');
   const [gradTarget, setGradTarget] = useState('Spring 2028');
@@ -42,7 +41,6 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         return;
     }
     setIsParsing(true);
-    // Directly call the tool function
     const result = parseTranscriptTool.fn({} as any, { transcript_text: transcriptText });
     setIsParsing(false);
     
@@ -57,21 +55,12 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   };
 
   const handleCommit = () => {
-    // Save to SettingsContext
     settingsDispatch({ type: 'SET_GRAD_TARGET', value: gradTarget });
     settingsDispatch({ type: 'SET_LOAD_TOLERANCE', value: loadTolerance });
     if (techCoreId !== 'skip') {
       settingsDispatch({ type: 'SET_TECH_CORE', value: techCoreId });
     }
-
-    // Save to PlanContext (add parsed courses to past semesters)
-    // For simplicity in this demo wizard, we'll just dispatch them to a single 'Transfer/Prior' semester or let the user schedule them later.
-    // In a real app, we would map them to specific semesters or a "Completed" list.
-    if (parsedCourses.length > 0) {
-        // Just dispatch a bulk add to the plan, or handle it as needed by the context
-        // Here we'll just log it for now to avoid breaking the plan shape without a dedicated action
-        console.log('Parsed courses to add:', parsedCourses);
-    }
+    // TODO(TASK-023): dispatch major and catalogYear to PlanContext, and bulk-add parsedCourses to completed semesters
 
     onComplete();
   };

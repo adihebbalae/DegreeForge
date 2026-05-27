@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   useUserProfile,
   useDegreeRequirements,
@@ -30,6 +31,7 @@ export function useRecommendPlan(): RecommendPlanResult {
   const rawPrereqGraph = useRawPrereqGraph();
   const prereqGraphInstance = usePrereqGraph();
   const dispatch = usePlanDispatch();
+  const navigate = useNavigate();
 
   const [noticeProps, setNoticeProps] = useState<NoticeProps | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -48,7 +50,7 @@ export function useRecommendPlan(): RecommendPlanResult {
       setNoticeProps({
         variant: 'info',
         message: `Tech core "${techCoreId}" is not recognised. Select a valid tech core in Settings.`,
-        action: { label: 'Go to Settings', onClick: () => { window.location.hash = '/settings'; setNoticeProps(null); } },
+        action: { label: 'Go to Settings', onClick: () => { navigate('/settings'); setNoticeProps(null); } },
       });
       return;
     }

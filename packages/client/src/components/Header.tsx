@@ -262,7 +262,6 @@ export default function Header() {
         <SemesterTransitionDialog open={transitionOpen} onOpenChange={setTransitionOpen} />
       </header>
 
-      {/* Import error notice — rendered below header */}
       {importError && (
         <div className="px-4 py-2 border-b">
           <Notice
@@ -278,17 +277,14 @@ export default function Header() {
         </div>
       )}
 
-      {/* Recommend plan notice */}
       {noticeProps && (
         <div className="px-4 py-2 border-b">
           <Notice {...noticeProps} />
         </div>
       )}
 
-      {/* Recommend plan confirm dialog */}
       {confirmProps && <ConfirmDialog {...confirmProps} />}
 
-      {/* Reset plan confirm dialog */}
       <ConfirmDialog
         open={resetConfirmOpen}
         onOpenChange={setResetConfirmOpen}
