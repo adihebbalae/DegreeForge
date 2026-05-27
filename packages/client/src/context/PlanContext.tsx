@@ -164,3 +164,60 @@ export function useRejectedGhosts(): string[] {
 export function useFocusedGhostId(): string | null {
   return usePlanContext().state.focusedGhostId;
 }
+
+// ─── Plan Snapshots ───────────────────────────────────────────────────────────
+
+import { snapshotReducer, INITIAL_SNAPSHOT_STATE, type SnapshotState, type SnapshotAction, type PlanSnapshot } from './PlanContext.constants';
+
+interface SnapshotContextValue {
+  state: SnapshotState;
+  dispatch: React.Dispatch<SnapshotAction>;
+}
+
+const SnapshotContext = createContext<SnapshotContextValue | null>(null);
+
+export function SnapshotProvider({ children }: { children: React.ReactNode }) {
+  const [state, dispatch] = useReducer(snapshotReducer, INITIAL_SNAPSHOT_STATE, (initial) => {
+    const stored = localStorage.getItem('degreeforge-snapshots');
+    if (stored) {
+      try {
+        return { ...initial, ...JSON.parse(stored) };
+      } catch (e) {
+        console.error('Failed to parse stored snapshots:', e);
+      }
+    }
+    return initial;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('degreeforge-snapshots', JSON.stringify(state));
+  }, [state]);
+
+  return (
+    <SnapshotContext.Provider value={{ state, dispatch }}>
+      {children}
+    </SnapshotContext.Provider>
+  );
+}
+
+export function useSnapshotContext(): SnapshotContextValue {
+  const ctx = useContext(SnapshotContext);
+  if (!ctx) throw new Error('useSnapshotContext must be called inside a <SnapshotProvider>.');
+  return ctx;
+}
+
+export function useSnapshots(): PlanSnapshot[] {
+  return useSnapshotContext().state.snapshots;
+}
+
+export function useActiveSnapshotId(): string | null {
+  return useSnapshotContext().state.activeSnapshotId;
+}
+
+export function useComparisonMode(): 'off' | 'sidebar-diff' | 'split-view' {
+  return useSnapshotContext().state.comparisonMode;
+}
+
+export function useSnapshotDispatch(): React.Dispatch<SnapshotAction> {
+  return useSnapshotContext().dispatch;
+}
