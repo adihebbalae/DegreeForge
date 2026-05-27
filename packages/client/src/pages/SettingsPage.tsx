@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { RotateCcw, X, Plus, User, Sliders, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -69,6 +70,8 @@ export default function SettingsPage() {
 
   const [newProfName, setNewProfName] = useState('');
   const [newProfType, setNewProfType] = useState<'prefer' | 'avoid'>('prefer');
+  const [resetSettingsOpen, setResetSettingsOpen] = useState(false);
+  const [rerunOnboardingOpen, setRerunOnboardingOpen] = useState(false);
 
   const techCoreList = techCoresRecord
     ? (Object.entries(techCoresRecord) as [string, TechCoreTrack][]).map(([id, track]) => ({
@@ -78,9 +81,7 @@ export default function SettingsPage() {
     : [];
 
   const handleReset = () => {
-    if (window.confirm('Reset all settings to defaults? This cannot be undone.')) {
-      dispatch({ type: 'RESET_SETTINGS' });
-    }
+    setResetSettingsOpen(true);
   };
 
   const handleAddProfPref = () => {
@@ -434,8 +435,48 @@ export default function SettingsPage() {
 
           {/* Bottom padding */}
           <div className="h-8" />
+          
+          <Separator />
+
+          <section aria-labelledby="onboarding-section" className="pt-4">
+             <div className="flex items-center justify-between">
+               <div>
+                 <h2 className="text-base font-semibold text-foreground">Re-run Onboarding</h2>
+                 <p className="text-sm text-muted-foreground">Restart the initial setup wizard.</p>
+               </div>
+               <Button
+                  variant="outline"
+                  onClick={() => setRerunOnboardingOpen(true)}
+               >
+                 Re-run Onboarding
+               </Button>
+             </div>
+          </section>
+          
+          <div className="h-8" />
         </div>
       </ScrollArea>
+
+      <ConfirmDialog
+        open={resetSettingsOpen}
+        onOpenChange={setResetSettingsOpen}
+        title="Reset settings to defaults"
+        consequence="Restores default scoring weights, time window, instruction mode, and graduation target. Professor preferences are cleared."
+        confirmLabel="Reset Settings"
+        onConfirm={() => dispatch({ type: 'RESET_SETTINGS' })}
+      />
+
+      <ConfirmDialog
+        open={rerunOnboardingOpen}
+        onOpenChange={setRerunOnboardingOpen}
+        title="Re-run onboarding wizard"
+        consequence={`Overwrites ${settings.profPreferences.length} saved professor preference${settings.profPreferences.length === 1 ? '' : 's'} and resets onboarding flags. Reloads the page.`}
+        confirmLabel="Re-run Onboarding"
+        onConfirm={() => {
+          localStorage.removeItem('degreeforge:onboarded');
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { X, Zap, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Notice } from '@/components/ui/notice';
 import {
   Select,
   SelectContent,
@@ -63,6 +64,8 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
   const [isRecommending, setIsRecommending] = useState(false);
   const [recommendationData, setRecommendationData] = useState<{ techCoreId: string; mathBA: boolean; reasoning: string } | null>(null);
   const [customInput, setCustomInput] = useState('');
+  const [solverError, setSolverError] = useState<string | null>(null);
+  const [recommendError, setRecommendError] = useState<string | null>(null);
   const gradeEntries = useGradeEntries();
 
   const techCores = useTechCoresRecord();
@@ -144,7 +147,7 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
         onClose();
       } catch (error) {
         console.error('What-If solver failed:', error);
-        alert('Failed to re-calculate plan: ' + (error as Error).message);
+        setSolverError((error as Error).message);
       } finally {
         setIsSolving(false);
       }
@@ -189,7 +192,7 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
       setRecommendationData(data);
     } catch (err: any) {
       console.error('AI Recommend failed:', err);
-      alert('AI Recommendation failed: ' + err.message);
+      setRecommendError(err.message ?? 'Recommendation request failed.');
     } finally {
       setIsRecommending(false);
     }
@@ -248,13 +251,21 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
             />
             <Button
               className="w-full gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md border-0"
-              onClick={() => handleAIRecommend()}
+              onClick={() => { setRecommendError(null); handleAIRecommend(); }}
               disabled={isRecommending || isSolving}
             >
               {isRecommending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               {isRecommending ? 'Analyzing Profile...' : 'Generate Plan'}
             </Button>
-            <QuestionnaireDialog 
+            {recommendError && (
+              <Notice
+                variant="error"
+                message={`Recommendation request failed: ${recommendError}`}
+                action={{ label: 'Retry', onClick: () => { setRecommendError(null); handleAIRecommend(); } }}
+                onDismiss={() => setRecommendError(null)}
+              />
+            )}
+            <QuestionnaireDialog
               onComplete={(answers) => {
                 setCustomInput(answers);
                 handleAIRecommend(answers, true);
@@ -373,9 +384,17 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
       </ScrollArea>
 
       <div className="p-4 border-t border-border bg-muted/20 space-y-2">
+        {solverError && (
+          <Notice
+            variant="error"
+            message={`Could not recalculate plan: ${solverError}`}
+            action={{ label: 'Retry', onClick: () => { setSolverError(null); handleApply(); } }}
+            onDismiss={() => setSolverError(null)}
+          />
+        )}
         <Button
           className="w-full gap-2"
-          onClick={handleApply}
+          onClick={() => { setSolverError(null); handleApply(); }}
           disabled={!whatIf.isActive || isSolving}
         >
           {isSolving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}

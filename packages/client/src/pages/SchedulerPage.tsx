@@ -1,11 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { usePlan } from '@/context/PlanContext';
 import { useFallSections, useGradeDistributions } from '@/context/DataContext';
 import { useSettings, useSettingsDispatch, type SchedulerWeights, type InstructionMode, type TimeWindow as SettingsTimeWindow } from '@/context/SettingsContext';
 import { generateSchedules, type CandidateSchedule, type ScoreWeights } from '@/lib/scheduler';
 import { type TimeWindow } from '@/lib/score';
 import { fetchJson } from '@/lib/data-loaders';
-import { Check, Calendar as CalendarIcon, Copy, ChevronDown, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { Check, Calendar as CalendarIcon, Copy, ChevronDown, ChevronRight, SlidersHorizontal, CheckCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -109,6 +109,7 @@ export default function SchedulerPage() {
 
   const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>(nextSemesterCourses);
   const [activeScheduleIndex, setActiveScheduleIndex] = useState(0);
+  const [copyConfirmed, setCopyConfirmed] = useState(false);
 
   // Weights from SettingsContext, adapted to ScoreWeights shape
   const weights = useMemo(() => settingsToScoreWeights(settings.schedulerWeights), [settings.schedulerWeights]);
@@ -156,7 +157,8 @@ export default function SchedulerPage() {
     if (!activeSchedule) return;
     const uniques = activeSchedule.sections.map(s => s.unique).join(', ');
     navigator.clipboard.writeText(uniques);
-    alert(`Copied uniques: ${uniques}`);
+    setCopyConfirmed(true);
+    setTimeout(() => setCopyConfirmed(false), 2500);
   };
 
   const handleWeightChange = (factor: keyof ScoreWeights, value: number) => {
@@ -315,10 +317,10 @@ export default function SchedulerPage() {
         </div>
 
         {activeSchedule && (
-          <div className="p-4 border-t border-border bg-muted/10">
+          <div className="p-4 border-t border-border bg-muted/10 space-y-2">
             <Button className="w-full gap-2" onClick={copyUniques}>
-              <Copy className="w-4 h-4" />
-              Copy Unique Numbers
+              {copyConfirmed ? <CheckCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copyConfirmed ? 'Copied to clipboard' : 'Copy Unique Numbers'}
             </Button>
           </div>
         )}
