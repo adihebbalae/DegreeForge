@@ -55,10 +55,10 @@ interface WhatIfPanelProps {
 }
 
 export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
-  const { state, dispatch } = usePlanContext(); // Get full state
+  const { state, dispatch } = usePlanContext();
   const plan = state.plan;
   const whatIf = state.whatIf;
-  const currentTechCoreId = state.whatIf.techCoreId; // Using whatIf context here initially
+  const currentTechCoreId = state.whatIf.techCoreId;
   const currentMathBA = state.whatIf.mathBAToggle;
   const [isSolving, setIsSolving] = useState(false);
   const [isRecommending, setIsRecommending] = useState(false);

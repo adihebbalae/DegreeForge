@@ -29,8 +29,6 @@ const iconMap = {
 export interface NoticeAction {
   label: string
   onClick: () => void
-  /** When true, renders as a deprioritised secondary action (ghost/link style) */
-  secondary?: boolean
 }
 
 export interface NoticeProps
@@ -54,13 +52,14 @@ export interface NoticeProps
  */
 const Notice = React.forwardRef<HTMLDivElement, NoticeProps>(
   ({ className, variant = 'info', message, action, secondaryAction, onDismiss, ...props }, ref) => {
-    const Icon = iconMap[variant ?? 'info']
+    const resolvedVariant = variant ?? 'info'
+    const Icon = iconMap[resolvedVariant]
 
     return (
       <div
         ref={ref}
-        role="status"
-        aria-live="polite"
+        role={resolvedVariant === 'error' ? 'alert' : 'status'}
+        aria-live={resolvedVariant === 'error' ? 'assertive' : 'polite'}
         className={cn(noticeVariants({ variant }), className)}
         {...props}
       >

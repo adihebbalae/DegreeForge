@@ -20,7 +20,6 @@ export default function ValidationBanner() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [solverError, setSolverError] = useState<string | null>(null);
 
-  // Data needed for solver
   const rawGraph = useRawPrereqGraph();
   const degreeReqs = useDegreeRequirements();
   const techCores = useTechCoresRecord();
