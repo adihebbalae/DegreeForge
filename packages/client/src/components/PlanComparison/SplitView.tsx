@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSnapshots, usePlan, useSemesters } from '@/context/PlanContext';
-import { computePlanDiff, type PlanDiff } from '@/lib/plan-diff';
+import { computePlanDiff } from '@/lib/plan-diff';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ComparisonToggle } from './ComparisonToggle';
@@ -21,19 +21,19 @@ export function SplitView() {
   
   const diff = computePlanDiff(planA, planB);
 
-  const getCourseStyle = (courseId: string, diff: PlanDiff, planSide: 'left' | 'right') => {
+  const getCourseStyle = (courseId: string, planSide: 'left' | 'right') => {
     // left: planA. right: planB.
     // added (in B not A) -> green in right
     // removed (in A not B) -> red in left
     // moved -> blue in both
     if (diff.moved.some(m => m.courseId === courseId)) return 'border-blue-500 bg-blue-500/10 text-blue-700';
-    
+
     if (planSide === 'left') {
       if (diff.removed.some(m => m.courseId === courseId)) return 'border-red-500 bg-red-500/10 text-red-700';
     } else {
       if (diff.added.some(m => m.courseId === courseId)) return 'border-green-500 bg-green-500/10 text-green-700';
     }
-    
+
     return 'bg-background';
   };
 
@@ -52,7 +52,7 @@ export function SplitView() {
                   {courses.map(c => (
                     <div 
                       key={c} 
-                      className={`text-sm p-2 border rounded-md ${getCourseStyle(c, diff, side)}`}
+                      className={`text-sm p-2 border rounded-md ${getCourseStyle(c, side)}`}
                     >
                       {c}
                     </div>

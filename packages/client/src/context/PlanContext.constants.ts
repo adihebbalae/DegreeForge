@@ -327,7 +327,6 @@ export function historyReducer(state: HistoryState, action: PlanAction): History
   const nextPresent = planReducer(state.present, action);
   if (nextPresent === state.present) return state; // no state change
 
-  // Actions that should NOT save history
   const noHistoryActions: PlanAction['type'][] = [
     'SET_HOVERED_COURSE',
     'SET_GHOST_COURSES',
@@ -346,3 +345,65 @@ export function historyReducer(state: HistoryState, action: PlanAction): History
     future: [],
   };
 }
+
+// ─── Plan Snapshots ───────────────────────────────────────────────────────────
+
+export interface PlanSnapshot {
+  id: string;
+  name: string;
+  plan: Record<string, string[]>;
+  createdAt: number;
+}
+
+export interface SnapshotState {
+  snapshots: PlanSnapshot[];
+  comparisonMode: 'off' | 'sidebar-diff' | 'split-view';
+}
+
+export type SnapshotAction =
+  | { type: 'SAVE_SNAPSHOT'; plan: Record<string, string[]> }
+  | { type: 'DELETE_SNAPSHOT'; id: string }
+  | { type: 'RENAME_SNAPSHOT'; id: string; name: string }
+  | { type: 'SET_COMPARISON_MODE'; mode: 'off' | 'sidebar-diff' | 'split-view' };
+
+export const INITIAL_SNAPSHOT_STATE: SnapshotState = {
+  snapshots: [],
+  comparisonMode: 'off',
+};
+
+export function snapshotReducer(state: SnapshotState, action: SnapshotAction): SnapshotState {
+  switch (action.type) {
+    case 'SAVE_SNAPSHOT': {
+      if (state.snapshots.length >= 3) return state;
+      const nextNum = state.snapshots.length + 1;
+      const newSnapshot: PlanSnapshot = {
+        id: crypto.randomUUID(),
+        name: `Snapshot ${nextNum}`,
+        plan: action.plan,
+        createdAt: Date.now(),
+      };
+      return {
+        ...state,
+        snapshots: [...state.snapshots, newSnapshot],
+      };
+    }
+    case 'DELETE_SNAPSHOT': {
+      return {
+        ...state,
+        snapshots: state.snapshots.filter(s => s.id !== action.id),
+      };
+    }
+    case 'RENAME_SNAPSHOT': {
+      return {
+        ...state,
+        snapshots: state.snapshots.map(s => s.id === action.id ? { ...s, name: action.name } : s),
+      };
+    }
+    case 'SET_COMPARISON_MODE': {
+      return { ...state, comparisonMode: action.mode };
+    }
+    default:
+      return state;
+  }
+}
+
