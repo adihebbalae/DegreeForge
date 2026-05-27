@@ -18,6 +18,11 @@ export function SnapshotSidebar() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
 
+  const commitRename = (id: string, name: string) => {
+    dispatch({ type: 'RENAME_SNAPSHOT', id, name });
+    setEditingId(null);
+  };
+
   const toggleCompare = (id: string) => {
     setCompareIds(prev => {
       if (prev.includes(id)) return prev.filter(x => x !== id);
@@ -35,7 +40,6 @@ export function SnapshotSidebar() {
     if (snap) {
       planDispatch({ type: 'SET_PLAN', plan: snap.plan });
     }
-    dispatch({ type: 'LOAD_SNAPSHOT', id });
   };
 
   let diffResult = null;
@@ -44,7 +48,6 @@ export function SnapshotSidebar() {
     const planB = snapshots.find(s => s.id === compareIds[1])?.plan || {};
     diffResult = computePlanDiff(planA, planB);
   } else if (compareIds.length === 1) {
-    // compare with current plan
     const planA = snapshots.find(s => s.id === compareIds[0])?.plan || {};
     diffResult = computePlanDiff(planA, currentPlan);
   }
@@ -64,18 +67,12 @@ export function SnapshotSidebar() {
             <div key={snap.id} className="border rounded-md p-3 space-y-3">
               <div className="flex justify-between items-center">
                 {editingId === snap.id ? (
-                  <Input 
+                  <Input
                     value={editName}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
-                    onBlur={() => {
-                      dispatch({ type: 'RENAME_SNAPSHOT', id: snap.id, name: editName });
-                      setEditingId(null);
-                    }}
+                    onBlur={() => commitRename(snap.id, editName)}
                     onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                      if (e.key === 'Enter') {
-                        dispatch({ type: 'RENAME_SNAPSHOT', id: snap.id, name: editName });
-                        setEditingId(null);
-                      }
+                      if (e.key === 'Enter') commitRename(snap.id, editName);
                     }}
                     autoFocus
                     className="h-7 text-sm"

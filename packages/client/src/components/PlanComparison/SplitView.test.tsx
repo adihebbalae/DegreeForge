@@ -1,10 +1,8 @@
 // @vitest-environment jsdom
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, cleanup } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SplitView } from './SplitView';
-
-// ── Mocks ──────────────────────────────────────────────────────────────────────
 
 const sampleSemesters = [
   { id: 'Fall 2025', label: "Fall '25", status: 'past' as const, year: 2025, season: 'Fall' as const },
@@ -66,7 +64,7 @@ vi.mock('@/lib/plan-diff', () => ({
 import * as PlanContext from '@/context/PlanContext';
 import * as PlanDiff from '@/lib/plan-diff';
 
-// ── Tests ──────────────────────────────────────────────────────────────────────
+afterEach(cleanup);
 
 describe('SplitView — empty state (no snapshots)', () => {
   beforeEach(() => {
@@ -78,13 +76,12 @@ describe('SplitView — empty state (no snapshots)', () => {
 
   it('renders the Split View heading', () => {
     render(<SplitView />);
-    expect(screen.getAllByText('Split View Comparison').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Split View Comparison')).toBeTruthy();
   });
 
   it('shows "No Snapshot" label on right pane when no snapshots exist', () => {
     render(<SplitView />);
-    // Both panes show "No Snapshot" when there are no snapshots — at least one is expected
-    expect(screen.getAllByText('No Snapshot').length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryAllByText('No Snapshot')[0]).toBeTruthy();
   });
 
   it('does not render the snapshot picker when there are no snapshots', () => {
@@ -103,19 +100,19 @@ describe('SplitView — with snapshots', () => {
 
   it('renders both pane headers', () => {
     render(<SplitView />);
-    expect(screen.getAllByText('Current Plan').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('Snapshot 1').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Current Plan')).toBeTruthy();
+    expect(screen.queryAllByText('Snapshot 1').length).toBeGreaterThan(0);
   });
 
   it('renders the snapshot picker when snapshots exist', () => {
     render(<SplitView />);
-    expect(screen.getAllByTestId('snapshot-picker').length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByTestId('snapshot-picker')).toBeTruthy();
   });
 
   it('snapshot picker shows all available snapshot options', () => {
     render(<SplitView />);
-    expect(screen.getAllByTestId('option-snap-1').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByTestId('option-snap-2').length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByTestId('option-snap-1')).toBeTruthy();
+    expect(screen.queryByTestId('option-snap-2')).toBeTruthy();
   });
 
   it('picker defaults to first snapshot id', () => {
@@ -144,13 +141,13 @@ describe('SplitView — compare mode with diff results', () => {
 
   it('renders courses from the current plan (ECE 302 in left pane)', () => {
     render(<SplitView />);
-    // ECE 302 is in both current and snapshot 1
-    expect(screen.getAllByText('ECE 302').length).toBeGreaterThanOrEqual(1);
+    // ECE 302 is in both current plan and snapshot 1, so it appears in both panes
+    expect(screen.queryAllByText('ECE 302').length).toBeGreaterThan(0);
   });
 
   it('renders courses from the snapshot plan (ECE 306 in right pane)', () => {
     render(<SplitView />);
-    // ECE 306 is in snapshot 1 but not in current plan
-    expect(screen.getAllByText('ECE 306').length).toBeGreaterThanOrEqual(1);
+    // ECE 306 is in snapshot 1 but not current plan, appears in right pane
+    expect(screen.queryByText('ECE 306')).toBeTruthy();
   });
 });

@@ -13,13 +13,9 @@ export function PlanComparisonPanel() {
     return <SplitView />;
   }
 
-  if (mode === 'sidebar-diff') {
-    return (
-      <div className="absolute right-0 top-0 bottom-0 z-30 shadow-2xl">
-        <SnapshotSidebar />
-      </div>
-    );
-  }
-
-  return null;
+  return (
+    <div className="absolute right-0 top-0 bottom-0 z-30 shadow-2xl">
+      <SnapshotSidebar />
+    </div>
+  );
 }

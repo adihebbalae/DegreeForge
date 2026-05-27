@@ -8,6 +8,11 @@ import {
   INITIAL_STATE,
   STORAGE_KEY,
   historyReducer,
+  snapshotReducer,
+  INITIAL_SNAPSHOT_STATE,
+  type SnapshotState,
+  type SnapshotAction,
+  type PlanSnapshot,
 } from './PlanContext.constants';
 
 // ─── Re-export constants for backward compatibility ───────────────────────────
@@ -167,8 +172,6 @@ export function useFocusedGhostId(): string | null {
 
 // ─── Plan Snapshots ───────────────────────────────────────────────────────────
 
-import { snapshotReducer, INITIAL_SNAPSHOT_STATE, type SnapshotState, type SnapshotAction, type PlanSnapshot } from './PlanContext.constants';
-
 interface SnapshotContextValue {
   state: SnapshotState;
   dispatch: React.Dispatch<SnapshotAction>;
@@ -200,7 +203,7 @@ export function SnapshotProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useSnapshotContext(): SnapshotContextValue {
+function useSnapshotContext(): SnapshotContextValue {
   const ctx = useContext(SnapshotContext);
   if (!ctx) throw new Error('useSnapshotContext must be called inside a <SnapshotProvider>.');
   return ctx;
@@ -208,10 +211,6 @@ export function useSnapshotContext(): SnapshotContextValue {
 
 export function useSnapshots(): PlanSnapshot[] {
   return useSnapshotContext().state.snapshots;
-}
-
-export function useActiveSnapshotId(): string | null {
-  return useSnapshotContext().state.activeSnapshotId;
 }
 
 export function useComparisonMode(): 'off' | 'sidebar-diff' | 'split-view' {

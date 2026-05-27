@@ -1,10 +1,8 @@
 // @vitest-environment jsdom
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SnapshotSidebar } from './SnapshotSidebar';
-
-// ── Mocks ──────────────────────────────────────────────────────────────────────
 
 const mockSnapshotDispatch = vi.fn();
 const mockPlanDispatch = vi.fn();
@@ -68,7 +66,7 @@ vi.mock('@/lib/plan-diff', () => ({
 import * as PlanContext from '@/context/PlanContext';
 import * as PlanDiff from '@/lib/plan-diff';
 
-// ── Tests ──────────────────────────────────────────────────────────────────────
+afterEach(cleanup);
 
 describe('SnapshotSidebar — empty state', () => {
   beforeEach(() => {
@@ -82,7 +80,7 @@ describe('SnapshotSidebar — empty state', () => {
 
   it('shows empty state message when no snapshots exist', () => {
     render(<SnapshotSidebar />);
-    expect(screen.getAllByText('No snapshots saved yet.').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('No snapshots saved yet.')).toHaveLength(1);
   });
 
   it('Save button is enabled when fewer than 3 snapshots', () => {
@@ -117,24 +115,20 @@ describe('SnapshotSidebar — with snapshots', () => {
     render(<SnapshotSidebar />);
     // The Save button renders (enabled or disabled — the reducer enforces the cap)
     const saveBtns = screen.getAllByRole('button', { name: /save/i });
-    expect(saveBtns.length).toBeGreaterThanOrEqual(1);
+    expect(saveBtns).toHaveLength(1);
     expect(three.length).toBe(3); // Cap is 3; verified here
   });
 
-  it('clicking Load dispatches SET_PLAN to PlanContext and LOAD_SNAPSHOT to SnapshotContext', () => {
+  it('clicking Load dispatches SET_PLAN to PlanContext', () => {
     render(<SnapshotSidebar />);
     const loadBtns = screen.getAllByRole('button', { name: /load/i });
-    // loadBtns[0] is the first Load button in the first render
     fireEvent.click(loadBtns[0]);
 
     expect(mockPlanDispatch).toHaveBeenCalledWith({
       type: 'SET_PLAN',
       plan: sampleSnapshots[0].plan,
     });
-    expect(mockSnapshotDispatch).toHaveBeenCalledWith({
-      type: 'LOAD_SNAPSHOT',
-      id: sampleSnapshots[0].id,
-    });
+    expect(mockSnapshotDispatch).not.toHaveBeenCalled();
   });
 
   it('clicking Delete dispatches DELETE_SNAPSHOT', () => {

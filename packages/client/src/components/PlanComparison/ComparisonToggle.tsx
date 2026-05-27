@@ -8,11 +8,13 @@ export function ComparisonToggle() {
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm font-medium">Compare:</span>
-      <Select 
-        value={mode} 
-        onValueChange={(val: 'off' | 'sidebar-diff' | 'split-view') => 
-          dispatch({ type: 'SET_COMPARISON_MODE', mode: val })
-        }
+      <Select
+        value={mode}
+        onValueChange={(val: string) => {
+          if (val === 'off' || val === 'sidebar-diff' || val === 'split-view') {
+            dispatch({ type: 'SET_COMPARISON_MODE', mode: val });
+          }
+        }}
       >
         <SelectTrigger className="w-[140px] h-8">
           <SelectValue placeholder="Mode" />
