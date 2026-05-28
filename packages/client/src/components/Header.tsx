@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { usePlanContext, usePlanDispatch, useCanUndo, useCanRedo } from '@/context/PlanContext'
 import { useUi } from '@/context/UiContext'
 import { useRecommendPlan } from '@/hooks/useRecommendPlan'
+import { parsePlanState } from '@/lib/plan-schema'
 import SemesterTransitionDialog from './SemesterTransitionDialog'
 
 export default function Header() {
@@ -68,9 +69,9 @@ export default function Header() {
     reader.onload = (e) => {
       try {
         const content = e.target?.result as string
-        const parsed = JSON.parse(content)
-        if (parsed.semesters && parsed.plan) {
-          dispatch({ type: 'SET_FULL_STATE', state: parsed })
+        const validated = parsePlanState(JSON.parse(content))
+        if (validated) {
+          dispatch({ type: 'SET_FULL_STATE', state: validated })
         } else {
           setImportError('invalid-format')
         }

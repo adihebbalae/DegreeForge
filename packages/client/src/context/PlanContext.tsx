@@ -14,6 +14,7 @@ import {
   type SnapshotAction,
   type PlanSnapshot,
 } from './PlanContext.constants';
+import { parseSnapshotState } from '../lib/plan-schema';
 
 // ─── Re-export constants for backward compatibility ───────────────────────────
 export { SEMESTERS, INITIAL_PLAN, INITIAL_STATE, planReducer } from './PlanContext.constants';
@@ -184,7 +185,8 @@ export function SnapshotProvider({ children }: { children: React.ReactNode }) {
     const stored = localStorage.getItem('degreeforge-snapshots');
     if (stored) {
       try {
-        return { ...initial, ...JSON.parse(stored) };
+        const validated = parseSnapshotState(JSON.parse(stored));
+        if (validated) return validated;
       } catch (e) {
         console.error('Failed to parse stored snapshots:', e);
       }
