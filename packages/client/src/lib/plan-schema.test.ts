@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parsePlanState, parseSnapshotState } from './plan-schema';
+import { parsePlanState, parseSnapshotState, parseSettingsState } from './plan-schema';
 
 const validSemester = {
   id: 'Fall 2026',
@@ -93,5 +93,64 @@ describe('parseSnapshotState', () => {
     expect(result).not.toBeNull();
     expect(result?.comparisonMode).toBe('off');
     expect(result?.snapshots).toEqual([]);
+  });
+});
+
+const validFullSettings = {
+  loadTolerance: 'heavy' as const,
+  gradTarget: 'Fall 2027',
+  techCoreId: 'vlsi',
+  mathBAToggle: true,
+  schedulerWeights: { gpa: 0.4, timeFit: 0.15, buildingPenalty: 0.05, instructionMode: 0.2, professorPreference: 0.1, daySpread: 0.1 },
+  timeWindow: 'mornings_only' as const,
+  instructionMode: 'online' as const,
+  profPreferences: [{ name: 'Dr. Smith', type: 'prefer' as const }],
+  paletteSortMode: 'easiest' as const,
+};
+
+describe('parseSettingsState', () => {
+  it('returns intact object for valid full SettingsState', () => {
+    const result = parseSettingsState(validFullSettings);
+    expect(result).not.toBeNull();
+    expect(result?.loadTolerance).toBe('heavy');
+    expect(result?.gradTarget).toBe('Fall 2027');
+    expect(result?.techCoreId).toBe('vlsi');
+    expect(result?.mathBAToggle).toBe(true);
+    expect(result?.schedulerWeights.gpa).toBe(0.4);
+    expect(result?.timeWindow).toBe('mornings_only');
+    expect(result?.instructionMode).toBe('online');
+    expect(result?.profPreferences).toEqual([{ name: 'Dr. Smith', type: 'prefer' }]);
+    expect(result?.paletteSortMode).toBe('easiest');
+  });
+
+  it('partial { loadTolerance: heavy } returns that value with all other fields defaulted', () => {
+    const result = parseSettingsState({ loadTolerance: 'heavy' });
+    expect(result).not.toBeNull();
+    expect(result?.loadTolerance).toBe('heavy');
+    expect(result?.gradTarget).toBe('Spring 2029');
+    expect(result?.schedulerWeights).toEqual({ gpa: 0.35, timeFit: 0.20, buildingPenalty: 0.10, instructionMode: 0.15, professorPreference: 0.15, daySpread: 0.05 });
+    expect(result?.profPreferences).toEqual([]);
+  });
+
+  it('returns null when schedulerWeights is a wrong type', () => {
+    expect(parseSettingsState({ schedulerWeights: 'not-an-object' })).toBeNull();
+  });
+
+  it('returns null when profPreferences contains an invalid enum value', () => {
+    expect(parseSettingsState({ profPreferences: [{ name: 'x', type: 'invalid' }] })).toBeNull();
+  });
+
+  it('returns fully-defaulted SettingsState for empty object', () => {
+    const result = parseSettingsState({});
+    expect(result).not.toBeNull();
+    expect(result?.loadTolerance).toBe('above_average');
+    expect(result?.gradTarget).toBe('Spring 2029');
+    expect(result?.techCoreId).toBe('computer_architecture');
+    expect(result?.mathBAToggle).toBe(false);
+    expect(result?.schedulerWeights).toEqual({ gpa: 0.35, timeFit: 0.20, buildingPenalty: 0.10, instructionMode: 0.15, professorPreference: 0.15, daySpread: 0.05 });
+    expect(result?.timeWindow).toBe('no_preference');
+    expect(result?.instructionMode).toBe('no_preference');
+    expect(result?.profPreferences).toEqual([]);
+    expect(result?.paletteSortMode).toBe('recommended');
   });
 });

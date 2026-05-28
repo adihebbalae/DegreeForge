@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { parseSettingsState } from '../lib/plan-schema';
 
 // ─── Settings State Shape ─────────────────────────────────────────────────────
 
@@ -29,6 +30,7 @@ export interface SettingsState {
   timeWindow: TimeWindow;
   instructionMode: InstructionMode;
   profPreferences: ProfPreference[];
+  paletteSortMode: 'recommended' | 'easiest';
 }
 
 // ─── Default Settings ─────────────────────────────────────────────────────────
@@ -49,6 +51,7 @@ export const DEFAULT_SETTINGS: SettingsState = {
   timeWindow: 'no_preference',
   instructionMode: 'no_preference',
   profPreferences: [],
+  paletteSortMode: 'recommended',
 };
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
@@ -63,6 +66,7 @@ export type SettingsAction =
   | { type: 'SET_INSTRUCTION_MODE'; value: InstructionMode }
   | { type: 'ADD_PROF_PREFERENCE'; pref: ProfPreference }
   | { type: 'REMOVE_PROF_PREFERENCE'; name: string }
+  | { type: 'SET_PALETTE_SORT'; value: 'recommended' | 'easiest' }
   | { type: 'RESET_SETTINGS' }
   | { type: 'SET_FULL_SETTINGS'; settings: SettingsState };
 
@@ -97,6 +101,8 @@ export function settingsReducer(state: SettingsState, action: SettingsAction): S
         ...state,
         profPreferences: state.profPreferences.filter((p) => p.name !== action.name),
       };
+    case 'SET_PALETTE_SORT':
+      return { ...state, paletteSortMode: action.value };
     case 'RESET_SETTINGS':
       return { ...DEFAULT_SETTINGS };
     case 'SET_FULL_SETTINGS':
@@ -124,16 +130,8 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
     if (stored) {
       try {
-        const parsed = JSON.parse(stored) as Partial<SettingsState>;
-        // Merge with defaults so new fields are present if settings were saved before this version
-        return {
-          ...initial,
-          ...parsed,
-          schedulerWeights: {
-            ...initial.schedulerWeights,
-            ...(parsed.schedulerWeights ?? {}),
-          },
-        };
+        const parsed = parseSettingsState(JSON.parse(stored));
+        if (parsed) return parsed;
       } catch {
         // Corrupted storage — fall back to defaults silently
       }
