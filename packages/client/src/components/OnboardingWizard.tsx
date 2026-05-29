@@ -5,17 +5,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Notice } from '@/components/ui/notice';
-import { useTechCores } from '@/context/DataContext';
+import { useTechCoresRecord } from '@/context/DataContext';
 import { useSettingsDispatch, type LoadTolerance } from '@/context/SettingsContext';
-import { usePlanDispatch } from '@/context/PlanContext';
-import { parseTranscriptTool } from '@/lib/agent-tools/parse-transcript';
+import { usePlanDispatch, SEMESTERS } from '@/context/PlanContext';
+import { parseTranscript, type ParsedCourse } from '@/lib/agent-tools/parse-transcript';
 
 interface OnboardingWizardProps {
   onComplete: () => void;
 }
 
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
-  const techCores = useTechCores();
+  const techCores = useTechCoresRecord();
   const settingsDispatch = useSettingsDispatch();
   const planDispatch = usePlanDispatch();
 
@@ -28,7 +28,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [loadTolerance, setLoadTolerance] = useState<LoadTolerance>('normal');
   const [techCoreId, setTechCoreId] = useState<string>('skip');
   const [transcriptText, setTranscriptText] = useState('');
-  const [parsedCourses, setParsedCourses] = useState<any[]>([]);
+  const [parsedCourses, setParsedCourses] = useState<ParsedCourse[]>([]);
   const [isParsing, setIsParsing] = useState(false);
   const [transcriptError, setTranscriptError] = useState(false);
 
@@ -37,20 +37,23 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
   const handleParseTranscript = () => {
     if (!transcriptText.trim()) {
-        handleNext();
-        return;
+      handleNext();
+      return;
     }
     setIsParsing(true);
-    const result = parseTranscriptTool.fn({} as any, { transcript_text: transcriptText });
-    setIsParsing(false);
-    
-    if (result.isError) {
+    try {
+      const courses = parseTranscript(transcriptText);
+      setIsParsing(false);
+      if (courses.length === 0) {
+        setTranscriptError(true);
+      } else {
+        setTranscriptError(false);
+        setParsedCourses(courses);
+        handleNext();
+      }
+    } catch {
+      setIsParsing(false);
       setTranscriptError(true);
-    } else {
-      setTranscriptError(false);
-      const courses = (result.content as any).completed_courses || [];
-      setParsedCourses(courses);
-      handleNext();
     }
   };
 
@@ -60,7 +63,18 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     if (techCoreId !== 'skip') {
       settingsDispatch({ type: 'SET_TECH_CORE', value: techCoreId });
     }
-    // TODO(TASK-023): dispatch major and catalogYear to PlanContext, and bulk-add parsedCourses to completed semesters
+
+    planDispatch({ type: 'SET_PROFILE_META', major, catalogYear });
+
+    // Add parsed transcript courses to the plan.
+    // Use the semester from the parsed course if it matches a known semester id;
+    // otherwise fall back to the earliest 'past' semester.
+    const semesterIds = new Set(SEMESTERS.map(s => s.id));
+    const fallbackSemesterId = SEMESTERS.find(s => s.status === 'past')?.id ?? SEMESTERS[0].id;
+    for (const course of parsedCourses) {
+      const semesterId = semesterIds.has(course.semester) ? course.semester : fallbackSemesterId;
+      planDispatch({ type: 'ADD_COURSE', semesterId, courseId: course.courseId });
+    }
 
     onComplete();
   };
@@ -170,7 +184,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="skip">Skip — let recommender decide later</SelectItem>
-                    {Object.entries(techCores).map(([id, core]) => (
+                    {Object.entries(techCores ?? {}).map(([id, core]) => (
                       <SelectItem key={id} value={id}>{core.name}</SelectItem>
                     ))}
                   </SelectContent>
@@ -218,7 +232,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 </div>
                 <div className="flex justify-between items-center py-2 border-b">
                   <span className="text-muted-foreground">Tech Core</span>
-                  <span className="font-medium">{techCoreId === 'skip' ? 'Decide Later' : (techCores as any)[techCoreId]?.name}</span>
+                  <span className="font-medium">{techCoreId === 'skip' ? 'Decide Later' : techCores?.[techCoreId]?.name}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b">
                   <span className="text-muted-foreground">Imported Courses</span>

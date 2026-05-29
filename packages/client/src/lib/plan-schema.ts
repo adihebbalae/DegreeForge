@@ -27,6 +27,8 @@ const planStateSchema = z.object({
   ghostCourses: z.record(z.string(), z.array(z.string())).default({}),
   rejectedGhosts: z.array(z.string()).default([]),
   focusedGhostId: z.string().nullable().default(null),
+  major: z.string().default('ece-bse'),
+  catalogYear: z.string().default('2024'),
 });
 
 export const planSnapshotSchema = z.object({

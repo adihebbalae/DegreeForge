@@ -43,6 +43,22 @@ describe('parsePlanState', () => {
     expect(result?.whatIf).toEqual({ techCoreId: '', mathBAToggle: false, isActive: false });
   });
 
+  it('backfills major and catalogYear defaults when absent (legacy export)', () => {
+    const minimal = { semesters: [validSemester], plan: { 'Fall 2026': [] } };
+    const result = parsePlanState(minimal);
+    expect(result).not.toBeNull();
+    expect(result?.major).toBe('ece-bse');
+    expect(result?.catalogYear).toBe('2024');
+  });
+
+  it('preserves major and catalogYear when present', () => {
+    const withMeta = { ...validPlanState, major: 'ece-bse', catalogYear: '2025' };
+    const result = parsePlanState(withMeta);
+    expect(result).not.toBeNull();
+    expect(result?.major).toBe('ece-bse');
+    expect(result?.catalogYear).toBe('2025');
+  });
+
   it('returns null when semesters array contains a null element', () => {
     const bad = { semesters: [null], plan: {} };
     expect(parsePlanState(bad)).toBeNull();

@@ -451,6 +451,9 @@ export interface PlanState {
   ghostCourses: Record<string, string[]>; // semesterId → courseId[] (solver proposals)
   rejectedGhosts: string[];               // courseIds excluded from current ghost run
   focusedGhostId: string | null;          // which ghost Tab will accept
+  // TASK-023: onboarding profile meta (forward-compat)
+  major: string;               // e.g. 'ece-bse'
+  catalogYear: string;         // e.g. '2024'
 }
 
 /** Display category for color-coding course cards */

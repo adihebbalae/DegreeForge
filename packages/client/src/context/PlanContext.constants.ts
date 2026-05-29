@@ -24,7 +24,8 @@ export type PlanAction =
   | { type: 'REJECT_GHOST'; courseId: string }
   | { type: 'SET_FOCUSED_GHOST'; courseId: string | null }
   | { type: 'UNDO' }
-  | { type: 'REDO' };
+  | { type: 'REDO' }
+  | { type: 'SET_PROFILE_META'; major?: string; catalogYear?: string };
 
 // ─── Context Shape ────────────────────────────────────────────────────────────
 
@@ -76,6 +77,8 @@ export const INITIAL_STATE: PlanState = {
   ghostCourses: {},
   rejectedGhosts: [],
   focusedGhostId: null,
+  major: 'ece-bse',
+  catalogYear: '2024',
 };
 
 export const STORAGE_KEY = 'degreeforge-plan-state';
@@ -252,6 +255,14 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
 
     case 'SET_FULL_STATE': {
       return action.state;
+    }
+
+    case 'SET_PROFILE_META': {
+      return {
+        ...state,
+        ...(action.major !== undefined ? { major: action.major } : {}),
+        ...(action.catalogYear !== undefined ? { catalogYear: action.catalogYear } : {}),
+      };
     }
 
     case 'ADVANCE_SEMESTER': {
