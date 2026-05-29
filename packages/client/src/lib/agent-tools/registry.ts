@@ -14,8 +14,12 @@ import { getSectionInfo } from './get-section-info';
 import { lookupUserProfile } from './lookup-user-profile';
 import { getCreditProgress } from './get-credit-progress';
 import { searchCatalog } from './search-catalog';
+import { parseTranscriptTool } from './parse-transcript';
+import { extractSkillsTool } from './extract-skills';
 
 export const TOOL_REGISTRY: ToolDefinition[] = [
+  parseTranscriptTool,
+  extractSkillsTool,
   {
     name: 'get_course_info',
     description: 'Get full information about a course including title, credits, description, prerequisites, and grade data.',

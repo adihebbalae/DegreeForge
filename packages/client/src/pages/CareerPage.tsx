@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Notice } from '@/components/ui/notice';
-import { Briefcase, Loader2, Info } from 'lucide-react';
-import { extractSkillsTool } from '@/lib/agent-tools/extract-skills';
-import { rankCoursesForSkills, type RankedCourse, type SkillCourseMap } from '@/lib/career';
-import { usePlan } from '@/context/PlanContext';
+import { Briefcase, Loader2, Info, Camera } from 'lucide-react';
+import { extractSkills } from '@/lib/agent-tools/extract-skills';
+import { rankCoursesForSkills, buildSnapshotPlan, type RankedCourse, type SkillCourseMap } from '@/lib/career';
+import { usePlan, useSemesters, useSnapshots, useSnapshotDispatch } from '@/context/PlanContext';
 import { useCatalogRecord } from '@/context/DataContext';
 
 export default function CareerPage() {
@@ -16,44 +15,50 @@ export default function CareerPage() {
   const [skills, setSkills] = useState<string[]>([]);
   const [rankedCourses, setRankedCourses] = useState<RankedCourse[]>([]);
   const [skillMap, setSkillMap] = useState<SkillCourseMap | null>(null);
-  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+  const [skillMapError, setSkillMapError] = useState<string | null>(null);
 
   const plan = usePlan();
+  const semesters = useSemesters();
   const catalog = useCatalogRecord();
+  const snapshots = useSnapshots();
+  const snapshotDispatch = useSnapshotDispatch();
 
   useEffect(() => {
-    // Load skill map data
     fetch('/data/skill-course-map.json')
-      .then(res => res.json())
-      .then(data => setSkillMap(data))
-      .catch(err => console.error('Failed to load skill map', err));
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data: SkillCourseMap) => setSkillMap(data))
+      .catch(() => setSkillMapError('Could not load the skill database. Try reloading the page.'));
   }, []);
 
-  const handleAnalyze = async () => {
+  const handleAnalyze = () => {
     if (!jobDescription.trim() || !skillMap) return;
-    
+
     setIsAnalyzing(true);
     setSkills([]);
     setRankedCourses([]);
-    setAnalyzeError(null);
 
-    try {
-      const result = await extractSkillsTool.fn({} as any, { job_description: jobDescription });
-      const extractedSkills = (result.content as { skills: string[] }).skills;
+    const extractedSkills = extractSkills(jobDescription);
+    setSkills(extractedSkills);
 
-      setSkills(extractedSkills);
+    const existingCourses = Object.values(plan).flat();
+    const ranked = rankCoursesForSkills(extractedSkills, skillMap, existingCourses);
+    setRankedCourses(ranked);
 
-      const existingCourses = Object.values(plan).flat();
-      const ranked = rankCoursesForSkills(extractedSkills, skillMap, existingCourses);
-
-      setRankedCourses(ranked);
-    } catch (err) {
-      console.error('Analysis failed', err);
-      setAnalyzeError('Skill extraction failed. Most common cause: the server is not running or the AI API key is missing.');
-    } finally {
-      setIsAnalyzing(false);
-    }
+    setIsAnalyzing(false);
   };
+
+  const handleSaveSnapshot = () => {
+    const futureSemester = semesters.find(s => s.status === 'future');
+    if (!futureSemester) return;
+    const snapshotPlan = buildSnapshotPlan(plan, rankedCourses, futureSemester.id);
+    snapshotDispatch({ type: 'SAVE_SNAPSHOT', plan: snapshotPlan });
+  };
+
+  const snapshotAtCap = snapshots.length >= 3;
+  const showResults = skills.length > 0 || rankedCourses.length > 0;
 
   return (
     <div className="h-full flex flex-col items-center bg-muted/20 p-6 overflow-y-auto">
@@ -68,6 +73,15 @@ export default function CareerPage() {
           </div>
         </div>
 
+        {skillMapError && (
+          <Notice
+            variant="error"
+            message={skillMapError}
+            action={{ label: 'Reload', onClick: () => window.location.reload() }}
+            onDismiss={() => setSkillMapError(null)}
+          />
+        )}
+
         <Card className="shadow-sm">
           <CardContent className="p-4 space-y-4">
             <textarea
@@ -76,16 +90,8 @@ export default function CareerPage() {
               value={jobDescription}
               onChange={e => setJobDescription(e.target.value)}
             />
-            {analyzeError && (
-              <Notice
-                variant="error"
-                message={analyzeError}
-                action={{ label: 'Retry', onClick: () => { setAnalyzeError(null); handleAnalyze(); } }}
-                onDismiss={() => setAnalyzeError(null)}
-              />
-            )}
             <div className="flex justify-end">
-              <Button onClick={handleAnalyze} disabled={isAnalyzing || !jobDescription.trim()}>
+              <Button onClick={handleAnalyze} disabled={isAnalyzing || !jobDescription.trim() || !!skillMapError}>
                 {isAnalyzing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Analyze Description
               </Button>
@@ -93,7 +99,7 @@ export default function CareerPage() {
           </CardContent>
         </Card>
 
-        {(skills.length > 0 || rankedCourses.length > 0) && (
+        {showResults && (
           <div className="space-y-6">
             <Card className="shadow-sm">
               <CardHeader className="pb-3 border-b">
@@ -116,8 +122,29 @@ export default function CareerPage() {
             </Card>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold tracking-tight">Recommended Courses</h3>
-              
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold tracking-tight">Recommended Courses</h3>
+                {rankedCourses.length > 0 && (
+                  <div className="flex flex-col items-end gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSaveSnapshot}
+                      disabled={snapshotAtCap}
+                      className="flex items-center gap-2"
+                    >
+                      <Camera className="w-4 h-4" />
+                      Save as Snapshot
+                    </Button>
+                    {snapshotAtCap && (
+                      <p className="text-xs text-muted-foreground">
+                        Snapshot limit reached (3). Delete one from the planner to save more.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {rankedCourses.length === 0 ? (
                 <div className="p-8 text-center border rounded-lg border-dashed text-muted-foreground">
                   <Info className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -125,10 +152,10 @@ export default function CareerPage() {
                 </div>
               ) : (
                 <div className="grid gap-3">
-                  {rankedCourses.map((rc, idx) => {
+                  {rankedCourses.map((rc) => {
                     const courseInfo = catalog?.[rc.courseId];
                     const isPlanned = rc.why === 'Already planned';
-                    
+
                     return (
                       <Card key={rc.courseId} className={`overflow-hidden ${isPlanned ? 'opacity-60 bg-muted/50' : ''}`}>
                         <div className="flex flex-col sm:flex-row">
@@ -138,7 +165,7 @@ export default function CareerPage() {
                               <span className="block text-[10px] uppercase font-semibold">Score</span>
                             </div>
                           </div>
-                          
+
                           <div className="p-4 flex-1 space-y-2">
                             <div className="flex justify-between items-start gap-4">
                               <div>
@@ -147,7 +174,7 @@ export default function CareerPage() {
                               </div>
                               {isPlanned && <Badge variant="outline" className="shrink-0 bg-background">Already Planned</Badge>}
                             </div>
-                            
+
                             <div className="flex flex-wrap gap-1.5 pt-1">
                               {rc.matchingSkills.map(s => (
                                 <span key={s} className="text-[11px] px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">

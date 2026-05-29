@@ -1,0 +1,102 @@
+{
+  "embedded_systems": {
+    "label": "Embedded Systems",
+    "courses": ["ECE 445L", "ECE 460N", "ECE 362K", "ECE 445M"],
+    "relevance": "strong"
+  },
+  "machine_learning": {
+    "label": "Machine Learning",
+    "courses": ["ECE 460J", "ECE 364D", "ECE 380L", "ECE 461P"],
+    "relevance": "strong"
+  },
+  "computer_architecture": {
+    "label": "Computer Architecture",
+    "courses": ["ECE 460N", "ECE 316", "ECE 382N"],
+    "relevance": "strong"
+  },
+  "digital_signal_processing": {
+    "label": "Digital Signal Processing",
+    "courses": ["ECE 313", "ECE 445S", "ECE 431", "ECE 471C"],
+    "relevance": "strong"
+  },
+  "vlsi_design": {
+    "label": "VLSI Design",
+    "courses": ["ECE 460R", "ECE 338L", "ECE 382M"],
+    "relevance": "strong"
+  },
+  "power_electronics": {
+    "label": "Power Electronics",
+    "courses": ["ECE 331", "ECE 462L", "ECE 394J"],
+    "relevance": "strong"
+  },
+  "telecommunications": {
+    "label": "Telecommunications",
+    "courses": ["ECE 325", "ECE 471C", "ECE 381V"],
+    "relevance": "moderate"
+  },
+  "control_systems": {
+    "label": "Control Systems",
+    "courses": ["ECE 362K", "ECE 470L", "ECE 383L"],
+    "relevance": "strong"
+  },
+  "computer_networking": {
+    "label": "Computer Networking",
+    "courses": ["ECE 361C", "ECE 371K", "ECE 382V"],
+    "relevance": "strong"
+  },
+  "software_engineering": {
+    "label": "Software Engineering",
+    "courses": ["ECE 422C", "ECE 361C", "ECE 361Q", "ECE 461L"],
+    "relevance": "strong"
+  },
+  "data_structures": {
+    "label": "Data Structures",
+    "courses": ["ECE 312H", "ECE 422C", "ECE 360C"],
+    "relevance": "moderate"
+  },
+  "circuit_design": {
+    "label": "Circuit Design",
+    "courses": ["ECE 438", "ECE 338L", "ECE 438K"],
+    "relevance": "strong"
+  },
+  "fpga_design": {
+    "label": "FPGA Design",
+    "courses": ["ECE 445L", "ECE 382M"],
+    "relevance": "strong"
+  },
+  "robotics": {
+    "label": "Robotics",
+    "courses": ["ECE 362K", "ECE 383L", "ECE 397K"],
+    "relevance": "strong"
+  },
+  "image_processing": {
+    "label": "Image Processing",
+    "courses": ["ECE 371Q", "ECE 381K", "ECE 371R"],
+    "relevance": "moderate"
+  },
+  "cybersecurity": {
+    "label": "Cybersecurity",
+    "courses": ["ECE 361C", "ECE 461S", "ECE 382V"],
+    "relevance": "strong"
+  },
+  "iot": {
+    "label": "Internet of Things",
+    "courses": ["ECE 445L", "ECE 361C", "ECE 461P"],
+    "relevance": "moderate"
+  },
+  "analog_design": {
+    "label": "Analog Design",
+    "courses": ["ECE 438", "ECE 338L", "ECE 438K"],
+    "relevance": "strong"
+  },
+  "rf_engineering": {
+    "label": "RF Engineering",
+    "courses": ["ECE 325", "ECE 325K", "ECE 383P"],
+    "relevance": "strong"
+  },
+  "semiconductor_physics": {
+    "label": "Semiconductor Physics",
+    "courses": ["ECE 339", "ECE 339L", "ECE 396V"],
+    "relevance": "strong"
+  }
+}
