@@ -1,0 +1,4 @@
+#!/bin/sh
+echo "Running DegreeForge privacy guard before push..."
+node scripts/security/check-protected-paths.mjs --tracked || exit 1
+node scripts/security/check-secrets.mjs --tracked || exit 1

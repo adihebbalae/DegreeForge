@@ -1,0 +1,4 @@
+#!/bin/sh
+echo "Running DegreeForge privacy guard on staged files..."
+node scripts/security/check-protected-paths.mjs --staged || exit 1
+node scripts/security/check-secrets.mjs --staged || exit 1
