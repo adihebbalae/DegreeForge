@@ -78,6 +78,31 @@ describe('PrereqGraph', () => {
     expect(violations[0].unsatisfiedCoreqs).toContain('M 408C');
   });
 
+  it('treats honors equivalents as satisfying prerequisites', () => {
+    // ECE 312 has prereq ECE 306; ECE 306H should satisfy that prereq
+    const graphWithHonors: PrereqGraphData = {
+      nodes: {
+        'ECE 306':  { title: 'Computing', credits: 3, category: 'ece_core', offered: ['fall'], flags: [] },
+        'ECE 306H': { title: 'Computing H', credits: 3, category: 'ece_core', offered: ['fall'], flags: [] },
+        'ECE 312':  { title: 'Software', credits: 3, category: 'ece_core', offered: ['spring'], flags: [] },
+        'ECE 319K': { title: 'Embedded', credits: 3, category: 'ece_core', offered: ['spring'], flags: [] },
+      },
+      edges: [
+        { from: 'ECE 306', to: 'ECE 312',  type: 'prerequisite' },
+        { from: 'ECE 306', to: 'ECE 319K', type: 'prerequisite' },
+      ],
+    };
+    const g = new PrereqGraph(graphWithHonors);
+    const plan: Plan = {
+      'Sem 1': ['ECE 306H'],          // student took honors variant
+      'Sem 2': ['ECE 312', 'ECE 319K'],
+    };
+    const order = ['Sem 1', 'Sem 2'];
+    // Both courses require ECE 306; ECE 306H should satisfy that
+    expect(g.validatePlacement('ECE 312',  1, plan, order)).toEqual([]);
+    expect(g.validatePlacement('ECE 319K', 1, plan, order)).toEqual([]);
+  });
+
   it('performs topological sort', () => {
     const courses = ['ECE 312', 'ECE 306', 'M 408C'];
     const sorted = graph.topologicalSort(courses);

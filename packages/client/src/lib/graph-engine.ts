@@ -10,6 +10,7 @@
  */
 
 import type { PrereqGraphData, PrereqViolation } from '../types';
+import { isRequirementSatisfied } from './requirements';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -209,8 +210,8 @@ export class PrereqGraph {
     const inSemester = new Set<string>(plan[semesterOrder[semesterIndex]] ?? []);
     const sameOrBefore = new Set<string>([...before, ...inSemester]);
 
-    const missingPrereqs = this.getPrereqs(courseId).filter((p) => !before.has(p));
-    const unsatisfiedCoreqs = this.getCoreqs(courseId).filter((c) => !sameOrBefore.has(c));
+    const missingPrereqs = this.getPrereqs(courseId).filter((p) => !isRequirementSatisfied(p, before));
+    const unsatisfiedCoreqs = this.getCoreqs(courseId).filter((c) => !isRequirementSatisfied(c, sameOrBefore));
 
     if (missingPrereqs.length === 0 && unsatisfiedCoreqs.length === 0) return [];
 
