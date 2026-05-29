@@ -21,7 +21,9 @@ export function parseTranscript(transcriptText: string): ParsedCourse[] {
 
   for (let line of lines) {
     line = line.trim();
-    if (!line) continue;
+    // Skip empty and pathologically long lines (the latter guards the regex
+    // below against catastrophic backtracking on crafted input).
+    if (!line || line.length > 300) continue;
     
     // Normalize E E -> ECE
     let normalizedLine = line.replace(/^E\s*E\s+/, 'ECE ');

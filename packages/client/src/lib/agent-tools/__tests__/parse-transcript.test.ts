@@ -60,4 +60,14 @@ More random text
     const result = parseTranscript('');
     expect(result).toHaveLength(0);
   });
+
+  it('should skip pathologically long lines without hanging the regex', () => {
+    const longLine = 'A'.repeat(50_000);
+    const text = `${longLine}\nECE 302 Intro to Electrical Eng A Fall 2025 3`;
+    const start = Date.now();
+    const result = parseTranscript(text);
+    expect(Date.now() - start).toBeLessThan(1000);
+    expect(result).toHaveLength(1);
+    expect(result[0].courseId).toBe('ECE 302');
+  });
 });

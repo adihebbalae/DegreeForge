@@ -14,7 +14,7 @@ import {
   type SnapshotAction,
   type PlanSnapshot,
 } from './PlanContext.constants';
-import { parseSnapshotState } from '../lib/plan-schema';
+import { parsePlanState, parseSnapshotState } from '../lib/plan-schema';
 
 // ─── Re-export constants for backward compatibility ───────────────────────────
 export { SEMESTERS, INITIAL_PLAN, INITIAL_STATE, planReducer } from './PlanContext.constants';
@@ -61,18 +61,21 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
           return { ...state, plan: repairedPlan };
         };
 
-        // If it has present, it's the new HistoryState format
+        // If it has present, it's the new HistoryState format.
+        // Validate through Zod before use: rejects malformed/tampered state and
+        // backfills fields added in later versions (e.g. ghostCourses) via per-field defaults.
         if (parsed.present && parsed.present.semesters) {
-          // Merge defaults so fields added in later versions (e.g. ghostCourses)
-          // are present even when the stored state predates them.
-          const mergedPresent = { ...INITIAL_STATE, ...parsed.present };
-          const repairedPresent = repairPlan(mergedPresent);
-          return { ...initial, ...parsed, present: repairedPresent, past: [], future: [] };
+          const validated = parsePlanState(parsed.present);
+          if (validated) {
+            return { ...initial, present: repairPlan(validated), past: [], future: [] };
+          }
         }
-        // Legacy migration
-        if (parsed.semesters && parsed.plan) {
-          const restored = { ...INITIAL_STATE, ...parsed, hoveredCourse: null };
-          return { ...initial, present: repairPlan(restored) };
+        // Legacy migration (pre-HistoryState format).
+        else if (parsed.semesters && parsed.plan) {
+          const validated = parsePlanState(parsed);
+          if (validated) {
+            return { ...initial, present: repairPlan({ ...validated, hoveredCourse: null }) };
+          }
         }
       } catch (e) {
         console.error('Failed to parse stored plan state:', e);
