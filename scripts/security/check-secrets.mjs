@@ -20,6 +20,7 @@ const secretPatterns = [
 
 const allowlistedFiles = new Set([
   ".env.example",
+  ".env.production.example",
   "packages/server/.env.example",
 ]);
 
