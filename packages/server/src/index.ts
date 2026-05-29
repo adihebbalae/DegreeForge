@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
 import { getCachedResponse, setCachedResponse } from './cache';
+import { tokenCapMiddleware } from './middleware/tokenCap';
 
 dotenv.config({ path: '../../.env' });
 
@@ -121,7 +122,7 @@ function stripHtml(text: string): string {
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
-app.post('/api/chat', chatLimiter, async (req, res) => {
+app.post('/api/chat', chatLimiter, tokenCapMiddleware, async (req, res) => {
   const { messages, planContext } = req.body;
 
   // ?provider=ollama forces Ollama even if ANTHROPIC_API_KEY is set
