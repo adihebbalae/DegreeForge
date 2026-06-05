@@ -9,10 +9,11 @@ import { tokenCapMiddleware } from './middleware/tokenCap';
 
 dotenv.config({ path: '../../.env' });
 
-// Startup visibility: warn loudly if the API key is absent so misconfiguration
-// is obvious in logs before any request arrives (503 path still handles runtime).
+// Startup visibility: warn when no explicit key is set so misconfiguration is
+// obvious in logs, but a local `ant auth login` profile is a valid auth source
+// and will be picked up automatically by the SDK.
 if (!process.env.ANTHROPIC_API_KEY) {
-  console.warn('[startup] ANTHROPIC_API_KEY is not set — /api/agent-turn will return 503 until it is configured.');
+  console.warn('[startup] No ANTHROPIC_API_KEY set; relying on ANTHROPIC_AUTH_TOKEN or an `ant auth login` profile (fine for local dev).');
 }
 
 const app = express();
@@ -52,9 +53,11 @@ const chatLimiter = rateLimit({
   message: { error: 'Too many requests, please try again later.' },
 });
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// Construct the client with no explicit apiKey so the SDK resolves credentials
+// in its natural precedence: ANTHROPIC_API_KEY → ANTHROPIC_AUTH_TOKEN →
+// `ant auth login` OAuth profile (~/.config/anthropic/).  Passing undefined
+// explicitly would override that chain, so we omit the arg entirely.
+const anthropic = new Anthropic();
 
 // ─── /api/agent-turn ──────────────────────────────────────────────────────────
 //
@@ -78,9 +81,10 @@ interface AgentTurnTool {
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
 app.post('/api/agent-turn', chatLimiter, tokenCapMiddleware, async (req, res) => {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(503).json({ error: 'ANTHROPIC_API_KEY is not configured on the server.' });
-  }
+  // No env-var precheck here: the SDK resolves auth from ANTHROPIC_API_KEY,
+  // ANTHROPIC_AUTH_TOKEN, or a local `ant auth login` profile.  If none is
+  // present the SDK will throw an AuthenticationError (401) which surfaces
+  // through the catch block below as a generic 500 — detail logged server-side.
 
   const { messages, tools, system } = req.body as {
     messages?: AgentTurnMessage[];
