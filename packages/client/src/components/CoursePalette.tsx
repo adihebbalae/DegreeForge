@@ -8,7 +8,6 @@ import {
   useUserProfile,
   useDegreeRequirements,
   useTechCoresRecord,
-  useMathRequirements,
 } from '@/context/DataContext';
 import { usePlan, useHoveredCourse, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
 import { useSettings, useSettingsDispatch } from '@/context/SettingsContext';
@@ -184,9 +183,6 @@ export default function CoursePalette() {
   const userProfile = useUserProfile();
   const degreeRequirements = useDegreeRequirements();
   const techCoresRecord = useTechCoresRecord();
-  // mathRequirements loaded but currently used only to confirm Math BA courses
-  useMathRequirements();
-
   const plan = usePlan();
   const hoveredCourse = useHoveredCourse();
   const prereqGraphInstance = usePrereqGraph();

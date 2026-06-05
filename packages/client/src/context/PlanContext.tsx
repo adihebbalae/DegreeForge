@@ -17,7 +17,7 @@ import {
 import { parsePlanState, parseSnapshotState } from '../lib/plan-schema';
 
 // ─── Re-export constants for backward compatibility ───────────────────────────
-export { SEMESTERS, INITIAL_PLAN, INITIAL_STATE, planReducer } from './PlanContext.constants';
+export { SEMESTERS, INITIAL_PLAN, INITIAL_STATE, planReducer, historyReducer } from './PlanContext.constants';
 export type { PlanAction } from './PlanContext.constants';
 
 // ─── Context + Provider ───────────────────────────────────────────────────────
@@ -150,10 +150,6 @@ export function useCanRedo(): boolean {
   return usePlanContext().canRedo;
 }
 
-/** Returns the course IDs placed in a specific semester */
-export function useSemesterCourses(semesterId: string): string[] {
-  return usePlanContext().state.plan[semesterId] ?? [];
-}
 
 /** Returns user-entered grades: semesterId → courseId → letter grade */
 export function useGradeEntries(): Record<string, Record<string, string>> {

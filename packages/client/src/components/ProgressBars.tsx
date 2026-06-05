@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { usePlan, useTechCoreId, useMathBAToggle, useWhatIf } from '@/context/PlanContext';
 import { 
   useCatalogRecord, 

@@ -18,7 +18,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // ── Business-logic imports ────────────────────────────────────────────────────
-import { planReducer, INITIAL_STATE, INITIAL_PLAN, SEMESTERS } from '../context/PlanContext';
+import { planReducer, historyReducer, INITIAL_STATE, INITIAL_PLAN, SEMESTERS } from '../context/PlanContext';
 import { PrereqGraph } from '../lib/graph-engine';
 import { computeProgress } from '../lib/progress';
 import { computeWhatIfDiff } from '../lib/what-if';
@@ -336,8 +336,13 @@ describe('Full planner flow', () => {
     });
     expect(stateWithCourse.plan['Fall 2026']).toContain('ECE 316');
 
-    // Step C: Reset (simulates "Clear Plan")
-    const clearedState = planReducer(stateWithCourse, { type: 'RESET_PLAN' });
+    // Step C: Reset (simulates "Clear Plan") — dispatched through historyReducer
+    // because historyReducer intercepts RESET_PLAN before planReducer sees it.
+    const clearedHistory = historyReducer(
+      { past: [], present: stateWithCourse, future: [] },
+      { type: 'RESET_PLAN' }
+    );
+    const clearedState = clearedHistory.present;
     expect(clearedState.plan['Fall 2026']).toHaveLength(0);
 
     // Step D: Import original exported state (simulates "Import JSON")

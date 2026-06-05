@@ -191,6 +191,7 @@ export default function CourseCard({
 
   const cardContent = (
     <div
+      data-course-id={courseId}
       onMouseEnter={() => !isDragOverlay && dispatch({ type: 'SET_HOVERED_COURSE', courseId })}
       onMouseLeave={() => !isDragOverlay && dispatch({ type: 'SET_HOVERED_COURSE', courseId: null })}
       onClick={() => !isDragOverlay && setDetailOpen(true)}

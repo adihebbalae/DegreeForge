@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { usePlan } from '@/context/PlanContext';
 import { useFallSections, useGradeDistributions } from '@/context/DataContext';
 import { useSettings, useSettingsDispatch, type SchedulerWeights, type InstructionMode, type TimeWindow as SettingsTimeWindow } from '@/context/SettingsContext';

@@ -251,8 +251,3 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
 
 /** Tools enabled by default — sent to the model unless user overrides */
 export const DEFAULT_ENABLED_TOOLS = TOOL_REGISTRY.filter(t => t.defaultEnabled);
-
-/** Look up a tool by name */
-export function getToolByName(name: string): ToolDefinition | undefined {
-  return TOOL_REGISTRY.find(t => t.name === name);
-}

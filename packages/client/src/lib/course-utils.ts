@@ -51,14 +51,6 @@ export const CATEGORY_BORDER: Record<CourseCategory, string> = {
   math: 'border-l-4 border-purple-500',
 };
 
-/** Human-readable label per category */
-export const CATEGORY_LABEL: Record<CourseCategory, string> = {
-  ece_core: 'ECE Core',
-  tech_core: 'Tech Core',
-  gen_ed: 'Gen Ed',
-  elective: 'Elective',
-  math: 'Math',
-};
 
 // ─── Credit Hours ─────────────────────────────────────────────────────────────
 
@@ -143,13 +135,6 @@ export function gpaColorClass(gpa: number | null | undefined): string {
   return 'bg-red-500';
 }
 
-/** Get a course's average GPA from grade distributions */
-export function getCourseAvgGpa(
-  courseId: string,
-  gradeDistributions: Record<string, { avg_gpa: number }>
-): number | null {
-  return gradeDistributions[courseId]?.avg_gpa ?? null;
-}
 
 /** Get course title from catalog or prereq node (fallback to course ID) */
 export function getCourseTitle(

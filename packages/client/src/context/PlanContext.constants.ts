@@ -249,10 +249,6 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
       return { ...state, focusedGhostId: action.courseId };
     }
 
-    case 'RESET_PLAN': {
-      return { ...INITIAL_STATE, gradeEntries: state.gradeEntries };
-    }
-
     case 'SET_FULL_STATE': {
       return action.state;
     }
