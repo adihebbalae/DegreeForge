@@ -83,6 +83,7 @@ export function useGhostPlan(): void {
         : 17,
       semesters,
       existingPlan: plan,
+      degreeReqs,
     });
 
     // Ghost courses = solver proposed placements that are NOT in the user's real plan

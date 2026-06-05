@@ -14,8 +14,10 @@ import type {
   Semester,
   OfferingSchedule,
   PrereqViolation,
+  DegreeRequirements,
 } from '../types';
 import { PrereqGraph } from './graph-engine';
+import { expandVariants, isInPriorSemester, isInSameOrPriorSemester, addWithVariants } from './variants';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -36,6 +38,12 @@ export interface SolverInput {
   semesters: Semester[];
   /** Optional: The existing visual plan to preserve past/current placements */
   existingPlan?: Plan;
+  /**
+   * Optional: degree requirements, used to enable variant-aware prereq/coreq
+   * checking (e.g. ECE 312H satisfies the ECE 312 prereq edge).
+   * When omitted the solver falls back to exact-ID matching (original behavior).
+   */
+  degreeReqs?: DegreeRequirements;
 }
 
 export interface SolverOutput {
@@ -126,9 +134,24 @@ export function generatePlan(input: SolverInput): SolverOutput {
     maxHoursPerSemester,
     semesters,
     existingPlan,
+    degreeReqs,
   } = input;
 
-  const completedSet = new Set(completedCourses);
+  // When degreeReqs is provided, build a variant-expanded satisfied set so that
+  // ECE 312H satisfies any prereq edge that names ECE 312, ECE 412, etc.
+  // Without degreeReqs, fall back to exact-ID matching (original behavior).
+  const completedSet: Set<string> = degreeReqs
+    ? (() => {
+        const s = new Set<string>();
+        for (const c of completedCourses) addWithVariants(s, c, degreeReqs);
+        return s;
+      })()
+    : new Set(completedCourses);
+
+  // Variant function used in plan-placement checks (no-op when no degreeReqs)
+  const variants = degreeReqs
+    ? (id: string) => expandVariants(id, degreeReqs)
+    : (_id: string): string[] => [];
   const futureSemesters = getFutureSemesters(semesters);
   const semesterOrder = semesters.map((s) => s.id);
 
@@ -167,34 +190,22 @@ export function generatePlan(input: SolverInput): SolverOutput {
   // 4. Greedy placement for unpinned courses
   const unplacedCourses: string[] = [];
 
-  // Track which courses are placed (including completed) for prereq checking
-  const placedBySemester = new Map<string, Set<string>>();
-  for (const sem of semesters) {
-    placedBySemester.set(sem.id, new Set(plan[sem.id] ?? []));
-  }
-
   /**
    * Check if all prerequisites are satisfied before a given semester index.
-   * "Before" means completed OR placed in an earlier semester.
+   * "Before" means completed (with variant expansion) OR placed in an earlier
+   * semester (also checked with variant expansion when degreeReqs is provided).
    */
   function prereqsSatisfied(courseId: string, semesterIndex: number): boolean {
     const prereqs = prereqGraph.getPrereqs(courseId);
     if (prereqs.length === 0) return true;
 
     for (const prereq of prereqs) {
-      // Satisfied if already completed
+      // Satisfied if already completed (variant-expanded when degreeReqs present)
       if (completedSet.has(prereq)) continue;
 
-      // Satisfied if placed in an earlier semester
-      let found = false;
-      for (let i = 0; i < semesterIndex; i++) {
-        const semId = semesters[i].id;
-        if (placedBySemester.get(semId)?.has(prereq)) {
-          found = true;
-          break;
-        }
-      }
-      if (!found) return false;
+      // Satisfied if placed in an earlier semester (variant-aware when degreeReqs present)
+      const foundInPlan = isInPriorSemester(prereq, semesterIndex, semesters, plan, variants);
+      if (!foundInPlan) return false;
     }
     return true;
   }
@@ -209,15 +220,8 @@ export function generatePlan(input: SolverInput): SolverOutput {
     for (const coreq of coreqs) {
       if (completedSet.has(coreq)) continue;
 
-      let found = false;
-      for (let i = 0; i <= semesterIndex; i++) {
-        const semId = semesters[i].id;
-        if (placedBySemester.get(semId)?.has(coreq)) {
-          found = true;
-          break;
-        }
-      }
-      if (!found) return false;
+      const foundInPlan = isInSameOrPriorSemester(coreq, semesterIndex, semesters, plan, variants);
+      if (!foundInPlan) return false;
     }
     return true;
   }
@@ -246,7 +250,6 @@ export function generatePlan(input: SolverInput): SolverOutput {
 
       // Place the course
       plan[sem.id].push(courseId);
-      placedBySemester.get(sem.id)!.add(courseId);
       semesterHours[sem.id] += credits;
       placed = true;
       break;

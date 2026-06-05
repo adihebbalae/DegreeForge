@@ -29,8 +29,8 @@
 
 import { PrereqGraph } from './graph-engine';
 import { isTechCorePickOne } from '../types';
-import { LEGACY_TO_CANONICAL } from './catalog-rename';
-import { canOfferInSemester } from './solver';
+import { generatePlan } from './solver';
+import { addWithVariants } from './variants';
 import type {
   UserProfile,
   DegreeRequirements,
@@ -80,122 +80,6 @@ export interface AutoPlannerResult {
   reason?: string;
   /** Non-fatal notes the UI can surface (e.g. "free electives left for manual selection"). */
   warnings: string[];
-}
-
-// ─── Transfer-credit equivalency tables ──────────────────────────────────────
-
-/** Transfer-credit / dual-enrollment equivalents that satisfy UT courses. */
-const TRANSFER_EQUIVALENTS: Record<string, string[]> = {
-  'M 411': ['M 340L'],
-  'M 508M': ['M 408C', 'M 408D'],
-};
-
-/**
- * Symmetric cross-department / cross-listed equivalents.
- * The prereq graph encodes "OR" alternatives as multiple AND edges (data limitation),
- * so we treat these as mutual variants — completing one satisfies any prereq that
- * names any of the others. Combined with the transitive expansion loop, this lets
- * a course's "satisfied set" cover all forms the prereq graph might reference.
- */
-const COURSE_EQUIVALENTS: Record<string, string[]> = {
-  // Intro to Computing — cross-listed across BME, CS, ECE
-  'ECE 306':  ['BME 306', 'C S 429'],
-  'ECE 306H': ['BME 306', 'C S 429'],
-  'BME 306':  ['ECE 306', 'ECE 306H', 'C S 429'],
-  'C S 429':  ['ECE 306', 'ECE 306H', 'BME 306'],
-  // Software Design — ECE 312 cross-listed with C S 312
-  'ECE 312':  ['C S 312'],
-  'ECE 312H': ['C S 312'],
-  'C S 312':  ['ECE 312', 'ECE 312H'],
-  // Discrete Math — M 325K and C S 311 cover the same material
-  'M 325K':   ['C S 311'],
-  'C S 311':  ['M 325K'],
-  // Embedded Systems — BME 311 is the BME version of ECE 319K/319H
-  'BME 311':  ['ECE 319K', 'ECE 319H'],
-  'ECE 319K': ['BME 311'],
-  'ECE 319H': ['BME 311'],
-  // Engineering Ethics — BME 333T and ECE 333T are cross-listed
-  'BME 333T': ['ECE 333T'],
-  'ECE 333T': ['BME 333T'],
-  // Data Structures — ECE 422C cross-listed with C S 314 (and honors variant)
-  'ECE 422C': ['C S 314', 'C S 314H'],
-  'C S 314':  ['ECE 422C', 'C S 314H'],
-  'C S 314H': ['ECE 422C', 'C S 314'],
-};
-
-/**
- * Expand a course to all forms that satisfy the same requirement, transitively.
- * Iterates to fixpoint so equivalents-of-equivalents are captured:
- *   ECE 306 (legacy) -> ECE 406 (canonical) -> ECE 306H (honors) -> BME 306, C S 429.
- */
-function expandVariants(
-  courseId: string,
-  degreeReqs: DegreeRequirements
-): string[] {
-  const out = new Set<string>([courseId]);
-  const honors = degreeReqs.ece_core.honors_variants ?? {};
-
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const id of Array.from(out)) {
-      // legacy -> canonical (D6: shared LEGACY_TO_CANONICAL)
-      const canonical = LEGACY_TO_CANONICAL[id];
-      if (canonical && !out.has(canonical)) {
-        out.add(canonical);
-        changed = true;
-      }
-      // canonical -> legacy
-      for (const [legacy, canon] of Object.entries(LEGACY_TO_CANONICAL)) {
-        if (canon === id && !out.has(legacy)) {
-          out.add(legacy);
-          changed = true;
-        }
-      }
-      // canonical -> honors
-      const honorsId = honors[id];
-      if (honorsId && !out.has(honorsId)) {
-        out.add(honorsId);
-        changed = true;
-      }
-      // honors -> canonical
-      for (const [canon, hId] of Object.entries(honors)) {
-        if (hId === id && !out.has(canon)) {
-          out.add(canon);
-          changed = true;
-        }
-      }
-      // Transfer equivalents
-      const transfer = TRANSFER_EQUIVALENTS[id];
-      if (transfer) {
-        for (const eq of transfer) {
-          if (!out.has(eq)) {
-            out.add(eq);
-            changed = true;
-          }
-        }
-      }
-      // Cross-dept equivalents
-      const cross = COURSE_EQUIVALENTS[id];
-      if (cross) {
-        for (const eq of cross) {
-          if (!out.has(eq)) {
-            out.add(eq);
-            changed = true;
-          }
-        }
-      }
-    }
-  }
-  return Array.from(out);
-}
-
-function addWithVariants(
-  set: Set<string>,
-  courseId: string,
-  degreeReqs: DegreeRequirements
-): void {
-  for (const v of expandVariants(courseId, degreeReqs)) set.add(v);
 }
 
 // ─── Required-course derivation ───────────────────────────────────────────────
@@ -331,42 +215,6 @@ function getCreditHourCap(profile: UserProfile, overrideHours?: number): number 
   return 17; // average / unspecified
 }
 
-// ─── Prereq / coreq satisfied-relative-to-semester checks ─────────────────────
-
-function isInPriorSemester(
-  courseId: string,
-  semIndex: number,
-  semesters: Semester[],
-  plan: Plan,
-  variants: (id: string) => string[]
-): boolean {
-  for (let i = 0; i < semIndex; i++) {
-    const placed = plan[semesters[i].id] ?? [];
-    for (const c of placed) {
-      if (c === courseId) return true;
-      if (variants(c).includes(courseId)) return true;
-    }
-  }
-  return false;
-}
-
-function isInSameOrPriorSemester(
-  courseId: string,
-  semIndex: number,
-  semesters: Semester[],
-  plan: Plan,
-  variants: (id: string) => string[]
-): boolean {
-  for (let i = 0; i <= semIndex; i++) {
-    const placed = plan[semesters[i].id] ?? [];
-    for (const c of placed) {
-      if (c === courseId) return true;
-      if (variants(c).includes(courseId)) return true;
-    }
-  }
-  return false;
-}
-
 // ─── Main entry point ─────────────────────────────────────────────────────────
 
 export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
@@ -384,44 +232,19 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
     maxCoursesPerSemester,
   } = input;
 
-  const variants = (id: string) => expandVariants(id, degreeReqs);
-
-  // ── 1. Initialize the result plan: copy past + current, blank future ──────
-  const resultPlan: Plan = {};
-  const futureSemesters = semesters.filter((s) => s.status === 'future');
-  for (const sem of semesters) {
-    if (sem.status === 'past' || sem.status === 'current') {
-      resultPlan[sem.id] = [...(currentPlan[sem.id] ?? [])];
-    } else {
-      resultPlan[sem.id] = [];
-    }
-  }
-
-  // ── 2. Build the IMMUTABLE pre-plan satisfied set (with variants) ─────────
-  // This represents courses already done BEFORE any future placement. The plan
-  // we generate also contributes to "satisfied for downstream prereq checks"
-  // but via isInPriorSemester(...) — NOT by adding to this set. Otherwise we'd
-  // incorrectly consider a same-semester placement to satisfy a prereq.
+  // ── 1. Build the variant-expanded satisfied set (completed + in-progress +
+  //       past/current plan) for use by computeRequiredCourses.
+  //       generatePlan will rebuild its own set internally from completedCourses.
   const satisfied = new Set<string>();
   for (const c of userProfile.completed_courses) addWithVariants(satisfied, c.course, degreeReqs);
   for (const c of userProfile.in_progress_courses) addWithVariants(satisfied, c.course, degreeReqs);
   for (const sem of semesters) {
     if (sem.status === 'past' || sem.status === 'current') {
-      for (const c of resultPlan[sem.id]) addWithVariants(satisfied, c, degreeReqs);
+      for (const c of currentPlan[sem.id] ?? []) addWithVariants(satisfied, c, degreeReqs);
     }
   }
 
-  // ── 3. Place pinned courses first (they're fixed constraints) ─────────────
-  for (const [courseId, semesterId] of Object.entries(pinnedCourses)) {
-    if (!resultPlan[semesterId]) continue;
-    if (!resultPlan[semesterId].includes(courseId)) {
-      resultPlan[semesterId].push(courseId);
-    }
-    // Intentionally do NOT add to satisfied — pinned courses live in the plan,
-    // so isInPriorSemester finds them when checking downstream prereqs.
-  }
-
-  // ── 4. Compute remaining required courses ─────────────────────────────────
+  // ── 2. Compute remaining required courses (uses satisfied for filtering) ──
   const { required, warnings } = computeRequiredCourses(
     degreeReqs,
     techCore,
@@ -430,78 +253,33 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
     satisfied
   );
 
-  // ── 5. Topo-sort the required courses (deterministic) ─────────────────────
-  const orderedRequired = prereqGraph.topologicalSort(required);
-
-  // ── 6. Greedy fill: for each course, find the earliest valid semester ─────
-  // Behavior B: cap by credit-hours, not course count.
-  // maxCoursesPerSemester is repurposed as a credit-hour override when set.
+  // ── 3. Derive credit-hour cap ─────────────────────────────────────────────
   const creditHourCap = getCreditHourCap(userProfile, maxCoursesPerSemester);
-  const unplaced: string[] = [];
-  const semesterOrderIds = semesters.map((s) => s.id);
 
-  // Track credit hours placed in each future semester
-  const semesterHours: Record<string, number> = {};
-  for (const sem of futureSemesters) {
-    semesterHours[sem.id] = 0;
-  }
-  // Add pinned course hours to initial counts
-  for (const [courseId, semesterId] of Object.entries(pinnedCourses)) {
-    if (semesterHours[semesterId] !== undefined) {
-      semesterHours[semesterId] += prereqGraph.getCredits(courseId);
-    }
-  }
+  // ── 4. Flatten completedCourses list for generatePlan ────────────────────
+  // generatePlan will variant-expand these itself when degreeReqs is provided.
+  const completedCourses = [
+    ...userProfile.completed_courses.map((c) => c.course),
+    ...userProfile.in_progress_courses.map((c) => c.course),
+  ];
 
-  // Snapshot already-placed courses (pinned + past + current) so we don't try to re-place them.
-  const alreadyInPlan = new Set<string>();
-  for (const sem of semesters) {
-    for (const c of resultPlan[sem.id] ?? []) alreadyInPlan.add(c);
-  }
+  // ── 5. Delegate ALL greedy placement to the single engine: generatePlan ───
+  // Passing degreeReqs enables variant-aware prereq/coreq checking in the engine.
+  const solverResult = generatePlan({
+    completedCourses,
+    remainingRequirements: required,
+    prereqGraph,
+    offeringSchedule,
+    pinnedCourses,
+    maxHoursPerSemester: creditHourCap,
+    semesters,
+    existingPlan: currentPlan,
+    degreeReqs,
+  });
 
-  for (const courseId of orderedRequired) {
-    if (alreadyInPlan.has(courseId)) continue;
-    if (satisfied.has(courseId)) continue;
-
-    let placed = false;
-    const credits = prereqGraph.getCredits(courseId);
-
-    for (const sem of futureSemesters) {
-      const semIdx = semesterOrderIds.indexOf(sem.id);
-
-      // Behavior B: credit-hour cap check (replaces course-count cap)
-      if ((semesterHours[sem.id] ?? 0) + credits > creditHourCap) continue;
-      // Behavior A: offering check from offering-schedule.json
-      if (!canOfferInSemester(courseId, sem, offeringSchedule)) continue;
-      // Prereq check (must be in strictly earlier semester or in satisfied set)
-      const prereqs = prereqGraph.getPrereqs(courseId);
-      const prereqsOk = prereqs.every(
-        (p) =>
-          satisfied.has(p) ||
-          isInPriorSemester(p, semIdx, semesters, resultPlan, variants)
-      );
-      if (!prereqsOk) continue;
-      // Coreq check (must be in same or earlier semester, or satisfied)
-      const coreqs = prereqGraph.getCoreqs(courseId);
-      const coreqsOk = coreqs.every(
-        (c) =>
-          satisfied.has(c) ||
-          isInSameOrPriorSemester(c, semIdx, semesters, resultPlan, variants)
-      );
-      if (!coreqsOk) continue;
-
-      // Place it. Do NOT add to satisfied — downstream prereq checks find
-      // this placement via isInPriorSemester, which correctly enforces the
-      // "must be in a STRICTLY EARLIER semester" rule.
-      resultPlan[sem.id].push(courseId);
-      semesterHours[sem.id] = (semesterHours[sem.id] ?? 0) + credits;
-      placed = true;
-      break;
-    }
-
-    if (!placed) unplaced.push(courseId);
-  }
-
-  // ── 7. Diagnostics ────────────────────────────────────────────────────────
+  // ── 6. Map SolverOutput → AutoPlannerResult ───────────────────────────────
+  const futureSemesters = semesters.filter((s) => s.status === 'future');
+  const unplaced = solverResult.unplacedCourses;
   const reason =
     unplaced.length > 0
       ? `Could not fit ${unplaced.length} course${unplaced.length === 1 ? '' : 's'} ` +
@@ -509,5 +287,5 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
         `Try increasing load tolerance or extending graduation timeline.`
       : undefined;
 
-  return { plan: resultPlan, unplacedCourses: unplaced, reason, warnings };
+  return { plan: solverResult.plan, unplacedCourses: unplaced, reason, warnings };
 }

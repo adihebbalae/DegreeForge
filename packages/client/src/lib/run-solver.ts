@@ -92,5 +92,6 @@ export function runSolver(params: RunSolverParams): SolverOutput {
     maxHoursPerSemester,
     semesters,
     existingPlan: plan,
+    degreeReqs,
   });
 }
