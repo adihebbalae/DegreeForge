@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User, Bot, Loader2, Check, X, Pin } from 'lucide-react';
+import { User, Bot, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePlan, useTechCoreId, useSemesters, usePlanDispatch, useMathBAToggle } from '@/context/PlanContext';
 import {
@@ -20,82 +20,14 @@ import { runAgentTurn, createOllamaProvider } from '@/lib/agent-loop';
 import type { AgentMessage } from '@/lib/agent-loop';
 import { TOOL_REGISTRY, DEFAULT_ENABLED_TOOLS } from '@/lib/agent-tools/registry';
 import { useSettings } from '@/context/SettingsContext';
+import { validateOp, validateOpCount } from '@/lib/plan-edit-validation';
+import { makeDefaultUserProfile, DEFAULT_DEGREE_REQUIREMENTS } from '@/lib/chat-defaults';
+import ProposalCard from '@/components/chat/ProposalCard';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-/** Maximum operations a single tool turn may propose. */
-export const MAX_OPS_PER_TURN = 20;
-
 /** Number of UI messages kept in the history window sent to the agent. */
 const HISTORY_WINDOW = 20;
-
-/** Recognised op types — must match PlanEditOperation['op'] */
-const VALID_OPS = new Set<string>(['add', 'remove', 'move']);
-
-// ─── Validation ───────────────────────────────────────────────────────────────
-
-export interface ValidationError {
-  reason: string;
-}
-
-/**
- * Validate a single PlanEditOperation before dispatching to PlanContext.
- * Returns null if valid, or a ValidationError describing the problem.
- */
-export function validateOp(
-  op: PlanEditOperation,
-  catalog: Record<string, unknown> | null,
-  semesterIds: string[],
-  plan: Record<string, string[]>
-): ValidationError | null {
-  if (!VALID_OPS.has(op.op)) {
-    return { reason: `Unknown operation type "${op.op}".` };
-  }
-
-  if (!catalog || !(op.courseId in catalog)) {
-    return { reason: `Course "${op.courseId}" is not in the catalog.` };
-  }
-
-  if (op.op === 'add') {
-    if (!semesterIds.includes(op.semesterId)) {
-      return { reason: `Semester "${op.semesterId}" does not exist in your plan.` };
-    }
-    // Duplicate check: course already placed in any semester
-    const placedIn = semesterIds.find(sid => (plan[sid] ?? []).includes(op.courseId));
-    if (placedIn) {
-      return { reason: `"${op.courseId}" is already placed in ${placedIn}.` };
-    }
-  } else if (op.op === 'remove') {
-    if (!semesterIds.includes(op.semesterId)) {
-      return { reason: `Semester "${op.semesterId}" does not exist in your plan.` };
-    }
-  } else if (op.op === 'move') {
-    if (!semesterIds.includes(op.fromSemesterId)) {
-      return { reason: `Source semester "${op.fromSemesterId}" does not exist in your plan.` };
-    }
-    if (!semesterIds.includes(op.toSemesterId)) {
-      return { reason: `Destination semester "${op.toSemesterId}" does not exist in your plan.` };
-    }
-    // Duplicate check: another placement of same course in toSemesterId (different from fromSemesterId)
-    const alreadyInDest = (plan[op.toSemesterId] ?? []).includes(op.courseId);
-    if (alreadyInDest) {
-      return { reason: `"${op.courseId}" is already in ${op.toSemesterId}.` };
-    }
-  }
-
-  return null;
-}
-
-/**
- * Validate an entire proposal's op-count before rendering.
- * Returns null if valid, or an error string.
- */
-export function validateOpCount(ops: PlanEditOperation[]): string | null {
-  if (ops.length > MAX_OPS_PER_TURN) {
-    return `Proposal has ${ops.length} operations (max ${MAX_OPS_PER_TURN}). Please ask for a smaller change.`;
-  }
-  return null;
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -135,13 +67,6 @@ function extractProposalFromToolResult(toolResult: unknown): ProposedPlanEdit | 
   return null;
 }
 
-function operationLabel(op: PlanEditOperation): string {
-  if (op.op === 'add') return `Add ${op.courseId} → ${op.semesterId}`;
-  if (op.op === 'remove') return `Remove ${op.courseId} from ${op.semesterId}`;
-  if (op.op === 'move') return `Move ${op.courseId}: ${op.fromSemesterId} → ${op.toSemesterId}`;
-  return 'Unknown operation';
-}
-
 // ─── Message shape ────────────────────────────────────────────────────────────
 
 interface Message {
@@ -153,79 +78,6 @@ interface Message {
   actedOps?: Set<number>;
   /** Per-op validation errors, keyed by op index */
   opErrors?: Record<number, string>;
-}
-
-// ─── ProposalCard ─────────────────────────────────────────────────────────────
-
-interface ProposalCardProps {
-  proposal: ProposedPlanEdit;
-  actedOps: Set<number>;
-  opErrors: Record<number, string>;
-  onAccept: (idx: number, op: PlanEditOperation) => void;
-  onReject: (idx: number) => void;
-  onPin: (idx: number, op: PlanEditOperation) => void;
-}
-
-function ProposalCard({ proposal, actedOps, opErrors, onAccept, onReject, onPin }: ProposalCardProps) {
-  return (
-    <div className="mt-2 border border-border rounded-lg overflow-hidden bg-background text-sm">
-      <div className="px-3 py-2 bg-muted/60 border-b border-border font-semibold text-xs text-muted-foreground uppercase tracking-wide">
-        Proposed Plan Changes
-      </div>
-      <div className="px-3 py-2 text-xs text-muted-foreground border-b border-border">
-        {proposal.reasoning}
-      </div>
-      <ul className="divide-y divide-border">
-        {proposal.operations.map((op, idx) => {
-          const acted = actedOps.has(idx);
-          const err = opErrors[idx];
-          return (
-            <li key={idx} className={`flex flex-col px-3 py-2 ${acted ? 'opacity-40' : ''}`}>
-              <div className="flex items-center gap-2">
-                <span className="flex-1 font-mono text-xs">{operationLabel(op)}</span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-6 px-2 text-xs text-green-600 hover:bg-green-50 dark:hover:bg-green-950"
-                  disabled={acted}
-                  onClick={() => onAccept(idx, op)}
-                  title="Accept"
-                >
-                  <Check className="w-3 h-3 mr-1" />
-                  Accept
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-6 px-2 text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
-                  disabled={acted || op.op !== 'add'}
-                  onClick={() => onPin(idx, op)}
-                  title="Accept and Pin"
-                >
-                  <Pin className="w-3 h-3 mr-1" />
-                  Pin
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-6 px-2 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
-                  disabled={acted}
-                  onClick={() => onReject(idx)}
-                  title="Reject"
-                >
-                  <X className="w-3 h-3 mr-1" />
-                  Reject
-                </Button>
-              </div>
-              {err && (
-                <p className="mt-1 text-xs text-red-500">{err}</p>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
 }
 
 // ─── ChatPanel ────────────────────────────────────────────────────────────────
@@ -394,34 +246,8 @@ export default function ChatPanel() {
           catalog: catalog ?? {},
           prereqGraph,
           gradeDistributions,
-          userProfile: profile ?? {
-            name: '', eid: '', university: '', catalog_year: '', major: 'ECE',
-            classification: 'Sophomore', first_semester: '', graduation_target: '',
-            tech_core: { declared: techCoreId, status: 'declared', required_math: '', required_ece: [], tech_electives_needed: 0 },
-            secondary_aspirations: {
-              math_ba: { status: 'not_pursuing', notes: '' },
-              advanced_math_cert: { status: 'not_pursuing', notes: '' },
-              jefferson_scholars_cert: { status: 'not_pursuing', notes: '' },
-            },
-            preferences: { course_load: 'moderate', course_load_tolerance: 'moderate', time_preference: 'morning', summer_courses: false, summer_notes: '' },
-            gpa: { cumulative: 0, lower_division: 0, upper_division: 0, gpa_hours: 0, grade_points: 0 },
-            credit_summary: { total_hours_transferred: 0, total_hours_taken: 0, total_hours: 0 },
-            completed_courses: [],
-            in_progress_courses: [],
-            career_interests: [],
-            notes: '',
-          },
-          degreeRequirements: degreeRequirements ?? {
-            ece_core: { courses: [], notes: '', honors_variants: {}, senior_design_options: [] },
-            core_curriculum: { slots: [] },
-            tech_core: { description: '', components: { advanced_math: { hours: '3', count: 1 }, core_courses: { hours: '3', count: 3 }, core_lab: { hours: '1', count: 1 }, tech_electives: { hours_min: 3, count: '3' } }, notes: '' },
-            advanced_tech_elective: { count: 1, hours: '3', description: '' },
-            free_electives: { total_hours: 6, constraints: [], approved_list_url: '' },
-            math_sequence: { required: [], alternate_calculus: [], notes: '' },
-            physics_sequence: { required: [], alternate: [], notes: '' },
-            total_credit_hours: 128,
-            notes: '',
-          },
+          userProfile: profile ?? makeDefaultUserProfile(techCoreId),
+          degreeRequirements: degreeRequirements ?? DEFAULT_DEGREE_REQUIREMENTS,
           techCores: techCores ?? {},
           offeringSchedule,
           fallSections,

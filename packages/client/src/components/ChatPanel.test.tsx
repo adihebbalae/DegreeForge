@@ -63,7 +63,8 @@ vi.mock('react-markdown', () => ({
 
 // ─── Import under test ────────────────────────────────────────────────────────
 
-import ChatPanel, { validateOp, validateOpCount, MAX_OPS_PER_TURN } from './ChatPanel';
+import ChatPanel from './ChatPanel';
+import { validateOp, validateOpCount, MAX_OPS_PER_TURN } from '@/lib/plan-edit-validation';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
