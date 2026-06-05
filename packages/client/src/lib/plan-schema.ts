@@ -18,7 +18,14 @@ const whatIfSchema = z.object({
   isActive: z.boolean(),
 });
 
-const planStateSchema = z.object({
+// Annotate each schema as z.ZodType<T> so that TypeScript verifies the
+// inferred output type is assignable to the hand-written interface at
+// compile time. If a field is added to the interface but not the schema
+// (or vice-versa) tsc will error here rather than silently diverging.
+// This also makes result.data already typed as T, removing the need for
+// `as T` casts in the parse helpers below.
+
+const planStateSchema: z.ZodType<PlanState> = z.object({
   semesters: z.array(semesterSchema),
   plan: z.record(z.string(), z.array(z.string())),
   pinnedCourses: z.array(z.string()).default([]),
@@ -39,14 +46,14 @@ export const planSnapshotSchema = z.object({
   createdAt: z.number(),
 });
 
-export const snapshotStateSchema = z.object({
+export const snapshotStateSchema: z.ZodType<SnapshotState> = z.object({
   snapshots: z.array(planSnapshotSchema),
   comparisonMode: z.enum(['off', 'sidebar-diff', 'split-view']).default('off'),
 });
 
 export { semesterSchema, whatIfSchema, planStateSchema };
 
-const settingsStateSchema = z.object({
+const settingsStateSchema: z.ZodType<SettingsState> = z.object({
   loadTolerance: z.enum(['light', 'normal', 'above_average', 'heavy']).default('above_average'),
   gradTarget: z.string().default('Spring 2029'),
   techCoreId: z.string().default('computer_architecture'),
@@ -73,7 +80,7 @@ export function parseSettingsState(raw: unknown): SettingsState | null {
 
 export function parsePlanState(raw: unknown): PlanState | null {
   const result = planStateSchema.safeParse(raw);
-  return result.success ? (result.data as PlanState) : null;
+  return result.success ? result.data : null;
 }
 
 export function parseSnapshotState(raw: unknown): SnapshotState | null {
