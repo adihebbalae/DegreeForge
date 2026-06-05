@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parsePlanState, parseSnapshotState, parseSettingsState } from './plan-schema';
+import { DEFAULT_ENABLED_TOOLS } from './agent-tools/registry';
 
 const validSemester = {
   id: 'Fall 2026',
@@ -168,5 +169,28 @@ describe('parseSettingsState', () => {
     expect(result?.instructionMode).toBe('no_preference');
     expect(result?.profPreferences).toEqual([]);
     expect(result?.paletteSortMode).toBe('recommended');
+  });
+
+  it('backfills enabledTools to the 6 default names when absent (legacy upgrade)', () => {
+    // Simulates a persisted settings object that predates the enabledTools field
+    const legacy = { loadTolerance: 'normal', gradTarget: 'Fall 2028' };
+    const result = parseSettingsState(legacy);
+    expect(result).not.toBeNull();
+    const defaultNames = DEFAULT_ENABLED_TOOLS.map(t => t.name);
+    expect(result?.enabledTools).toEqual(defaultNames);
+    expect(result?.enabledTools).toHaveLength(6);
+  });
+
+  it('preserves enabledTools when explicitly provided', () => {
+    const custom = { ...validFullSettings, enabledTools: ['get_course_info', 'search_catalog'] };
+    const result = parseSettingsState(custom);
+    expect(result).not.toBeNull();
+    expect(result?.enabledTools).toEqual(['get_course_info', 'search_catalog']);
+  });
+
+  it('backfills enabledTools to 6 defaults for empty object', () => {
+    const result = parseSettingsState({});
+    expect(result).not.toBeNull();
+    expect(result?.enabledTools).toHaveLength(6);
   });
 });

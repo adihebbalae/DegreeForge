@@ -15,6 +15,7 @@ vi.mock('@/lib/agent-loop', () => ({
 
 vi.mock('@/lib/agent-tools/registry', () => ({
   DEFAULT_ENABLED_TOOLS: [],
+  TOOL_REGISTRY: [],
 }));
 
 vi.mock('@/context/PlanContext', () => ({
@@ -42,10 +43,17 @@ vi.mock('@/context/DataContext', () => ({
   useDegreeRequirements: () => null,
   useTechCoresRecord: () => null,
   useOfferingSchedule: () => ({}),
+  // Provides the raw FallSections document for section-aware tools
+  useFallSectionsRaw: () => null,
 }));
 
 vi.mock('@/lib/course-utils', () => ({
   getCourseTitle: (_id: string) => _id,
+}));
+
+// ChatPanel reads enabledTools from settings; empty array → falls back to DEFAULT_ENABLED_TOOLS (also [])
+vi.mock('@/context/SettingsContext', () => ({
+  useSettings: () => ({ enabledTools: [] }),
 }));
 
 // Mock ReactMarkdown so we don't need remark/MDX transforms

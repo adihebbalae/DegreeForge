@@ -236,6 +236,15 @@ export function useFallSections(): CourseSections[] {
 }
 
 /**
+ * Returns the raw FallSections document (semester metadata + courses dict).
+ * Null while loading. Use this when the full FallSections object is needed
+ * (e.g. for agent tool context where section-level tools require the dict).
+ */
+export function useFallSectionsRaw(): FallSections | null {
+  return useDataContext().fallSections;
+}
+
+/**
  * Returns the sections manifest describing which per-term section files are
  * available in `/data/`. Null while loading. Use this to drive a term-picker
  * UI when more than one term is available.

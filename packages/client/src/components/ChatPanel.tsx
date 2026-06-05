@@ -10,6 +10,7 @@ import {
   useDegreeRequirements,
   useTechCoresRecord,
   useOfferingSchedule,
+  useFallSectionsRaw,
 } from '@/context/DataContext';
 import ReactMarkdown from 'react-markdown';
 import { getCourseTitle } from '@/lib/course-utils';
@@ -17,7 +18,8 @@ import type { ChatCourseRef, ChatPlanContext } from '@/types';
 import type { ProposedPlanEdit, PlanEditOperation } from '@/lib/agent-tools/types';
 import { runAgentTurn, createOllamaProvider } from '@/lib/agent-loop';
 import type { AgentMessage } from '@/lib/agent-loop';
-import { DEFAULT_ENABLED_TOOLS } from '@/lib/agent-tools/registry';
+import { TOOL_REGISTRY, DEFAULT_ENABLED_TOOLS } from '@/lib/agent-tools/registry';
+import { useSettings } from '@/context/SettingsContext';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -249,6 +251,15 @@ export default function ChatPanel() {
   const degreeRequirements = useDegreeRequirements();
   const techCores = useTechCoresRecord();
   const offeringSchedule = useOfferingSchedule();
+  const fallSections = useFallSectionsRaw();
+
+  // Resolve enabled tools from persisted settings; fall back to defaults when empty
+  const settings = useSettings();
+  const resolvedTools = settings.enabledTools.length > 0
+    ? settings.enabledTools
+        .map(name => TOOL_REGISTRY.find(t => t.name === name))
+        .filter((t): t is typeof TOOL_REGISTRY[number] => t !== undefined)
+    : DEFAULT_ENABLED_TOOLS;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -378,7 +389,7 @@ export default function ChatPanel() {
 
       const result = await runAgentTurn(historyWindow, userText, {
         provider,
-        tools: DEFAULT_ENABLED_TOOLS,
+        tools: resolvedTools,
         toolContext: {
           catalog: catalog ?? {},
           prereqGraph,
@@ -413,7 +424,7 @@ export default function ChatPanel() {
           },
           techCores: techCores ?? {},
           offeringSchedule,
-          fallSections: null, // not exposed via individual hook; section-specific tools use this
+          fallSections,
           plan,
           semesters,
           techCoreId,

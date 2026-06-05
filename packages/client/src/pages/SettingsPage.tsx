@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { RotateCcw, X, Plus, User, Sliders, BookOpen } from 'lucide-react';
+import { RotateCcw, X, Plus, User, Sliders, BookOpen, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -16,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import { useSettings, useSettingsDispatch, type LoadTolerance, type InstructionMode, type TimeWindow } from '@/context/SettingsContext';
 import { useTechCoresRecord, useUserProfile } from '@/context/DataContext';
+import { TOOL_REGISTRY } from '@/lib/agent-tools/registry';
 import type { TechCoreTrack } from '@/types';
 
 // ─── Section Header ────────────────────────────────────────────────────────────
@@ -375,6 +377,42 @@ export default function SettingsPage() {
                   Add
                 </Button>
               </div>
+            </div>
+          </section>
+
+          <Separator />
+
+          {/* ── Section 4: Chat Tools ───────────────────────────────────── */}
+          <section aria-labelledby="chat-tools-section">
+            <SectionHeader icon={<MessageSquare className="h-4 w-4" />} title="Chat Tools" />
+
+            <p className="text-sm text-muted-foreground mb-4">
+              Choose which tools the chat advisor can use. Enabled tools are sent to the model on every turn.
+            </p>
+
+            <div className="space-y-2 p-4 bg-muted/40 rounded-lg border border-border">
+              {TOOL_REGISTRY.map((tool) => {
+                const enabled = settings.enabledTools.includes(tool.name);
+                return (
+                  <div key={tool.name} className="flex items-start gap-3 py-1.5">
+                    <Checkbox
+                      id={`tool-${tool.name}`}
+                      checked={enabled}
+                      onCheckedChange={() => dispatch({ type: 'TOGGLE_TOOL', toolName: tool.name })}
+                      aria-label={tool.name}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <label
+                        htmlFor={`tool-${tool.name}`}
+                        className="font-mono text-xs font-medium text-foreground cursor-pointer"
+                      >
+                        {tool.name}
+                      </label>
+                      <p className="text-xs text-muted-foreground mt-0.5">{tool.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </section>
 

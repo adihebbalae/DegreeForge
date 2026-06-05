@@ -3,7 +3,6 @@ import {
   settingsReducer,
   DEFAULT_SETTINGS,
   type SettingsState,
-  type SettingsAction,
 } from './SettingsContext';
 
 describe('settingsReducer', () => {
@@ -117,5 +116,26 @@ describe('settingsReducer', () => {
     const original = { ...DEFAULT_SETTINGS };
     settingsReducer(DEFAULT_SETTINGS, { type: 'SET_LOAD_TOLERANCE', value: 'heavy' });
     expect(DEFAULT_SETTINGS.loadTolerance).toBe(original.loadTolerance);
+  });
+
+  it('TOGGLE_TOOL adds a tool name not yet in enabledTools', () => {
+    const state: SettingsState = { ...DEFAULT_SETTINGS, enabledTools: ['get_course_info'] };
+    const next = settingsReducer(state, { type: 'TOGGLE_TOOL', toolName: 'search_catalog' });
+    expect(next.enabledTools).toContain('search_catalog');
+    expect(next.enabledTools).toContain('get_course_info');
+  });
+
+  it('TOGGLE_TOOL removes a tool name already in enabledTools', () => {
+    const state: SettingsState = { ...DEFAULT_SETTINGS, enabledTools: ['get_course_info', 'search_catalog'] };
+    const next = settingsReducer(state, { type: 'TOGGLE_TOOL', toolName: 'get_course_info' });
+    expect(next.enabledTools).not.toContain('get_course_info');
+    expect(next.enabledTools).toContain('search_catalog');
+  });
+
+  it('RESET_SETTINGS restores enabledTools to the default 6 names', () => {
+    const modified: SettingsState = { ...DEFAULT_SETTINGS, enabledTools: [] };
+    const next = settingsReducer(modified, { type: 'RESET_SETTINGS' });
+    expect(next.enabledTools).toEqual(DEFAULT_SETTINGS.enabledTools);
+    expect(next.enabledTools.length).toBe(6);
   });
 });

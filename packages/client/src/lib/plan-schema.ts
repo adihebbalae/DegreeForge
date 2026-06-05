@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { PlanState } from '../types';
 import type { SnapshotState } from '../context/PlanContext.constants';
 import type { SettingsState } from '../context/SettingsContext';
+import { DEFAULT_ENABLED_TOOLS } from './agent-tools/registry';
 
 const semesterSchema = z.object({
   id: z.string(),
@@ -62,6 +63,7 @@ const settingsStateSchema = z.object({
   instructionMode: z.enum(['in_person', 'online', 'hybrid', 'no_preference']).default('no_preference'),
   profPreferences: z.array(z.object({ name: z.string(), type: z.enum(['prefer', 'avoid']) })).default([]),
   paletteSortMode: z.enum(['recommended', 'easiest']).default('recommended'),
+  enabledTools: z.array(z.string()).default(DEFAULT_ENABLED_TOOLS.map(t => t.name)),
 });
 
 export function parseSettingsState(raw: unknown): SettingsState | null {

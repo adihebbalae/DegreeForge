@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { parseSettingsState } from '../lib/plan-schema';
+import { DEFAULT_ENABLED_TOOLS } from '../lib/agent-tools/registry';
 
 // ─── Settings State Shape ─────────────────────────────────────────────────────
 
@@ -31,9 +32,14 @@ export interface SettingsState {
   instructionMode: InstructionMode;
   profPreferences: ProfPreference[];
   paletteSortMode: 'recommended' | 'easiest';
+  /** Tool names currently enabled for the chat agent. */
+  enabledTools: string[];
 }
 
 // ─── Default Settings ─────────────────────────────────────────────────────────
+
+/** Lazily computed so registry import is not a circular dep risk. */
+const DEFAULT_ENABLED_TOOL_NAMES = DEFAULT_ENABLED_TOOLS.map(t => t.name);
 
 export const DEFAULT_SETTINGS: SettingsState = {
   loadTolerance: 'above_average',
@@ -52,6 +58,7 @@ export const DEFAULT_SETTINGS: SettingsState = {
   instructionMode: 'no_preference',
   profPreferences: [],
   paletteSortMode: 'recommended',
+  enabledTools: DEFAULT_ENABLED_TOOL_NAMES,
 };
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
@@ -67,6 +74,7 @@ export type SettingsAction =
   | { type: 'ADD_PROF_PREFERENCE'; pref: ProfPreference }
   | { type: 'REMOVE_PROF_PREFERENCE'; name: string }
   | { type: 'SET_PALETTE_SORT'; value: 'recommended' | 'easiest' }
+  | { type: 'TOGGLE_TOOL'; toolName: string }
   | { type: 'RESET_SETTINGS' }
   | { type: 'SET_FULL_SETTINGS'; settings: SettingsState };
 
@@ -103,6 +111,15 @@ export function settingsReducer(state: SettingsState, action: SettingsAction): S
       };
     case 'SET_PALETTE_SORT':
       return { ...state, paletteSortMode: action.value };
+    case 'TOGGLE_TOOL': {
+      const already = state.enabledTools.includes(action.toolName);
+      return {
+        ...state,
+        enabledTools: already
+          ? state.enabledTools.filter(n => n !== action.toolName)
+          : [...state.enabledTools, action.toolName],
+      };
+    }
     case 'RESET_SETTINGS':
       return { ...DEFAULT_SETTINGS };
     case 'SET_FULL_SETTINGS':
