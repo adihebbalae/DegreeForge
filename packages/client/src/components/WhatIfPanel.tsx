@@ -41,10 +41,9 @@ import {
   useUserProfile,
 } from '@/context/DataContext';
 import { computeWhatIfDiff } from '@/lib/what-if';
+import { runSolver } from '@/lib/run-solver';
 import { TechCoreTrack } from '@/types';
-import { generatePlan } from '@/lib/solver';
-import { buildRemainingRequirements } from '@/lib/requirements';
-import { usePrereqGraph, useDegreeRequirements, useOfferingSchedule } from '@/context/DataContext';
+import { useDegreeRequirements, useOfferingSchedule } from '@/context/DataContext';
 import { usePrereqGraph as useEngineGraph } from '@/hooks/usePrereqGraph';
 import { Loader2, Sparkles } from 'lucide-react';
 import { useState } from 'react';
@@ -115,31 +114,19 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
 
     setTimeout(() => {
       try {
-        // Build remaining requirements based on the NEW what-if settings
-        const remaining = buildRemainingRequirements(
+        // D4: shared solver helper replaces duplicated setup
+        const newPlanOutput = runSolver({
+          techCoreId: whatIf.techCoreId,
+          mathBAToggle: whatIf.mathBAToggle,
           degreeReqs,
           techCores,
-          whatIf.techCoreId,
-          whatIf.mathBAToggle,
           mathReqs,
-          profile
-        );
-
-        // Run the solver to map the new courses into the timeline
-        const newPlanOutput = generatePlan({
-          completedCourses: completedCourses,
-          remainingRequirements: remaining,
+          profile,
           prereqGraph: engineGraph,
           offeringSchedule: offeringSchedule,
-          pinnedCourses: state.pinnedCourses.reduce((acc, courseId) => {
-            for (const [semId, courses] of Object.entries(plan)) {
-              if (courses.includes(courseId)) acc[courseId] = semId;
-            }
-            return acc;
-          }, {} as Record<string, string>),
-          maxHoursPerSemester: profile.preferences.course_load === 'Max possible' ? 18 : 17,
+          pinnedCourseIds: state.pinnedCourses,
+          plan: state.plan,
           semesters: state.semesters,
-          existingPlan: state.plan
         });
 
         // Apply both the what-if state AND the new plan

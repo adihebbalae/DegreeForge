@@ -62,8 +62,10 @@ export interface SolverOutput {
  * - ["spring"] → only Spring semesters
  * - ["fall", "spring"] or empty/missing → any semester
  * - Summer semesters are allowed for courses offered "fall" or "spring" (lenient)
+ *
+ * Exported so auto-planner can use the same offering source (Behavior A unification).
  */
-function canOfferInSemester(
+export function canOfferInSemester(
   courseId: string,
   semester: Semester,
   offeringSchedule: OfferingSchedule

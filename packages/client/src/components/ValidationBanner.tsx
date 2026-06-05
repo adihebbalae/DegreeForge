@@ -2,13 +2,12 @@ import { useMemo, useState } from 'react';
 import { AlertTriangle, Wand2, Loader2 } from 'lucide-react';
 import { useValidation } from '@/hooks/useValidation';
 import { usePlanContext, useSemesters, usePlan } from '@/context/PlanContext';
-import { generatePlan } from '@/lib/solver';
-import { usePrereqGraph as useRawPrereqGraph, useDegreeRequirements, useTechCoresRecord, useMathRequirements, useUserProfile, useOfferingSchedule } from '@/context/DataContext';
+import { runSolver } from '@/lib/run-solver';
+import { useDegreeRequirements, useTechCoresRecord, useMathRequirements, useUserProfile, useOfferingSchedule } from '@/context/DataContext';
 import { Button } from '@/components/ui/button';
 import { Notice } from '@/components/ui/notice';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
-import { buildRemainingRequirements } from '@/lib/requirements';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 
 export default function ValidationBanner() {
@@ -20,7 +19,6 @@ export default function ValidationBanner() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [solverError, setSolverError] = useState<string | null>(null);
 
-  const rawGraph = useRawPrereqGraph();
   const degreeReqs = useDegreeRequirements();
   const techCores = useTechCoresRecord();
   const mathReqs = useMathRequirements();
@@ -38,38 +36,26 @@ export default function ValidationBanner() {
   const firstViolationId = violations.length > 0 ? violations[0].courseId : null;
 
   const handleAutoFillConfirmed = () => {
-    if (!rawGraph || !degreeReqs || !techCores || !profile) return;
+    if (!degreeReqs || !techCores || !profile) return;
 
     setIsSolving(true);
     setSolverError(null);
 
     setTimeout(() => {
       try {
-        const remaining = buildRemainingRequirements(
+        // D4: shared solver helper replaces duplicated setup
+        const newPlanOutput = runSolver({
+          techCoreId: state.whatIf.techCoreId,
+          mathBAToggle: state.whatIf.mathBAToggle,
           degreeReqs,
           techCores,
-          state.whatIf.techCoreId,
-          state.whatIf.mathBAToggle,
           mathReqs,
-          profile
-        );
-
-        const newPlanOutput = generatePlan({
-          completedCourses: [
-            ...profile.completed_courses.map(c => c.course),
-            ...profile.in_progress_courses.map(c => c.course)
-          ],
-          remainingRequirements: remaining,
+          profile,
           prereqGraph: engineGraph,
           offeringSchedule: offeringSchedule,
-          pinnedCourses: state.pinnedCourses.reduce((acc, courseId) => {
-            for (const [semId, courses] of Object.entries(state.plan)) {
-              if (courses.includes(courseId)) acc[courseId] = semId;
-            }
-            return acc;
-          }, {} as Record<string, string>),
-          maxHoursPerSemester: profile.preferences.course_load === 'Max possible' ? 18 : 17,
-          semesters: state.semesters
+          pinnedCourseIds: state.pinnedCourses,
+          plan: state.plan,
+          semesters: state.semesters,
         });
 
         dispatch({ type: 'SET_PLAN', plan: newPlanOutput.plan });

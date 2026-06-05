@@ -1,13 +1,14 @@
-import type { 
-  Plan, 
-  UserProfile, 
-  CourseCatalog, 
-  DegreeRequirements, 
-  TechCoreTrack, 
+import type {
+  Plan,
+  UserProfile,
+  CourseCatalog,
+  DegreeRequirements,
+  TechCoreTrack,
   PrereqNode,
 } from '../types';
 import { getCourseCredits, buildTranscriptCredits } from './course-utils';
 import { isTechCorePickOne } from '../types';
+import { LEGACY_TO_CANONICAL } from './catalog-rename';
 
 export interface ProgressSummary {
   totalHours: number;
@@ -71,13 +72,8 @@ export function computeProgress(
     Object.entries(degreeReqs.ece_core.honors_variants).map(([core, honors]) => [honors, core])
   );
   
-  // Legacy/Old number mapping (pre-2026)
-  const legacyToCore: Record<string, string> = {
-    'ECE 302': 'ECE 402',
-    'ECE 306': 'ECE 406',
-    'ECE 312': 'ECE 412',
-    'ECE 319K': 'ECE 419K',
-  };
+  // D6: use shared LEGACY_TO_CANONICAL for pre-2026 renumber mapping
+  const legacyToCore = LEGACY_TO_CANONICAL;
 
   const completedEceCore = unique.filter((courseId) => {
     const normalizedId = honorsToCore[courseId] || legacyToCore[courseId] || courseId;

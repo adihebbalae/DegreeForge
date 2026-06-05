@@ -16,6 +16,7 @@ import type {
   UserProfile,
 } from '../types';
 import { isTechCorePickOne } from '../types';
+import { LEGACY_TO_CANONICAL } from './catalog-rename';
 
 // ─── Honors variant mapping ──────────────────────────────────────────────────
 // Old course number → honors replacement (what Adi actually takes)
@@ -82,17 +83,9 @@ export function getTechCoreCourses(track: TechCoreTrack): string[] {
     }
   }
 
-  // Required elective — can be a single course ref or a pick-one group
+  // S4: required_elective is typed as TechCourseRef — single required course only
   if (req.required_elective) {
-    if ('options' in req.required_elective) {
-      // It's a pick-one group
-      const pickOne = req.required_elective as unknown as { options: { id: string }[]; pick: number };
-      if (pickOne.options?.length > 0) {
-        courses.push(pickOne.options[0].id);
-      }
-    } else {
-      courses.push(req.required_elective.id);
-    }
+    courses.push(req.required_elective.id);
   }
 
   return courses;

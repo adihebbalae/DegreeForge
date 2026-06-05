@@ -1,9 +1,9 @@
-import { 
-  TechCoreTrack, 
-  MathRequirements, 
-  CourseCatalog, 
+import {
+  TechCoreTrack,
+  MathRequirements,
+  CourseCatalog,
   TechCoreCourseEntry,
-  isTechCorePickOne
+  isTechCorePickOne,
 } from '../types';
 import { getCourseCredits } from './course-utils';
 
@@ -89,15 +89,17 @@ export function computeWhatIfDiff(
     c => !proposedEssential.has(c) && !completedCourses.includes(c)
   );
 
-  // Credit hour delta
-  const addedHours = coursesAdded.reduce((sum, id) => {
-    // Fallback to 3 credits if not in catalog (common for placeholders)
-    return sum + (catalog[id]?.credits ?? 3);
-  }, 0);
+  // D7: use getCourseCredits for consistent credit lookup (prereqNodes not available here,
+  // so pass empty object — catalog is the primary source in what-if context)
+  const addedHours = coursesAdded.reduce(
+    (sum, id) => sum + getCourseCredits(id, catalog, {}),
+    0
+  );
 
-  const removedHours = coursesRemoved.reduce((sum, id) => {
-    return sum + (catalog[id]?.credits ?? 3);
-  }, 0);
+  const removedHours = coursesRemoved.reduce(
+    (sum, id) => sum + getCourseCredits(id, catalog, {}),
+    0
+  );
 
   const creditHourDelta = addedHours - removedHours;
 

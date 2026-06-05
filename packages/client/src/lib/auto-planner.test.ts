@@ -122,7 +122,10 @@ describe('generateAutoPlan', () => {
     }
   });
 
-  it('respects load_tolerance (above_average -> max 5 per future semester)', () => {
+  it('respects load_tolerance (above_average -> max 18 credit-hours per future semester)', () => {
+    // Behavior B: load cap is now credit-hours (18 for above_average), not course count.
+    // The old assertion (≤ 5 courses) was the course-count cap; the new policy caps by
+    // credit hours so 6 three-credit courses (18 hrs) is valid — 7 would not be.
     const result = generateAutoPlan({
       prereqGraph,
       prereqNodes: prereqData.nodes,
@@ -136,11 +139,18 @@ describe('generateAutoPlan', () => {
       catalog,
     });
     for (const sem of SEMESTERS.filter((s) => s.status === 'future')) {
-      expect(result.plan[sem.id].length).toBeLessThanOrEqual(5);
+      const semCredits = result.plan[sem.id].reduce(
+        (sum, id) => sum + (prereqData.nodes[id]?.credits ?? 3),
+        0
+      );
+      // 18 = credit-hour cap for above_average load tolerance (Behavior B)
+      expect(semCredits).toBeLessThanOrEqual(18);
     }
   });
 
-  it('honors explicit maxCoursesPerSemester override', () => {
+  it('honors explicit credit-hour override via maxCoursesPerSemester', () => {
+    // Behavior B: maxCoursesPerSemester is now a credit-hour override when set.
+    // Setting it to 12 means at most 12 credit hours per future semester.
     const result = generateAutoPlan({
       prereqGraph,
       prereqNodes: prereqData.nodes,
@@ -152,10 +162,15 @@ describe('generateAutoPlan', () => {
       semesters: SEMESTERS,
       currentPlan: INITIAL_PLAN,
       catalog,
-      maxCoursesPerSemester: 3,
+      maxCoursesPerSemester: 12,
     });
     for (const sem of SEMESTERS.filter((s) => s.status === 'future')) {
-      expect(result.plan[sem.id].length).toBeLessThanOrEqual(3);
+      const semCredits = result.plan[sem.id].reduce(
+        (sum, id) => sum + (prereqData.nodes[id]?.credits ?? 3),
+        0
+      );
+      // 12 = the credit-hour override we passed in
+      expect(semCredits).toBeLessThanOrEqual(12);
     }
   });
 

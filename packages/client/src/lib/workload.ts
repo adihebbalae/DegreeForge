@@ -29,6 +29,7 @@
  */
 
 import { generateAutoPlan, type AutoPlannerInput } from './auto-planner';
+import { getCourseCredits } from './course-utils';
 import type { Semester, CourseCatalog, PrereqNode, GradeDistributions, Plan } from '../types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -74,15 +75,14 @@ function courseLevel(courseId: string): number {
 }
 
 // ─── Helper: get credit hours for a course ───────────────────────────────────
+// D7: delegate to shared getCourseCredits from course-utils instead of inlining lookup
 
 function getCredits(
   courseId: string,
   catalog: CourseCatalog | null,
   prereqNodes: Record<string, PrereqNode>
 ): number {
-  if (catalog && catalog[courseId]) return catalog[courseId].credits;
-  if (prereqNodes[courseId]) return prereqNodes[courseId].credits;
-  return 3; // default fallback
+  return getCourseCredits(courseId, catalog, prereqNodes);
 }
 
 // ─── computeSemesterDifficulty ────────────────────────────────────────────────

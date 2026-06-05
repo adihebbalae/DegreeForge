@@ -12,17 +12,25 @@
  *   2. Compute the remaining required courses for ECE core, math/physics sequence,
  *      tech-core, gen-ed slots (with concrete options), and optional Math BA additions.
  *   3. Topo-sort the required set respecting the prereq graph.
- *   4. Greedily fill future semesters earliest-first, honoring per-semester load cap,
- *      offering pattern, prereqs (in earlier semester), coreqs (same-or-earlier semester),
- *      and any pinned placements treated as fixed.
+ *   4. Greedily fill future semesters earliest-first, honoring per-semester credit-hour cap
+ *      (17 or 18 from profile load tolerance), offering pattern from offering-schedule.json,
+ *      prereqs (in earlier semester), coreqs (same-or-earlier semester), and any pinned
+ *      placements treated as fixed.
  *
  * The solver is intentionally conservative — courses without concrete option lists
  * (VAPA/SBS "list_of_approved", free electives, advanced tech elective) are left for
  * the user to fill in manually and surfaced in `warnings`.
+ *
+ * Behavior decisions (unified with solver.ts):
+ *   A) Offering source: offering-schedule.json only (via canOfferInSemester from solver.ts).
+ *      prereqNodes.offered is no longer consulted for placement.
+ *   B) Load cap: credit-hours (17/18 per profile tolerance), not course count.
  */
 
 import { PrereqGraph } from './graph-engine';
 import { isTechCorePickOne } from '../types';
+import { LEGACY_TO_CANONICAL } from './catalog-rename';
+import { canOfferInSemester } from './solver';
 import type {
   UserProfile,
   DegreeRequirements,
@@ -32,14 +40,20 @@ import type {
   Semester,
   CourseCatalog,
   PrereqNode,
+  OfferingSchedule,
 } from '../types';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
 export interface AutoPlannerInput {
   prereqGraph: PrereqGraph;
-  /** Raw prereq graph nodes — used for offering pattern (fall/spring only). */
+  /**
+   * Raw prereq graph nodes — kept for backward compat with workload.ts / tests.
+   * No longer used for offering pattern (use offeringSchedule instead).
+   */
   prereqNodes?: Record<string, PrereqNode>;
+  /** Offering schedule from offering-schedule.json. Used for offering pattern checks. */
+  offeringSchedule?: OfferingSchedule;
   userProfile: UserProfile;
   degreeReqs: DegreeRequirements;
   techCore: TechCoreTrack;
@@ -50,7 +64,11 @@ export interface AutoPlannerInput {
   /** courseId -> semesterId. Pinned courses are placed first and not moved. */
   pinnedCourses?: Record<string, string>;
   catalog?: CourseCatalog;
-  /** Override profile-derived load cap. */
+  /**
+   * Override profile-derived credit-hour cap per semester.
+   * When set, used instead of the profile-derived value.
+   * @deprecated Prefer profile.preferences.course_load_tolerance for cap control.
+   */
   maxCoursesPerSemester?: number;
 }
 
@@ -64,15 +82,7 @@ export interface AutoPlannerResult {
   warnings: string[];
 }
 
-// ─── Equivalency tables ───────────────────────────────────────────────────────
-
-/** Legacy (pre-2026) -> canonical (2026-2028) catalog numbers. */
-const LEGACY_TO_CANONICAL: Record<string, string> = {
-  'ECE 302': 'ECE 402',
-  'ECE 306': 'ECE 406',
-  'ECE 312': 'ECE 412',
-  'ECE 319K': 'ECE 419K',
-};
+// ─── Transfer-credit equivalency tables ──────────────────────────────────────
 
 /** Transfer-credit / dual-enrollment equivalents that satisfy UT courses. */
 const TRANSFER_EQUIVALENTS: Record<string, string[]> = {
@@ -129,7 +139,7 @@ function expandVariants(
   while (changed) {
     changed = false;
     for (const id of Array.from(out)) {
-      // legacy -> canonical
+      // legacy -> canonical (D6: shared LEGACY_TO_CANONICAL)
       const canonical = LEGACY_TO_CANONICAL[id];
       if (canonical && !out.has(canonical)) {
         out.add(canonical);
@@ -190,20 +200,14 @@ function addWithVariants(
 
 // ─── Required-course derivation ───────────────────────────────────────────────
 
-/** Pick the first option from a pick-one TechCore group; works for either shape. */
-function pickFirstOption(
-  entry: { id: string } | { options: { id: string }[] }
-): string | null {
-  if ('id' in entry) return entry.id;
-  if (entry.options && entry.options.length > 0) return entry.options[0].id;
-  return null;
-}
-
 /**
  * Build the flat list of courses the user still needs to take.
  * Excludes anything already in the satisfied set.
+ *
+ * Exported so the Recommend flow can call it separately before passing the
+ * result into generatePlan (or generateAutoPlan).
  */
-function computeRequiredCourses(
+export function computeRequiredCourses(
   degreeReqs: DegreeRequirements,
   techCore: TechCoreTrack,
   mathReqs: MathRequirements,
@@ -242,29 +246,19 @@ function computeRequiredCourses(
     }
   });
 
+  // S4: use isTechCorePickOne guard instead of 'options' in ... as any
   if (req.core_lab) {
-    const pick = pickFirstOption(req.core_lab as any);
-    if (pick) {
-      // If user has any of the options, skip
-      if ('options' in req.core_lab) {
-        const matched = (req.core_lab as any).options.some((o: { id: string }) =>
-          satisfied.has(o.id)
-        );
-        if (!matched) need(pick);
-      } else {
-        need(pick);
-      }
+    if (isTechCorePickOne(req.core_lab)) {
+      const matched = req.core_lab.options.some((o) => satisfied.has(o.id));
+      if (!matched && req.core_lab.options[0]) need(req.core_lab.options[0].id);
+    } else {
+      need(req.core_lab.id);
     }
   }
 
+  // S4: required_elective is typed as TechCourseRef — no options branch possible
   if (req.required_elective) {
-    if ('options' in (req.required_elective as any)) {
-      const re = req.required_elective as any;
-      const matched = re.options.some((o: { id: string }) => satisfied.has(o.id));
-      if (!matched && re.options[0]) need(re.options[0].id);
-    } else {
-      need((req.required_elective as { id: string }).id);
-    }
+    need(req.required_elective.id);
   }
 
   // Tech-core electives — pick first N from the pool that user hasn't taken
@@ -325,30 +319,16 @@ function computeRequiredCourses(
 
 // ─── Load-cap derivation ──────────────────────────────────────────────────────
 
-function getLoadCap(profile: UserProfile, override?: number): number {
-  if (typeof override === 'number' && override > 0) return override;
-  const tol = profile.preferences?.course_load_tolerance;
-  if (tol === 'above_average') return 5;
-  if (tol === 'below_average') return 3;
-  return 4; // average / unspecified
-}
-
-// ─── Offering check ───────────────────────────────────────────────────────────
-
 /**
- * Returns true if the course is offered during the given season.
- * Defaults to true when offering data is unknown (better to over-place than block).
+ * Derive the credit-hour cap per semester from the user profile.
+ * Behavior B: unified engine caps by credit-hours (not course count).
  */
-function isOfferedInSeason(
-  courseId: string,
-  season: Semester['season'],
-  prereqNodes?: Record<string, PrereqNode>
-): boolean {
-  if (!prereqNodes) return true;
-  const node = prereqNodes[courseId];
-  const offered = node?.offered;
-  if (!offered || offered.length === 0) return true;
-  return offered.includes(season.toLowerCase());
+function getCreditHourCap(profile: UserProfile, overrideHours?: number): number {
+  if (typeof overrideHours === 'number' && overrideHours > 0) return overrideHours;
+  const tol = profile.preferences?.course_load_tolerance;
+  if (tol === 'above_average' || tol === 'up_to_18') return 18;
+  if (tol === 'below_average' || tol === 'up_to_15') return 15;
+  return 17; // average / unspecified
 }
 
 // ─── Prereq / coreq satisfied-relative-to-semester checks ─────────────────────
@@ -392,7 +372,7 @@ function isInSameOrPriorSemester(
 export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
   const {
     prereqGraph,
-    prereqNodes,
+    offeringSchedule = {},
     userProfile,
     degreeReqs,
     techCore,
@@ -454,9 +434,23 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
   const orderedRequired = prereqGraph.topologicalSort(required);
 
   // ── 6. Greedy fill: for each course, find the earliest valid semester ─────
-  const loadCap = getLoadCap(userProfile, maxCoursesPerSemester);
+  // Behavior B: cap by credit-hours, not course count.
+  // maxCoursesPerSemester is repurposed as a credit-hour override when set.
+  const creditHourCap = getCreditHourCap(userProfile, maxCoursesPerSemester);
   const unplaced: string[] = [];
   const semesterOrderIds = semesters.map((s) => s.id);
+
+  // Track credit hours placed in each future semester
+  const semesterHours: Record<string, number> = {};
+  for (const sem of futureSemesters) {
+    semesterHours[sem.id] = 0;
+  }
+  // Add pinned course hours to initial counts
+  for (const [courseId, semesterId] of Object.entries(pinnedCourses)) {
+    if (semesterHours[semesterId] !== undefined) {
+      semesterHours[semesterId] += prereqGraph.getCredits(courseId);
+    }
+  }
 
   // Snapshot already-placed courses (pinned + past + current) so we don't try to re-place them.
   const alreadyInPlan = new Set<string>();
@@ -469,13 +463,15 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
     if (satisfied.has(courseId)) continue;
 
     let placed = false;
+    const credits = prereqGraph.getCredits(courseId);
+
     for (const sem of futureSemesters) {
       const semIdx = semesterOrderIds.indexOf(sem.id);
 
-      // Capacity check
-      if (resultPlan[sem.id].length >= loadCap) continue;
-      // Offering check
-      if (!isOfferedInSeason(courseId, sem.season, prereqNodes)) continue;
+      // Behavior B: credit-hour cap check (replaces course-count cap)
+      if ((semesterHours[sem.id] ?? 0) + credits > creditHourCap) continue;
+      // Behavior A: offering check from offering-schedule.json
+      if (!canOfferInSemester(courseId, sem, offeringSchedule)) continue;
       // Prereq check (must be in strictly earlier semester or in satisfied set)
       const prereqs = prereqGraph.getPrereqs(courseId);
       const prereqsOk = prereqs.every(
@@ -497,6 +493,7 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
       // this placement via isInPriorSemester, which correctly enforces the
       // "must be in a STRICTLY EARLIER semester" rule.
       resultPlan[sem.id].push(courseId);
+      semesterHours[sem.id] = (semesterHours[sem.id] ?? 0) + credits;
       placed = true;
       break;
     }
@@ -508,7 +505,7 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
   const reason =
     unplaced.length > 0
       ? `Could not fit ${unplaced.length} course${unplaced.length === 1 ? '' : 's'} ` +
-        `within the remaining ${futureSemesters.length} semesters at ${loadCap} courses/semester. ` +
+        `within the remaining ${futureSemesters.length} semesters at ${creditHourCap} credit hours/semester. ` +
         `Try increasing load tolerance or extending graduation timeline.`
       : undefined;
 
