@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MessageSquare, X, Zap, Wand2 } from 'lucide-react';
+import { X, Zap } from 'lucide-react';
 import {
   DndContext,
   DragOverlay,
@@ -14,6 +14,7 @@ import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import { Button } from '@/components/ui/button';
 import { ProgressBars } from '@/components/ProgressBars';
 import TimelineGrid from '@/components/TimelineGrid';
+import { ComparisonToggle, PlanComparisonPanel } from '../components/PlanComparison';
 import CoursePalette from '@/components/CoursePalette';
 import CourseCard from '@/components/CourseCard';
 import ValidationBanner from '@/components/ValidationBanner';
@@ -30,7 +31,7 @@ import {
 } from '@/context/DataContext';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { usePlanDispatch, usePlan, useTechCoreId, useMathBAToggle, useSemesters } from '@/context/PlanContext';
-import { generateAutoPlan } from '@/lib/auto-planner';
+import { useUi } from '@/context/UiContext';
 import type { PrereqNode } from '@/types';
 
 // ─── Active card shape ────────────────────────────────────────────────────────
@@ -45,8 +46,7 @@ interface ActiveCardInfo {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function PlannerPage() {
-  const [chatOpen, setChatOpen] = useState(false);
-  const [whatIfOpen, setWhatIfOpen] = useState(false);
+  const { chatOpen, setChatOpen, whatIfOpen, setWhatIfOpen } = useUi();
   const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
 
   // ── Dispatch + plan state (for duplicate detection + reorder) ─────────────
@@ -59,66 +59,8 @@ export default function PlannerPage() {
   // ── Data for the DragOverlay CourseCard ───────────────────────────────────
   const catalog = useCatalogRecord();
   const rawPrereqGraph = useRawPrereqGraph();
-  const prereqGraphInstance = usePrereqGraph();
   const gradeDistributions = useGradeDistributions();
-  const userProfile = useUserProfile();
-  const degreeReqs = useDegreeRequirements();
-  const techCores = useTechCoresRecord();
-  const mathReqs = useMathRequirements();
   const prereqNodes: Record<string, PrereqNode> = rawPrereqGraph?.nodes ?? {};
-
-  // ── Recommend 4-Year Plan handler ─────────────────────────────────────────
-
-  const handleRecommendPlan = () => {
-    if (!userProfile || !degreeReqs || !techCores || !mathReqs) {
-      alert('Data not yet loaded. Try again in a moment.');
-      return;
-    }
-    const techCore = techCores[techCoreId];
-    if (!techCore) {
-      alert(`Unknown tech core: ${techCoreId}`);
-      return;
-    }
-
-    // Confirm overwrite if any future semester already has content
-    const futureHasContent = semesters.some(
-      (s) => s.status === 'future' && (plan[s.id] ?? []).length > 0
-    );
-    if (futureHasContent) {
-      const ok = window.confirm(
-        'This will overwrite courses in your future semesters with a recommended plan. Continue?'
-      );
-      if (!ok) return;
-    }
-
-    const result = generateAutoPlan({
-      prereqGraph: prereqGraphInstance,
-      prereqNodes,
-      userProfile,
-      degreeReqs,
-      techCore,
-      mathReqs,
-      mathBAToggle,
-      semesters,
-      currentPlan: plan,
-    });
-
-    dispatch({ type: 'SET_PLAN', plan: result.plan });
-
-    // Surface diagnostics
-    const msgs: string[] = [];
-    if (result.unplacedCourses.length > 0) {
-      msgs.push(
-        `Could not place ${result.unplacedCourses.length} course(s): ${result.unplacedCourses.join(', ')}`
-      );
-    }
-    if (result.warnings.length > 0) {
-      msgs.push('Notes:\n• ' + result.warnings.join('\n• '));
-    }
-    if (msgs.length > 0) {
-      alert(msgs.join('\n\n'));
-    }
-  };
 
   // ── Sensors ───────────────────────────────────────────────────────────────
   // Require 8px movement before activating drag — prevents accidental drags on click.
@@ -222,18 +164,13 @@ export default function PlannerPage() {
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="h-full flex flex-col relative overflow-hidden">
-        {/* ── Recommend Plan action ───────────────────────────────────────── */}
-        <div className="flex justify-end px-4 pt-2">
-          <Button
-            onClick={handleRecommendPlan}
-            size="sm"
-            className="gap-2"
-            title="Auto-generate a 4-year plan based on your profile and tech core"
-          >
-            <Wand2 className="h-4 w-4" />
-            Recommend 4-Year Plan
-          </Button>
+        {/* ── Action bar ───────────────────────────────────────── */}
+        <div className="flex justify-between items-center px-4 pt-2">
+          <ComparisonToggle />
         </div>
+
+        {/* ── Plan Comparison Overlay ─────────────────────────────────────── */}
+        <PlanComparisonPanel />
 
         {/* ── Progress bars strip ─────────────────────────────────────────── */}
         <ProgressBars />
@@ -292,30 +229,6 @@ export default function PlannerPage() {
         >
           <WhatIfPanel onClose={() => setWhatIfOpen(false)} />
         </aside>
-
-        {/* ── Floating toggle buttons ──────────────────────────────────────── */}
-        <div className="absolute bottom-4 right-4 flex flex-col gap-2">
-          {!whatIfOpen && (
-            <Button
-              className="shadow-lg bg-yellow-500 hover:bg-yellow-600 text-white"
-              size="icon"
-              onClick={() => setWhatIfOpen(true)}
-              aria-label="Open What-If Simulator"
-            >
-              <Zap className="h-4 w-4 fill-current" />
-            </Button>
-          )}
-          {!chatOpen && (
-            <Button
-              className="shadow-lg"
-              size="icon"
-              onClick={() => setChatOpen(true)}
-              aria-label="Open AI chat"
-            >
-              <MessageSquare className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
       </div>
 
       {/* ── Drag overlay — floats under cursor while dragging ──────────────── */}

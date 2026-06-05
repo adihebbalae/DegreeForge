@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import {
   useCatalogRecord,
@@ -11,7 +11,9 @@ import {
   useMathRequirements,
 } from '@/context/DataContext';
 import { usePlan, useHoveredCourse, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
+import { useSettings, useSettingsDispatch } from '@/context/SettingsContext';
 import { getCourseTitle } from '@/lib/course-utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CollapsibleSection from './CollapsibleSection';
 import CourseCard from './CourseCard';
 import type { CourseCatalog, CourseCategory, PrereqNode, GradeDistributions } from '@/types';
@@ -172,6 +174,8 @@ function WhatIfDiff() {
 
 export default function CoursePalette() {
   const [query, setQuery] = useState('');
+  const { paletteSortMode } = useSettings();
+  const settingsDispatch = useSettingsDispatch();
 
   // ── Data ──────────────────────────────────────────────────────────────────
   const catalog = useCatalogRecord();
@@ -350,12 +354,25 @@ export default function CoursePalette() {
     );
   }, [degreeRequirements, techTrack, satisfiedSet, mathBAToggle]);
 
-  // ── Search filter ─────────────────────────────────────────────────────────
+  // ── Search & Sort filter ─────────────────────────────────────────────────────────
+
+  const sortCourses = (courses: string[]): string[] => {
+    if (paletteSortMode === 'easiest') {
+      return [...courses].sort((a, b) => {
+        const aGrade = gradeDistributions?.[a]?.avg_gpa ?? 0;
+        const bGrade = gradeDistributions?.[b]?.avg_gpa ?? 0;
+        return bGrade - aGrade; // highest GPA first
+      });
+    }
+    // 'recommended' is just the default input order
+    return courses;
+  };
 
   const filterCourses = (courses: string[]): string[] => {
-    if (!query.trim()) return courses;
+    const sorted = sortCourses(courses);
+    if (!query.trim()) return sorted;
     const q = query.toLowerCase();
-    return courses.filter((id) => {
+    return sorted.filter((id) => {
       if (id.toLowerCase().includes(q)) return true;
       const title = getCourseTitle(id, catalog, rawPrereqGraph.nodes);
       return title.toLowerCase().includes(q);
@@ -407,9 +424,9 @@ export default function CoursePalette() {
         isPaletteOver ? 'bg-red-50 dark:bg-red-950/20' : '',
       ].join(' ')}
     >
-      {/* Search bar */}
-      <div className="px-2 pt-2 pb-1.5 shrink-0">
-        <div className="relative">
+      {/* Search and Sort bar */}
+      <div className="px-2 pt-2 pb-1.5 shrink-0 flex items-center gap-2">
+        <div className="relative flex-1">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           <input
             type="text"
@@ -424,6 +441,21 @@ export default function CoursePalette() {
             ].join(' ')}
           />
         </div>
+        <Select
+          value={paletteSortMode}
+          onValueChange={(val) => settingsDispatch({ type: 'SET_PALETTE_SORT', value: val as any })}
+        >
+          <SelectTrigger className="w-[140px] h-[30px] text-xs">
+            <div className="flex items-center gap-1.5">
+              <Filter className="h-3 w-3 text-muted-foreground" />
+              <SelectValue placeholder="Sort by" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="recommended" className="text-xs">Recommended Order</SelectItem>
+            <SelectItem value="easiest" className="text-xs">Easiest First</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <WhatIfDiff />

@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { Progress } from '@/components/ui/progress';
 import { usePlan, useTechCoreId, useMathBAToggle, useWhatIf } from '@/context/PlanContext';
 import { 
   useCatalogRecord, 
@@ -9,8 +8,9 @@ import {
   useTechCoresRecord 
 } from '@/context/DataContext';
 import { computeProgress } from '@/lib/progress';
-import { BookOpen, GraduationCap, Award, Cpu, Star, Calculator, Zap } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { PrereqNode } from '@/types';
 
 export function ProgressBars() {
@@ -25,7 +25,6 @@ export function ProgressBars() {
   const currentMathBA = useMathBAToggle();
   const whatIf = useWhatIf();
 
-  // Use what-if settings if active, otherwise current settings
   const techCoreId = whatIf.isActive ? whatIf.techCoreId : currentTechCoreId;
   const mathBAToggle = whatIf.isActive ? whatIf.mathBAToggle : currentMathBA;
 
@@ -33,17 +32,15 @@ export function ProgressBars() {
 
   const progress = useMemo(() => {
     if (!catalog || !prereqNodes || !degreeReqs || !profile || !techCores) return null;
-    
     const techCore = techCores[techCoreId];
     if (!techCore) return null;
-
     return computeProgress(plan, profile, catalog, prereqNodes, degreeReqs, techCore, mathBAToggle);
   }, [plan, catalog, prereqNodes, degreeReqs, profile, techCores, techCoreId, mathBAToggle]);
 
   if (!progress || !profile || !techCores) {
     return (
       <div className="px-4 py-2 border-b bg-muted/10">
-        <div className="h-20 animate-pulse bg-muted/20 rounded-md" />
+        <div className="h-8 animate-pulse bg-muted/20 rounded-md" />
       </div>
     );
   }
@@ -53,93 +50,106 @@ export function ProgressBars() {
 
   const bars = [
     { 
-      label: `Credit Hours${suffix}`, 
-      completed: progress.totalHours, 
-      total: progress.totalHoursTarget, 
-      unit: 'hrs', 
-      icon: BookOpen 
-    },
-    { 
-      label: `ECE Core${suffix}`, 
+      label: `ECE Core`, 
       completed: progress.eceCoreCompleted, 
       total: progress.eceCoreTotal, 
       unit: 'courses', 
-      icon: GraduationCap 
+      color: 'bg-blue-500',
+      weight: 63
     },
     { 
-      label: `Gen Ed${suffix}`, 
+      label: `Gen Ed`, 
       completed: progress.genEdCompleted, 
       total: progress.genEdTotal, 
       unit: 'courses', 
-      icon: Award 
+      color: 'bg-green-500',
+      weight: 24
     },
     { 
-      label: `Tech Core: ${techCoreName}${suffix}`, 
+      label: `Tech Core: ${techCoreName}`, 
       completed: progress.techCoreCompleted, 
       total: progress.techCoreTotal, 
       unit: 'courses', 
-      icon: Cpu 
+      color: 'bg-purple-500',
+      weight: 24
     },
     { 
-      label: `Electives${suffix}`, 
+      label: `Electives`, 
       completed: progress.electiveHours, 
       total: progress.electiveTotalHours, 
       unit: 'hrs', 
-      icon: Star 
+      color: 'bg-yellow-500',
+      weight: 11
     },
   ];
 
   if (mathBAToggle && progress.mathBATotal) {
     bars.push({
-      label: `Math BA Additional${suffix}`,
+      label: `Math BA`,
       completed: progress.mathBACompleted || 0,
       total: progress.mathBATotal,
       unit: 'courses',
-      icon: Calculator
+      color: 'bg-red-500',
+      weight: 18
     });
   }
 
   return (
     <div className={cn(
-      "px-4 py-3 border-b overflow-x-auto transition-colors",
+      "px-4 py-3 border-b transition-colors",
       whatIf.isActive ? "bg-yellow-500/10 border-yellow-500/30" : "bg-muted/20 border-border"
     )}>
-      {whatIf.isActive && (
-        <div className="flex items-center gap-2 mb-2 px-1">
-          <Zap className="h-3 w-3 text-yellow-600 fill-yellow-600" />
-          <span className="text-[10px] font-bold uppercase tracking-wider text-yellow-700 dark:text-yellow-500">
-            Simulation Mode Active
-          </span>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          {whatIf.isActive && (
+            <>
+              <Zap className="h-3 w-3 text-yellow-600 fill-yellow-600" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-yellow-700 dark:text-yellow-500">
+                Simulation Mode Active
+              </span>
+            </>
+          )}
         </div>
-      )}
-      <div className="flex flex-col gap-2 min-w-[600px]">
-        {bars.map((bar) => {
-          const percentage = Math.min(100, Math.round((bar.completed / (bar.total || 1)) * 100));
-          
-          let colorClass = '[&>div]:bg-red-500';
-          if (percentage >= 100) colorClass = '[&>div]:bg-green-500';
-          else if (percentage >= 80) colorClass = '[&>div]:bg-blue-500';
-          else if (percentage >= 50) colorClass = '[&>div]:bg-yellow-500';
-
-          return (
-            <div key={bar.label} className="flex items-center gap-4">
-              <div className="flex items-center gap-2 w-52 shrink-0">
-                <bar.icon className="w-4 h-4 text-muted-foreground" />
-                <span className="text-xs font-semibold truncate">{bar.label}</span>
-              </div>
-              <Progress value={percentage} className={cn("h-2 flex-1", colorClass)} />
-              <div className="flex items-center justify-end gap-3 w-40 shrink-0">
-                <span className="text-xs text-muted-foreground tabular-nums">
-                  {bar.completed} / {bar.total} {bar.unit}
-                </span>
-                <span className="text-xs font-bold w-10 text-right tabular-nums">
-                  {percentage}%
-                </span>
-              </div>
-            </div>
-          );
-        })}
+        <div className="text-xs font-semibold tabular-nums text-muted-foreground">
+          {progress.totalHours} / {progress.totalHoursTarget} Credit Hours{suffix}
+        </div>
       </div>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex w-full h-3 rounded-full overflow-hidden bg-muted/50">
+            {bars.map((bar) => {
+              const pct = Math.min(100, Math.round((bar.completed / (bar.total || 1)) * 100));
+              return (
+                <div 
+                  key={bar.label} 
+                  style={{ flex: bar.weight }} 
+                  className="h-full border-r border-background last:border-0 relative bg-muted"
+                >
+                  <div className={cn("h-full transition-all", bar.color)} style={{ width: `${pct}%` }} />
+                </div>
+              );
+            })}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent className="flex flex-col gap-1.5 p-3">
+          <div className="text-xs font-bold mb-1 border-b pb-1 border-border/50">Category Breakdown</div>
+          {bars.map((bar) => {
+            const pct = Math.min(100, Math.round((bar.completed / (bar.total || 1)) * 100));
+            return (
+              <div key={bar.label} className="flex items-center justify-between gap-4 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <div className={cn("w-2 h-2 rounded-full", bar.color)} />
+                  <span className="font-medium">{bar.label}</span>
+                </div>
+                <div className="tabular-nums text-muted-foreground">
+                  {bar.completed} / {bar.total} {bar.unit} ({pct}%)
+                </div>
+              </div>
+            );
+          })}
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }

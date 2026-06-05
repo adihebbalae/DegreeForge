@@ -5,16 +5,15 @@
 # They should NOT be committed to the actual project repository.
 # The boilerplate template repo keeps them; cloned projects ignore them.
 
-# Agent state (changes every session, project-specific)
-.agents/state.json
-.agents/state.md
-.agents/handoff.md
-
-# Agent config files (boilerplate — not project code)
+# Agent system files (session state + boilerplate — not project code)
 .agents/
+.claude/
+.kiro/
 .github/agents/
+.github/copilot/
 .github/prompts/
 .github/skills/
+.github/scripts/
 .github/copilot-instructions.md
 
 # =========================
@@ -42,7 +41,9 @@ out/
 
 # IDE
 .vscode/settings.json
+.vscode/mcp.json
 .idea/
+.obsidian/
 
 # OS
 .DS_Store
@@ -72,7 +73,14 @@ packages/server/ollama_log/
 # Local Claude Code worktrees
 .claude/worktrees/
 
+# Playwright MCP session snapshots (temp, regenerated each session)
+.playwright-mcp/
+
+# Cursor IDE (superseded by Claude Code hooks)
+.cursor/
+
 # Playwright artifacts (reports, traces); keep checked-in baselines in __screenshots__
+test-results/
 packages/client/test-results/
 packages/client/playwright-report/
 packages/client/blob-report/
