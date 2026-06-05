@@ -122,10 +122,53 @@ export function createOllamaProvider(opts: OllamaAdapterOptions = {}): AgentProv
   };
 }
 
-// TODO: Claude adapter (drop-in, ~30 LOC)
-// export function createClaudeProvider(opts: { apiKey?: string; model?: string }): AgentProvider { ... }
-// The Claude adapter would POST to /api/chat with ?provider=claude and let the
-// server proxy handle the Anthropic SDK call with tool_use blocks.
+// ─── Claude adapter ───────────────────────────────────────────────────────────
+
+/**
+ * Claude adapter — POSTs to the Express server's /api/agent-turn endpoint.
+ * The server holds the Anthropic API key; the browser never sees it.
+ * The endpoint runs one non-streaming tool-use turn and returns { text, toolCall }.
+ */
+export function createClaudeProvider(baseUrl?: string): AgentProvider {
+  const resolvedBaseUrl = baseUrl ?? (
+    typeof import.meta !== 'undefined' && (import.meta as unknown as Record<string, unknown>).env
+      ? ((import.meta as unknown as Record<string, Record<string, string>>).env['VITE_SERVER_URL'] ?? 'http://localhost:3005')
+      : 'http://localhost:3005'
+  );
+
+  return {
+    async complete(messages, tools, systemPrompt): Promise<AgentTurnResult> {
+      const response = await fetch(`${resolvedBaseUrl}/api/agent-turn`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages,
+          tools: tools.map(t => ({ name: t.name, description: t.description, schema: t.schema })),
+          system: systemPrompt,
+        }),
+      });
+
+      if (!response.ok) {
+        let errMsg = `Server error ${response.status}`;
+        try {
+          const errData = await response.json() as { error?: string };
+          if (errData.error) errMsg = errData.error;
+        } catch { /* ignore json parse failure */ }
+        throw new Error(errMsg);
+      }
+
+      const data = await response.json() as {
+        text?: string;
+        toolCall?: { name: string; args: Record<string, unknown> } | null;
+      };
+
+      return {
+        text: data.text ?? '',
+        toolCall: data.toolCall ?? null,
+      };
+    },
+  };
+}
 
 // ─── Agent loop ───────────────────────────────────────────────────────────────
 
