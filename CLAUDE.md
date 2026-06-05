@@ -1,6 +1,6 @@
 # DegreeForge — Claude Instructions
 
-DegreeForge is a single-user, localhost degree planning tool for University of Illinois ECE students. It uses a deterministic TypeScript constraint solver (no LLM for planning) with an optional Claude chat proxy for explanation only. Monorepo: `packages/client/` (Vite + React) and `packages/server/` (Express).
+DegreeForge is a single-user, localhost degree planning tool for University of Texas at Austin ECE students. It uses a deterministic TypeScript constraint solver (no LLM for planning) with an optional Claude chat proxy for explanation only. Monorepo: `packages/client/` (Vite + React) and `packages/server/` (Express).
 
 ---
 
