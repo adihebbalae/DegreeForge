@@ -1,6 +1,6 @@
 import type {
   CourseCatalog,
-  PrereqGraph,
+  PrereqGraphData,
   UserProfile,
   DegreeRequirements,
   TechCores,
@@ -35,8 +35,8 @@ export function loadCourseCatalog(): Promise<CourseCatalog> {
   return fetchJson<CourseCatalog>('/data/course-catalog.json');
 }
 
-export function loadPrereqGraph(): Promise<PrereqGraph> {
-  return fetchJson<PrereqGraph>('/data/prerequisite-graph.json');
+export function loadPrereqGraph(): Promise<PrereqGraphData> {
+  return fetchJson<PrereqGraphData>('/data/prerequisite-graph.json');
 }
 
 export function loadRawGradeDistributions(): Promise<RawGradeDistributionsFile> {

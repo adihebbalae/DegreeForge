@@ -3,13 +3,21 @@ import type { CourseCatalog, PrereqNode, CourseCategory, UserProfile } from '../
 // ─── Category Inference ───────────────────────────────────────────────────────
 
 /**
+ * Course-ID prefixes that map to the gen_ed (amber) category.
+ * 'E' = UT Austin English dept (E 316L Humanities, E 316M, etc.) — NOT ECE.
+ * ECE courses always carry the 'ECE' prefix after E E → ECE normalization in normalize.ts.
+ * Exported so CoursePalette.tsx can stay consistent without a second definition.
+ */
+export const GEN_ED_PREFIXES = new Set(['CTI', 'RHE', 'UGS', 'GOV', 'HIS', 'SOC', 'PSY', 'SDS', 'WGS', 'E']);
+
+/**
  * Infer a display category from the prereq-graph node category or course ID prefix.
  *
  * Mapping:
  *  ece_core / ece_lower → 'ece_core'  (blue)
  *  ece_upper            → 'tech_core' (green — upper-div ECE / tech core tier)
  *  M prefix             → 'math'      (purple)
- *  CTI / RHE / UGS …   → 'gen_ed'    (amber)
+ *  CTI / RHE / UGS / E → 'gen_ed'    (amber) — see GEN_ED_PREFIXES
  *  everything else      → 'elective'  (gray)
  */
 export function inferCategory(
@@ -35,8 +43,6 @@ export function inferCategory(
   // Fallback for ECE not in prereq graph
   if (prefix === 'ECE') return 'ece_core';
 
-  // Common gen-ed prefixes
-  const GEN_ED_PREFIXES = new Set(['CTI', 'RHE', 'UGS', 'GOV', 'HIS', 'SOC', 'PSY', 'SDS', 'WGS']);
   if (GEN_ED_PREFIXES.has(prefix)) return 'gen_ed';
 
   return 'elective';

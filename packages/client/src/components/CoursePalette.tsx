@@ -98,11 +98,15 @@ function isCourseSatisfied(courseId: string, satisfiedSet: Set<string>): boolean
  * Representative Gen Ed courses — one concrete option per core slot that has
  * a fixed course ID.  Slots that say "list_of_approved" (VAPA, SBS) are omitted
  * because there is no single recommended course.
+ *
+ * Every prefix used here must exist in GEN_ED_PREFIXES (course-utils.ts) so that
+ * timeline cards for these courses color as gen-ed (amber) rather than elective (gray).
+ * E 316L uses the 'E' (English) prefix — which was added to GEN_ED_PREFIXES for this.
  */
 const GEN_ED_REPRESENTATIVE = [
   'UGS 302', // First-Year Signature Course (Core 090)
   // RHE 306 is satisfied by credit-by-exam — excluded
-  'E 316L',  // Humanities (Core 040) — first option
+  'E 316L',  // Humanities (Core 040) — first option; prefix 'E' is in GEN_ED_PREFIXES
   'HIS 315K', // US History I (Core 060)
   'HIS 315L', // US History II (Core 060)
   'GOV 310L', // American Government I (Core 070)

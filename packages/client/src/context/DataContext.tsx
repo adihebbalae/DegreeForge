@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import type {
   CatalogCourse,
   CourseCatalog,
-  PrereqGraph,
+  PrereqGraphData,
   GradeDistribution,
   GradeDistributions,
   UserProfile,
@@ -35,7 +35,7 @@ interface DataContextValue {
   loading: boolean;
   error: string | null;
   catalog: CourseCatalog | null;
-  prereqGraph: PrereqGraph | null;
+  prereqGraph: PrereqGraphData | null;
   gradeDistributions: GradeDistributions | null;
   userProfile: UserProfile | null;
   degreeRequirements: DegreeRequirements | null;
@@ -175,7 +175,7 @@ export function useCatalogRecord(): CourseCatalog | null {
  * Returns the prerequisite graph with nodes and edges.
  * Falls back to empty graph while loading.
  */
-export function usePrereqGraph(): PrereqGraph {
+export function usePrereqGraph(): PrereqGraphData {
   const { prereqGraph } = useDataContext();
   return prereqGraph ?? { nodes: {}, edges: [] };
 }

@@ -35,11 +35,8 @@ export interface PrereqGraphData {
   edges: PrereqEdge[];
 }
 
-/** @deprecated Use PrereqGraphData instead */
-export type PrereqGraph = PrereqGraphData;
-
 // ─── Grade Distributions ─────────────────────────────────────────────────────
-export interface GradeSection {
+interface GradeSection {
   semester: string;
   /** unique section number */
   section: number;
@@ -103,7 +100,7 @@ export interface GradeDistribution {
 export type GradeDistributions = Record<string, GradeDistribution>;
 
 // ─── User Profile ────────────────────────────────────────────────────────────
-export interface CompletedCourse {
+interface CompletedCourse {
   course: string;
   title: string;
   grade: string;
@@ -113,7 +110,7 @@ export interface CompletedCourse {
   notes?: string;
 }
 
-export interface InProgressCourse {
+interface InProgressCourse {
   course: string;
   title: string;
   semester: string;
@@ -121,7 +118,7 @@ export interface InProgressCourse {
   notes?: string;
 }
 
-export interface UserGpa {
+interface UserGpa {
   cumulative: number;
   lower_division: number;
   upper_division: number;
@@ -129,13 +126,13 @@ export interface UserGpa {
   grade_points: number;
 }
 
-export interface UserCreditSummary {
+interface UserCreditSummary {
   total_hours_transferred: number;
   total_hours_taken: number;
   total_hours: number;
 }
 
-export interface UserTechCore {
+interface UserTechCore {
   declared: string;
   status: string;
   required_math: string;
@@ -143,18 +140,18 @@ export interface UserTechCore {
   tech_electives_needed: number;
 }
 
-export interface SecondaryAspirationEntry {
+interface SecondaryAspirationEntry {
   status: string;
   notes: string;
 }
 
-export interface UserSecondaryAspirations {
+interface UserSecondaryAspirations {
   math_ba: SecondaryAspirationEntry;
   advanced_math_cert: SecondaryAspirationEntry;
   jefferson_scholars_cert: SecondaryAspirationEntry;
 }
 
-export interface UserPreferences {
+interface UserPreferences {
   course_load: string;
   course_load_tolerance: string;
   time_preference: string;
@@ -184,7 +181,7 @@ export interface UserProfile {
 }
 
 // ─── Degree Requirements ─────────────────────────────────────────────────────
-export interface CoreCurriculumSlot {
+interface CoreCurriculumSlot {
   id: string;
   label: string;
   hours: number;
@@ -195,59 +192,59 @@ export interface CoreCurriculumSlot {
   notes?: string;
 }
 
-export interface EceCoreRequirements {
+interface EceCoreRequirements {
   courses: string[];
   notes: string;
   honors_variants: Record<string, string>;
   senior_design_options: string[];
 }
 
-export interface CoreCurriculumRequirements {
+interface CoreCurriculumRequirements {
   slots: CoreCurriculumSlot[];
 }
 
-export interface TechCoreComponentSpec {
+interface TechCoreComponentSpec {
   hours: string;
   count: number;
 }
 
-export interface TechElectiveComponentSpec {
+interface TechElectiveComponentSpec {
   hours_min: number;
   count: string;
 }
 
-export interface TechCoreComponents {
+interface TechCoreComponents {
   advanced_math: TechCoreComponentSpec;
   core_courses: TechCoreComponentSpec;
   core_lab: TechCoreComponentSpec;
   tech_electives: TechElectiveComponentSpec;
 }
 
-export interface TechCoreBlock {
+interface TechCoreBlock {
   description: string;
   components: TechCoreComponents;
   notes: string;
 }
 
-export interface AdvancedTechElective {
+interface AdvancedTechElective {
   count: number;
   hours: string;
   description: string;
 }
 
-export interface FreeElectivesRequirements {
+interface FreeElectivesRequirements {
   total_hours: number;
   constraints: string[];
   approved_list_url: string;
 }
 
-export interface MathSequenceRequirements {
+interface MathSequenceRequirements {
   required: string[];
   alternate_calculus: string[];
   notes: string;
 }
 
-export interface PhysicsSequenceRequirements {
+interface PhysicsSequenceRequirements {
   required: string[];
   alternate: string[];
   notes: string;
@@ -267,7 +264,7 @@ export interface DegreeRequirements {
 }
 
 // ─── Tech Cores ──────────────────────────────────────────────────────────────
-export interface TechCourseRef {
+interface TechCourseRef {
   id: string;
   title: string;
 }
@@ -285,14 +282,14 @@ export function isTechCorePickOne(entry: TechCoreCourseEntry): entry is TechCore
   return 'options' in entry;
 }
 
-export interface TechCoreRequiredCourses {
+interface TechCoreRequiredCourses {
   advanced_math?: TechCourseRef;
   core?: TechCoreCourseEntry[];
   core_lab?: TechCorePickOne | TechCourseRef;
   required_elective?: TechCourseRef;
 }
 
-export interface TechCoreElectiveCount {
+interface TechCoreElectiveCount {
   general: number;
   ecb: number;
 }
@@ -311,7 +308,7 @@ export interface TechCoreTrack {
 export type TechCores = Record<string, TechCoreTrack>;
 
 // ─── Offering Schedule ───────────────────────────────────────────────────────
-export interface OfferingEntry {
+interface OfferingEntry {
   title: string;
   /** keys like "fall_25", "spring_26" → offered that semester? */
   offerings: Record<string, boolean>;
@@ -322,7 +319,7 @@ export interface OfferingEntry {
 export type OfferingSchedule = Record<string, OfferingEntry>;
 
 // ─── Math Requirements ───────────────────────────────────────────────────────
-export interface MathRequirementItem {
+interface MathRequirementItem {
   id: string;
   label: string;
   hours: number;
@@ -331,25 +328,25 @@ export interface MathRequirementItem {
   options?: string[];
 }
 
-export interface MathBaOverlap {
+interface MathBaOverlap {
   course: string;
   satisfies: string;
   ece_context: string;
 }
 
-export interface MathBaAdditionalCourse {
+interface MathBaAdditionalCourse {
   requirement: string;
   hours: number;
   example: string;
 }
 
-export interface MathBaAdditionalCourses {
+interface MathBaAdditionalCourses {
   note: string;
   minimum_additional_hours: number;
   breakdown: MathBaAdditionalCourse[];
 }
 
-export interface MathBaRequirements {
+interface MathBaRequirements {
   program_name: string;
   catalog_url: string;
   total_upper_division_hours: number;
@@ -394,7 +391,7 @@ export interface FallSections {
 }
 
 /** Entry in sections-index.json */
-export interface SectionsIndexEntry {
+interface SectionsIndexEntry {
   slug: string;
   label: string;
   code: string;
