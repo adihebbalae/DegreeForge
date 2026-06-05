@@ -23,6 +23,7 @@ import {
   type ScoreWeights,
   type FactorScores,
 } from './score';
+import type { ProfPreference } from '../context/SettingsContext';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -337,6 +338,96 @@ describe('scoreProfessor', () => {
     const sections = [makeSection('ECE 999', [], 'Someone')];
     // fallback 3.0, normalized: (3.0-2)/2=0.5
     expect(scoreProfessor(sections, mockGrades)).toBeCloseTo(0.5);
+  });
+});
+
+// ─── scoreProfessor — prefer/avoid adjustments ────────────────────────────────
+
+describe('scoreProfessor with profPreferences', () => {
+  it('empty preferences → unchanged behavior (same as no-arg call)', () => {
+    const sections = [makeSection('ECE 302', [], 'Alice Smith')];
+    // Alice Smith GPA 3.8, normalized = 0.9
+    expect(scoreProfessor(sections, mockGrades, [])).toBeCloseTo(0.9);
+  });
+
+  it('avoided prof scores ≤ 0.1 regardless of GPA signal', () => {
+    const sections = [makeSection('ECE 302', [], 'Alice Smith')];
+    // Alice Smith normally scores 0.9 (high GPA); avoided → clamped to ≤ 0.1
+    const prefs: ProfPreference[] = [{ name: 'Alice Smith', type: 'avoid' }];
+    const score = scoreProfessor(sections, mockGrades, prefs);
+    expect(score).toBeLessThanOrEqual(0.1);
+  });
+
+  it('preferred prof scores ≥ 0.9 regardless of GPA signal', () => {
+    const sections = [makeSection('ECE 302', [], 'Bob Jones')];
+    // Bob Jones normally scores 0.45 (low GPA); preferred → boosted to ≥ 0.9
+    const prefs: ProfPreference[] = [{ name: 'Bob Jones', type: 'prefer' }];
+    const score = scoreProfessor(sections, mockGrades, prefs);
+    expect(score).toBeGreaterThanOrEqual(0.9);
+  });
+
+  it('avoided prof scores lower than same section with no preference', () => {
+    const sections = [makeSection('ECE 302', [], 'Alice Smith')];
+    const noPrefs: ProfPreference[] = [];
+    const avoidPrefs: ProfPreference[] = [{ name: 'Alice Smith', type: 'avoid' }];
+    const baseline = scoreProfessor(sections, mockGrades, noPrefs);
+    const withAvoid = scoreProfessor(sections, mockGrades, avoidPrefs);
+    expect(withAvoid).toBeLessThan(baseline);
+  });
+
+  it('preferred prof scores higher than same section with no preference', () => {
+    const sections = [makeSection('ECE 302', [], 'Bob Jones')];
+    const noPrefs: ProfPreference[] = [];
+    const preferPrefs: ProfPreference[] = [{ name: 'Bob Jones', type: 'prefer' }];
+    const baseline = scoreProfessor(sections, mockGrades, noPrefs);
+    const withPrefer = scoreProfessor(sections, mockGrades, preferPrefs);
+    expect(withPrefer).toBeGreaterThan(baseline);
+  });
+
+  it('avoid takes precedence when prof matches both prefer and avoid', () => {
+    // Avoid is checked first; if isAvoided → clamp low even if also preferred
+    const sections = [makeSection('ECE 302', [], 'Alice Smith')];
+    const prefs: ProfPreference[] = [
+      { name: 'Alice Smith', type: 'avoid' },
+      { name: 'Alice Smith', type: 'prefer' },
+    ];
+    const score = scoreProfessor(sections, mockGrades, prefs);
+    expect(score).toBeLessThanOrEqual(0.1);
+  });
+
+  it('case-insensitive match: "alice smith" matches "Alice Smith"', () => {
+    const sections = [makeSection('ECE 302', [], 'Alice Smith')];
+    const prefs: ProfPreference[] = [{ name: 'alice smith', type: 'avoid' }];
+    const score = scoreProfessor(sections, mockGrades, prefs);
+    expect(score).toBeLessThanOrEqual(0.1);
+  });
+
+  it('partial last-name match: "Smith" matches "Alice Smith"', () => {
+    const sections = [makeSection('ECE 302', [], 'Alice Smith')];
+    const prefs: ProfPreference[] = [{ name: 'Smith', type: 'avoid' }];
+    const score = scoreProfessor(sections, mockGrades, prefs);
+    expect(score).toBeLessThanOrEqual(0.1);
+  });
+
+  it('no instructor name on section → preferences have no effect', () => {
+    // Empty string instructor → falls through to course avg_gpa unchanged
+    const sections = [makeSection('ECE 302', [], '')];
+    const prefs: ProfPreference[] = [{ name: 'Alice Smith', type: 'avoid' }];
+    // Should equal the no-pref baseline (course avg 3.5 → 0.75)
+    const score = scoreProfessor(sections, mockGrades, prefs);
+    expect(score).toBeCloseTo(0.75);
+  });
+
+  it('prefer/avoid only applies to matching section; other sections unaffected', () => {
+    // Two-course schedule: one avoided prof, one neutral
+    const sections = [
+      makeSection('ECE 302', [], 'Alice Smith'),  // avoided → capped at 0.1
+      makeSection('ECE 302', [], 'Bob Jones'),    // no match → 0.45
+    ];
+    const prefs: ProfPreference[] = [{ name: 'Alice Smith', type: 'avoid' }];
+    const score = scoreProfessor(sections, mockGrades, prefs);
+    // Average of capped 0.1 and base 0.45 = 0.275
+    expect(score).toBeCloseTo(0.275);
   });
 });
 

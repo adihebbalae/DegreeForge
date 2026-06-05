@@ -1,6 +1,7 @@
 import type { CourseSections, CourseSection, SectionMeeting, GradeDistributions } from '../types';
 import {
   scoreScheduleFull,
+  parseInterval,
   DEFAULT_WEIGHTS,
   type ScoreWeights,
   type FactorScores,
@@ -23,30 +24,6 @@ export interface CandidateSchedule {
   factorScores?: FactorScores;
   /** Weights used during scoring (for breakdown display) */
   weights?: ScoreWeights;
-}
-
-// ─── Time Parsing ────────────────────────────────────────────────────────────
-
-/** Converts "9:00 a.m." to minutes from midnight (540) */
-function parseTime(timeStr: string): number {
-  const match = timeStr.toLowerCase().match(/(\d+):(\d+)\s*([ap]\.m\.)/);
-  if (!match) return 0;
-
-  let [_, hours, mins, ampm] = match;
-  let h = parseInt(hours);
-  const m = parseInt(mins);
-
-  if (ampm.startsWith('p') && h < 12) h += 12;
-  if (ampm.startsWith('a') && h === 12) h = 0;
-
-  return h * 60 + m;
-}
-
-/** Returns [startMinutes, endMinutes] for "9:00 a.m.-10:30 a.m." */
-function parseInterval(intervalStr: string): [number, number] | null {
-  const parts = intervalStr.split('-');
-  if (parts.length !== 2) return null;
-  return [parseTime(parts[0]), parseTime(parts[1])];
 }
 
 // ─── Conflict Detection ───────────────────────────────────────────────────────

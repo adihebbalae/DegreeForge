@@ -15,6 +15,7 @@
 
 import type { GradeDistributions } from '../types';
 import type { ScheduledSection } from './scheduler';
+import type { ProfPreference } from '../context/SettingsContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -287,34 +288,81 @@ export function scoreInstructionMode(
 // ─── Factor 5: Professor ──────────────────────────────────────────────────────
 
 /**
+ * Returns true if `instructorName` matches any entry in `prefs` where `type === targetType`.
+ *
+ * Matching strategy: case-insensitive substring check in both directions —
+ * i.e. the stored preference name appears inside the section instructor string, or
+ * vice versa. This handles "Smith" matching "Alice Smith" and "Alice Smith"
+ * matching "Smith, Alice" reasonably well without a full name-normalizer.
+ *
+ * Limitation: very short last-name preferences (e.g. "Lee") may produce false
+ * positives if another instructor's full name contains that substring.
+ */
+function matchesProfPref(
+  instructorName: string,
+  prefs: ProfPreference[],
+  targetType: 'prefer' | 'avoid'
+): boolean {
+  const nameLower = instructorName.toLowerCase();
+  return prefs.some(p => {
+    if (p.type !== targetType) return false;
+    const prefLower = p.name.toLowerCase();
+    return nameLower.includes(prefLower) || prefLower.includes(nameLower);
+  });
+}
+
+/**
  * Scores a schedule by per-instructor GPA from TASK-028 `byInstructor` data.
  * Falls back to course-level avg_gpa if instructor-specific data is unavailable.
  * GPA normalized to [0, 1] using [2.0, 4.0] range.
+ *
+ * If `profPreferences` is provided, the per-section GPA-based factor is clamped:
+ *   - Avoided instructor → factor clamped to min(base, 0.1)  (forced low)
+ *   - Preferred instructor (and not avoided) → factor clamped to max(base, 0.9) (forced high)
+ *   - No match → base GPA factor unchanged
+ *
+ * The final score is the mean of all per-section factors, normalized to [0, 1].
  */
 export function scoreProfessor(
   sections: ScheduledSection[],
-  gradeDistributions: GradeDistributions
+  gradeDistributions: GradeDistributions,
+  profPreferences: ProfPreference[] = []
 ): number {
   if (sections.length === 0) return 0;
   let total = 0;
   for (const s of sections) {
     const dist = gradeDistributions[s.courseId];
-    if (!dist) {
-      total += 3.0;
-      continue;
+    const rawGpa = (() => {
+      if (!dist) return 3.0;
+      const instructorName = s.instructor?.trim();
+      const instructorStats =
+        instructorName && dist.byInstructor?.[instructorName];
+      if (instructorStats && instructorStats.avg_gpa > 0) {
+        return instructorStats.avg_gpa;
+      }
+      return dist.avg_gpa;
+    })();
+
+    // Normalize GPA to [0, 1]: 2.0 → 0, 4.0 → 1
+    let factor = Math.max(0, Math.min(1, (rawGpa - 2.0) / 2.0));
+
+    // Apply prefer/avoid adjustment when preferences are present
+    if (profPreferences.length > 0) {
+      const instructorName = s.instructor?.trim() ?? '';
+      if (instructorName) {
+        const isAvoided = matchesProfPref(instructorName, profPreferences, 'avoid');
+        const isPreferred = matchesProfPref(instructorName, profPreferences, 'prefer');
+        if (isAvoided) {
+          factor = Math.min(factor, 0.1);
+        } else if (isPreferred) {
+          factor = Math.max(factor, 0.9);
+        }
+      }
     }
-    const instructorName = s.instructor?.trim();
-    const instructorStats =
-      instructorName && dist.byInstructor?.[instructorName];
-    if (instructorStats && instructorStats.avg_gpa > 0) {
-      total += instructorStats.avg_gpa;
-    } else {
-      total += dist.avg_gpa;
-    }
+
+    total += factor;
   }
-  const avg = total / sections.length;
-  // Normalize: 2.0 → 0, 4.0 → 1
-  return Math.max(0, Math.min(1, (avg - 2.0) / 2.0));
+  return total / sections.length;
 }
 
 // ─── Factor 6: Day Spread ─────────────────────────────────────────────────────
@@ -397,6 +445,7 @@ export interface ScheduleScoringOptions {
   buildingDistances?: Record<string, number>;
   preferredMode?: 'in-person' | 'online' | 'hybrid' | null;
   daySpreadPreference?: 'condensed' | 'spread' | null;
+  profPreferences?: ProfPreference[];
 }
 
 /**
@@ -414,6 +463,7 @@ export function scoreScheduleFull(
     buildingDistances = {},
     preferredMode = null,
     daySpreadPreference = null,
+    profPreferences = [],
   } = options;
 
   const factors: FactorScores = {
@@ -421,7 +471,7 @@ export function scoreScheduleFull(
     timeOfDay: scoreTimeOfDay(sections, preferredWindows),
     buildingBreak: scoreBuildingBreak(sections, buildingDistances),
     instructionMode: scoreInstructionMode(sections, preferredMode),
-    professor: scoreProfessor(sections, gradeDistributions),
+    professor: scoreProfessor(sections, gradeDistributions, profPreferences),
     daySpread: scoreDaySpread(sections, daySpreadPreference),
   };
 

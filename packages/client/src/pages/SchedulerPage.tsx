@@ -3,7 +3,7 @@ import { usePlan } from '@/context/PlanContext';
 import { useFallSections, useGradeDistributions } from '@/context/DataContext';
 import { useSettings, useSettingsDispatch, type SchedulerWeights, type InstructionMode, type TimeWindow as SettingsTimeWindow } from '@/context/SettingsContext';
 import { generateSchedules, type CandidateSchedule, type ScoreWeights } from '@/lib/scheduler';
-import { type TimeWindow } from '@/lib/score';
+import { parseTimeToMinutes, parseInterval, type TimeWindow } from '@/lib/score';
 import { fetchJson } from '@/lib/data-loaders';
 import { Check, Calendar as CalendarIcon, Copy, ChevronDown, ChevronRight, SlidersHorizontal, CheckCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -141,8 +141,9 @@ export default function SchedulerPage() {
       preferredMode,
       // daySpreadPreference: not yet a settings field; weight controls importance
       daySpreadPreference: null,
+      profPreferences: settings.profPreferences,
     });
-  }, [selectedCourseData, gradeDistributions, weights, preferredWindows, buildingDistances, preferredMode]);
+  }, [selectedCourseData, gradeDistributions, weights, preferredWindows, buildingDistances, preferredMode, settings.profPreferences]);
 
   const activeSchedule = candidates[activeScheduleIndex] || null;
 
@@ -444,36 +445,19 @@ function WeeklyCalendar({ schedule }: { schedule: CandidateSchedule }) {
   const endHour = 21;
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
-  // Helper to get block position
+  // Helper to get block position — uses canonical parseTimeToMinutes from score.ts
   const getPosition = (timeStr: string) => {
-    const match = timeStr.toLowerCase().match(/(\d+):(\d+)\s*([ap]\.m\.)/);
-    if (!match) return 0;
-    let [_, hStr, mStr, ampm] = match;
-    let h = parseInt(hStr);
-    let m = parseInt(mStr);
-    if (ampm.startsWith('p') && h < 12) h += 12;
-    if (ampm.startsWith('a') && h === 12) h = 0;
-
-    const minutesSinceStart = (h * 60 + m) - (startHour * 60);
+    const minutes = parseTimeToMinutes(timeStr);
+    if (minutes === -1) return 0;
+    const minutesSinceStart = minutes - (startHour * 60);
     return (minutesSinceStart / (13 * 60)) * 100; // 13 hours total (8am to 9pm)
   };
 
+  // Helper to get block height — uses canonical parseInterval from score.ts
   const getDuration = (intervalStr: string) => {
-    const parts = intervalStr.split('-');
-    if (parts.length !== 2) return 0;
-
-    const parse = (s: string) => {
-      const m = s.toLowerCase().match(/(\d+):(\d+)\s*([ap]\.m\.)/);
-      if (!m) return 0;
-      let [_, hh, mm, ap] = m;
-      let h = parseInt(hh);
-      if (ap.startsWith('p') && h < 12) h += 12;
-      if (ap.startsWith('a') && h === 12) h = 0;
-      return h * 60 + parseInt(mm);
-    };
-
-    const start = parse(parts[0]);
-    const end = parse(parts[1]);
+    const interval = parseInterval(intervalStr);
+    if (!interval) return 0;
+    const [start, end] = interval;
     return ((end - start) / (13 * 60)) * 100;
   };
 
