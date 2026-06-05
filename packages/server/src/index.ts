@@ -9,6 +9,12 @@ import { tokenCapMiddleware } from './middleware/tokenCap';
 
 dotenv.config({ path: '../../.env' });
 
+// Startup visibility: warn loudly if the API key is absent so misconfiguration
+// is obvious in logs before any request arrives (503 path still handles runtime).
+if (!process.env.ANTHROPIC_API_KEY) {
+  console.warn('[startup] ANTHROPIC_API_KEY is not set — /api/agent-turn will return 503 until it is configured.');
+}
+
 const app = express();
 
 // Security headers — CSP is set here (HTTP header) instead of an HTML <meta>
@@ -89,6 +95,46 @@ app.post('/api/agent-turn', chatLimiter, tokenCapMiddleware, async (req, res) =>
     return res.status(400).json({ error: 'messages array exceeds 100 entries' });
   }
 
+  // Validate per-message content length and role
+  const VALID_ROLES = new Set(['user', 'assistant', 'tool_result']);
+  for (let i = 0; i < messages.length; i++) {
+    const m = messages[i];
+    if (!VALID_ROLES.has(m.role)) {
+      return res.status(400).json({ error: 'Invalid message role' });
+    }
+    if (typeof m.content === 'string' && m.content.length > 16000) {
+      return res.status(400).json({ error: 'Message content exceeds 16000 characters' });
+    }
+  }
+
+  // Validate tools if provided
+  if (tools !== undefined) {
+    if (!Array.isArray(tools)) {
+      return res.status(400).json({ error: 'tools must be an array' });
+    }
+    if (tools.length > 32) {
+      return res.status(400).json({ error: 'tools array exceeds 32 entries' });
+    }
+    for (const tool of tools) {
+      if (typeof tool.name !== 'string' || tool.name.length > 64) {
+        return res.status(400).json({ error: 'Invalid tool: name exceeds 64 characters' });
+      }
+      if (typeof tool.description !== 'string' || tool.description.length > 1000) {
+        return res.status(400).json({ error: 'Invalid tool: description exceeds 1000 characters' });
+      }
+      if (JSON.stringify(tool.schema).length > 8000) {
+        return res.status(400).json({ error: 'Invalid tool: schema exceeds 8000 characters' });
+      }
+    }
+  }
+
+  // Validate system prompt if provided
+  if (system !== undefined) {
+    if (typeof system !== 'string' || system.length > 8000) {
+      return res.status(400).json({ error: 'system prompt must be a string ≤ 8000 characters' });
+    }
+  }
+
   // Map agent-loop message roles to Anthropic roles.
   // tool_result messages are inserted as user-role content blocks in Anthropic's API.
   // For simplicity we encode them as plain user messages with the tool result inline.
@@ -133,9 +179,9 @@ app.post('/api/agent-turn', chatLimiter, tokenCapMiddleware, async (req, res) =>
 
     return res.json({ text, toolCall });
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : 'Unknown error from Anthropic SDK';
-    console.error('agent-turn error:', msg);
-    return res.status(500).json({ error: msg });
+    // Log full detail server-side only — never leak SDK internals to the client.
+    console.error('agent-turn error:', error instanceof Error ? error.message : error);
+    return res.status(500).json({ error: 'The AI service returned an error.' });
   }
 });
 

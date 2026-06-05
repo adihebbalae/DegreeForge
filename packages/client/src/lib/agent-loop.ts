@@ -138,15 +138,24 @@ export function createClaudeProvider(baseUrl?: string): AgentProvider {
 
   return {
     async complete(messages, tools, systemPrompt): Promise<AgentTurnResult> {
-      const response = await fetch(`${resolvedBaseUrl}/api/agent-turn`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages,
-          tools: tools.map(t => ({ name: t.name, description: t.description, schema: t.schema })),
-          system: systemPrompt,
-        }),
-      });
+      let response: Response;
+      try {
+        response = await fetch(`${resolvedBaseUrl}/api/agent-turn`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages,
+            tools: tools.map(t => ({ name: t.name, description: t.description, schema: t.schema })),
+            system: systemPrompt,
+          }),
+          signal: AbortSignal.timeout(60000),
+        });
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === 'TimeoutError') {
+          throw new Error('The AI service did not respond within 60 seconds. Please try again.');
+        }
+        throw err;
+      }
 
       if (!response.ok) {
         let errMsg = `Server error ${response.status}`;
