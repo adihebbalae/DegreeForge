@@ -65,11 +65,12 @@ export interface AutoPlannerInput {
   pinnedCourses?: Record<string, string>;
   catalog?: CourseCatalog;
   /**
-   * Override profile-derived credit-hour cap per semester.
-   * When set, used instead of the profile-derived value.
-   * @deprecated Prefer profile.preferences.course_load_tolerance for cap control.
+   * Override the profile-derived credit-hour cap per semester.
+   * When set, used instead of the value derived from load-tolerance.
+   * (Renamed from maxCoursesPerSemester — the old name was misleading because
+   * the cap is in credit hours, not a course count.)
    */
-  maxCoursesPerSemester?: number;
+  maxHoursPerSemesterOverride?: number;
 }
 
 export interface AutoPlannerResult {
@@ -204,15 +205,28 @@ export function computeRequiredCourses(
 // ─── Load-cap derivation ──────────────────────────────────────────────────────
 
 /**
- * Derive the credit-hour cap per semester from the user profile.
- * Behavior B: unified engine caps by credit-hours (not course count).
+ * Canonical credit-hour cap derived from the user profile's load tolerance.
+ *
+ * Canonical LoadTolerance values (SettingsContext):
+ *   light → 15, normal → 17, above_average → 18, heavy → 19
+ *
+ * Legacy fixture strings are preserved via tolerant fallbacks so existing
+ * tests and stored profiles continue to work:
+ *   up_to_18 / above_average → 18
+ *   up_to_15 / below_average / light → 15
+ *   heavy → 19
+ *   moderate / normal / unrecognised → 17
+ *
+ * Exported so run-solver.ts and useGhostPlan.ts call the same function.
  */
-function getCreditHourCap(profile: UserProfile, overrideHours?: number): number {
+export function getCreditHourCap(profile: UserProfile, overrideHours?: number): number {
   if (typeof overrideHours === 'number' && overrideHours > 0) return overrideHours;
   const tol = profile.preferences?.course_load_tolerance;
+  if (tol === 'heavy') return 19;
   if (tol === 'above_average' || tol === 'up_to_18') return 18;
-  if (tol === 'below_average' || tol === 'up_to_15') return 15;
-  return 17; // average / unspecified
+  if (tol === 'light' || tol === 'below_average' || tol === 'up_to_15') return 15;
+  // 'normal', 'moderate', undefined, or any unrecognised value
+  return 17;
 }
 
 // ─── Main entry point ─────────────────────────────────────────────────────────
@@ -229,7 +243,7 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
     semesters,
     currentPlan,
     pinnedCourses = {},
-    maxCoursesPerSemester,
+    maxHoursPerSemesterOverride,
   } = input;
 
   // ── 1. Build the variant-expanded satisfied set (completed + in-progress +
@@ -254,7 +268,7 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
   );
 
   // ── 3. Derive credit-hour cap ─────────────────────────────────────────────
-  const creditHourCap = getCreditHourCap(userProfile, maxCoursesPerSemester);
+  const creditHourCap = getCreditHourCap(userProfile, maxHoursPerSemesterOverride);
 
   // ── 4. Flatten completedCourses list for generatePlan ────────────────────
   // generatePlan will variant-expand these itself when degreeReqs is provided.

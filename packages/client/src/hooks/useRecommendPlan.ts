@@ -6,6 +6,7 @@ import {
   useTechCoresRecord,
   useMathRequirements,
   usePrereqGraph as useRawPrereqGraph,
+  useOfferingSchedule,
 } from '@/context/DataContext';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { usePlanDispatch, useTechCoreId, useMathBAToggle, useSemesters, usePlan } from '@/context/PlanContext';
@@ -30,6 +31,7 @@ export function useRecommendPlan(): RecommendPlanResult {
   const plan = usePlan();
   const rawPrereqGraph = useRawPrereqGraph();
   const prereqGraphInstance = usePrereqGraph();
+  const offeringSchedule = useOfferingSchedule();
   const dispatch = usePlanDispatch();
   const navigate = useNavigate();
 
@@ -58,6 +60,7 @@ export function useRecommendPlan(): RecommendPlanResult {
     const result = generateAutoPlan({
       prereqGraph: prereqGraphInstance,
       prereqNodes: rawPrereqGraph?.nodes ?? {},
+      offeringSchedule,
       userProfile: userProfile!,
       degreeReqs: degreeReqs!,
       techCore,

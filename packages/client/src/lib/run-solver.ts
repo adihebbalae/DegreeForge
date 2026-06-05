@@ -8,6 +8,7 @@
 
 import { generatePlan, type SolverOutput } from './solver';
 import { buildRemainingRequirements } from './requirements';
+import { getCreditHourCap } from './auto-planner';
 import { PrereqGraph } from './graph-engine';
 import type {
   DegreeRequirements,
@@ -77,8 +78,7 @@ export function runSolver(params: RunSolverParams): SolverOutput {
     }
   }
 
-  const maxHoursPerSemester =
-    profile.preferences?.course_load === 'Max possible' ? 18 : 17;
+  const maxHoursPerSemester = getCreditHourCap(profile);
 
   return generatePlan({
     completedCourses: [

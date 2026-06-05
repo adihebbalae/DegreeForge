@@ -81,6 +81,7 @@ function scoreScheduleComposite(
     buildingDistances: options.buildingDistances ?? {},
     preferredMode: options.preferredMode ?? null,
     daySpreadPreference: options.daySpreadPreference ?? null,
+    profPreferences: options.profPreferences ?? [],
   });
   return { score: result.composite, factorScores: result.factors, weights };
 }

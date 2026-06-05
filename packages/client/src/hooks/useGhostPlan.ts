@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { generatePlan } from '@/lib/solver';
 import { buildRemainingRequirements } from '@/lib/requirements';
+import { getCreditHourCap } from '@/lib/auto-planner';
 import { useOfferingSchedule, useUserProfile, useDegreeRequirements, useTechCoresRecord, useMathRequirements } from '@/context/DataContext';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { usePlan, usePinnedCourses, useRejectedGhosts, useSemesters, usePlanDispatch, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
@@ -78,9 +79,7 @@ export function useGhostPlan(): void {
       prereqGraph,
       offeringSchedule,
       pinnedCourses: pinnedMap,
-      maxHoursPerSemester: profile.preferences?.course_load_tolerance === 'heavy' ? 19
-        : profile.preferences?.course_load_tolerance === 'light' ? 15
-        : 17,
+      maxHoursPerSemester: getCreditHourCap(profile),
       semesters,
       existingPlan: plan,
       degreeReqs,

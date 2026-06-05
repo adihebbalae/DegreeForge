@@ -13,6 +13,13 @@ export type PlanAction =
   | { type: 'SET_HOVERED_COURSE'; courseId: string | null }
   | { type: 'SET_TECH_CORE'; techCoreId: string }
   | { type: 'TOGGLE_MATH_BA'; enabled: boolean }
+  /**
+   * Seed the whatIf staged values from the current Settings baseline without
+   * marking the simulation as active.  Dispatched by WhatIfPanel on open so
+   * the dropdowns always start from the persisted Settings values, not from
+   * a stale whatIf.techCoreId that pre-dates the last Settings change.
+   */
+  | { type: 'SEED_WHAT_IF'; techCoreId: string; mathBAToggle: boolean }
   | { type: 'APPLY_WHAT_IF'; newPlan: Record<string, string[]> }
   | { type: 'RESET_WHAT_IF' }
   | { type: 'RESET_PLAN' }
@@ -172,6 +179,19 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
       return {
         ...state,
         whatIf: { ...state.whatIf, mathBAToggle: action.enabled },
+      };
+    }
+
+    case 'SEED_WHAT_IF': {
+      // Seed staged values from Settings baseline without marking simulation active.
+      // isActive is preserved — if a what-if was already applied, it stays applied.
+      return {
+        ...state,
+        whatIf: {
+          ...state.whatIf,
+          techCoreId: action.techCoreId,
+          mathBAToggle: action.mathBAToggle,
+        },
       };
     }
 

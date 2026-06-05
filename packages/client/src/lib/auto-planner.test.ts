@@ -148,8 +148,8 @@ describe('generateAutoPlan', () => {
     }
   });
 
-  it('honors explicit credit-hour override via maxCoursesPerSemester', () => {
-    // Behavior B: maxCoursesPerSemester is now a credit-hour override when set.
+  it('honors explicit credit-hour override via maxHoursPerSemesterOverride', () => {
+    // maxHoursPerSemesterOverride caps credit hours per future semester.
     // Setting it to 12 means at most 12 credit hours per future semester.
     const result = generateAutoPlan({
       prereqGraph,
@@ -162,7 +162,7 @@ describe('generateAutoPlan', () => {
       semesters: SEMESTERS,
       currentPlan: INITIAL_PLAN,
       catalog,
-      maxCoursesPerSemester: 12,
+      maxHoursPerSemesterOverride: 12,
     });
     for (const sem of SEMESTERS.filter((s) => s.status === 'future')) {
       const semCredits = result.plan[sem.id].reduce(

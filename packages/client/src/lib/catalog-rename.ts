@@ -4,7 +4,7 @@
  * Single source of truth for legacy-to-canonical catalog number mapping
  * (pre-2026 → 2026 catalog renumber).
  *
- * Imported by: auto-planner.ts, progress.ts, requirements.ts
+ * Imported by: variants.ts, progress.ts, requirements.ts
  */
 
 /** Legacy (pre-2026) → canonical (2026+) catalog numbers. */

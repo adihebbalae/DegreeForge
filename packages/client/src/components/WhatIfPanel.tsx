@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { X, Zap, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Notice } from '@/components/ui/notice';
@@ -58,14 +58,22 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
   const whatIf = state.whatIf;
   const settings = useSettings();
   // Baseline values come from SettingsContext (single source of truth).
-  // The whatIf fields hold the *staged simulation* values; when no simulation
-  // is active the dropdown shows the Settings baseline instead.
   const currentTechCoreId = settings.techCoreId;
   const currentMathBA = settings.mathBAToggle;
-  // Staged values: while a what-if is active use whatIf; otherwise fall back
-  // to settings so the dropdown is always pre-populated with a sensible default.
-  const stagedTechCoreId = whatIf.isActive ? whatIf.techCoreId : settings.techCoreId;
-  const stagedMathBA = whatIf.isActive ? whatIf.mathBAToggle : settings.mathBAToggle;
+
+  // On open: seed whatIf staged values from the current Settings baseline so
+  // the dropdowns always start from the persisted Settings values.
+  // This runs once on mount (panel open), preserving isActive for ProgressBars.
+  useEffect(() => {
+    dispatch({ type: 'SEED_WHAT_IF', techCoreId: settings.techCoreId, mathBAToggle: settings.mathBAToggle });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally empty — seed only on panel open
+
+  // Staged values come directly from whatIf state (SET_TECH_CORE / TOGGLE_MATH_BA
+  // write there on every dropdown change).  No isActive gate here — the gate was
+  // causing the dropdown to snap back when isActive=false.
+  const stagedTechCoreId = whatIf.techCoreId;
+  const stagedMathBA = whatIf.mathBAToggle;
   const [isSolving, setIsSolving] = useState(false);
   const [isRecommending, setIsRecommending] = useState(false);
   const [recommendationData, setRecommendationData] = useState<{ techCoreId: string; mathBA: boolean; reasoning: string } | null>(null);
@@ -389,7 +397,7 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
         <Button
           className="w-full gap-2"
           onClick={() => { setSolverError(null); handleApply(); }}
-          disabled={!whatIf.isActive || isSolving}
+          disabled={isSolving}
         >
           {isSolving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
           {isSolving ? 'Calculating...' : 'Apply to Plan'}
