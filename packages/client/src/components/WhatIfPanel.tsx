@@ -28,11 +28,10 @@ import {
   usePlanDispatch,
   usePlan,
   useWhatIf,
-  useTechCoreId,
-  useMathBAToggle,
   usePlanContext,
   useGradeEntries,
 } from '@/context/PlanContext';
+import { useSettings } from '@/context/SettingsContext';
 import {
   useTechCores,
   useTechCoresRecord,
@@ -57,8 +56,16 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
   const { state, dispatch } = usePlanContext();
   const plan = state.plan;
   const whatIf = state.whatIf;
-  const currentTechCoreId = state.whatIf.techCoreId;
-  const currentMathBA = state.whatIf.mathBAToggle;
+  const settings = useSettings();
+  // Baseline values come from SettingsContext (single source of truth).
+  // The whatIf fields hold the *staged simulation* values; when no simulation
+  // is active the dropdown shows the Settings baseline instead.
+  const currentTechCoreId = settings.techCoreId;
+  const currentMathBA = settings.mathBAToggle;
+  // Staged values: while a what-if is active use whatIf; otherwise fall back
+  // to settings so the dropdown is always pre-populated with a sensible default.
+  const stagedTechCoreId = whatIf.isActive ? whatIf.techCoreId : settings.techCoreId;
+  const stagedMathBA = whatIf.isActive ? whatIf.mathBAToggle : settings.mathBAToggle;
   const [isSolving, setIsSolving] = useState(false);
   const [isRecommending, setIsRecommending] = useState(false);
   const [recommendationData, setRecommendationData] = useState<{ techCoreId: string; mathBA: boolean; reasoning: string } | null>(null);
@@ -87,23 +94,23 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
 
   const diff = useMemo(() => {
     if (!techCores || !mathReqs || !catalog) return null;
-    
+
     return computeWhatIfDiff(
       { techCoreId: currentTechCoreId, mathBAToggle: currentMathBA },
-      { techCoreId: whatIf.techCoreId, mathBAToggle: whatIf.mathBAToggle },
+      { techCoreId: stagedTechCoreId, mathBAToggle: stagedMathBA },
       techCores,
       mathReqs,
       catalog,
       completedCourses
     );
   }, [
-    currentTechCoreId, 
-    currentMathBA, 
-    whatIf.techCoreId, 
-    whatIf.mathBAToggle, 
-    techCores, 
-    mathReqs, 
-    catalog, 
+    currentTechCoreId,
+    currentMathBA,
+    stagedTechCoreId,
+    stagedMathBA,
+    techCores,
+    mathReqs,
+    catalog,
     completedCourses
   ]);
 
@@ -116,8 +123,8 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
       try {
         // D4: shared solver helper replaces duplicated setup
         const newPlanOutput = runSolver({
-          techCoreId: whatIf.techCoreId,
-          mathBAToggle: whatIf.mathBAToggle,
+          techCoreId: stagedTechCoreId,
+          mathBAToggle: stagedMathBA,
           degreeReqs,
           techCores,
           mathReqs,
@@ -265,7 +272,7 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
             <div className="space-y-2">
               <Label htmlFor="tech-core">Tech Core Track</Label>
               <Select
-                value={whatIf.techCoreId}
+                value={stagedTechCoreId}
                 onValueChange={(val) => dispatch({ type: 'SET_TECH_CORE', techCoreId: val })}
               >
                 <SelectTrigger id="tech-core">
@@ -288,7 +295,7 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
               </div>
               <Switch
                 id="math-ba"
-                checked={whatIf.mathBAToggle}
+                checked={stagedMathBA}
                 onCheckedChange={(checked) => dispatch({ type: 'TOGGLE_MATH_BA', enabled: checked })}
               />
             </div>

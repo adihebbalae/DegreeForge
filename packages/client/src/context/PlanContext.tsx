@@ -15,6 +15,7 @@ import {
   type PlanSnapshot,
 } from './PlanContext.constants';
 import { parsePlanState, parseSnapshotState } from '../lib/plan-schema';
+import { useSettings } from './SettingsContext';
 
 // ─── Re-export constants for backward compatibility ───────────────────────────
 export { SEMESTERS, INITIAL_PLAN, INITIAL_STATE, planReducer, historyReducer } from './PlanContext.constants';
@@ -130,12 +131,15 @@ export function useWhatIf(): WhatIfState {
   return usePlanContext().state.whatIf;
 }
 
+// Read the baseline techCoreId/mathBAToggle from SettingsContext (single source
+// of truth). The whatIf object still carries the *staged simulation* values
+// used by ProgressBars and WhatIfPanel when a what-if is active.
 export function useTechCoreId(): string {
-  return usePlanContext().state.whatIf.techCoreId;
+  return useSettings().techCoreId;
 }
 
 export function useMathBAToggle(): boolean {
-  return usePlanContext().state.whatIf.mathBAToggle;
+  return useSettings().mathBAToggle;
 }
 
 export function usePlanDispatch(): React.Dispatch<PlanAction> {
