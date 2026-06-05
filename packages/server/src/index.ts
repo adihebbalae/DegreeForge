@@ -37,7 +37,7 @@ app.use(cors({ origin: CORS_ORIGIN }));
 
 app.use(express.json({ limit: '100kb' }));
 
-// Rate limiting on chat endpoint — 20 requests per minute per IP
+// Rate limiting on AI endpoints — 20 requests per minute per IP
 const chatLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 20,
@@ -50,240 +50,92 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-interface ChatCourseRef {
-  course: string;
-  title: string;
-}
+// ─── /api/agent-turn ──────────────────────────────────────────────────────────
+//
+// Tool-capable non-streaming endpoint for the client agent loop.
+// Accepts { messages, tools, system } and runs ONE Anthropic tool-use turn.
+// Returns { text, toolCall } where toolCall is null or { name, args }.
+// The client createClaudeProvider calls this; the API key never reaches the browser.
 
-interface ChatPlanContext {
-  techCore: string;
-  completedCourses: ChatCourseRef[];
-  inProgress: ChatCourseRef[];
-  targetGraduation: string;
-  totalCoursesPlanned: number;
-  semesterCount: number;
-}
-
-interface ChatMessage {
-  role: 'user' | 'assistant';
+interface AgentTurnMessage {
+  role: 'user' | 'assistant' | 'tool_result';
   content: string;
+  tool_name?: string;
 }
 
-function formatCourseList(refs: ChatCourseRef[]): string {
-  if (refs.length === 0) return 'none';
-  return refs.map(r => `${r.course} (${r.title})`).join('; ');
-}
-
-function buildSystemPrompt(ctx: ChatPlanContext): string {
-  return `You are a helpful academic advisor for a UT Austin ECE student named Adi.
-
-Current Plan Summary:
-- Tech Core: ${ctx.techCore}
-- Completed courses: ${formatCourseList(ctx.completedCourses)}
-- Spring 2026 (in progress): ${formatCourseList(ctx.inProgress)}
-- Target graduation: ${ctx.targetGraduation}
-
-${ctx.totalCoursesPlanned > 0 ? `Current plan includes ${ctx.totalCoursesPlanned} courses across ${ctx.semesterCount} semesters.` : ''}
-
-Your role:
-- Explain course tradeoffs and why prerequisites matter
-- Help Adi understand what courses to prioritize
-- Answer questions about UT ECE degree requirements
-- Do NOT generate a full course plan — the planner tool handles that automatically
-- Keep responses concise (2-4 paragraphs max)
-
-Grounding rules — read carefully:
-- The course list above is the ONLY authoritative source for course titles.
-  Each entry is in the form "DEPT NUM (Title)". When the user asks what a
-  course is, look it up there first and quote the title verbatim.
-- If a course code is NOT in the list above, do not guess its title or
-  description. Say you don't have that course in context and ask the user
-  to confirm. Never invent a plausible-sounding title.
-- Do not confuse similar-looking codes (e.g. ECE 302 is distinct from
-  ECE 316; ECE 312 from ECE 319K). Always quote the exact code the user
-  asked about.
-
-Output format — required:
-Before your final answer, "think out loud" about the student's request inside
-<thought>...</thought> XML tags. Then provide your response to the user inside
-<answer>...</answer> XML tags.
-Example:
-<thought>
-They asked about ECE 312H — honors software. They have already taken ECE 306.
-</thought>
-<answer>
-ECE 312H is a great class! Since you've taken ECE 306, you are well prepared...
-</answer>`;
-}
-
-function stripHtml(text: string): string {
-  return text.replace(/<[^>]*>?/gm, '');
+interface AgentTurnTool {
+  name: string;
+  description: string;
+  schema: Record<string, unknown>;
 }
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
-app.post('/api/chat', chatLimiter, tokenCapMiddleware, async (req, res) => {
-  const { messages, planContext } = req.body;
-
-  // ?provider=ollama forces Ollama even if ANTHROPIC_API_KEY is set
-  const providerParam = req.query.provider;
-  const forceOllama = providerParam === 'ollama';
-
-  // We will either use Anthropic or fallback to Ollama
-  const useAnthropic = !forceOllama && !!process.env.ANTHROPIC_API_KEY;
-
-  // Input validation
-  if (!messages || !Array.isArray(messages) || messages.length > 50) {
-    return res.status(400).json({ error: 'Invalid messages format or too many messages' });
+app.post('/api/agent-turn', chatLimiter, tokenCapMiddleware, async (req, res) => {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(503).json({ error: 'ANTHROPIC_API_KEY is not configured on the server.' });
   }
 
-  for (const msg of messages) {
-    if (!msg.role || !['user', 'assistant'].includes(msg.role) || typeof msg.content !== 'string' || msg.content.length > 2000) {
-      return res.status(400).json({ error: 'Invalid message format or content length' });
+  const { messages, tools, system } = req.body as {
+    messages?: AgentTurnMessage[];
+    tools?: AgentTurnTool[];
+    system?: string;
+  };
+
+  if (!messages || !Array.isArray(messages)) {
+    return res.status(400).json({ error: 'messages must be an array' });
+  }
+  if (messages.length > 100) {
+    return res.status(400).json({ error: 'messages array exceeds 100 entries' });
+  }
+
+  // Map agent-loop message roles to Anthropic roles.
+  // tool_result messages are inserted as user-role content blocks in Anthropic's API.
+  // For simplicity we encode them as plain user messages with the tool result inline.
+  const anthropicMessages: Anthropic.Messages.MessageParam[] = messages.map(m => {
+    if (m.role === 'tool_result') {
+      return { role: 'user' as const, content: `[tool_result:${m.tool_name ?? 'unknown'}] ${m.content}` };
     }
-    msg.content = stripHtml(msg.content);
-  }
+    return { role: m.role as 'user' | 'assistant', content: m.content };
+  });
 
-  if (!planContext || typeof planContext !== 'object') {
-    return res.status(400).json({ error: 'Missing or invalid planContext' });
-  }
+  const anthropicTools: Anthropic.Messages.Tool[] = (tools ?? []).map(t => ({
+    name: t.name,
+    description: t.description,
+    input_schema: t.schema as Anthropic.Messages.Tool['input_schema'],
+  }));
 
-  // Validate planContext fields to prevent prompt injection
-  const COURSE_ID_RE = /^[A-Z]{1,4}\s\d{3}[A-Z]?$/;
-  if (typeof planContext.techCore !== 'string' || planContext.techCore.length > 100) {
-    return res.status(400).json({ error: 'Invalid techCore field' });
-  }
-  const isValidCourseRef = (c: unknown): boolean =>
-    typeof c === 'object' && c !== null &&
-    typeof (c as ChatCourseRef).course === 'string' && (c as ChatCourseRef).course.length <= 20 &&
-    typeof (c as ChatCourseRef).title === 'string' && (c as ChatCourseRef).title.length <= 200;
-
-  if (!Array.isArray(planContext.completedCourses) || !planContext.completedCourses.every(isValidCourseRef)) {
-    return res.status(400).json({ error: 'Invalid completedCourses field' });
-  }
-  if (!Array.isArray(planContext.inProgress) || !planContext.inProgress.every(isValidCourseRef)) {
-    return res.status(400).json({ error: 'Invalid inProgress field' });
-  }
-  if (typeof planContext.targetGraduation !== 'string' || planContext.targetGraduation.length > 30) {
-    return res.status(400).json({ error: 'Invalid targetGraduation field' });
-  }
+  const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6';
 
   try {
-    const systemPrompt = buildSystemPrompt(planContext);
-    const promptStr = JSON.stringify({ systemPrompt, messages: messages.slice(-10) });
+    const response = await anthropic.messages.create({
+      model,
+      max_tokens: 1024,
+      system: system ?? '',
+      messages: anthropicMessages,
+      tools: anthropicTools.length > 0 ? anthropicTools : undefined,
+    });
 
-    const cached = await getCachedResponse(promptStr);
-    if (cached) {
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-      res.write(`data: ${JSON.stringify({ text: cached })}\n\n`);
-      res.write('data: [DONE]\n\n');
-      return res.end();
+    // Extract text and the first tool_use block (1-tool-call cap matches client loop)
+    let text = '';
+    let toolCall: { name: string; args: Record<string, unknown> } | null = null;
+
+    for (const block of response.content) {
+      if (block.type === 'text') {
+        text += block.text;
+      } else if (block.type === 'tool_use' && toolCall === null) {
+        toolCall = {
+          name: block.name,
+          args: block.input as Record<string, unknown>,
+        };
+      }
     }
 
-    if (useAnthropic) {
-      const stream = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages: messages.slice(-10), // Only last 10 messages to limit tokens
-        stream: true,
-      });
-
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-
-      let fullResponse = '';
-      for await (const event of stream) {
-        if (event.type === 'content_block_delta' && 'text' in event.delta) {
-          fullResponse += event.delta.text;
-          res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
-        }
-      }
-
-      await setCachedResponse(promptStr, fullResponse, 'chat');
-      res.write('data: [DONE]\n\n');
-      res.end();
-    } else {
-      // Fallback to Ollama
-      const ollamaUrl = (process.env.OLLAMA_URL || 'http://127.0.0.1:11434').trim();
-      const model = (process.env.OLLAMA_MODEL || 'llama3').trim();
-      console.log(`Using Ollama at ${ollamaUrl} with model: ${model}`);
-
-      const ollamaMessages = [
-        { role: 'system', content: systemPrompt },
-        ...messages.slice(-10)
-      ];
-
-      const response = await fetch(`${ollamaUrl}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model,
-          messages: ollamaMessages,
-          stream: true,
-        }),
-      });
-
-      if (!response.ok) {
-        let errMsg = response.statusText;
-        try {
-          const errData: any = await response.json();
-          if (errData.error) errMsg = errData.error;
-        } catch (e) {}
-        throw new Error(`Ollama API error: ${errMsg}`);
-      }
-
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-
-      if (!response.body) throw new Error('No response body from Ollama');
-
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let fullResponse = '';
-
-      for await (const chunk of response.body as any) {
-        buffer += decoder.decode(chunk, { stream: true });
-        const lines = buffer.split('\n');
-        
-        // Keep the last partial line in the buffer
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          try {
-            const data = JSON.parse(line);
-            if (data.message?.content) {
-              fullResponse += data.message.content;
-              res.write(`data: ${JSON.stringify({ text: data.message.content })}\n\n`);
-            }
-          } catch (e) {
-            // Ignore parse errors from partial chunks
-          }
-        }
-      }
-
-      if (buffer.trim()) {
-        try {
-          const data = JSON.parse(buffer);
-          if (data.message?.content) {
-            fullResponse += data.message.content;
-            res.write(`data: ${JSON.stringify({ text: data.message.content })}\n\n`);
-          }
-        } catch (e) {}
-      }
-
-      await setCachedResponse(promptStr, fullResponse, 'chat');
-      res.write('data: [DONE]\n\n');
-      res.end();
-    }
-  } catch (error: any) {
-    console.error('Chat API Error:', error?.message || error);
-    res.status(500).json({ error: error?.message || 'Failed to communicate with chat backend' });
+    return res.json({ text, toolCall });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Unknown error from Anthropic SDK';
+    console.error('agent-turn error:', msg);
+    return res.status(500).json({ error: msg });
   }
 });
 
