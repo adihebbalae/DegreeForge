@@ -26,10 +26,10 @@ import type {
 } from '../types';
 import type { AutoPlannerInput } from './auto-planner';
 
-// ─── Real-data loaders ────────────────────────────────────────────────────────
+// ─── Real-data loaders (uses packages/client/public/data) ────────────────────
 
 function loadJson<T>(filename: string): T {
-  const path = join(__dirname, '../../../../data', filename);
+  const path = join(__dirname, '../../public/data', filename);
   return JSON.parse(readFileSync(path, 'utf8')) as T;
 }
 
