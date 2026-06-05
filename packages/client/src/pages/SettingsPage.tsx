@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useSettings, useSettingsDispatch, type LoadTolerance, type InstructionMode, type TimeWindow } from '@/context/SettingsContext';
+import { useSettings, useSettingsDispatch, type LoadTolerance, type InstructionMode, type TimeWindow, type ChatProvider } from '@/context/SettingsContext';
 import { useTechCoresRecord, useUserProfile } from '@/context/DataContext';
 import { TOOL_REGISTRY } from '@/lib/agent-tools/registry';
 import type { TechCoreTrack } from '@/types';
@@ -385,6 +385,27 @@ export default function SettingsPage() {
           {/* ── Section 4: Chat Tools ───────────────────────────────────── */}
           <section aria-labelledby="chat-tools-section">
             <SectionHeader icon={<MessageSquare className="h-4 w-4" />} title="Chat Tools" />
+
+            {/* Provider selector */}
+            <div className="space-y-2 mb-6">
+              <Label htmlFor="chat-provider">Chat Provider</Label>
+              <Select
+                value={settings.chatProvider}
+                onValueChange={(v) => dispatch({ type: 'SET_CHAT_PROVIDER', value: v as ChatProvider })}
+              >
+                <SelectTrigger id="chat-provider" className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ollama">Ollama (local)</SelectItem>
+                  <SelectItem value="claude">Claude (via server)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Ollama is the default (local, no API key needed). Claude routes through the Express server and requires{' '}
+                <code className="font-mono text-xs">ANTHROPIC_API_KEY</code> to be set server-side.
+              </p>
+            </div>
 
             <p className="text-sm text-muted-foreground mb-4">
               Choose which tools the chat advisor can use. Enabled tools are sent to the model on every turn.

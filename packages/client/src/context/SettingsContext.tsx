@@ -22,6 +22,8 @@ export interface ProfPreference {
   type: 'prefer' | 'avoid';
 }
 
+export type ChatProvider = 'ollama' | 'claude';
+
 export interface SettingsState {
   loadTolerance: LoadTolerance;
   gradTarget: string;           // e.g. "Spring 2029"
@@ -34,6 +36,8 @@ export interface SettingsState {
   paletteSortMode: 'recommended' | 'easiest';
   /** Tool names currently enabled for the chat agent. */
   enabledTools: string[];
+  /** Which LLM backend the chat advisor uses. Ollama is the default. */
+  chatProvider: ChatProvider;
 }
 
 // ─── Default Settings ─────────────────────────────────────────────────────────
@@ -59,6 +63,7 @@ export const DEFAULT_SETTINGS: SettingsState = {
   profPreferences: [],
   paletteSortMode: 'recommended',
   enabledTools: DEFAULT_ENABLED_TOOL_NAMES,
+  chatProvider: 'ollama',
 };
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
@@ -75,6 +80,7 @@ export type SettingsAction =
   | { type: 'REMOVE_PROF_PREFERENCE'; name: string }
   | { type: 'SET_PALETTE_SORT'; value: 'recommended' | 'easiest' }
   | { type: 'TOGGLE_TOOL'; toolName: string }
+  | { type: 'SET_CHAT_PROVIDER'; value: ChatProvider }
   | { type: 'RESET_SETTINGS' }
   | { type: 'SET_FULL_SETTINGS'; settings: SettingsState };
 
@@ -120,6 +126,8 @@ export function settingsReducer(state: SettingsState, action: SettingsAction): S
           : [...state.enabledTools, action.toolName],
       };
     }
+    case 'SET_CHAT_PROVIDER':
+      return { ...state, chatProvider: action.value };
     case 'RESET_SETTINGS':
       return { ...DEFAULT_SETTINGS };
     case 'SET_FULL_SETTINGS':

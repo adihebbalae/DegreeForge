@@ -16,7 +16,7 @@ import ReactMarkdown from 'react-markdown';
 import { getCourseTitle } from '@/lib/course-utils';
 import type { ChatCourseRef, ChatPlanContext } from '@/types';
 import type { ProposedPlanEdit, PlanEditOperation } from '@/lib/agent-tools/types';
-import { runAgentTurn, createOllamaProvider } from '@/lib/agent-loop';
+import { runAgentTurn, createOllamaProvider, createClaudeProvider } from '@/lib/agent-loop';
 import type { AgentMessage } from '@/lib/agent-loop';
 import { TOOL_REGISTRY, DEFAULT_ENABLED_TOOLS } from '@/lib/agent-tools/registry';
 import { useSettings } from '@/context/SettingsContext';
@@ -234,7 +234,9 @@ export default function ChatPanel() {
         'Provide concise, actionable academic advice.',
       ].join(' ');
 
-      const provider = createOllamaProvider();
+      const provider = settings.chatProvider === 'claude'
+        ? createClaudeProvider()
+        : createOllamaProvider();
 
       // Keep agent history in sync with the 20-message window
       const historyWindow = agentHistory.slice(-(HISTORY_WINDOW - 1));
