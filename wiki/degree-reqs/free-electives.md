@@ -44,4 +44,4 @@ Separate from free electives but worth noting here:
 ## Cross-references
 
 - Full degree map: [[degree-reqs/overview]]
-- Student profile: [[user/adithya-profile]]
+- Student profile: [[user/student-profile]]

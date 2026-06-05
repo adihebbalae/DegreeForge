@@ -82,6 +82,6 @@ Source: `data/grade-distributions.json` (Fall 2021 — Spring 2026)
 
 ## Cross-references
 
-- Student's current registration path: [[user/adithya-profile]]
+- Student's current registration path: [[user/student-profile]]
 - Computer Arch track courses: [[tech-cores/computer-arch-embedded]]
 - ECE core sequencing: [[degree-reqs/ece-core]]

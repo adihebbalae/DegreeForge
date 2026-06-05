@@ -15,7 +15,7 @@ Query with: `grep "^## " wiki/log.md | tail -10`
 - `data/tech-cores.json` → `degree-reqs/tech-cores.md`, `tech-cores/computer-arch-embedded.md`
 - `data/math-requirements.json` → `degree-reqs/math-sequence.md`
 - `data/offering-schedule.json` → `scheduling/offering-guide.md`
-- `data/user-profile.json` → `user/adithya-profile.md`
+- `data/user-profile.json` → `user/student-profile.md`
 - `data/prerequisite-graph.json` → cross-referenced into course pages
 - `data/grade-distributions.json` → referenced in offering-guide.md
 - `data/fall-2026-sections.json` → referenced in offering-guide.md

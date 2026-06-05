@@ -26,7 +26,7 @@ Existing tools solve adjacent problems but not this one:
 ## 3. User Profile (Hardcoded for V1)
 
 ```
-Name: Adi (Adi H.)
+Name: Adi H.
 EID: demo001
 University: UT Austin
 Catalog: 2026-2028

@@ -24,7 +24,7 @@ Several courses in the Computer Architecture tech elective pool have unknown tit
 **Fix**: Cross-reference `data/course-catalog.json` and fill in [[tech-cores/computer-arch-embedded]] elective pool table.
 
 ### 2. Spring 2026 course load seems low
-[[user/adithya-profile]] shows 12 credits in Spring 2026 vs stated preference of 17-18 hrs.
+[[user/student-profile]] shows 12 credits in Spring 2026 vs stated preference of 17-18 hrs.
 
 **Fix**: Verify if additional courses are being taken that weren't captured in `user-profile.json`. Interview user to update.
 

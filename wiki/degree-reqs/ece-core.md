@@ -72,7 +72,7 @@ M 427J ──→ ECE 313
 
 ## Student Status
 
-See [[user/adithya-profile]] for which core courses are completed, in-progress, or remaining.
+See [[user/student-profile]] for which core courses are completed, in-progress, or remaining.
 
 Completed: ECE 302 (B+), ECE 306 (A-)  
 In progress: ECE 312H, ECE 319H

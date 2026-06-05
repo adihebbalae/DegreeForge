@@ -63,4 +63,4 @@ UT Austin 2026-2028 catalog. Bachelor of Science in Engineering — Electrical a
 - All tech core tracks: [[degree-reqs/tech-cores]]
 - Math requirements: [[degree-reqs/math-sequence]]
 - Free elective rules: [[degree-reqs/free-electives]]
-- Student's current status: [[user/adithya-profile]]
+- Student's current status: [[user/student-profile]]

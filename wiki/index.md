@@ -35,7 +35,7 @@ Master catalog of all wiki pages. Read this first at the start of every session 
 
 | Page | Summary |
 |---|---|
-| [[user/adithya-profile]] | Adi H. — BSE ECE Freshman, completed courses, in-progress, GPA 3.693, target Spring 2029 |
+| [[user/student-profile]] | Adi H. — BSE ECE Freshman, completed courses, in-progress, GPA 3.693, target Spring 2029 |
 
 ---
 

@@ -74,5 +74,5 @@ M 325K (Discrete Math, 3 hr)  ← required for CE tech core tracks (Adi's path)
 ## Cross-references
 
 - ECE courses that use math prereqs: [[degree-reqs/ece-core]]  
-- Student profile: [[user/adithya-profile]]
+- Student profile: [[user/student-profile]]
 - Declared tech core math requirement: [[tech-cores/computer-arch-embedded]]

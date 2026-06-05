@@ -99,5 +99,5 @@ Assuming 17-18 hr/semester target and graduation Spring 2029:
 ## Cross-references
 
 - All tech core tracks: [[degree-reqs/tech-cores]]
-- Student profile: [[user/adithya-profile]]
+- Student profile: [[user/student-profile]]
 - Offering patterns: [[scheduling/offering-guide]]

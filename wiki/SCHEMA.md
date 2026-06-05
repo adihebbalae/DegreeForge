@@ -27,7 +27,7 @@ wiki/
     math-sequence.md      ← math prerequisites + Math BA option
     free-electives.md     ← free elective hour constraints
   user/
-    adithya-profile.md    ← student profile + completed courses + in-progress
+    student-profile.md    ← student profile + completed courses + in-progress
   tech-cores/
     computer-arch-embedded.md  ← declared track deep dive
   scheduling/
@@ -83,7 +83,7 @@ updated: YYYY-MM-DD
 ```
 
 ### Internal links
-Use Obsidian-style wikilinks: `[[degree-reqs/overview]]`, `[[user/adithya-profile]]`
+Use Obsidian-style wikilinks: `[[degree-reqs/overview]]`, `[[user/student-profile]]`
 
 ### Conventions
 - Keep pages focused (one concept per page)
@@ -113,7 +113,7 @@ Use Obsidian-style wikilinks: `[[degree-reqs/overview]]`, `[[user/adithya-profil
 
 When loading context for a session, prefer this order:
 1. `wiki/index.md` — always (cheap, gives full map)
-2. `wiki/user/adithya-profile.md` — for planning sessions
+2. `wiki/user/student-profile.md` — for planning sessions
 3. Domain-specific pages based on query
 4. Raw data (`data/*.json`) only when wiki page is missing or outdated
 
