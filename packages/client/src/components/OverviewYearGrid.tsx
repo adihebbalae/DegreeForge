@@ -92,12 +92,18 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
     );
   }
 
+  // Fixed-width columns: 60px year label + up to 3 × 210px season columns.
+  // Using a fixed pixel width (instead of 1fr) prevents tiles from stretching
+  // to fill the full container width when only Fall+Spring are present.
+  const TILE_COL_WIDTH = 210;
+  const gridCols = `60px repeat(${seasonsPresent.length}, ${TILE_COL_WIDTH}px)`;
+
   return (
-    <div className="h-full flex flex-col gap-0 overflow-hidden">
+    <div className="h-full flex flex-col gap-0 overflow-x-auto overflow-y-hidden">
       {/* Column headers */}
       <div
         className="grid shrink-0 gap-1.5 px-2 pb-0.5"
-        style={{ gridTemplateColumns: `60px repeat(${seasonsPresent.length}, 1fr)` }}
+        style={{ gridTemplateColumns: gridCols }}
       >
         <div /> {/* year label column */}
         {seasonsPresent.map((season) => (
@@ -116,7 +122,7 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
             <div
               key={ay}
               className="flex-1 min-h-0 grid gap-1.5 items-stretch"
-              style={{ gridTemplateColumns: `60px repeat(${seasonsPresent.length}, 1fr)` }}
+              style={{ gridTemplateColumns: gridCols }}
             >
               {/* Academic year label */}
               <div className="flex items-center justify-center text-[10px] font-medium text-muted-foreground leading-tight text-center">

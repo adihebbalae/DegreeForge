@@ -236,14 +236,18 @@ export default function PlannerPage() {
         </div>
 
         {/* ── Chat slide-in panel ──────────────────────────────────────────── */}
+        {/* fixed: viewport-relative so translate-x-full always pushes fully off-screen */}
         <aside
           className={[
-            'absolute inset-y-0 right-0 w-80',
+            'fixed inset-y-0 right-0 w-80',
             'bg-background border-l border-border shadow-lg',
             'flex flex-col transition-transform duration-300 ease-in-out z-20',
-            chatOpen ? 'translate-x-0' : 'translate-x-full',
+            chatOpen
+              ? 'translate-x-0'
+              : 'translate-x-full invisible pointer-events-none',
           ].join(' ')}
           aria-label="AI chat panel"
+          aria-hidden={!chatOpen}
         >
           <div className="flex items-center justify-between p-4 border-b border-border">
             <span className="font-medium">AI Chat</span>
@@ -264,12 +268,15 @@ export default function PlannerPage() {
         {/* ── What-If slide-in panel ────────────────────────────────────────── */}
         <aside
           className={[
-            'absolute inset-y-0 right-0 w-80',
+            'fixed inset-y-0 right-0 w-80',
             'bg-background border-l border-border shadow-lg',
             'flex flex-col transition-transform duration-300 ease-in-out z-30',
-            whatIfOpen ? 'translate-x-0' : 'translate-x-full',
+            whatIfOpen
+              ? 'translate-x-0'
+              : 'translate-x-full invisible pointer-events-none',
           ].join(' ')}
           aria-label="What-If simulator panel"
+          aria-hidden={!whatIfOpen}
         >
           <WhatIfPanel onClose={() => setWhatIfOpen(false)} />
         </aside>
@@ -277,12 +284,15 @@ export default function PlannerPage() {
         {/* ── Course palette slide-in drawer ───────────────────────────────── */}
         <aside
           className={[
-            'absolute inset-y-0 right-0 w-72',
+            'fixed inset-y-0 right-0 w-72',
             'bg-background border-l border-border shadow-lg',
             'flex flex-col transition-transform duration-300 ease-in-out z-20',
-            paletteOpen ? 'translate-x-0' : 'translate-x-full',
+            paletteOpen
+              ? 'translate-x-0'
+              : 'translate-x-full invisible pointer-events-none',
           ].join(' ')}
           aria-label="Course palette"
+          aria-hidden={!paletteOpen}
         >
           <div className="flex items-center justify-between px-3 py-2 border-b border-border shrink-0">
             <span className="text-sm font-medium">Courses</span>
