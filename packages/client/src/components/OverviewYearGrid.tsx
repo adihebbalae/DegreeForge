@@ -18,6 +18,8 @@ import {
   useDataLoading,
 } from '@/context/DataContext';
 import SemesterTile from './SemesterTile';
+import DiagnosticsPanel from './DiagnosticsPanel';
+import { useDiagnostics } from '@/hooks/useDiagnostics';
 import { buildTranscriptCredits } from '@/lib/course-utils';
 import type { Semester } from '@/types';
 
@@ -57,6 +59,17 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
     () => buildTranscriptCredits(userProfile),
     [userProfile]
   );
+
+  // Diagnostics — memoized computation of critical path, slack, and bottlenecks
+  const diagnostics = useDiagnostics();
+
+  // Build semesterId → slackLabel map for SemesterTile
+  const slackBySemester = useMemo(() => {
+    if (!diagnostics) return new Map<string, string>();
+    return new Map(
+      diagnostics.semesterSlack.map((s) => [s.semesterId, s.label])
+    );
+  }, [diagnostics]);
 
   // ── Group semesters into academic years ────────────────────────────────────
   // Result: Map<academicYear, Map<season, Semester>>
@@ -100,6 +113,9 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
 
   return (
     <div className="h-full flex flex-col gap-0 overflow-x-auto overflow-y-hidden">
+      {/* Diagnostics panel — critical path + bottleneck flags */}
+      <DiagnosticsPanel />
+
       {/* Column headers */}
       <div
         className="grid shrink-0 gap-1.5 px-2 pb-0.5"
@@ -146,6 +162,7 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
                     gradeDistributions={gradeDistributions}
                     transcriptCredits={transcriptCredits}
                     isFocused={focusedSemesterId === sem.id}
+                    slackLabel={slackBySemester.get(sem.id) ?? null}
                     onClick={() => onTileClick(sem.id)}
                   />
                 );

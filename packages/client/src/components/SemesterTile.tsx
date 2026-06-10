@@ -51,6 +51,8 @@ interface SemesterTileProps {
   gradeDistributions: GradeDistributions;
   transcriptCredits: Record<string, number>;
   isFocused: boolean;
+  /** Slack label from diagnostics, e.g. "14 hrs spare" or "full". Null for past/current semesters. */
+  slackLabel?: string | null;
   onClick: () => void;
 }
 
@@ -85,6 +87,7 @@ export default function SemesterTile({
   gradeDistributions,
   transcriptCredits,
   isFocused,
+  slackLabel = null,
   onClick,
 }: SemesterTileProps) {
   const { id, label, status, season } = semester;
@@ -184,15 +187,30 @@ export default function SemesterTile({
           )}
         </div>
 
-        {/* Credit count */}
-        <span className={cn(
-          'text-[10px] leading-none shrink-0',
-          totalCredits > 18 ? 'text-red-500 font-semibold' :
-          totalCredits === 18 ? 'text-yellow-500 font-semibold' :
-          'text-muted-foreground'
-        )}>
-          {totalCredits}/18 hrs
-        </span>
+        {/* Credit count + slack */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className={cn(
+            'text-[10px] leading-none',
+            totalCredits > 18 ? 'text-red-500 font-semibold' :
+            totalCredits === 18 ? 'text-yellow-500 font-semibold' :
+            'text-muted-foreground'
+          )}>
+            {totalCredits}/18 hrs
+          </span>
+          {slackLabel && (
+            <span
+              className={cn(
+                'text-[9px] leading-none shrink-0',
+                slackLabel === 'full'
+                  ? 'text-amber-500 font-semibold'
+                  : 'text-emerald-600 dark:text-emerald-400',
+              )}
+              aria-label={`Slack: ${slackLabel}`}
+            >
+              {slackLabel === 'full' ? '● full' : `+${slackLabel}`}
+            </span>
+          )}
+        </div>
 
         {/* Course chips */}
         {courseIds.length === 0 ? (
