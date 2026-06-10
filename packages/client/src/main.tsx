@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import { DataProvider } from './context/DataContext.tsx'
+import { ProfileProvider } from './context/ProfileContext.tsx'
 import { PlanProvider, SnapshotProvider } from './context/PlanContext.tsx'
 import { SettingsProvider } from './context/SettingsContext.tsx'
 import { TooltipProvider } from './components/ui/tooltip'
@@ -36,19 +37,21 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
       <DataProvider>
-        <SettingsProvider>
-          <PlanProvider>
-            <SnapshotProvider>
-              <TooltipProvider>
-                <UiProvider>
-                  <OnboardingGate>
-                    <App />
-                  </OnboardingGate>
-                </UiProvider>
-              </TooltipProvider>
-            </SnapshotProvider>
-          </PlanProvider>
-        </SettingsProvider>
+        <ProfileProvider>
+          <SettingsProvider>
+            <PlanProvider>
+              <SnapshotProvider>
+                <TooltipProvider>
+                  <UiProvider>
+                    <OnboardingGate>
+                      <App />
+                    </OnboardingGate>
+                  </UiProvider>
+                </TooltipProvider>
+              </SnapshotProvider>
+            </PlanProvider>
+          </SettingsProvider>
+        </ProfileProvider>
       </DataProvider>
     </BrowserRouter>
   </React.StrictMode>,

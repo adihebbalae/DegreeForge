@@ -15,7 +15,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 // ── Business-logic imports ────────────────────────────────────────────────────
-import { planReducer, INITIAL_STATE } from '../context/PlanContext.constants';
+import { planReducer, INITIAL_STATE, DEMO_PLAN } from '../context/PlanContext.constants';
 import { generateSchedules } from '../lib/scheduler';
 import { generateAutoPlan } from '../lib/auto-planner';
 import { getCreditHourCap } from '../lib/auto-planner';
@@ -51,7 +51,9 @@ const prereqGraph = new PrereqGraph(prereqData);
 // ─── Shared semester fixture (matches PlanContext INITIAL_STATE) ──────────────
 
 const SEMESTERS = INITIAL_STATE.semesters;
-const INITIAL_PLAN = INITIAL_STATE.plan;
+// Use DEMO_PLAN (Adi's transcript data) as the currentPlan seed for the planner
+// integration tests. INITIAL_PLAN is now empty (tester starts fresh).
+const INITIAL_PLAN = DEMO_PLAN;
 
 // ─── BUG 1 — WhatIfPanel staged-value gate ───────────────────────────────────
 //

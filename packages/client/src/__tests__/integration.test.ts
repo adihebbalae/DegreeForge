@@ -18,7 +18,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // ── Business-logic imports ────────────────────────────────────────────────────
-import { planReducer, historyReducer, INITIAL_STATE, INITIAL_PLAN, SEMESTERS } from '../context/PlanContext';
+import { planReducer, historyReducer, INITIAL_STATE, INITIAL_PLAN, DEMO_PLAN, SEMESTERS } from '../context/PlanContext';
 import { PrereqGraph } from '../lib/graph-engine';
 import { computeProgress } from '../lib/progress';
 import { computeWhatIfDiff } from '../lib/what-if';
@@ -171,23 +171,28 @@ describe('Full planner flow', () => {
 
   // ────────────────────────────────────────────────────────────────────────────
   // 2. Displays completed courses in Fall 2025 and Spring 2026
+  //    DEMO_PLAN carries Adi's transcript data; INITIAL_PLAN is now empty.
   // ────────────────────────────────────────────────────────────────────────────
-  it('displays completed courses in Fall 2025 and Spring 2026', () => {
-    // Fall 2025 — Adi's first semester from the transcript
-    const fall2025 = INITIAL_PLAN['Fall 2025'] ?? [];
+  it('displays completed courses in Fall 2025 and Spring 2026 (demo plan)', () => {
+    // Fall 2025 — Adi's first semester from the demo transcript
+    const fall2025 = DEMO_PLAN['Fall 2025'] ?? [];
     expect(fall2025).toContain('ECE 302');
     expect(fall2025).toContain('ECE 306');
     expect(fall2025).toContain('CTI 301G');
     expect(fall2025).toContain('M 427J');
 
     // Spring 2026 — current semester (in-progress)
-    const spring2026 = INITIAL_PLAN['Spring 2026'] ?? [];
+    const spring2026 = DEMO_PLAN['Spring 2026'] ?? [];
     expect(spring2026).toContain('ECE 312H');
     expect(spring2026).toContain('M 325K');
 
-    // Future semesters should be empty at startup
-    expect(INITIAL_PLAN['Fall 2026']).toHaveLength(0);
-    expect(INITIAL_PLAN['Spring 2027']).toHaveLength(0);
+    // Future semesters should be empty in demo plan
+    expect(DEMO_PLAN['Fall 2026']).toHaveLength(0);
+    expect(DEMO_PLAN['Spring 2027']).toHaveLength(0);
+
+    // INITIAL_PLAN is now empty (tester starts fresh)
+    expect(INITIAL_PLAN['Fall 2025']).toHaveLength(0);
+    expect(INITIAL_PLAN['Spring 2026']).toHaveLength(0);
   });
 
   // ────────────────────────────────────────────────────────────────────────────
@@ -356,9 +361,9 @@ describe('Full planner flow', () => {
     expect(restoredState.semesters).toEqual(exportedState.semesters);
     expect(restoredState.whatIf).toEqual(exportedState.whatIf);
 
-    // Sanity: Fall 2025 courses are back
-    expect(restoredState.plan['Fall 2025']).toContain('ECE 302');
-    expect(restoredState.plan['Fall 2025']).toContain('ECE 306');
+    // Sanity: Fall 2025 matches the exported state (INITIAL_PLAN is now empty)
+    expect(restoredState.plan['Fall 2025']).toEqual(exportedState.plan['Fall 2025']);
+    expect(restoredState.plan['Fall 2025']).toHaveLength(0);
   });
 
   // ────────────────────────────────────────────────────────────────────────────
@@ -476,9 +481,17 @@ describe('Edge cases', () => {
   });
 
   // ─── Completed courses excluded from palette ───────────────────────────────
-  it('completed courses are in plan initial state (not re-added by drag)', () => {
-    // ECE 302 is in Fall 2025 (completed). ADD_COURSE should be a no-op.
-    const state = planReducer(INITIAL_STATE, {
+  it('course already placed in one semester cannot be added to another (duplicate guard)', () => {
+    // First, place ECE 302 in Fall 2025 explicitly
+    const stateWithCourse = planReducer(INITIAL_STATE, {
+      type: 'ADD_COURSE',
+      semesterId: 'Fall 2025',
+      courseId: 'ECE 302',
+    });
+    expect(stateWithCourse.plan['Fall 2025']).toContain('ECE 302');
+
+    // Now attempt to add the same course to Fall 2026 — should be a no-op
+    const state = planReducer(stateWithCourse, {
       type: 'ADD_COURSE',
       semesterId: 'Fall 2026',
       courseId: 'ECE 302', // already in Fall 2025

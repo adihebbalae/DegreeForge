@@ -4,7 +4,7 @@ import {
   type PlanAction,
   type PlanContextValue,
   type HistoryState,
-  INITIAL_PLAN,
+  DEMO_PLAN,
   INITIAL_STATE,
   STORAGE_KEY,
   historyReducer,
@@ -18,7 +18,7 @@ import { parsePlanState, parseSnapshotState } from '../lib/plan-schema';
 import { useSettings } from './SettingsContext';
 
 // ─── Re-export constants for backward compatibility ───────────────────────────
-export { SEMESTERS, INITIAL_PLAN, INITIAL_STATE, planReducer, historyReducer } from './PlanContext.constants';
+export { SEMESTERS, INITIAL_PLAN, DEMO_PLAN, INITIAL_STATE, planReducer, historyReducer } from './PlanContext.constants';
 export type { PlanAction } from './PlanContext.constants';
 
 // ─── Context + Provider ───────────────────────────────────────────────────────
@@ -52,11 +52,12 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
           }
           if (!needsRepair) return state;
 
-          // Restore past/current semesters from INITIAL_PLAN, keep future
+          // Restore past/current semesters from DEMO_PLAN (Adi's known-good data),
+          // keep future semesters from the stored state.
           const repairedPlan = { ...state.plan };
           for (const sem of state.semesters) {
             if (sem.status === 'past' || sem.status === 'current') {
-              repairedPlan[sem.id] = [...(INITIAL_PLAN[sem.id] || [])];
+              repairedPlan[sem.id] = [...(DEMO_PLAN[sem.id] || [])];
             }
           }
           return { ...state, plan: repairedPlan };

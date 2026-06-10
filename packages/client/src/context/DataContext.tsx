@@ -5,7 +5,6 @@ import type {
   PrereqGraphData,
   GradeDistribution,
   GradeDistributions,
-  UserProfile,
   DegreeRequirements,
   TechCores,
   TechCoreTrack,
@@ -20,7 +19,6 @@ import {
   loadCourseCatalog,
   loadPrereqGraph,
   loadRawGradeDistributions,
-  loadUserProfile,
   loadDegreeRequirements,
   loadTechCores,
   loadOfferingSchedule,
@@ -28,6 +26,9 @@ import {
   loadSectionsIndex,
   loadTermSections,
 } from '../lib/data-loaders';
+// useUserProfile is now sourced from ProfileContext (tester-owned profile).
+// Re-exported here for backward compatibility so all 21 call sites keep working.
+export { useUserProfile } from './ProfileContext';
 
 // ─── Context shape ───────────────────────────────────────────────────────────
 
@@ -37,7 +38,6 @@ interface DataContextValue {
   catalog: CourseCatalog | null;
   prereqGraph: PrereqGraphData | null;
   gradeDistributions: GradeDistributions | null;
-  userProfile: UserProfile | null;
   degreeRequirements: DegreeRequirements | null;
   techCores: TechCores | null;
   offeringSchedule: OfferingSchedule | null;
@@ -52,7 +52,6 @@ const INITIAL_STATE: DataContextValue = {
   catalog: null,
   prereqGraph: null,
   gradeDistributions: null,
-  userProfile: null,
   degreeRequirements: null,
   techCores: null,
   offeringSchedule: null,
@@ -82,7 +81,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           catalog,
           prereqGraph,
           rawGradeDist,
-          userProfile,
           degreeRequirements,
           techCores,
           offeringSchedule,
@@ -92,7 +90,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           loadCourseCatalog(),
           loadPrereqGraph(),
           loadRawGradeDistributions(),
-          loadUserProfile(),
           loadDegreeRequirements(),
           loadTechCores(),
           loadOfferingSchedule(),
@@ -112,7 +109,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           catalog,
           prereqGraph,
           gradeDistributions,
-          userProfile,
           degreeRequirements,
           techCores,
           offeringSchedule,
@@ -261,14 +257,6 @@ export function useSectionsIndex(): SectionsIndex | null {
 export function useGradeDistributions(): Record<string, GradeDistribution> {
   const { gradeDistributions } = useDataContext();
   return gradeDistributions ?? {};
-}
-
-/**
- * Returns Adi's user profile (transcript, preferences, tech core declaration).
- * Null while loading.
- */
-export function useUserProfile(): UserProfile | null {
-  return useDataContext().userProfile;
 }
 
 /** True while any data file is still being fetched. */

@@ -47,6 +47,15 @@ export function loadUserProfile(): Promise<UserProfile> {
   return fetchJson<UserProfile>('/data/user-profile.json');
 }
 
+/**
+ * Load the demo profile (Adi's dataset) from /data/user-profile.json.
+ * Use for the "Load demo profile" action — NOT as the runtime-default profile.
+ * The runtime default is EMPTY_PROFILE in ProfileContext.
+ */
+export function loadDemoProfile(): Promise<UserProfile> {
+  return fetchJson<UserProfile>('/data/user-profile.json');
+}
+
 export function loadDegreeRequirements(): Promise<DegreeRequirements> {
   return fetchJson<DegreeRequirements>('/data/degree-requirements.json');
 }

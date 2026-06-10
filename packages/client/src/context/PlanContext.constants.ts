@@ -57,9 +57,22 @@ export const SEMESTERS: Semester[] = [
   { id: 'Spring 2029', label: "Sp '29",   status: 'future',  year: 2029, season: 'Spring' },
 ];
 
-// ─── Initial Plan (from Adi's transcript) ─────────────────────────────────────
+// ─── Initial Plan (empty — tester starts fresh) ───────────────────────────────
 
 export const INITIAL_PLAN: Record<string, string[]> = {
+  'Fall 2025':   [],
+  'Spring 2026': [],
+  'Fall 2026':   [],
+  'Spring 2027': [],
+  'Fall 2027':   [],
+  'Spring 2028': [],
+  'Fall 2028':   [],
+  'Spring 2029': [],
+};
+
+// ─── Demo Plan (Adi's transcript — matches user-profile.json completed/in-progress) ──
+
+export const DEMO_PLAN: Record<string, string[]> = {
   'Fall 2025':   ['ECE 302', 'ECE 306', 'CTI 301G', 'M 427J', 'UGS 016'],
   'Spring 2026': ['ECE 312H', 'M 325K', 'CTI 302', 'ECE 319H'],
   'Fall 2026':   [],
@@ -76,7 +89,7 @@ export const INITIAL_STATE: PlanState = {
   pinnedCourses: [],
   hoveredCourse: null,
   whatIf: {
-    techCoreId: 'computer_architecture', // Default from Adi's profile
+    techCoreId: 'computer_architecture',
     mathBAToggle: false,
     isActive: false,
   },
