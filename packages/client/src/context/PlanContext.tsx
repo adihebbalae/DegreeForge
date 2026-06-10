@@ -4,7 +4,6 @@ import {
   type PlanAction,
   type PlanContextValue,
   type HistoryState,
-  DEMO_PLAN,
   INITIAL_STATE,
   STORAGE_KEY,
   historyReducer,
@@ -36,47 +35,20 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
       try {
         const parsed = JSON.parse(stored);
 
-        // Helper: repair corrupted plans where the solver dumped all completed
-        // courses into a single past semester (the "44 hours in Fall 2025" bug).
-        const repairPlan = (state: PlanState): PlanState => {
-          const maxCoursesInPastSemester = 8; // No real semester should have >8
-          let needsRepair = false;
-          for (const sem of state.semesters) {
-            if (sem.status === 'past' || sem.status === 'current') {
-              const courses = state.plan[sem.id] || [];
-              if (courses.length > maxCoursesInPastSemester) {
-                needsRepair = true;
-                break;
-              }
-            }
-          }
-          if (!needsRepair) return state;
-
-          // Restore past/current semesters from DEMO_PLAN (Adi's known-good data),
-          // keep future semesters from the stored state.
-          const repairedPlan = { ...state.plan };
-          for (const sem of state.semesters) {
-            if (sem.status === 'past' || sem.status === 'current') {
-              repairedPlan[sem.id] = [...(DEMO_PLAN[sem.id] || [])];
-            }
-          }
-          return { ...state, plan: repairedPlan };
-        };
-
         // If it has present, it's the new HistoryState format.
         // Validate through Zod before use: rejects malformed/tampered state and
         // backfills fields added in later versions (e.g. ghostCourses) via per-field defaults.
         if (parsed.present && parsed.present.semesters) {
           const validated = parsePlanState(parsed.present);
           if (validated) {
-            return { ...initial, present: repairPlan(validated), past: [], future: [] };
+            return { ...initial, present: validated, past: [], future: [] };
           }
         }
         // Legacy migration (pre-HistoryState format).
         else if (parsed.semesters && parsed.plan) {
           const validated = parsePlanState(parsed);
           if (validated) {
-            return { ...initial, present: repairPlan({ ...validated, hoveredCourse: null }) };
+            return { ...initial, present: { ...validated, hoveredCourse: null } };
           }
         }
       } catch (e) {

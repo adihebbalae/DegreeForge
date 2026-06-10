@@ -9,7 +9,7 @@ const completedCourseSchema = z.object({
   grade: z.string(),
   semester: z.string(),
   type: z.string(),
-  credit_hours: z.number(),
+  credit_hours: z.number().min(0).max(18),
   notes: z.string().optional(),
 });
 
@@ -17,16 +17,16 @@ const inProgressCourseSchema = z.object({
   course: z.string(),
   title: z.string(),
   semester: z.string(),
-  credit_hours: z.number(),
+  credit_hours: z.number().min(0).max(18),
   notes: z.string().optional(),
 });
 
 const gpaSchema = z.object({
-  cumulative: z.number().default(0),
-  lower_division: z.number().default(0),
-  upper_division: z.number().default(0),
-  gpa_hours: z.number().default(0),
-  grade_points: z.number().default(0),
+  cumulative: z.number().min(0).max(4).default(0),
+  lower_division: z.number().min(0).max(4).default(0),
+  upper_division: z.number().min(0).max(4).default(0),
+  gpa_hours: z.number().min(0).default(0),
+  grade_points: z.number().min(0).default(0),
 });
 
 const creditSummarySchema = z.object({

@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { CourseListEditor } from '@/components/CourseListEditor';
 import { useOwnedProfile, useProfileDispatch, fetchAndLoadDemo } from '@/context/ProfileContext';
-import { usePlanDispatch, SEMESTERS } from '@/context/PlanContext';
+import { usePlanDispatch, SEMESTERS, INITIAL_STATE } from '@/context/PlanContext';
 import { deriveTimelinePlanFromProfile } from '@/lib/derive-timeline';
 import type { UserProfile } from '@/types';
 
@@ -150,7 +150,10 @@ export function ProfileEditor() {
 
   function handleClear() {
     profileDispatch({ type: 'CLEAR_PROFILE' });
-    planDispatch({ type: 'RESET_PLAN' });
+    // Use SET_FULL_STATE (not RESET_PLAN) so gradeEntries are also wiped.
+    // RESET_PLAN deliberately preserves gradeEntries for undo/redo; "Clear all"
+    // is a full clean slate that must not leave stale grades from prior data.
+    planDispatch({ type: 'SET_FULL_STATE', state: INITIAL_STATE });
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────

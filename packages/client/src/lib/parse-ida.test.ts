@@ -99,4 +99,25 @@ describe('parseIdaAudit', () => {
     expect(results).toHaveLength(1);
     expect(results[0].courseId).toBe('ECE 302');
   });
+
+  // ─── ReDoS hardening: HEADER_RE bounded whitespace ──────────────────────────
+  it('returns [] quickly for a line of many spaces (HEADER_RE ReDoS guard)', () => {
+    // A line of 280 spaces followed by no keyword — old unbounded \s* could
+    // catastrophically backtrack through the long alternation.
+    const manySpaces = ' '.repeat(280);
+    const start = Date.now();
+    const results = parseIdaAudit(manySpaces);
+    expect(Date.now() - start).toBeLessThan(200);
+    expect(results).toHaveLength(0);
+  });
+
+  it('returns [] quickly for repeated uppercase prefix with no course number (COURSE_CODE_RE guard)', () => {
+    // "A A A A ..." with no 3-digit number — old nested (?:[A-Z]{1,4}\s+)+ could
+    // backtrack quadratically on this input (tried as course-code, failed, retried).
+    const repeatedPrefix = ('A '.repeat(100)).trim();
+    const start = Date.now();
+    const results = parseIdaAudit(repeatedPrefix);
+    expect(Date.now() - start).toBeLessThan(200);
+    expect(results).toHaveLength(0);
+  });
 });

@@ -63,7 +63,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         setParsedCourses(courses);
         handleNext();
       }
-    } catch {
+    } catch (err) {
+      console.error('Transcript parse error:', err);
       setIsParsing(false);
       setTranscriptError(true);
     }
@@ -78,6 +79,12 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     }
 
     // Build the owned profile from EMPTY_PROFILE + wizard choices + parsed courses.
+    // Known limitation: the Transcript path (parseTranscript) requires a grade token
+    // on each row, so real UT transcript rows for in-progress courses (which have an
+    // absent/empty grade field) may be dropped entirely. The IDA path (parseIdaAudit)
+    // handles in-progress courses correctly via the "IP" grade token. If in-progress
+    // courses are missing after a transcript import, use the IDA path or add them
+    // manually via Settings > Profile.
     const completedCourses: UserProfile['completed_courses'] = parsedCourses
       .filter(c => c.grade !== 'IP')
       .map(c => ({

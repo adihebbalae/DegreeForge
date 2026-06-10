@@ -26,6 +26,19 @@ vi.mock('@/context/ProfileContext', () => ({
 vi.mock('@/context/PlanContext', () => ({
   usePlanDispatch: () => mockUsePlanDispatch(),
   SEMESTERS: [] as unknown[],
+  INITIAL_STATE: {
+    semesters: [],
+    plan: {},
+    pinnedCourses: [],
+    hoveredCourse: null,
+    whatIf: { techCoreId: '', mathBAToggle: false, isActive: false },
+    gradeEntries: {},
+    ghostCourses: {},
+    rejectedGhosts: [],
+    focusedGhostId: null,
+    major: 'ece-bse',
+    catalogYear: '2024',
+  },
 }));
 
 vi.mock('@/lib/derive-timeline', () => ({
@@ -390,11 +403,14 @@ describe('ProfileEditor — Clear confirm flow', () => {
     expect(screen.getByTestId('confirm-clear-all-data')).toBeDefined();
   });
 
-  it('confirming Clear dispatches CLEAR_PROFILE to profile and RESET_PLAN to plan', () => {
+  it('confirming Clear dispatches CLEAR_PROFILE to profile and SET_FULL_STATE (with empty gradeEntries) to plan', () => {
     render(<ProfileEditor />);
     fireEvent.click(screen.getByLabelText('Clear all data'));
     fireEvent.click(screen.getByText('confirm-action'));
     expect(mockProfileDispatch).toHaveBeenCalledWith({ type: 'CLEAR_PROFILE' });
-    expect(mockPlanDispatch).toHaveBeenCalledWith({ type: 'RESET_PLAN' });
+    // SET_FULL_STATE (not RESET_PLAN) so gradeEntries are also wiped on "Clear all".
+    expect(mockPlanDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'SET_FULL_STATE', state: expect.objectContaining({ gradeEntries: {} }) })
+    );
   });
 });

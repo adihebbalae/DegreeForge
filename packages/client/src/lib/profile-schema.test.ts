@@ -130,4 +130,55 @@ describe('parseProfileState', () => {
     expect(result?.major).toBe('ece-bse');
     expect(result?.catalog_year).toBe('2024');
   });
+
+  // ─── Numeric bounds ──────────────────────────────────────────────────────────
+
+  it('rejects a GPA > 4 (out-of-range cumulative falls back to null safeParse)', () => {
+    const bad = { ...validProfile, gpa: { ...validProfile.gpa, cumulative: 5.0 } };
+    // Out-of-range value → safeParse fails → parseProfileState returns null.
+    expect(parseProfileState(bad)).toBeNull();
+  });
+
+  it('rejects a negative GPA', () => {
+    const bad = { ...validProfile, gpa: { ...validProfile.gpa, lower_division: -1 } };
+    expect(parseProfileState(bad)).toBeNull();
+  });
+
+  it('rejects a course credit_hours > 18', () => {
+    const bad = {
+      ...validProfile,
+      completed_courses: [{ ...validProfile.completed_courses[0], credit_hours: 20 }],
+    };
+    expect(parseProfileState(bad)).toBeNull();
+  });
+
+  it('rejects a negative course credit_hours', () => {
+    const bad = {
+      ...validProfile,
+      completed_courses: [{ ...validProfile.completed_courses[0], credit_hours: -1 }],
+    };
+    expect(parseProfileState(bad)).toBeNull();
+  });
+
+  it('accepts GPA at boundary values (0 and 4)', () => {
+    const boundary = {
+      ...validProfile,
+      gpa: { cumulative: 0, lower_division: 4, upper_division: 4, gpa_hours: 0, grade_points: 0 },
+    };
+    const result = parseProfileState(boundary);
+    expect(result).not.toBeNull();
+    expect(result?.gpa.cumulative).toBe(0);
+    expect(result?.gpa.lower_division).toBe(4);
+  });
+
+  it('accepts course credit_hours at boundary values (0 and 18)', () => {
+    const boundary = {
+      ...validProfile,
+      completed_courses: [{ ...validProfile.completed_courses[0], credit_hours: 18 }],
+      in_progress_courses: [{ ...validProfile.in_progress_courses[0], credit_hours: 0 }],
+    };
+    const result = parseProfileState(boundary);
+    expect(result).not.toBeNull();
+    expect(result?.completed_courses[0].credit_hours).toBe(18);
+  });
 });

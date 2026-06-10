@@ -9,12 +9,17 @@ export type { ParsedCourse };
 // Uses a word boundary on the left and a negative alphanumeric lookahead on the
 // right so that "B+" is captured whole (not just "B", since "+" is not a word
 // char and \b would fire between "B" and "+").
+// Repetition is not nested — no backtracking risk.
 const GRADE_RE = /\b(A[+-]?|B[+-]?|C[+-]?|D[+-]?|F|CR|NC|IP|Q|W)(?![A-Za-z0-9])/;
 
 // ─── Course-code token ────────────────────────────────────────────────────────
-// Matches patterns like: ECE 302, M 408C, PHY 303L, CS 314, E E 302
-// Captured groups: (1) dept string, (2) course number + optional suffix letter.
-const COURSE_CODE_RE = /\b((?:[A-Z]{1,4}\s+)+|E\s+E\s+)(\d{3}[A-Z]?)\b/;
+// Matches patterns like: ECE 302, M 408C, PHY 303L, CS 314
+// Note: "E E" is normalised to "ECE" before this regex runs, so no E E case here.
+// Captured groups: (1) dept string (1–4 uppercase letters), (2) course number.
+// Avoids the nested-quantifier ReDoS that `(?:[A-Z]{1,4}\s+)+` carries on a
+// non-matching run of spaces: plain `[A-Z]{1,4}` with a separate `\s+` has no
+// backtracking ambiguity.
+const COURSE_CODE_RE = /\b([A-Z]{1,4})\s+(\d{3}[A-Z]?)\b/;
 
 // ─── Term token ───────────────────────────────────────────────────────────────
 // Handles: Fall/FA, Spring/SP, Summer/SUM  followed by optional space + 4-digit year.
@@ -28,7 +33,9 @@ const CREDIT_RE = /\b(\d+\.\d+)\b/;
 // ─── Requirement-header heuristics ───────────────────────────────────────────
 // Lines that are all-caps section headers, or start with known IDA metadata
 // markers, should be skipped entirely.
-const HEADER_RE = /^\+?\s*(NEEDS|EARNED|HOURS|REQUIRED|COMPLETE|INCOMPLETE|AREA|COMPONENT|SECTION|REQUIREMENT|MAJOR|CORE|ELECTIVE|FREE|UNIVERSITY|COURSE|CATALOG|ADVISOR|STUDENT|DEGREE|CLASSIFICATION|PLAN|SEMESTER|TERM|TOTAL|LIST)/i;
+// The leading whitespace is bounded (\s{0,10}) to prevent catastrophic
+// backtracking on a line of many spaces that doesn't match any keyword.
+const HEADER_RE = /^\+?\s{0,10}(NEEDS|EARNED|HOURS|REQUIRED|COMPLETE|INCOMPLETE|AREA|COMPONENT|SECTION|REQUIREMENT|MAJOR|CORE|ELECTIVE|FREE|UNIVERSITY|COURSE|CATALOG|ADVISOR|STUDENT|DEGREE|CLASSIFICATION|PLAN|SEMESTER|TERM|TOTAL|LIST)/i;
 
 /**
  * Normalises a raw term string to the canonical "Season YYYY" format used

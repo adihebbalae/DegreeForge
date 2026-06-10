@@ -125,8 +125,6 @@ export function profileReducer(state: UserProfile, action: ProfileAction): UserP
 interface ProfileContextValue {
   profile: UserProfile;
   dispatch: React.Dispatch<ProfileAction>;
-  /** True until the demo profile has finished loading (only during LOAD_DEMO async fetch) */
-  demoLoading: boolean;
 }
 
 const ProfileContext = createContext<ProfileContextValue | null>(null);
@@ -147,15 +145,13 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     return EMPTY_PROFILE;
   });
 
-  const [demoLoading, setDemoLoading] = React.useState(false);
-
   // Auto-persist on every profile change
   useEffect(() => {
     localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
   }, [profile]);
 
   return (
-    <ProfileContext.Provider value={{ profile, dispatch, demoLoading }}>
+    <ProfileContext.Provider value={{ profile, dispatch }}>
       {children}
     </ProfileContext.Provider>
   );
@@ -172,9 +168,7 @@ function useProfileContext(): ProfileContextValue {
 }
 
 /**
- * Returns the tester-owned profile from localStorage.
- * Null while any async initialization is in progress (in practice never null
- * because localStorage is synchronous, but kept for API compatibility).
+ * Returns the tester-owned profile. Throws if called outside a ProfileProvider.
  */
 export function useOwnedProfile(): UserProfile {
   return useProfileContext().profile;
@@ -206,10 +200,8 @@ export async function fetchAndLoadDemo(
 // Now: returns the tester-owned profile (initialized from localStorage or EMPTY_PROFILE).
 
 /**
- * Returns the tester-owned user profile. Matches the previous null-while-loading
- * contract: returns null only if ProfileProvider is absent. In practice always
- * returns a non-null value (EMPTY_PROFILE or a stored profile) on first render
- * since localStorage is synchronous.
+ * Returns the tester-owned user profile, or null if called outside a ProfileProvider.
+ * In practice always returns a non-null value (EMPTY_PROFILE or a stored profile).
  */
 export function useUserProfile(): UserProfile | null {
   const ctx = useContext(ProfileContext);

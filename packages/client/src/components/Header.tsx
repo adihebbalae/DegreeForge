@@ -114,7 +114,8 @@ export default function Header() {
           // The plan still imported successfully.
         }
       } catch (err) {
-        console.error('Import failed:', err)
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error('Import failed to parse JSON:', msg)
         setImportError('parse-failed')
       }
     }

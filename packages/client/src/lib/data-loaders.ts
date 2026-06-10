@@ -43,10 +43,6 @@ export function loadRawGradeDistributions(): Promise<RawGradeDistributionsFile> 
   return fetchJson<RawGradeDistributionsFile>('/data/grade-distributions.json');
 }
 
-export function loadUserProfile(): Promise<UserProfile> {
-  return fetchJson<UserProfile>('/data/user-profile.json');
-}
-
 /**
  * Load the demo profile (Adi's dataset) from /data/user-profile.json.
  * Use for the "Load demo profile" action — NOT as the runtime-default profile.
