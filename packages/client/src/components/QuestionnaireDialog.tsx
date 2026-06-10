@@ -15,6 +15,7 @@ import { Loader2, HelpCircle } from 'lucide-react';
 import { useUserProfile, useTechCoresRecord } from '@/context/DataContext';
 import { useGradeEntries } from '@/context/PlanContext';
 import { useSettings } from '@/context/SettingsContext';
+import { serverBaseUrl } from '@/lib/agent-loop';
 
 interface QuestionnaireDialogProps {
   onComplete: (combinedAnswers: string) => void;
@@ -36,7 +37,7 @@ export function QuestionnaireDialog({ onComplete }: QuestionnaireDialogProps) {
     if (newOpen && questions.length === 0) {
       setIsGenerating(true);
       try {
-        const response = await fetch('/api/generate-questionnaire', {
+        const response = await fetch(`${serverBaseUrl()}/api/generate-questionnaire`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

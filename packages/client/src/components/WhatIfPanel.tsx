@@ -41,6 +41,7 @@ import {
 } from '@/context/DataContext';
 import { computeWhatIfDiff } from '@/lib/what-if';
 import { runSolver } from '@/lib/run-solver';
+import { serverBaseUrl } from '@/lib/agent-loop';
 import { TechCoreTrack } from '@/types';
 import { useDegreeRequirements, useOfferingSchedule } from '@/context/DataContext';
 import { usePrereqGraph as useEngineGraph } from '@/hooks/usePrereqGraph';
@@ -162,7 +163,7 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
     const finalInput = typeof overrideInput === 'string' ? overrideInput : customInput;
     
     try {
-      const response = await fetch('/api/recommend', {
+      const response = await fetch(`${serverBaseUrl()}/api/recommend`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

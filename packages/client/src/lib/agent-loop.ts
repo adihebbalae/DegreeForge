@@ -121,6 +121,30 @@ export function createOllamaProvider(opts: OllamaAdapterOptions = {}): AgentProv
   };
 }
 
+// ─── Shared base-URL helper ───────────────────────────────────────────────────
+
+/**
+ * Returns the backend server base URL.
+ *
+ * In dev, Vite proxies relative paths to :3005, but cross-origin fetches (e.g.
+ * from components that need to reach the server directly) require an absolute
+ * URL. Set VITE_SERVER_URL at build time for production deployments; the
+ * localhost fallback is correct for local development.
+ */
+export function serverBaseUrl(): string {
+  if (
+    typeof import.meta !== 'undefined' &&
+    (import.meta as unknown as Record<string, unknown>).env
+  ) {
+    return (
+      (import.meta as unknown as Record<string, Record<string, string>>).env[
+        'VITE_SERVER_URL'
+      ] ?? 'http://localhost:3005'
+    );
+  }
+  return 'http://localhost:3005';
+}
+
 // ─── Claude adapter ───────────────────────────────────────────────────────────
 
 /**
@@ -132,11 +156,7 @@ export function createOllamaProvider(opts: OllamaAdapterOptions = {}): AgentProv
  * An empty string is safe — the server ignores it when BETA_ACCESS_SECRET is unset.
  */
 export function createClaudeProvider(baseUrl?: string, accessCode = ''): AgentProvider {
-  const resolvedBaseUrl = baseUrl ?? (
-    typeof import.meta !== 'undefined' && (import.meta as unknown as Record<string, unknown>).env
-      ? ((import.meta as unknown as Record<string, Record<string, string>>).env['VITE_SERVER_URL'] ?? 'http://localhost:3005')
-      : 'http://localhost:3005'
-  );
+  const resolvedBaseUrl = baseUrl ?? serverBaseUrl();
 
   return {
     async complete(messages, tools, systemPrompt): Promise<AgentTurnResult> {
