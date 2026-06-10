@@ -53,8 +53,8 @@ export interface CriticalPathResult {
   /** Total depth (number of courses in the chain). */
   length: number;
   /**
-   * Semester ID where the last course in the chain is placed, i.e. the
-   * earliest possible graduation term under the current plan.
+   * Semester ID of the latest-placed course among all tied deepest-depth courses,
+   * i.e. the earliest possible graduation term under the current plan.
    */
   bottleneckSemesterId: string | null;
 }
@@ -144,11 +144,17 @@ export function computeCriticalPath(
 
   // Memoize longest chain depth for each course
   const memo = new Map<string, number>();
+  // On-stack guard: if we encounter a course already on the DFS stack, a cycle
+  // exists. Return 0 to break it safely (treats the back-edge as a no-op).
+  const visiting = new Set<string>();
 
   function depth(courseId: string): number {
     if (memo.has(courseId)) return memo.get(courseId)!;
+    if (visiting.has(courseId)) return 0; // cycle guard — break the back-edge
+    visiting.add(courseId);
     const prereqs = prereqGraph.getPrereqs(courseId).filter((p) => requiredSet.has(p));
     const d = prereqs.length === 0 ? 0 : Math.max(...prereqs.map(depth)) + 1;
+    visiting.delete(courseId);
     memo.set(courseId, d);
     return d;
   }
@@ -171,16 +177,22 @@ export function computeCriticalPath(
     return { chain: [], length: 0, bottleneckSemesterId: null };
   }
 
-  // Reconstruct the chain by following the longest prereq at each step
+  // Reconstruct the chain by following the longest prereq at each step.
+  // The visited set guards against infinite loops when the graph has cycles
+  // (same protection as the `visiting` guard in depth()).
+  const chainVisited = new Set<string>([tail]);
   const chain: string[] = [tail];
   let current = tail;
   while (true) {
-    const prereqs = prereqGraph.getPrereqs(current).filter((p) => requiredSet.has(p));
+    const prereqs = prereqGraph
+      .getPrereqs(current)
+      .filter((p) => requiredSet.has(p) && !chainVisited.has(p));
     if (prereqs.length === 0) break;
     // Pick the prereq with the maximum depth to follow the critical path
     const next = prereqs.reduce((best, p) =>
       (memo.get(p) ?? 0) > (memo.get(best) ?? 0) ? p : best
     );
+    chainVisited.add(next);
     chain.push(next);
     current = next;
   }
@@ -193,24 +205,9 @@ export function computeCriticalPath(
     depth: i,
   }));
 
-  // Bottleneck: the semester where the tail (last) course is placed
-  const lastCourse = chainCourses[chainCourses.length - 1];
-  let bottleneckSemesterId: string | null = null;
-
-  if (lastCourse.semesterId) {
-    bottleneckSemesterId = lastCourse.semesterId;
-  } else {
-    // If the tail is unplaced, find the last placed course in the chain
-    for (let i = chainCourses.length - 1; i >= 0; i--) {
-      if (chainCourses[i].semesterId) {
-        bottleneckSemesterId = chainCourses[i].semesterId;
-        break;
-      }
-    }
-  }
-
-  // Among all remaining required courses at the deepest depth (ties), pick the one
-  // placed latest in the plan as the bottleneck
+  // bottleneckSemesterId: among all remaining required courses at the maximum depth
+  // (ties possible), pick the one placed latest in the plan. This gives the
+  // earliest possible graduation term under the current placement.
   const deepestCourses = remainingRequired.filter((c) => (memo.get(c) ?? 0) === maxDepth);
   let latestIdx = -1;
   let latestSemId: string | null = null;
@@ -224,7 +221,7 @@ export function computeCriticalPath(
       }
     }
   }
-  if (latestSemId) bottleneckSemesterId = latestSemId;
+  const bottleneckSemesterId = latestSemId;
 
   return { chain: chainCourses, length: chainCourses.length, bottleneckSemesterId };
 }
@@ -299,7 +296,6 @@ export function computeBottlenecks(
 
   // ── Helper: compute offering slack for a course ──────────────────────────────
   function computeSlack(courseId: string): number {
-    const entry = offeringSchedule[courseId];
     const validSemesters = futureSemesters.filter((s) =>
       canOfferInSemester(courseId, s, offeringSchedule)
     );
@@ -397,7 +393,7 @@ export function computeBottlenecks(
         const delayCost =
           slack === 0
             ? `${criticalPathTail} — 0 semesters of slack; slip it and you graduate a term later`
-            : `${criticalPathTail} — ${slack} slot${slack === 1 ? '' : 's'} of slack (graduation bottleneck)`;
+            : `${criticalPathTail} — ${slack} slot${slack === 1 ? '' : 's'} of slack (graduation gate)`;
 
         flags.push({
           courseId: criticalPathTail,

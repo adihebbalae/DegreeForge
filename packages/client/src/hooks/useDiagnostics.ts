@@ -18,8 +18,8 @@ import {
 } from '@/context/DataContext';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { usePlan, useSemesters, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
-import { computeRequiredCourses } from '@/lib/auto-planner';
-import { getCreditHourCap } from '@/lib/auto-planner';
+import { useSettings } from '@/context/SettingsContext';
+import { computeRequiredCourses, getCreditHourCap } from '@/lib/auto-planner';
 import { computeDiagnostics } from '@/lib/diagnostics';
 import { addWithVariants } from '@/lib/variants';
 import type { DiagnosticsResult } from '@/lib/diagnostics';
@@ -42,6 +42,10 @@ export function useDiagnostics(): DiagnosticsResult | null {
   const semesters = useSemesters();
   const techCoreId = useTechCoreId();
   const mathBAToggle = useMathBAToggle();
+  // Read loadTolerance from SettingsContext — this is the value the user selected
+  // in onboarding/settings. The userProfile.preferences.course_load_tolerance field
+  // is never updated after initial load, so using it would return a stale/default cap.
+  const { loadTolerance } = useSettings();
 
   return useMemo(() => {
     if (loading || !userProfile || !degreeReqs || !techCoresRecord || !mathReqs) return null;
@@ -67,7 +71,13 @@ export function useDiagnostics(): DiagnosticsResult | null {
       satisfied
     );
 
-    const creditHourCap = getCreditHourCap(userProfile);
+    // Build a synthetic profile that reflects the user's current settings tolerance,
+    // so getCreditHourCap returns the correct value for the selected load tolerance.
+    const profileWithTolerance = {
+      ...userProfile,
+      preferences: { ...userProfile.preferences, course_load_tolerance: loadTolerance },
+    };
+    const creditHourCap = getCreditHourCap(profileWithTolerance);
 
     return computeDiagnostics({
       remainingRequired,
@@ -89,5 +99,6 @@ export function useDiagnostics(): DiagnosticsResult | null {
     semesters,
     techCoreId,
     mathBAToggle,
+    loadTolerance,
   ]);
 }

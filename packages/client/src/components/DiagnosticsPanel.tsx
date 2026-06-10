@@ -9,18 +9,21 @@
  * Designed to fit in the 1280×575 zero-scroll viewport. Uses a compact horizontal
  * layout: the panel is a slim collapsible strip below the year-grid header.
  *
- * No new routes, no network calls — purely deterministic from useDiagnostics().
+ * No new routes, no network calls — receives diagnostics from OverviewYearGrid as a prop.
  */
 
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, AlertTriangle, GitBranch } from 'lucide-react';
+import { ChevronDown, ChevronRight, AlertTriangle, GitBranch, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useDiagnostics } from '@/hooks/useDiagnostics';
+import type { DiagnosticsResult } from '@/lib/diagnostics';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function DiagnosticsPanel() {
-  const diagnostics = useDiagnostics();
+interface DiagnosticsPanelProps {
+  diagnostics: DiagnosticsResult | null;
+}
+
+export default function DiagnosticsPanel({ diagnostics }: DiagnosticsPanelProps) {
   const [open, setOpen] = useState(true);
 
   if (!diagnostics) return null;
@@ -106,24 +109,33 @@ export default function DiagnosticsPanel() {
             <div className="flex flex-col gap-0.5">
               {bottlenecks.slice(0, 4).map((b) => (
                 <div key={b.courseId} className="flex items-start gap-1.5">
-                  <AlertTriangle
-                    className={cn(
-                      'h-3 w-3 mt-0.5 shrink-0',
-                      b.slack === 0 ? 'text-red-500' : 'text-amber-500',
-                    )}
-                    aria-hidden="true"
-                  />
-                  <span
-                    className="text-[10px] text-foreground/80 leading-tight"
-                    aria-label={b.delayCost}
-                  >
-                    {b.delayCost}
-                  </span>
+                  {b.slack === 0 ? (
+                    <AlertTriangle
+                      className="h-3 w-3 mt-0.5 shrink-0 text-red-500"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Info
+                      className="h-3 w-3 mt-0.5 shrink-0 text-blue-400"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <div className="flex flex-col min-w-0">
+                    <span
+                      className="text-[10px] text-foreground/80 leading-tight"
+                      aria-label={b.delayCost}
+                    >
+                      {b.delayCost}
+                    </span>
+                    <span className="text-[9px] text-muted-foreground leading-tight">
+                      {b.whyItMatters}
+                    </span>
+                  </div>
                 </div>
               ))}
               {bottlenecks.length > 4 && (
                 <span className="text-[9px] text-muted-foreground pl-4.5">
-                  +{bottlenecks.length - 4} more bottlenecks
+                  +{bottlenecks.length - 4} more
                 </span>
               )}
             </div>
@@ -141,7 +153,7 @@ export default function DiagnosticsPanel() {
  * (e.g. "14 hrs spare", "full") for that semester, or null if not found.
  */
 export function getSlackLabel(
-  diagnostics: ReturnType<typeof useDiagnostics>,
+  diagnostics: DiagnosticsResult | null,
   semesterId: string
 ): string | null {
   if (!diagnostics) return null;

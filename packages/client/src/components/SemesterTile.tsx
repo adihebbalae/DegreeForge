@@ -53,6 +53,8 @@ interface SemesterTileProps {
   isFocused: boolean;
   /** Slack label from diagnostics, e.g. "14 hrs spare" or "full". Null for past/current semesters. */
   slackLabel?: string | null;
+  /** Per-semester credit-hour cap from the user's selected load tolerance. Defaults to 18. */
+  creditHourCap?: number;
   onClick: () => void;
 }
 
@@ -88,6 +90,7 @@ export default function SemesterTile({
   transcriptCredits,
   isFocused,
   slackLabel = null,
+  creditHourCap = 18,
   onClick,
 }: SemesterTileProps) {
   const { id, label, status, season } = semester;
@@ -191,11 +194,11 @@ export default function SemesterTile({
         <div className="flex items-center gap-1.5 shrink-0">
           <span className={cn(
             'text-[10px] leading-none',
-            totalCredits > 18 ? 'text-red-500 font-semibold' :
-            totalCredits === 18 ? 'text-yellow-500 font-semibold' :
+            totalCredits > creditHourCap ? 'text-red-500 font-semibold' :
+            totalCredits === creditHourCap ? 'text-yellow-500 font-semibold' :
             'text-muted-foreground'
           )}>
-            {totalCredits}/18 hrs
+            {totalCredits}/{creditHourCap} hrs
           </span>
           {slackLabel && (
             <span

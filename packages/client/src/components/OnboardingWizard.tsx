@@ -192,10 +192,10 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
               <p className="text-sm text-muted-foreground">How many credit hours do you prefer to take per semester?</p>
               <div className="space-y-3 mt-4">
                 {[
-                  { id: 'light', label: 'Light', desc: '12-13 hours' },
-                  { id: 'normal', label: 'Normal', desc: '14-15 hours' },
-                  { id: 'above_average', label: 'Above Average', desc: '16-17 hours' },
-                  { id: 'heavy', label: 'Heavy', desc: '18+ hours' },
+                  { id: 'light', label: 'Light', desc: 'up to 15 hrs/semester' },
+                  { id: 'normal', label: 'Normal', desc: 'up to 17 hrs/semester' },
+                  { id: 'above_average', label: 'Above Average', desc: 'up to 18 hrs/semester' },
+                  { id: 'heavy', label: 'Heavy', desc: 'up to 19 hrs/semester' },
                 ].map(opt => (
                   <div
                     key={opt.id}

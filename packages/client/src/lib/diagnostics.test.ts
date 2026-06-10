@@ -130,6 +130,28 @@ describe('computeCriticalPath', () => {
     expect(result.bottleneckSemesterId).toBe('Spring 2028');
   });
 
+  it('does not crash or infinite-recurse when remainingRequired contains a prereq cycle', () => {
+    // Cyclic graph: X → Y → X (A→B back-edge creates a cycle in remainingRequired)
+    const cyclicGraphData: PrereqGraphData = {
+      nodes: {
+        X: { title: 'Course X', credits: 3, category: 'ece_core', offered: [], flags: [] },
+        Y: { title: 'Course Y', credits: 3, category: 'ece_core', offered: [], flags: [] },
+      },
+      edges: [
+        { from: 'X', to: 'Y', type: 'prerequisite' },
+        { from: 'Y', to: 'X', type: 'prerequisite' }, // back-edge — creates cycle
+      ],
+    };
+    const cyclicGraph = new PrereqGraph(cyclicGraphData);
+    const plan: Plan = { 'Fall 2026': ['X', 'Y'] };
+    // Must not throw / stack-overflow; should return a valid (possibly degenerate) result
+    expect(() => {
+      const result = computeCriticalPath(['X', 'Y'], plan, cyclicGraph, SEMESTERS);
+      expect(result).toBeDefined();
+      expect(result.chain.length).toBeGreaterThanOrEqual(0);
+    }).not.toThrow();
+  });
+
   it('moving a non-critical course does not change the chain', () => {
     // Move E (non-critical, depth=0 alone) to a different semester
     const movedPlan: Plan = {

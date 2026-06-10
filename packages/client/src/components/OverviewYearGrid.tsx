@@ -71,6 +71,10 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
     );
   }, [diagnostics]);
 
+  // Credit-hour cap from diagnostics (reads from the first future semester's cap,
+  // which reflects the user's selected load tolerance via useDiagnostics).
+  const creditHourCap = diagnostics?.semesterSlack[0]?.cap ?? 18;
+
   // ── Group semesters into academic years ────────────────────────────────────
   // Result: Map<academicYear, Map<season, Semester>>
   const yearGroups = useMemo(() => {
@@ -114,7 +118,7 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
   return (
     <div className="h-full flex flex-col gap-0 overflow-x-auto overflow-y-hidden">
       {/* Diagnostics panel — critical path + bottleneck flags */}
-      <DiagnosticsPanel />
+      <DiagnosticsPanel diagnostics={diagnostics} />
 
       {/* Column headers */}
       <div
@@ -163,6 +167,7 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
                     transcriptCredits={transcriptCredits}
                     isFocused={focusedSemesterId === sem.id}
                     slackLabel={slackBySemester.get(sem.id) ?? null}
+                    creditHourCap={creditHourCap}
                     onClick={() => onTileClick(sem.id)}
                   />
                 );
