@@ -6,10 +6,11 @@ import { OnboardingWizard } from './OnboardingWizard';
 import { DataProvider } from '@/context/DataContext';
 import { SettingsProvider } from '@/context/SettingsContext';
 import { PlanProvider } from '@/context/PlanContext';
+import { ProfileProvider } from '@/context/ProfileContext';
 
 afterEach(cleanup);
 
-// Mock parse-transcript to expose the pure function
+// Mock parse-transcript
 vi.mock('@/lib/agent-tools/parse-transcript', () => ({
   parseTranscript: vi.fn().mockReturnValue([]),
   parseTranscriptTool: {
@@ -17,7 +18,17 @@ vi.mock('@/lib/agent-tools/parse-transcript', () => ({
   },
 }));
 
-// Capture dispatched PlanContext actions so we can assert on them
+// Mock parse-ida
+vi.mock('@/lib/parse-ida', () => ({
+  parseIdaAudit: vi.fn().mockReturnValue([]),
+}));
+
+// Mock derive-timeline so we can assert what profile it was called with
+vi.mock('@/lib/derive-timeline', () => ({
+  deriveTimelinePlanFromProfile: vi.fn().mockReturnValue({}),
+}));
+
+// Capture dispatched PlanContext actions
 const mockPlanDispatch = vi.fn();
 vi.mock('@/context/PlanContext', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/context/PlanContext')>();
@@ -38,14 +49,26 @@ vi.mock('@/context/SettingsContext', async (importOriginal) => {
   };
 });
 
+// Capture dispatched ProfileContext actions
+const mockProfileDispatch = vi.fn();
+vi.mock('@/context/ProfileContext', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/context/ProfileContext')>();
+  return {
+    ...actual,
+    useProfileDispatch: () => mockProfileDispatch,
+  };
+});
+
 function renderWithProviders(ui: React.ReactElement) {
   return render(
     <DataProvider>
-      <SettingsProvider>
-        <PlanProvider>
-          {ui}
-        </PlanProvider>
-      </SettingsProvider>
+      <ProfileProvider>
+        <SettingsProvider>
+          <PlanProvider>
+            {ui}
+          </PlanProvider>
+        </SettingsProvider>
+      </ProfileProvider>
     </DataProvider>
   );
 }
@@ -169,44 +192,152 @@ describe('OnboardingWizard', () => {
     });
   });
 
-  it('dispatches ADD_COURSE for each parsed transcript course on commit', async () => {
+  it('dispatches SET_PROFILE with mapped completed/in-progress courses on commit', async () => {
     const { parseTranscript } = await import('@/lib/agent-tools/parse-transcript');
     const mockParse = parseTranscript as ReturnType<typeof vi.fn>;
     mockParse.mockReturnValueOnce([
       { courseId: 'ECE 302', title: 'Intro to Electrical Eng', grade: 'A', semester: 'Fall 2025', creditHours: 3 },
-      { courseId: 'ECE 306', title: 'Control Systems', grade: 'B+', semester: 'Spring 2099', creditHours: 3 },
+      { courseId: 'ECE 306', title: 'Control Systems', grade: 'IP', semester: 'Spring 2026', creditHours: 3 },
     ]);
 
+    mockProfileDispatch.mockClear();
     mockPlanDispatch.mockClear();
     const handleComplete = vi.fn();
     renderWithProviders(<OnboardingWizard onComplete={handleComplete} />);
 
-    // Navigate to step 6 (transcript)
     skipAccessCodeStep(); // 1->2
     fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
     fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
     fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
     fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
 
-    // Type something in the transcript textarea so parse is triggered
     const textarea = screen.getByPlaceholderText(/ECE 302/);
     fireEvent.change(textarea, { target: { value: 'ECE 302 Intro to Electrical Eng A Fall 2025 3' } });
 
-    // Click Next on step 6 — triggers handleParseTranscript
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 6->7
 
-    // Now on step 7, commit
     fireEvent.click(screen.getByRole('button', { name: 'Start Planning' }));
 
-    // ECE 302 -> semester 'Fall 2025' (valid), ECE 306 -> 'Spring 2099' unknown -> fallback past semester
-    const addCourseDispatches = mockPlanDispatch.mock.calls.filter(
+    // SET_PROFILE should be dispatched with the mapped courses
+    const setProfileCall = mockProfileDispatch.mock.calls.find(
+      ([action]) => action.type === 'SET_PROFILE'
+    );
+    expect(setProfileCall).toBeDefined();
+    const profile = setProfileCall![0].profile;
+    expect(profile.major).toBe('ece-bse');
+    expect(profile.catalog_year).toBe('2024');
+    // ECE 302 (grade A) -> completed_courses
+    expect(profile.completed_courses).toHaveLength(1);
+    expect(profile.completed_courses[0]).toEqual({
+      course: 'ECE 302',
+      title: 'Intro to Electrical Eng',
+      grade: 'A',
+      semester: 'Fall 2025',
+      type: 'Imported',
+      credit_hours: 3,
+    });
+    // ECE 306 (grade IP) -> in_progress_courses
+    expect(profile.in_progress_courses).toHaveLength(1);
+    expect(profile.in_progress_courses[0]).toEqual({
+      course: 'ECE 306',
+      title: 'Control Systems',
+      semester: 'Spring 2026',
+      credit_hours: 3,
+    });
+  });
+
+  it('dispatches SET_PLAN after SET_PROFILE on commit', async () => {
+    const { parseTranscript } = await import('@/lib/agent-tools/parse-transcript');
+    const mockParse = parseTranscript as ReturnType<typeof vi.fn>;
+    mockParse.mockReturnValueOnce([
+      { courseId: 'ECE 302', title: 'Intro to Electrical Eng', grade: 'A', semester: 'Fall 2025', creditHours: 3 },
+    ]);
+
+    mockProfileDispatch.mockClear();
+    mockPlanDispatch.mockClear();
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+
+    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+
+    const textarea = screen.getByPlaceholderText(/ECE 302/);
+    fireEvent.change(textarea, { target: { value: 'ECE 302 Intro to Electrical Eng A Fall 2025 3' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 6->7
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start Planning' }));
+
+    // SET_PLAN should be dispatched (derived from the profile)
+    const setPlanCall = mockPlanDispatch.mock.calls.find(
+      ([action]) => action.type === 'SET_PLAN'
+    );
+    expect(setPlanCall).toBeDefined();
+    // ADD_COURSE must NOT be dispatched (legacy path replaced)
+    const addCourseCalls = mockPlanDispatch.mock.calls.filter(
       ([action]) => action.type === 'ADD_COURSE'
     );
-    expect(addCourseDispatches).toHaveLength(2);
-    expect(addCourseDispatches[0][0]).toEqual({ type: 'ADD_COURSE', semesterId: 'Fall 2025', courseId: 'ECE 302' });
-    // 'Spring 2099' is not in SEMESTERS, so it falls back to the earliest past semester
-    expect(addCourseDispatches[1][0].type).toBe('ADD_COURSE');
-    expect(addCourseDispatches[1][0].courseId).toBe('ECE 306');
-    expect(addCourseDispatches[1][0].semesterId).not.toBe('Spring 2099');
+    expect(addCourseCalls).toHaveLength(0);
+  });
+
+  it('routes to parseIdaAudit when IDA source is selected', async () => {
+    const { parseIdaAudit } = await import('@/lib/parse-ida');
+    const mockIda = parseIdaAudit as ReturnType<typeof vi.fn>;
+    mockIda.mockReturnValueOnce([
+      { courseId: 'ECE 302', title: 'Intro EE', grade: 'A', semester: 'Fall 2025', creditHours: 3 },
+    ]);
+
+    mockProfileDispatch.mockClear();
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+
+    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+
+    // Switch to IDA mode
+    fireEvent.click(screen.getByRole('button', { name: 'IDA Audit' }));
+
+    const textarea = screen.getByPlaceholderText(/ECE 302/);
+    fireEvent.change(textarea, { target: { value: 'ECE 302  Intro EE  A  FA 2025  3.0' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // triggers handleParseTranscript
+
+    // parseIdaAudit should have been called (not parseTranscript)
+    expect(mockIda).toHaveBeenCalled();
+  });
+
+  it('review step shows completed and in-progress counts separately', async () => {
+    const { parseTranscript } = await import('@/lib/agent-tools/parse-transcript');
+    const mockParse = parseTranscript as ReturnType<typeof vi.fn>;
+    mockParse.mockReturnValueOnce([
+      { courseId: 'ECE 302', title: 'Intro EE', grade: 'A', semester: 'Fall 2025', creditHours: 3 },
+      { courseId: 'ECE 306', title: 'Control Systems', grade: 'B', semester: 'Fall 2025', creditHours: 3 },
+      { courseId: 'ECE 319H', title: 'Circuits', grade: 'IP', semester: 'Spring 2026', creditHours: 3 },
+    ]);
+
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+
+    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+
+    const textarea = screen.getByPlaceholderText(/ECE 302/);
+    fireEvent.change(textarea, { target: { value: 'ECE 302 Intro EE A Fall 2025 3' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 6->7
+
+    // Review step: should show 2 completed and 1 in-progress
+    expect(screen.getByText('Completed courses')).toBeDefined();
+    expect(screen.getByText('In-progress courses')).toBeDefined();
+    // Find badges by their adjacent label text
+    const completedLabel = screen.getByText('Completed courses');
+    const completedRow = completedLabel.closest('div');
+    expect(completedRow?.textContent).toContain('2');
+    const inProgressLabel = screen.getByText('In-progress courses');
+    const inProgressRow = inProgressLabel.closest('div');
+    expect(inProgressRow?.textContent).toContain('1');
   });
 });

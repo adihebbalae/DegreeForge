@@ -3,12 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Notice } from '@/components/ui/notice';
 import { useTechCoresRecord } from '@/context/DataContext';
 import { useSettings, useSettingsDispatch, type LoadTolerance } from '@/context/SettingsContext';
 import { usePlanDispatch, SEMESTERS } from '@/context/PlanContext';
+import { useProfileDispatch, EMPTY_PROFILE } from '@/context/ProfileContext';
 import { parseTranscript, type ParsedCourse } from '@/lib/agent-tools/parse-transcript';
+import { parseIdaAudit } from '@/lib/parse-ida';
+import { deriveTimelinePlanFromProfile } from '@/lib/derive-timeline';
+import type { UserProfile } from '@/types';
+
+type ImportSource = 'transcript' | 'ida';
 
 interface OnboardingWizardProps {
   onComplete: () => void;
@@ -19,6 +24,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const settings = useSettings();
   const settingsDispatch = useSettingsDispatch();
   const planDispatch = usePlanDispatch();
+  const profileDispatch = useProfileDispatch();
 
   const [step, setStep] = useState(1);
   const totalSteps = 7;
@@ -30,6 +36,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [gradTarget, setGradTarget] = useState('Spring 2028');
   const [loadTolerance, setLoadTolerance] = useState<LoadTolerance>('normal');
   const [techCoreId, setTechCoreId] = useState<string>('skip');
+  const [importSource, setImportSource] = useState<ImportSource>('transcript');
   const [transcriptText, setTranscriptText] = useState('');
   const [parsedCourses, setParsedCourses] = useState<ParsedCourse[]>([]);
   const [isParsing, setIsParsing] = useState(false);
@@ -45,7 +52,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     }
     setIsParsing(true);
     try {
-      const courses = parseTranscript(transcriptText);
+      const courses = importSource === 'ida'
+        ? parseIdaAudit(transcriptText)
+        : parseTranscript(transcriptText);
       setIsParsing(false);
       if (courses.length === 0) {
         setTranscriptError(true);
@@ -61,26 +70,57 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   };
 
   const handleCommit = () => {
+    // Settings dispatches (tolerance, grad target, tech core) remain in SettingsContext.
     settingsDispatch({ type: 'SET_GRAD_TARGET', value: gradTarget });
     settingsDispatch({ type: 'SET_LOAD_TOLERANCE', value: loadTolerance });
     if (techCoreId !== 'skip') {
       settingsDispatch({ type: 'SET_TECH_CORE', value: techCoreId });
     }
 
-    planDispatch({ type: 'SET_PROFILE_META', major, catalogYear });
+    // Build the owned profile from EMPTY_PROFILE + wizard choices + parsed courses.
+    const completedCourses: UserProfile['completed_courses'] = parsedCourses
+      .filter(c => c.grade !== 'IP')
+      .map(c => ({
+        course: c.courseId,
+        title: c.title,
+        grade: c.grade,
+        semester: c.semester,
+        type: 'Imported',
+        credit_hours: c.creditHours,
+      }));
 
-    // Add parsed transcript courses to the plan.
-    // Use the semester from the parsed course if it matches a known semester id;
-    // otherwise fall back to the earliest 'past' semester.
-    const semesterIds = new Set(SEMESTERS.map(s => s.id));
-    const fallbackSemesterId = SEMESTERS.find(s => s.status === 'past')?.id ?? SEMESTERS[0].id;
-    for (const course of parsedCourses) {
-      const semesterId = semesterIds.has(course.semester) ? course.semester : fallbackSemesterId;
-      planDispatch({ type: 'ADD_COURSE', semesterId, courseId: course.courseId });
-    }
+    const inProgressCourses: UserProfile['in_progress_courses'] = parsedCourses
+      .filter(c => c.grade === 'IP')
+      .map(c => ({
+        course: c.courseId,
+        title: c.title,
+        semester: c.semester,
+        credit_hours: c.creditHours,
+      }));
+
+    const profile: UserProfile = {
+      ...EMPTY_PROFILE,
+      major,
+      catalog_year: catalogYear,
+      graduation_target: gradTarget,
+      completed_courses: completedCourses,
+      in_progress_courses: inProgressCourses,
+    };
+
+    // Write owned profile — all requirement/progress consumers read from ProfileContext.
+    profileDispatch({ type: 'SET_PROFILE', profile });
+
+    // Seed timeline from the new profile so past/current semesters reflect imports.
+    planDispatch({ type: 'SET_PLAN', plan: deriveTimelinePlanFromProfile(profile, SEMESTERS) });
+
+    // Keep PlanState.major/catalogYear in sync for any consumers that read those fields.
+    planDispatch({ type: 'SET_PROFILE_META', major, catalogYear });
 
     onComplete();
   };
+
+  const completedCount = parsedCourses.filter(c => c.grade !== 'IP').length;
+  const inProgressCount = parsedCourses.filter(c => c.grade === 'IP').length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -90,7 +130,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             <CardTitle>Welcome to DegreeForge</CardTitle>
             <div className="text-sm text-muted-foreground">Step {step} of {totalSteps}</div>
           </div>
-          <CardDescription>Let's set up your initial degree plan profile.</CardDescription>
+          <CardDescription>Let&apos;s set up your initial degree plan profile.</CardDescription>
           {/* Stepper */}
           <div className="flex gap-2 mt-4">
             {Array.from({ length: totalSteps }).map((_, i) => (
@@ -232,19 +272,42 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
           {step === 6 && (
             <div className="space-y-4 flex flex-col h-full animate-in fade-in slide-in-from-right-4">
-              <h3 className="text-lg font-medium">Import Transcript (Optional)</h3>
-              <p className="text-sm text-muted-foreground">Paste text from your UT Academic Summary to automatically mark courses as completed.</p>
+              <h3 className="text-lg font-medium">Import Course History (Optional)</h3>
+              <p className="text-sm text-muted-foreground">
+                Paste your UT transcript text <em>or</em> your Interactive Degree Audit to automatically mark courses as completed or in-progress.
+              </p>
+              {/* Source toggle */}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className={`flex-1 py-2 px-3 rounded-md border text-sm font-medium transition-colors ${importSource === 'transcript' ? 'border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-300' : 'hover:bg-secondary'}`}
+                  onClick={() => { setImportSource('transcript'); setTranscriptError(false); }}
+                >
+                  Transcript
+                </button>
+                <button
+                  type="button"
+                  className={`flex-1 py-2 px-3 rounded-md border text-sm font-medium transition-colors ${importSource === 'ida' ? 'border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-300' : 'hover:bg-secondary'}`}
+                  onClick={() => { setImportSource('ida'); setTranscriptError(false); }}
+                >
+                  IDA Audit
+                </button>
+              </div>
               <textarea
                 className="flex-1 w-full min-h-[150px] p-3 rounded-md border bg-background text-sm resize-none focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="ECE 302 Intro to Electrical Eng A Fall 2025 3&#10;..."
+                placeholder={importSource === 'ida'
+                  ? 'ECE 302  Intro to Electrical Eng  A  FA 2025  3.0\n...'
+                  : 'ECE 302 Intro to Electrical Eng A Fall 2025 3\n...'}
                 value={transcriptText}
                 onChange={e => { setTranscriptText(e.target.value); setTranscriptError(false); }}
               />
               {transcriptError && (
                 <Notice
                   variant="error"
-                  message="Could not parse the transcript. Most common cause: PDF copy-paste lost line breaks."
-                  action={{ label: 'Paste plain text', onClick: () => { setTranscriptText(''); setTranscriptError(false); } }}
+                  message={importSource === 'ida'
+                    ? 'Could not parse the IDA audit. Try switching to Transcript mode, or skip and add courses manually.'
+                    : 'Could not parse the transcript. Most common cause: PDF copy-paste lost line breaks.'}
+                  action={{ label: 'Clear text', onClick: () => { setTranscriptText(''); setTranscriptError(false); } }}
                   onDismiss={() => setTranscriptError(false)}
                 />
               )}
@@ -272,8 +335,12 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                   <span className="font-medium">{techCoreId === 'skip' ? 'Decide Later' : techCores?.[techCoreId]?.name}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-muted-foreground">Imported Courses</span>
-                  <Badge variant="secondary">{parsedCourses.length} found</Badge>
+                  <span className="text-muted-foreground">Completed courses</span>
+                  <Badge variant="secondary">{completedCount} found</Badge>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b">
+                  <span className="text-muted-foreground">In-progress courses</span>
+                  <Badge variant="secondary">{inProgressCount} found</Badge>
                 </div>
               </div>
             </div>
