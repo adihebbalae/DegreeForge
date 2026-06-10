@@ -55,7 +55,11 @@ vi.mock('@/context/SettingsContext', () => ({
 
 vi.mock('@/context/DataContext', () => ({
   useTechCoresRecord: () => null,
-  useUserProfile: () => null,
+}));
+
+// Stub ProfileEditor so SettingsPage tests don't need the full profile context chain
+vi.mock('@/components/ProfileEditor', () => ({
+  ProfileEditor: () => <div data-testid="profile-editor">ProfileEditor</div>,
 }));
 
 // Stub UI primitives that require Radix/DOM internals not present in jsdom
@@ -112,6 +116,24 @@ afterEach(() => {
 });
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
+
+describe('SettingsPage Profile section', () => {
+  it('renders the Profile section heading', () => {
+    render(<SettingsPage />);
+    expect(screen.getByText('Profile')).toBeDefined();
+  });
+
+  it('renders the ProfileEditor component', () => {
+    render(<SettingsPage />);
+    expect(screen.getByTestId('profile-editor')).toBeDefined();
+  });
+
+  it('does not render the old "Transcript edits are coming soon" notice', () => {
+    render(<SettingsPage />);
+    const notice = screen.queryByText(/Transcript edits are coming soon/);
+    expect(notice).toBeNull();
+  });
+});
 
 describe('SettingsPage Chat Tools section', () => {
   it('renders a "Chat Tools" heading', () => {

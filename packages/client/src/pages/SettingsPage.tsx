@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { RotateCcw, X, Plus, User, Sliders, BookOpen, MessageSquare } from 'lucide-react';
+import { RotateCcw, X, Plus, User, Sliders, BookOpen, MessageSquare, UserCog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -16,8 +16,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useSettings, useSettingsDispatch, type LoadTolerance, type InstructionMode, type TimeWindow, type ChatProvider } from '@/context/SettingsContext';
-import { useTechCoresRecord, useUserProfile } from '@/context/DataContext';
+import { useTechCoresRecord } from '@/context/DataContext';
 import { TOOL_REGISTRY } from '@/lib/agent-tools/registry';
+import { ProfileEditor } from '@/components/ProfileEditor';
 import type { TechCoreTrack } from '@/types';
 
 // ─── Section Header ────────────────────────────────────────────────────────────
@@ -68,7 +69,6 @@ export default function SettingsPage() {
   const settings = useSettings();
   const dispatch = useSettingsDispatch();
   const techCoresRecord = useTechCoresRecord();
-  const profile = useUserProfile();
 
   const [newProfName, setNewProfName] = useState('');
   const [newProfType, setNewProfType] = useState<'prefer' | 'avoid'>('prefer');
@@ -458,57 +458,10 @@ export default function SettingsPage() {
 
           <Separator />
 
-          {/* ── Transcript (read-only) ────────────────────────────────── */}
-          <section aria-labelledby="transcript-section">
-            <SectionHeader icon={<BookOpen className="h-4 w-4" />} title="Transcript" />
-
-            <div className="rounded-md border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 px-4 py-3 text-sm text-amber-800 dark:text-amber-300 mb-4">
-              Transcript edits are coming soon. For now, edit{' '}
-              <code className="font-mono text-xs bg-amber-100 dark:bg-amber-900/40 px-1 rounded">
-                user-profile.json
-              </code>{' '}
-              directly and restart the dev server.
-            </div>
-
-            {profile && (
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-                    Completed ({profile.completed_courses?.length ?? 0})
-                  </p>
-                  <div className="space-y-1">
-                    {profile.completed_courses?.map((c) => (
-                      <div
-                        key={c.course + c.semester}
-                        className="flex justify-between text-sm px-3 py-1.5 rounded bg-muted/40"
-                      >
-                        <span className="font-mono text-xs text-foreground">{c.course}</span>
-                        <span className="text-muted-foreground text-xs">{c.semester} · {c.grade}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {profile.in_progress_courses && profile.in_progress_courses.length > 0 && (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-                      In Progress ({profile.in_progress_courses.length})
-                    </p>
-                    <div className="space-y-1">
-                      {profile.in_progress_courses.map((c) => (
-                        <div
-                          key={c.course + c.semester}
-                          className="flex justify-between text-sm px-3 py-1.5 rounded bg-blue-50 dark:bg-blue-950/20"
-                        >
-                          <span className="font-mono text-xs text-foreground">{c.course}</span>
-                          <span className="text-muted-foreground text-xs">{c.semester}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+          {/* ── Section 5: Profile ──────────────────────────────────────── */}
+          <section aria-labelledby="profile-section">
+            <SectionHeader icon={<UserCog className="h-4 w-4" />} title="Profile" />
+            <ProfileEditor />
           </section>
 
           {/* Bottom padding */}
