@@ -9,13 +9,28 @@ import { usePlanContext, usePlanDispatch, useCanUndo, useCanRedo } from '@/conte
 import { useUi } from '@/context/UiContext'
 import { useRecommendPlan } from '@/hooks/useRecommendPlan'
 import { parsePlanState } from '@/lib/plan-schema'
+import { parseProfileState } from '@/lib/profile-schema'
+import { useOwnedProfile, useProfileDispatch } from '@/context/ProfileContext'
+import type { UserProfile } from '@/types'
 import SemesterTransitionDialog from './SemesterTransitionDialog'
+
+// ─── Export bundle versioning ─────────────────────────────────────────────────
+// v1: plan-only (legacy, no version field)
+// v2: { version: 2, plan: PlanState, profile: UserProfile }
+
+interface ExportBundleV2 {
+  version: 2;
+  plan: ReturnType<typeof JSON.parse>;
+  profile: UserProfile;
+}
 
 export default function Header() {
   const { state } = usePlanContext()
   const dispatch = usePlanDispatch()
   const canUndo = useCanUndo()
   const canRedo = useCanRedo()
+  const profile = useOwnedProfile()
+  const profileDispatch = useProfileDispatch()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [transitionOpen, setTransitionOpen] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
@@ -50,7 +65,10 @@ export default function Header() {
   }, [state.semesters, state.plan])
 
   const handleExport = () => {
-    const dataStr = JSON.stringify(state, null, 2)
+    // v2 bundle: wraps plan + profile together with a version discriminant.
+    // Old plan-only files (no version field) are treated as v1 on import.
+    const bundle: ExportBundleV2 = { version: 2, plan: state, profile }
+    const dataStr = JSON.stringify(bundle, null, 2)
     const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr)
     const exportFileDefaultName = `degreeforge-plan-${new Date().toISOString().split('T')[0]}.json`
 
@@ -69,11 +87,31 @@ export default function Header() {
     reader.onload = (e) => {
       try {
         const content = e.target?.result as string
-        const validated = parsePlanState(JSON.parse(content))
-        if (validated) {
-          dispatch({ type: 'SET_FULL_STATE', state: validated })
-        } else {
+        const raw = JSON.parse(content) as Record<string, unknown>
+
+        // Detect v2 bundle ({ version: 2, plan: ..., profile: ... }) vs
+        // legacy v1 plan-only file (no version field).
+        const isV2Bundle = raw.version === 2 && raw.plan !== undefined
+
+        const planRaw = isV2Bundle ? raw.plan : raw
+        const validated = parsePlanState(planRaw)
+
+        if (!validated) {
           setImportError('invalid-format')
+          return
+        }
+
+        dispatch({ type: 'SET_FULL_STATE', state: validated })
+
+        // If a v2 bundle, attempt to restore the profile. A malformed profile
+        // is non-fatal: skip and keep the plan import.
+        if (isV2Bundle && raw.profile !== undefined) {
+          const validatedProfile = parseProfileState(raw.profile)
+          if (validatedProfile) {
+            profileDispatch({ type: 'SET_PROFILE', profile: validatedProfile })
+          }
+          // If validatedProfile is null, the profile was malformed — silently skip.
+          // The plan still imported successfully.
         }
       } catch (err) {
         console.error('Import failed:', err)
