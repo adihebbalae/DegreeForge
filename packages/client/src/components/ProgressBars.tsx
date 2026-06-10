@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { usePlan, useTechCoreId, useMathBAToggle, useWhatIf } from '@/context/PlanContext';
-import { 
-  useCatalogRecord, 
-  usePrereqGraph, 
-  useDegreeRequirements, 
-  useUserProfile, 
-  useTechCoresRecord 
+import {
+  useCatalogRecord,
+  usePrereqGraph,
+  useDegreeRequirements,
+  useUserProfile,
+  useTechCoresRecord
 } from '@/context/DataContext';
 import { computeProgress } from '@/lib/progress';
 import { Zap } from 'lucide-react';
@@ -20,7 +20,7 @@ export function ProgressBars() {
   const degreeReqs = useDegreeRequirements();
   const profile = useUserProfile();
   const techCores = useTechCoresRecord();
-  
+
   const currentTechCoreId = useTechCoreId();
   const currentMathBA = useMathBAToggle();
   const whatIf = useWhatIf();
@@ -39,8 +39,8 @@ export function ProgressBars() {
 
   if (!progress || !profile || !techCores) {
     return (
-      <div className="px-4 py-2 border-b bg-muted/10">
-        <div className="h-8 animate-pulse bg-muted/20 rounded-md" />
+      <div className="px-3 py-1 border-b bg-muted/10 flex items-center gap-2" style={{ height: '28px' }}>
+        <div className="flex-1 h-3 animate-pulse bg-muted/20 rounded-full" />
       </div>
     );
   }
@@ -49,35 +49,35 @@ export function ProgressBars() {
   const suffix = whatIf.isActive ? ' (projected)' : '';
 
   const bars = [
-    { 
-      label: `ECE Core`, 
-      completed: progress.eceCoreCompleted, 
-      total: progress.eceCoreTotal, 
-      unit: 'courses', 
+    {
+      label: `ECE Core`,
+      completed: progress.eceCoreCompleted,
+      total: progress.eceCoreTotal,
+      unit: 'courses',
       color: 'bg-blue-500',
       weight: 63
     },
-    { 
-      label: `Gen Ed`, 
-      completed: progress.genEdCompleted, 
-      total: progress.genEdTotal, 
-      unit: 'courses', 
+    {
+      label: `Gen Ed`,
+      completed: progress.genEdCompleted,
+      total: progress.genEdTotal,
+      unit: 'courses',
       color: 'bg-green-500',
       weight: 24
     },
-    { 
-      label: `Tech Core: ${techCoreName}`, 
-      completed: progress.techCoreCompleted, 
-      total: progress.techCoreTotal, 
-      unit: 'courses', 
+    {
+      label: `Tech Core: ${techCoreName}`,
+      completed: progress.techCoreCompleted,
+      total: progress.techCoreTotal,
+      unit: 'courses',
       color: 'bg-purple-500',
       weight: 24
     },
-    { 
-      label: `Electives`, 
-      completed: progress.electiveHours, 
-      total: progress.electiveTotalHours, 
-      unit: 'hrs', 
+    {
+      label: `Electives`,
+      completed: progress.electiveHours,
+      total: progress.electiveTotalHours,
+      unit: 'hrs',
       color: 'bg-yellow-500',
       weight: 11
     },
@@ -96,34 +96,24 @@ export function ProgressBars() {
 
   return (
     <div className={cn(
-      "px-4 py-3 border-b transition-colors",
+      "flex items-center gap-2 px-3 border-b transition-colors",
       whatIf.isActive ? "bg-yellow-500/10 border-yellow-500/30" : "bg-muted/20 border-border"
-    )}>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          {whatIf.isActive && (
-            <>
-              <Zap className="h-3 w-3 text-yellow-600 fill-yellow-600" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-yellow-700 dark:text-yellow-500">
-                Simulation Mode Active
-              </span>
-            </>
-          )}
-        </div>
-        <div className="text-xs font-semibold tabular-nums text-muted-foreground">
-          {progress.totalHours} / {progress.totalHoursTarget} Credit Hours{suffix}
-        </div>
-      </div>
-
+    )} style={{ height: '28px' }}>
+      {whatIf.isActive && (
+        <Zap className="h-3 w-3 text-yellow-600 fill-yellow-600 shrink-0" aria-hidden="true" />
+      )}
+      <span className="text-[10px] font-semibold tabular-nums text-muted-foreground whitespace-nowrap shrink-0">
+        {progress.totalHours} / {progress.totalHoursTarget} hrs{suffix}
+      </span>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex w-full h-3 rounded-full overflow-hidden bg-muted/50">
+          <div className="flex flex-1 h-3 rounded-full overflow-hidden bg-muted/50 cursor-default min-w-0">
             {bars.map((bar) => {
               const pct = Math.min(100, Math.round((bar.completed / (bar.total || 1)) * 100));
               return (
-                <div 
-                  key={bar.label} 
-                  style={{ flex: bar.weight }} 
+                <div
+                  key={bar.label}
+                  style={{ flex: bar.weight }}
                   className="h-full border-r border-background last:border-0 relative bg-muted"
                 >
                   <div className={cn("h-full transition-all", bar.color)} style={{ width: `${pct}%` }} />

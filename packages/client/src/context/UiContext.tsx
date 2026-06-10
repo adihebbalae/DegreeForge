@@ -5,6 +5,10 @@ interface UiContextValue {
   setChatOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
   whatIfOpen: boolean;
   setWhatIfOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
+  paletteOpen: boolean;
+  setPaletteOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
+  focusedSemesterId: string | null;
+  setFocusedSemesterId: (id: string | null) => void;
 }
 
 const UiContext = createContext<UiContextValue | null>(null);
@@ -12,9 +16,16 @@ const UiContext = createContext<UiContextValue | null>(null);
 export function UiProvider({ children }: { children: React.ReactNode }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [whatIfOpen, setWhatIfOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [focusedSemesterId, setFocusedSemesterId] = useState<string | null>(null);
 
   return (
-    <UiContext.Provider value={{ chatOpen, setChatOpen, whatIfOpen, setWhatIfOpen }}>
+    <UiContext.Provider value={{
+      chatOpen, setChatOpen,
+      whatIfOpen, setWhatIfOpen,
+      paletteOpen, setPaletteOpen,
+      focusedSemesterId, setFocusedSemesterId,
+    }}>
       {children}
     </UiContext.Provider>
   );
