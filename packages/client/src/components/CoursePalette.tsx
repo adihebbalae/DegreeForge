@@ -369,7 +369,7 @@ export default function CoursePalette() {
       )}
 
       {/* Collapsible sections */}
-      <div className="flex-1 overflow-y-auto px-1.5 pb-4">
+      <div className="flex-1 min-h-0 overflow-y-auto px-1.5 pb-4">
         {/* ECE Core */}
         <CollapsibleSection title="ECE Core" count={filteredEceCore.length} defaultOpen>
           {filteredEceCore.length === 0

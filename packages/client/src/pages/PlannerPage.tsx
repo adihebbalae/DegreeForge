@@ -179,14 +179,14 @@ export default function PlannerPage() {
         <ValidationBanner />
 
         {/* ── Main content row ────────────────────────────────────────────── */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden min-h-0">
           {/* Semester timeline grid — left ~65% */}
-          <div className="flex-[65] overflow-hidden border-r border-border">
+          <div className="flex-[65] overflow-hidden min-h-0 border-r border-border">
             <TimelineGrid />
           </div>
 
           {/* Course palette — right ~35% */}
-          <div className="flex-[35] overflow-hidden">
+          <div className="flex-[35] overflow-hidden min-h-0">
             <CoursePalette />
           </div>
         </div>

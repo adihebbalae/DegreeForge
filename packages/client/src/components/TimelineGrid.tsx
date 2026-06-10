@@ -91,7 +91,7 @@ export default function TimelineGrid() {
   const currentSemesterRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!loading && currentSemesterRef.current) {
-      currentSemesterRef.current.scrollIntoView({ inline: 'start', behavior: 'smooth' });
+      currentSemesterRef.current.scrollIntoView({ inline: 'start', block: 'nearest', behavior: 'smooth' });
     }
   }, [loading]);
 

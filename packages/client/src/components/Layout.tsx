@@ -7,9 +7,9 @@ import CareerPage from '../pages/CareerPage'
 
 export default function Layout() {
   return (
-    <div className="min-h-[100dvh] bg-background text-foreground flex flex-col">
+    <div className="h-[100dvh] overflow-hidden bg-background text-foreground flex flex-col">
       <Header />
-      <main className="flex-1 overflow-hidden" style={{ height: 'calc(100dvh - 56px)' }}>
+      <main className="flex-1 min-h-0 overflow-hidden" style={{ height: 'calc(100dvh - 56px)' }}>
         <Routes>
           <Route path="/" element={<PlannerPage />} />
           <Route path="/schedule" element={<SchedulerPage />} />
