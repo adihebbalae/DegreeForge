@@ -4,6 +4,8 @@ import { useValidation } from '@/hooks/useValidation';
 import { usePlanContext, useSemesters, usePlan } from '@/context/PlanContext';
 import { runSolver } from '@/lib/run-solver';
 import { useDegreeRequirements, useTechCoresRecord, useMathRequirements, useUserProfile, useOfferingSchedule } from '@/context/DataContext';
+import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
+import { getCreditHourCap } from '@/lib/auto-planner';
 import { Button } from '@/components/ui/button';
 import { Notice } from '@/components/ui/notice';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -24,6 +26,7 @@ export default function ValidationBanner() {
   const mathReqs = useMathRequirements();
   const offeringSchedule = useOfferingSchedule();
   const profile = useUserProfile();
+  const effectiveProfile = useEffectiveProfile();
   const engineGraph = usePrereqGraph();
 
   const { futureCourseCount, futureSemesterCount } = useMemo(() => {
@@ -54,6 +57,7 @@ export default function ValidationBanner() {
           pinnedCourseIds: state.pinnedCourses,
           plan: state.plan,
           semesters: state.semesters,
+          maxHoursOverride: effectiveProfile ? getCreditHourCap(effectiveProfile) : undefined,
         });
 
         dispatch({ type: 'SET_PLAN', plan: newPlanOutput.plan });

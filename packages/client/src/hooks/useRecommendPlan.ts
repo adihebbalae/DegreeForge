@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  useUserProfile,
   useDegreeRequirements,
   useTechCoresRecord,
   useMathRequirements,
@@ -9,6 +8,7 @@ import {
   useOfferingSchedule,
 } from '@/context/DataContext';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
+import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 import { usePlanDispatch, useTechCoreId, useMathBAToggle, useSemesters, usePlan } from '@/context/PlanContext';
 import { generateAutoPlan } from '@/lib/auto-planner';
 import type { NoticeProps } from '@/components/ui/notice';
@@ -21,7 +21,7 @@ export interface RecommendPlanResult {
 }
 
 export function useRecommendPlan(): RecommendPlanResult {
-  const userProfile = useUserProfile();
+  const userProfile = useEffectiveProfile();
   const degreeReqs = useDegreeRequirements();
   const techCores = useTechCoresRecord();
   const mathReqs = useMathRequirements();

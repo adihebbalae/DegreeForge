@@ -36,6 +36,13 @@ export interface RunSolverParams {
   /** Full plan used to resolve pinned-course → semester mapping */
   plan: Plan;
   semesters: Semester[];
+  /**
+   * Override the profile-derived credit-hour cap per semester.
+   * When provided, used instead of the value derived from profile load-tolerance.
+   * Callers that read from SettingsContext should pass getCreditHourCap(effectiveProfile)
+   * here so the pure lib stays free of React context.
+   */
+  maxHoursOverride?: number;
 }
 
 /**
@@ -57,6 +64,7 @@ export function runSolver(params: RunSolverParams): SolverOutput {
     pinnedCourseIds,
     plan,
     semesters,
+    maxHoursOverride,
   } = params;
 
   const remaining = buildRemainingRequirements(
@@ -78,7 +86,9 @@ export function runSolver(params: RunSolverParams): SolverOutput {
     }
   }
 
-  const maxHoursPerSemester = getCreditHourCap(profile);
+  const maxHoursPerSemester = typeof maxHoursOverride === 'number' && maxHoursOverride > 0
+    ? maxHoursOverride
+    : getCreditHourCap(profile);
 
   return generatePlan({
     completedCourses: [

@@ -2,8 +2,9 @@ import { useEffect, useMemo } from 'react';
 import { generatePlan } from '@/lib/solver';
 import { buildRemainingRequirements } from '@/lib/requirements';
 import { getCreditHourCap } from '@/lib/auto-planner';
-import { useOfferingSchedule, useUserProfile, useDegreeRequirements, useTechCoresRecord, useMathRequirements } from '@/context/DataContext';
+import { useOfferingSchedule, useDegreeRequirements, useTechCoresRecord, useMathRequirements } from '@/context/DataContext';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
+import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 import { usePlan, usePinnedCourses, useRejectedGhosts, useSemesters, usePlanDispatch, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
 
 /**
@@ -24,7 +25,7 @@ export function useGhostPlan(): void {
 
   const prereqGraph = usePrereqGraph();
   const offeringSchedule = useOfferingSchedule();
-  const profile = useUserProfile();
+  const profile = useEffectiveProfile();
   const degreeReqs = useDegreeRequirements();
   const techCores = useTechCoresRecord();
   const mathReqs = useMathRequirements();

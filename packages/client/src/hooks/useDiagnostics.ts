@@ -9,7 +9,6 @@
 
 import { useMemo } from 'react';
 import {
-  useUserProfile,
   useDegreeRequirements,
   useTechCoresRecord,
   useMathRequirements,
@@ -17,8 +16,8 @@ import {
   useDataLoading,
 } from '@/context/DataContext';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
+import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 import { usePlan, useSemesters, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
-import { useSettings } from '@/context/SettingsContext';
 import { computeRequiredCourses, getCreditHourCap } from '@/lib/auto-planner';
 import { computeDiagnostics } from '@/lib/diagnostics';
 import { addWithVariants } from '@/lib/variants';
@@ -32,7 +31,7 @@ import type { DiagnosticsResult } from '@/lib/diagnostics';
  */
 export function useDiagnostics(): DiagnosticsResult | null {
   const loading = useDataLoading();
-  const userProfile = useUserProfile();
+  const userProfile = useEffectiveProfile();
   const degreeReqs = useDegreeRequirements();
   const techCoresRecord = useTechCoresRecord();
   const mathReqs = useMathRequirements();
@@ -42,10 +41,6 @@ export function useDiagnostics(): DiagnosticsResult | null {
   const semesters = useSemesters();
   const techCoreId = useTechCoreId();
   const mathBAToggle = useMathBAToggle();
-  // Read loadTolerance from SettingsContext — this is the value the user selected
-  // in onboarding/settings. The userProfile.preferences.course_load_tolerance field
-  // is never updated after initial load, so using it would return a stale/default cap.
-  const { loadTolerance } = useSettings();
 
   return useMemo(() => {
     if (loading || !userProfile || !degreeReqs || !techCoresRecord || !mathReqs) return null;
@@ -71,13 +66,7 @@ export function useDiagnostics(): DiagnosticsResult | null {
       satisfied
     );
 
-    // Build a synthetic profile that reflects the user's current settings tolerance,
-    // so getCreditHourCap returns the correct value for the selected load tolerance.
-    const profileWithTolerance = {
-      ...userProfile,
-      preferences: { ...userProfile.preferences, course_load_tolerance: loadTolerance },
-    };
-    const creditHourCap = getCreditHourCap(profileWithTolerance);
+    const creditHourCap = getCreditHourCap(userProfile);
 
     return computeDiagnostics({
       remainingRequired,
@@ -99,6 +88,5 @@ export function useDiagnostics(): DiagnosticsResult | null {
     semesters,
     techCoreId,
     mathBAToggle,
-    loadTolerance,
   ]);
 }
