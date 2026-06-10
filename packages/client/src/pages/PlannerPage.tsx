@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, BookOpen } from 'lucide-react';
 import {
   DndContext,
@@ -21,6 +21,7 @@ import ChatPanel from '@/components/ChatPanel';
 import WhatIfPanel from '@/components/WhatIfPanel';
 import OverviewYearGrid from '@/components/OverviewYearGrid';
 import FocusEditor from '@/components/FocusEditor';
+import CommandPalette from '@/components/CommandPalette';
 import {
   useCatalogRecord,
   usePrereqGraph as useRawPrereqGraph,
@@ -46,10 +47,15 @@ export default function PlannerPage() {
     chatOpen, setChatOpen,
     whatIfOpen, setWhatIfOpen,
     paletteOpen, setPaletteOpen,
+    commandPaletteOpen, setCommandPaletteOpen,
     focusedSemesterId, setFocusedSemesterId,
   } = useUi();
 
   const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
+  // Track whether the command palette is the "primary" Esc consumer so that
+  // the focus-close Esc handler below doesn't also fire when closing the palette.
+  const commandPaletteOpenRef = useRef(commandPaletteOpen);
+  useEffect(() => { commandPaletteOpenRef.current = commandPaletteOpen; }, [commandPaletteOpen]);
 
   // ── Dispatch + plan state ─────────────────────────────────────────────────
   const dispatch = usePlanDispatch();
@@ -61,15 +67,44 @@ export default function PlannerPage() {
   const gradeDistributions = useGradeDistributions();
   const prereqNodes: Record<string, PrereqNode> = rawPrereqGraph?.nodes ?? {};
 
-  // ── Esc key to close focus ────────────────────────────────────────────────
+  // ── Esc key to close focus (only when command palette is NOT open) ─────────
   useEffect(() => {
     if (!focusedSemesterId) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setFocusedSemesterId(null);
+      if (e.key === 'Escape' && !commandPaletteOpenRef.current) {
+        setFocusedSemesterId(null);
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [focusedSemesterId, setFocusedSemesterId]);
+
+  // ── Global Cmd+K / Ctrl+K / Ctrl+Space → open command palette ─────────────
+  // useRef-based setter so the handler never goes stale without a re-mount.
+  const setCommandPaletteOpenRef = useRef(setCommandPaletteOpen);
+  useEffect(() => { setCommandPaletteOpenRef.current = setCommandPaletteOpen; }, [setCommandPaletteOpen]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const isK = e.key === 'k' || e.key === 'K';
+      const isSpace = e.key === ' ';
+
+      // Cmd+K (macOS) or Ctrl+K
+      if (isK && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setCommandPaletteOpenRef.current((prev) => !prev);
+        return;
+      }
+
+      // Ctrl+Space (avoid Cmd+Space which is macOS Spotlight)
+      if (isSpace && e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        setCommandPaletteOpenRef.current((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []); // empty deps — stable via ref
 
   // ── Tile click: toggle focus ──────────────────────────────────────────────
   const handleTileClick = useCallback((semesterId: string) => {
@@ -310,6 +345,9 @@ export default function PlannerPage() {
           </div>
         </aside>
       </div>
+
+      {/* ── Command palette — Cmd/Ctrl+K to add a course to focused semester ─── */}
+      <CommandPalette />
 
       {/* ── Drag overlay — floats under cursor while dragging ──────────────── */}
       <DragOverlay dropAnimation={null}>
