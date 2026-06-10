@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
 import { getCachedResponse, setCachedResponse } from './cache';
 import { tokenCapMiddleware } from './middleware/tokenCap';
+import { requireAccessCode } from './middleware/accessCode';
 
 dotenv.config({ path: '../../.env' });
 
@@ -17,6 +18,11 @@ if (!process.env.ANTHROPIC_API_KEY) {
 }
 
 const app = express();
+
+// Trust the first proxy hop so req.ip reflects the real client IP from
+// X-Forwarded-For. Required for rate limiting / per-IP caps to work correctly
+// behind Render, Fly, or any other reverse proxy.
+app.set('trust proxy', 1);
 
 // Security headers — CSP is set here (HTTP header) instead of an HTML <meta>
 // so dev tooling (Vite HMR inline scripts) isn't blocked. In production, the
@@ -80,7 +86,7 @@ interface AgentTurnTool {
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
-app.post('/api/agent-turn', chatLimiter, tokenCapMiddleware, async (req, res) => {
+app.post('/api/agent-turn', requireAccessCode, chatLimiter, tokenCapMiddleware, async (req, res) => {
   // No env-var precheck here: the SDK resolves auth from ANTHROPIC_API_KEY,
   // ANTHROPIC_AUTH_TOKEN, or a local `ant auth login` profile.  If none is
   // present the SDK will throw an AuthenticationError (401) which surfaces
@@ -189,36 +195,45 @@ app.post('/api/agent-turn', chatLimiter, tokenCapMiddleware, async (req, res) =>
   }
 });
 
-app.post('/api/recommend', chatLimiter, async (req, res) => {
-  const { profile, gradeEntries, techCores, customInput } = req.body;
+app.post('/api/recommend', requireAccessCode, chatLimiter, async (req, res) => {
+  const { profile, gradeEntries, techCores, customInput: rawCustomInput } = req.body;
   const useAnthropic = !!process.env.ANTHROPIC_API_KEY;
 
   if (!profile || !gradeEntries || !techCores) {
     return res.status(400).json({ error: 'Missing required profile data' });
   }
 
-  const prompt = `You are an expert UT Austin ECE academic advisor.
+  // Cap customInput to 200 chars to limit prompt injection surface.
+  // It is treated as a student preference note only — not a system instruction.
+  const customInput = typeof rawCustomInput === 'string'
+    ? rawCustomInput.slice(0, 200)
+    : '';
+
+  const systemPrompt = `You are an expert UT Austin ECE academic advisor.
 Analyze the student's profile, grades, and preferences.
-
-Student Profile Preferences:
-${JSON.stringify(profile.preferences, null, 2)}
-
-Grades (Course ID -> Grade):
-${JSON.stringify(gradeEntries, null, 2)}
-
-Available Tech Cores:
-${Object.keys(techCores).map(k => `- ${k}: ${techCores[k].name}`).join('\n')}
-
-${customInput ? `\nCRITICAL USER INSTRUCTIONS:\n"""\n${customInput}\n"""\n\nYOU MUST OBEY THE USER'S INSTRUCTIONS ABOVE ABOVE ALL ELSE. If the user explicitly requests a field like 'Software' or 'Hardware', YOU MUST SELECT THE MATCHING TECH CORE, EVEN IF IT CONTRADICTS THEIR PAST GRADES OR PREFERENCES! Explain how you followed their instruction in your reasoning.\n` : `Based on their strengths (high grades in specific subjects) and preferences, select the BEST single Tech Core ID.`}
-
+Select the single best Tech Core ID and decide on Math BA.
+Base your decision on the student's academic strengths and stated preferences.
 Also decide if they should pursue the Math BA double major (only if they excel in math).
-
 You MUST respond with ONLY a valid JSON object in this exact format, with no markdown formatting or backticks:
 {
   "techCoreId": "the_chosen_id",
   "mathBA": false,
   "reasoning": "A brief 2-sentence explanation of why this is the perfect fit based on their specific grades and preferences."
 }`;
+
+  const userContent = [
+    'Student Profile Preferences:',
+    JSON.stringify(profile.preferences, null, 2),
+    '',
+    'Grades (Course ID -> Grade):',
+    JSON.stringify(gradeEntries, null, 2),
+    '',
+    'Available Tech Cores:',
+    Object.keys(techCores).map((k: string) => `- ${k}: ${(techCores[k] as { name: string }).name}`).join('\n'),
+    customInput ? `\nStudent preference note: ${customInput}` : '',
+  ].join('\n');
+
+  const prompt = systemPrompt + '\n\n' + userContent;
 
   const cached = await getCachedResponse(prompt);
   if (cached) return res.json(cached);
@@ -228,10 +243,10 @@ You MUST respond with ONLY a valid JSON object in this exact format, with no mar
       const response = await anthropic.messages.create({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 500,
-        system: "You are an academic advisor. Output raw JSON only. Do not wrap in ```json or any markdown.",
-        messages: [{ role: 'user', content: prompt }],
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userContent }],
       });
-      
+
       const text = (response.content[0] as any).text;
       try {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -239,7 +254,7 @@ You MUST respond with ONLY a valid JSON object in this exact format, with no mar
         await setCachedResponse(prompt, parsed, 'json');
         return res.json(parsed);
       } catch (e) {
-        throw new Error('Failed to parse Anthropic JSON output: ' + text);
+        throw new Error('Failed to parse Anthropic JSON output');
       }
     } else {
       const ollamaUrl = (process.env.OLLAMA_URL || 'http://127.0.0.1:11434').trim();
@@ -274,16 +289,16 @@ You MUST respond with ONLY a valid JSON object in this exact format, with no mar
         await setCachedResponse(prompt, parsed, 'json');
         return res.json(parsed);
       } catch (e) {
-        throw new Error('Failed to parse Ollama JSON output: ' + text);
+        throw new Error('Failed to parse Ollama JSON output');
       }
     }
   } catch (error: any) {
     console.error('Recommend API Error:', error?.message || error);
-    res.status(500).json({ error: error?.message || 'Failed to generate recommendation' });
+    res.status(500).json({ error: 'Failed to generate recommendation' });
   }
 });
 
-app.post('/api/generate-questionnaire', chatLimiter, async (req, res) => {
+app.post('/api/generate-questionnaire', requireAccessCode, chatLimiter, async (req, res) => {
   const { profile, gradeEntries, techCores } = req.body;
   const useAnthropic = !!process.env.ANTHROPIC_API_KEY;
 
@@ -345,7 +360,7 @@ Respond with ONLY a valid JSON object in this exact format:
     }
   } catch (error: any) {
     console.error('Questionnaire API Error:', error?.message || error);
-    res.status(500).json({ error: 'Failed to generate questionnaire' });
+    res.status(500).json({ error: 'Failed to generate questionnaire questions' });
   }
 });
 

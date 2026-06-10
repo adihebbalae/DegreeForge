@@ -71,7 +71,8 @@ const settingsStateSchema: z.ZodType<SettingsState> = z.object({
   profPreferences: z.array(z.object({ name: z.string(), type: z.enum(['prefer', 'avoid']) })).default([]),
   paletteSortMode: z.enum(['recommended', 'easiest']).default('recommended'),
   enabledTools: z.array(z.string()).default(DEFAULT_ENABLED_TOOLS.map(t => t.name)),
-  chatProvider: z.enum(['ollama', 'claude']).default('ollama'),
+  chatProvider: z.enum(['ollama', 'claude']).default('claude'),
+  accessCode: z.string().default(''),
 });
 
 export function parseSettingsState(raw: unknown): SettingsState | null {

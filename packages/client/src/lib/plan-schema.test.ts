@@ -171,14 +171,14 @@ describe('parseSettingsState', () => {
     expect(result?.paletteSortMode).toBe('recommended');
   });
 
-  it('backfills enabledTools to the 6 default names when absent (legacy upgrade)', () => {
+  it('backfills enabledTools to the default names when absent (legacy upgrade)', () => {
     // Simulates a persisted settings object that predates the enabledTools field
     const legacy = { loadTolerance: 'normal', gradTarget: 'Fall 2028' };
     const result = parseSettingsState(legacy);
     expect(result).not.toBeNull();
     const defaultNames = DEFAULT_ENABLED_TOOLS.map(t => t.name);
     expect(result?.enabledTools).toEqual(defaultNames);
-    expect(result?.enabledTools).toHaveLength(6);
+    expect(result?.enabledTools).toHaveLength(defaultNames.length);
   });
 
   it('preserves enabledTools when explicitly provided', () => {
@@ -188,9 +188,9 @@ describe('parseSettingsState', () => {
     expect(result?.enabledTools).toEqual(['get_course_info', 'search_catalog']);
   });
 
-  it('backfills enabledTools to 6 defaults for empty object', () => {
+  it('backfills enabledTools to defaults for empty object', () => {
     const result = parseSettingsState({});
     expect(result).not.toBeNull();
-    expect(result?.enabledTools).toHaveLength(6);
+    expect(result?.enabledTools).toHaveLength(DEFAULT_ENABLED_TOOLS.length);
   });
 });

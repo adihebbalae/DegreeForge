@@ -232,10 +232,17 @@ export default function ChatPanel() {
         `In-progress courses: ${planContext.inProgress.map(c => c.course).join(', ') || 'none'}.`,
         'When proposing changes to the plan, use the propose_plan_edit tool.',
         'Provide concise, actionable academic advice.',
+        'Tool selection guidance:',
+        'graduation / remaining requirements / what do I still need → list_remaining_requirements or get_credit_progress;',
+        'what does X unlock / what comes after X / downstream courses → get_downstream;',
+        'course facts / description / prerequisites → get_course_info.',
+        'When the user asks a question, use whatever tools you need to fully answer it in one go.',
+        'Do NOT ask the user for permission to look something up, and do NOT stop to ask "want me to check X?" when X is clearly part of answering their question.',
+        'Only ask a follow-up question when the request is genuinely ambiguous.',
       ].join(' ');
 
       const provider = settings.chatProvider === 'claude'
-        ? createClaudeProvider()
+        ? createClaudeProvider(undefined, settings.accessCode)
         : createOllamaProvider();
 
       // Keep agent history in sync with the 20-message window

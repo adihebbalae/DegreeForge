@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Loader2, HelpCircle } from 'lucide-react';
 import { useUserProfile, useTechCoresRecord } from '@/context/DataContext';
 import { useGradeEntries } from '@/context/PlanContext';
+import { useSettings } from '@/context/SettingsContext';
 
 interface QuestionnaireDialogProps {
   onComplete: (combinedAnswers: string) => void;
@@ -28,6 +29,7 @@ export function QuestionnaireDialog({ onComplete }: QuestionnaireDialogProps) {
   const profile = useUserProfile();
   const techCores = useTechCoresRecord();
   const gradeEntries = useGradeEntries();
+  const settings = useSettings();
 
   const handleOpenChange = async (newOpen: boolean) => {
     setOpen(newOpen);
@@ -36,7 +38,10 @@ export function QuestionnaireDialog({ onComplete }: QuestionnaireDialogProps) {
       try {
         const response = await fetch('/api/generate-questionnaire', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-access-code': settings.accessCode,
+          },
           body: JSON.stringify({ profile, gradeEntries, techCores }),
         });
         if (!response.ok) throw new Error('Failed to generate questions');

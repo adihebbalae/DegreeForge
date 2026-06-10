@@ -132,10 +132,10 @@ describe('settingsReducer', () => {
     expect(next.enabledTools).toContain('search_catalog');
   });
 
-  it('RESET_SETTINGS restores enabledTools to the default 6 names', () => {
+  it('RESET_SETTINGS restores enabledTools to the default names', () => {
     const modified: SettingsState = { ...DEFAULT_SETTINGS, enabledTools: [] };
     const next = settingsReducer(modified, { type: 'RESET_SETTINGS' });
     expect(next.enabledTools).toEqual(DEFAULT_SETTINGS.enabledTools);
-    expect(next.enabledTools.length).toBe(6);
+    expect(next.enabledTools.length).toBe(DEFAULT_SETTINGS.enabledTools.length);
   });
 });

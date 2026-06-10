@@ -20,7 +20,14 @@ export async function getCachedResponse(prompt: string): Promise<any | null> {
   await ensureLogDir();
   try {
     const data = await fs.readFile(CACHE_FILE, 'utf-8');
-    const cache = JSON.parse(data);
+    let cache: Record<string, unknown>;
+    try {
+      cache = JSON.parse(data);
+    } catch (parseErr) {
+      console.error('[Cache] Corrupt cache file — resetting to {}', parseErr);
+      await fs.writeFile(CACHE_FILE, '{}');
+      return null;
+    }
     const hash = hashPrompt(prompt);
     if (cache[hash]) {
       console.log(`[Cache Hit] Serving cached response for hash: ${hash.substring(0, 8)}...`);

@@ -402,8 +402,27 @@ export default function SettingsPage() {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Ollama is the default (local, no API key needed). Claude routes through the Express server and requires{' '}
+                Claude routes through the Express server and requires{' '}
                 <code className="font-mono text-xs">ANTHROPIC_API_KEY</code> to be set server-side.
+                Ollama runs locally with no API key.
+              </p>
+            </div>
+
+            {/* Beta access code */}
+            <div className="space-y-2 mb-6">
+              <Label htmlFor="access-code">Access code (beta)</Label>
+              <input
+                id="access-code"
+                type="password"
+                placeholder="Leave empty for local dev"
+                value={settings.accessCode}
+                onChange={(e) => dispatch({ type: 'SET_ACCESS_CODE', value: e.target.value })}
+                className="flex h-9 w-full max-w-xs rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              />
+              <p className="text-xs text-muted-foreground">
+                Sent as <code className="font-mono text-xs">x-access-code</code> on AI requests.
+                Leave empty for local dev (server ignores it when{' '}
+                <code className="font-mono text-xs">BETA_ACCESS_SECRET</code> is unset).
               </p>
             </div>
 

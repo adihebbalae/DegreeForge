@@ -36,8 +36,10 @@ export interface SettingsState {
   paletteSortMode: 'recommended' | 'easiest';
   /** Tool names currently enabled for the chat agent. */
   enabledTools: string[];
-  /** Which LLM backend the chat advisor uses. Ollama is the default. */
+  /** Which LLM backend the chat advisor uses. */
   chatProvider: ChatProvider;
+  /** Invite-beta access code sent as x-access-code header to the server. Empty in local dev. */
+  accessCode: string;
 }
 
 // ─── Default Settings ─────────────────────────────────────────────────────────
@@ -63,7 +65,8 @@ export const DEFAULT_SETTINGS: SettingsState = {
   profPreferences: [],
   paletteSortMode: 'recommended',
   enabledTools: DEFAULT_ENABLED_TOOL_NAMES,
-  chatProvider: 'ollama',
+  chatProvider: 'claude',
+  accessCode: '',
 };
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
@@ -81,6 +84,7 @@ export type SettingsAction =
   | { type: 'SET_PALETTE_SORT'; value: 'recommended' | 'easiest' }
   | { type: 'TOGGLE_TOOL'; toolName: string }
   | { type: 'SET_CHAT_PROVIDER'; value: ChatProvider }
+  | { type: 'SET_ACCESS_CODE'; value: string }
   | { type: 'RESET_SETTINGS' }
   | { type: 'SET_FULL_SETTINGS'; settings: SettingsState };
 
@@ -128,6 +132,8 @@ export function settingsReducer(state: SettingsState, action: SettingsAction): S
     }
     case 'SET_CHAT_PROVIDER':
       return { ...state, chatProvider: action.value };
+    case 'SET_ACCESS_CODE':
+      return { ...state, accessCode: action.value };
     case 'RESET_SETTINGS':
       return { ...DEFAULT_SETTINGS };
     case 'SET_FULL_SETTINGS':

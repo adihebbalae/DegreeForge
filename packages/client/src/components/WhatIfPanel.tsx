@@ -164,7 +164,10 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
     try {
       const response = await fetch('/api/recommend', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-code': settings.accessCode,
+        },
         body: JSON.stringify({
           profile,
           gradeEntries,

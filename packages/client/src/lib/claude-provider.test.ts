@@ -160,14 +160,22 @@ describe('runAgentTurn + createClaudeProvider (integration)', () => {
     vi.unstubAllGlobals();
   });
 
-  it('executes a tool when the server returns a tool_use response', async () => {
+  it('executes a tool and synthesizes prose via a second provider call', async () => {
     const mockFetch = vi.mocked(fetch);
-    // Server returns a tool_use response
+    // First call: server returns a tool_use response
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         text: '',
         toolCall: { name: 'echo_tool', args: { message: 'integration-check' } },
+      }),
+    } as Response);
+    // Second call: synthesis — server returns natural-language prose
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: 'The echo tool returned: integration-check.',
+        toolCall: null,
       }),
     } as Response);
 
@@ -184,13 +192,15 @@ describe('runAgentTurn + createClaudeProvider (integration)', () => {
       }
     );
 
-    // The tool was executed and its content is the final result
+    // The tool was executed; toolCallMade and toolResult reflect the first call
     expect(result.toolCallMade).not.toBeNull();
     expect(result.toolCallMade!.name).toBe('echo_tool');
     expect(result.toolCallMade!.args).toEqual({ message: 'integration-check' });
     expect(result.toolResult).toEqual({ echo: 'integration-check' });
-    // finalText is JSON.stringify of the tool result content
-    expect(JSON.parse(result.finalText)).toEqual({ echo: 'integration-check' });
+    // finalText is now synthesized prose, not raw JSON
+    expect(result.finalText).toBe('The echo tool returned: integration-check.');
+    // Two fetches were made: tool call + synthesis
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 
   it('returns text directly when no tool is called', async () => {

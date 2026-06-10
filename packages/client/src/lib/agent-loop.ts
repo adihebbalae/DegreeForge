@@ -2,13 +2,12 @@
  * agent-loop.ts
  *
  * Provider-agnostic agentic chat loop.
- * Enforces a 1-tool-call cap per turn: the model may return at most one tool
- * call per user message. If the model response contains a tool call, the loop:
- *   1. Executes the tool deterministically against ToolContext.
- *   2. Appends the result as a tool-result message.
- *   3. Returns the final text response (no recursive re-entry).
+ * Supports up to MAX_TOOL_CALLS sequential tool executions per user turn.
+ * The loop continues until the model returns text without a tool call, a
+ * passthrough tool (propose_plan_edit) is executed, or the cap is reached.
+ * On cap, a final tool-less synthesis call produces the prose answer.
  *
- * Currently ships an Ollama adapter. Claude adapter is a TODO (see below).
+ * Currently ships an Ollama adapter and a Claude adapter.
  */
 
 import type { ToolContext, ToolDefinition } from './agent-tools/types';
@@ -128,8 +127,11 @@ export function createOllamaProvider(opts: OllamaAdapterOptions = {}): AgentProv
  * Claude adapter — POSTs to the Express server's /api/agent-turn endpoint.
  * The server holds the Anthropic API key; the browser never sees it.
  * The endpoint runs one non-streaming tool-use turn and returns { text, toolCall }.
+ *
+ * accessCode is sent as `x-access-code` for the invite-beta gate.
+ * An empty string is safe — the server ignores it when BETA_ACCESS_SECRET is unset.
  */
-export function createClaudeProvider(baseUrl?: string): AgentProvider {
+export function createClaudeProvider(baseUrl?: string, accessCode = ''): AgentProvider {
   const resolvedBaseUrl = baseUrl ?? (
     typeof import.meta !== 'undefined' && (import.meta as unknown as Record<string, unknown>).env
       ? ((import.meta as unknown as Record<string, Record<string, string>>).env['VITE_SERVER_URL'] ?? 'http://localhost:3005')
@@ -142,7 +144,10 @@ export function createClaudeProvider(baseUrl?: string): AgentProvider {
       try {
         response = await fetch(`${resolvedBaseUrl}/api/agent-turn`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-access-code': accessCode,
+          },
           body: JSON.stringify({
             messages,
             tools: tools.map(t => ({ name: t.name, description: t.description, schema: t.schema })),
@@ -198,12 +203,50 @@ export interface AgentLoopResult {
 }
 
 /**
+ * Tools that produce structured UI output consumed directly by ChatPanel.
+ * These are NOT synthesized into prose — their raw toolResult drives the UI.
+ */
+const PASSTHROUGH_TOOLS = new Set(['propose_plan_edit']);
+
+/**
+ * Maximum number of read-tool executions allowed in a single user turn.
+ * When reached, the loop breaks and a final tool-less synthesis call is made.
+ */
+const MAX_TOOL_CALLS = 4;
+
+/**
+ * Build a compact, human-readable summary of a tool result for use as a
+ * synthesis fallback when the second model call also returns a tool call
+ * (i.e. the model tries to chain tools, which we don't allow).
+ */
+function buildFallbackSummary(toolName: string, content: unknown): string {
+  if (content === null || content === undefined) {
+    return `The ${toolName} tool returned no data.`;
+  }
+  if (typeof content === 'string') {
+    return content.length > 300 ? content.slice(0, 300) + '…' : content;
+  }
+  const json = JSON.stringify(content);
+  return json.length > 300
+    ? `Here is a summary from ${toolName}: ${json.slice(0, 300)}…`
+    : `Here is the result from ${toolName}: ${json}`;
+}
+
+/**
  * Run one user turn through the agentic loop.
  *
- * Cap: exactly one tool call per turn. If the model returns a tool call, we
- * execute it, append the result, and return. We do NOT loop back for a second
- * model call — the tool result itself becomes the assistant response content.
- * This prevents runaway tool storms and keeps UI latency predictable.
+ * Supports up to MAX_TOOL_CALLS sequential read-tool executions:
+ *   - Each iteration: call provider.complete with the current message history.
+ *   - No toolCall returned → return text directly as the final answer.
+ *   - toolCall is a PASSTHROUGH tool (propose_plan_edit) → execute and return
+ *     the raw structured result for the diff-card UI. Terminal — no looping.
+ *   - Otherwise (read tool) → execute it, append the result as a tool_result
+ *     message, and loop again up to MAX_TOOL_CALLS total executions.
+ *   - When the counter hits MAX_TOOL_CALLS, break and make ONE final tool-less
+ *     synthesis call; return its text (or buildFallbackSummary if empty).
+ *
+ * toolCallMade / toolResult are set to the LAST executed tool call + result so
+ * existing ChatPanel rendering still works.
  */
 export async function runAgentTurn(
   history: AgentMessage[],
@@ -215,26 +258,83 @@ export async function runAgentTurn(
     { role: 'user', content: userMessage },
   ];
 
-  const turn = await opts.provider.complete(messages, opts.tools, opts.systemPrompt);
+  const synthesisSystemPrompt =
+    `${opts.systemPrompt}\n\nYou have already retrieved the tool result(s) above. Answer the user's question directly and concisely using them. Do NOT say you will look something up — you already have the data. If the data is insufficient to fully answer, say briefly what is missing.`;
 
-  if (!turn.toolCall) {
-    return { finalText: turn.text, toolCallMade: null, toolResult: null };
+  let toolCallsMade = 0;
+  let lastToolCall: AgentToolCall | null = null;
+  let lastToolResult: unknown | null = null;
+
+  while (true) {
+    const turn = await opts.provider.complete(messages, opts.tools, opts.systemPrompt);
+
+    if (!turn.toolCall) {
+      // Model answered directly — this is the final answer regardless of how
+      // many tools were called before.
+      return {
+        finalText: turn.text,
+        toolCallMade: lastToolCall,
+        toolResult: lastToolResult,
+      };
+    }
+
+    const toolDef = opts.tools.find(t => t.name === turn.toolCall!.name);
+    if (!toolDef) {
+      return {
+        finalText: `I tried to use the tool "${turn.toolCall.name}" but it's not available.`,
+        toolCallMade: turn.toolCall,
+        toolResult: null,
+      };
+    }
+
+    const result = toolDef.fn(opts.toolContext, turn.toolCall.args);
+    const toolCall = turn.toolCall;
+
+    // Passthrough tools: return raw result so ChatPanel can render the UI widget.
+    // Terminal — do not loop.
+    if (PASSTHROUGH_TOOLS.has(toolCall.name)) {
+      return {
+        finalText: JSON.stringify(result.content, null, 2),
+        toolCallMade: toolCall,
+        toolResult: result.content,
+      };
+    }
+
+    // Track the most recently executed read-tool call + result.
+    lastToolCall = toolCall;
+    lastToolResult = result.content;
+    toolCallsMade++;
+
+    // Append the tool result to the conversation so the model has context on
+    // the next iteration.
+    messages.push({
+      role: 'tool_result',
+      content: JSON.stringify(result.content),
+      tool_name: toolCall.name,
+    });
+
+    if (toolCallsMade >= MAX_TOOL_CALLS) {
+      // Cap reached — force a final tool-less synthesis call so the model
+      // answers in prose from the accumulated tool results.
+      break;
+    }
   }
 
-  // Execute the tool (1-tool cap enforced — no second call)
-  const toolDef = opts.tools.find(t => t.name === turn.toolCall!.name);
-  if (!toolDef) {
-    return {
-      finalText: `I tried to use the tool "${turn.toolCall.name}" but it's not available.`,
-      toolCallMade: turn.toolCall,
-      toolResult: null,
-    };
-  }
+  // Final tool-less synthesis call: empty tools array so the model cannot
+  // request another tool; augmented system prompt reinforces direct answering.
+  const synthesis = await opts.provider.complete(
+    messages,
+    [],
+    synthesisSystemPrompt
+  );
 
-  const result = toolDef.fn(opts.toolContext, turn.toolCall.args);
+  const finalText = synthesis.text.trim()
+    ? synthesis.text
+    : buildFallbackSummary(lastToolCall!.name, lastToolResult);
+
   return {
-    finalText: JSON.stringify(result.content, null, 2),
-    toolCallMade: turn.toolCall,
-    toolResult: result.content,
+    finalText,
+    toolCallMade: lastToolCall,
+    toolResult: lastToolResult,
   };
 }

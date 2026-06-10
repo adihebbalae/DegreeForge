@@ -155,7 +155,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
       properties: {},
       required: [],
     },
-    defaultEnabled: false,
+    defaultEnabled: true,
     fn: listRemainingRequirements,
   },
   {
@@ -229,7 +229,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
       properties: {},
       required: [],
     },
-    defaultEnabled: false,
+    defaultEnabled: true,
     fn: getCreditProgress,
   },
   {
