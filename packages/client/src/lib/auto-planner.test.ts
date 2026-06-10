@@ -287,6 +287,36 @@ describe('generateAutoPlan', () => {
     }
   });
 
+  it('F1-fix: normal tolerance (17 hrs) passed as effective profile is honoured by generateAutoPlan', () => {
+    // Simulates the useEffectiveProfile override: a profile whose stored tolerance is
+    // 'above_average' (18 hrs, the JSON default) is overridden to 'normal' (17 hrs)
+    // before being passed to generateAutoPlan — exactly what useRecommendPlan now does.
+    const normalProfile: UserProfile = {
+      ...profile,
+      preferences: { ...profile.preferences, course_load_tolerance: 'normal' },
+    };
+    const result = generateAutoPlan({
+      prereqGraph,
+      prereqNodes: prereqData.nodes,
+      userProfile: normalProfile,
+      degreeReqs,
+      techCore: techCores.computer_architecture,
+      mathReqs,
+      mathBAToggle: false,
+      semesters: SEMESTERS,
+      currentPlan: INITIAL_PLAN,
+      catalog,
+    });
+    for (const sem of SEMESTERS.filter((s) => s.status === 'future')) {
+      const semCredits = result.plan[sem.id].reduce(
+        (sum, id) => sum + (prereqData.nodes[id]?.credits ?? 3),
+        0
+      );
+      // Must be ≤17 (normal cap), NOT 18 (above_average cap from JSON profile)
+      expect(semCredits).toBeLessThanOrEqual(17);
+    }
+  });
+
   it('completes a 4-year plan in under 200ms', () => {
     const start = performance.now();
     generateAutoPlan({

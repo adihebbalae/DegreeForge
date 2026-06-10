@@ -48,6 +48,6 @@ vi.mock('@/components/ui/tooltip', () => ({
 describe('ProgressBars', () => {
   it('renders segmented progress bars', () => {
     const { getByText } = render(<ProgressBars />);
-    expect(getByText('42 / 128 Credit Hours')).toBeDefined();
+    expect(getByText('42 / 128 hrs')).toBeDefined();
   });
 });

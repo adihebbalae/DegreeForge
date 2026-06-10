@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Zap } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { X, BookOpen } from 'lucide-react';
 import {
   DndContext,
   DragOverlay,
@@ -13,24 +13,21 @@ import {
 import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import { Button } from '@/components/ui/button';
 import { ProgressBars } from '@/components/ProgressBars';
-import TimelineGrid from '@/components/TimelineGrid';
 import { ComparisonToggle, PlanComparisonPanel } from '../components/PlanComparison';
 import CoursePalette from '@/components/CoursePalette';
 import CourseCard from '@/components/CourseCard';
 import ValidationBanner from '@/components/ValidationBanner';
 import ChatPanel from '@/components/ChatPanel';
 import WhatIfPanel from '@/components/WhatIfPanel';
+import OverviewYearGrid from '@/components/OverviewYearGrid';
+import FocusEditor from '@/components/FocusEditor';
+import CommandPalette from '@/components/CommandPalette';
 import {
   useCatalogRecord,
   usePrereqGraph as useRawPrereqGraph,
   useGradeDistributions,
-  useUserProfile,
-  useDegreeRequirements,
-  useTechCoresRecord,
-  useMathRequirements,
 } from '@/context/DataContext';
-import { usePrereqGraph } from '@/hooks/usePrereqGraph';
-import { usePlanDispatch, usePlan, useTechCoreId, useMathBAToggle, useSemesters } from '@/context/PlanContext';
+import { usePlanDispatch, usePlan } from '@/context/PlanContext';
 import { useUi } from '@/context/UiContext';
 import type { PrereqNode } from '@/types';
 
@@ -46,24 +43,75 @@ interface ActiveCardInfo {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function PlannerPage() {
-  const { chatOpen, setChatOpen, whatIfOpen, setWhatIfOpen } = useUi();
-  const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
+  const {
+    chatOpen, setChatOpen,
+    whatIfOpen, setWhatIfOpen,
+    paletteOpen, setPaletteOpen,
+    commandPaletteOpen, setCommandPaletteOpen,
+    focusedSemesterId, setFocusedSemesterId,
+  } = useUi();
 
-  // ── Dispatch + plan state (for duplicate detection + reorder) ─────────────
+  const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
+  // Track whether the command palette is the "primary" Esc consumer so that
+  // the focus-close Esc handler below doesn't also fire when closing the palette.
+  const commandPaletteOpenRef = useRef(commandPaletteOpen);
+  useEffect(() => { commandPaletteOpenRef.current = commandPaletteOpen; }, [commandPaletteOpen]);
+
+  // ── Dispatch + plan state ─────────────────────────────────────────────────
   const dispatch = usePlanDispatch();
   const plan = usePlan();
-  const semesters = useSemesters();
-  const techCoreId = useTechCoreId();
-  const mathBAToggle = useMathBAToggle();
 
-  // ── Data for the DragOverlay CourseCard ───────────────────────────────────
+  // ── Data for the DragOverlay CourseCard ──────────────────────────────────
   const catalog = useCatalogRecord();
   const rawPrereqGraph = useRawPrereqGraph();
   const gradeDistributions = useGradeDistributions();
   const prereqNodes: Record<string, PrereqNode> = rawPrereqGraph?.nodes ?? {};
 
+  // ── Esc key to close focus (only when command palette is NOT open) ─────────
+  useEffect(() => {
+    if (!focusedSemesterId) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !commandPaletteOpenRef.current) {
+        setFocusedSemesterId(null);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [focusedSemesterId, setFocusedSemesterId]);
+
+  // ── Global Cmd+K / Ctrl+K / Ctrl+Space → open command palette ─────────────
+  // useRef-based setter so the handler never goes stale without a re-mount.
+  const setCommandPaletteOpenRef = useRef(setCommandPaletteOpen);
+  useEffect(() => { setCommandPaletteOpenRef.current = setCommandPaletteOpen; }, [setCommandPaletteOpen]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const isK = e.key === 'k' || e.key === 'K';
+      const isSpace = e.key === ' ';
+
+      // Cmd+K (macOS) or Ctrl+K
+      if (isK && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setCommandPaletteOpenRef.current((prev) => !prev);
+        return;
+      }
+
+      // Ctrl+Space (avoid Cmd+Space which is macOS Spotlight)
+      if (isSpace && e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        setCommandPaletteOpenRef.current((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []); // empty deps — stable via ref
+
+  // ── Tile click: toggle focus ──────────────────────────────────────────────
+  const handleTileClick = useCallback((semesterId: string) => {
+    setFocusedSemesterId(focusedSemesterId === semesterId ? null : semesterId);
+  }, [focusedSemesterId, setFocusedSemesterId]);
+
   // ── Sensors ───────────────────────────────────────────────────────────────
-  // Require 8px movement before activating drag — prevents accidental drags on click.
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
@@ -113,10 +161,8 @@ export default function PlannerPage() {
     let toSemester: string | null = null;
 
     if (overData?.type === 'semester') {
-      // Dropped on a semester container's empty area
       toSemester = overData.semesterId as string;
     } else if (overData?.type === 'course' && overData?.source === 'timeline') {
-      // Dropped on top of a sortable card — use that card's semester
       toSemester = overData.semesterId as string;
     }
 
@@ -124,10 +170,11 @@ export default function PlannerPage() {
 
     // ── Palette → semester: add course ──────────────────────────────────────
     if (source === 'palette') {
-      // Duplicate check: don't allow placing a course that's already in any semester
       const allPlaced = Object.values(plan).flat();
       if (allPlaced.includes(courseId)) return;
       dispatch({ type: 'ADD_COURSE', semesterId: toSemester, courseId });
+      // Auto-open the focus editor for the target semester when adding from palette
+      setFocusedSemesterId(toSemester);
       return;
     }
 
@@ -164,42 +211,78 @@ export default function PlannerPage() {
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="h-full flex flex-col relative overflow-hidden">
-        {/* ── Action bar ───────────────────────────────────────── */}
-        <div className="flex justify-between items-center px-4 pt-2">
-          <ComparisonToggle />
-        </div>
+
+        {/* ── Chrome strip: Compare + Progress + Validation (target ~30px total but
+             each is 28px with border; actual total depends on how many render).
+             ComparisonToggle is moved inline here to avoid occupying its own 40px band. ── */}
+
+        {/* ── Slim chrome: progress + validation (each 28px = ~56px total, well under 60px) */}
+        <ProgressBars />
+        <ValidationBanner />
 
         {/* ── Plan Comparison Overlay ─────────────────────────────────────── */}
         <PlanComparisonPanel />
 
-        {/* ── Progress bars strip ─────────────────────────────────────────── */}
-        <ProgressBars />
-
-        {/* ── Validation banner (TASK-010) ────────────────────────────────── */}
-        <ValidationBanner />
-
         {/* ── Main content row ────────────────────────────────────────────── */}
         <div className="flex-1 flex overflow-hidden min-h-0">
-          {/* Semester timeline grid — left ~65% */}
-          <div className="flex-[65] overflow-hidden min-h-0 border-r border-border">
-            <TimelineGrid />
+
+          {/* ── Overview year grid (always visible) ───────────────────────── */}
+          <div className={[
+            'flex flex-col overflow-hidden min-h-0 transition-all duration-200',
+            focusedSemesterId
+              ? 'w-[260px] shrink-0 border-r border-border'  // slim strip when focused
+              : 'flex-1',                                      // full width in overview
+          ].join(' ')}>
+
+            {/* Overview toolbar: Compare toggle + Courses button */}
+            <div className="flex items-center gap-2 px-2 py-1 border-b border-border shrink-0">
+              <ComparisonToggle />
+              <div className="flex-1" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-6 px-2 gap-1 text-xs"
+                onClick={() => setPaletteOpen((v) => !v)}
+                aria-label="Toggle course palette"
+                aria-expanded={paletteOpen}
+              >
+                <BookOpen className="h-3 w-3" />
+                Courses
+              </Button>
+            </div>
+
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <OverviewYearGrid
+                focusedSemesterId={focusedSemesterId}
+                onTileClick={handleTileClick}
+              />
+            </div>
           </div>
 
-          {/* Course palette — right ~35% */}
-          <div className="flex-[35] overflow-hidden min-h-0">
-            <CoursePalette />
-          </div>
+          {/* ── Focus editor (shown when a tile is clicked) ──────────────── */}
+          {focusedSemesterId && (
+            <div className="flex-1 overflow-hidden min-h-0 border-l border-border">
+              <FocusEditor
+                focusedSemesterId={focusedSemesterId}
+                onClose={() => setFocusedSemesterId(null)}
+              />
+            </div>
+          )}
         </div>
 
         {/* ── Chat slide-in panel ──────────────────────────────────────────── */}
+        {/* fixed: viewport-relative so translate-x-full always pushes fully off-screen */}
         <aside
           className={[
-            'absolute inset-y-0 right-0 w-80',
+            'fixed inset-y-0 right-0 w-80',
             'bg-background border-l border-border shadow-lg',
             'flex flex-col transition-transform duration-300 ease-in-out z-20',
-            chatOpen ? 'translate-x-0' : 'translate-x-full',
+            chatOpen
+              ? 'translate-x-0'
+              : 'translate-x-full invisible pointer-events-none',
           ].join(' ')}
           aria-label="AI chat panel"
+          aria-hidden={!chatOpen}
         >
           <div className="flex items-center justify-between p-4 border-b border-border">
             <span className="font-medium">AI Chat</span>
@@ -220,16 +303,51 @@ export default function PlannerPage() {
         {/* ── What-If slide-in panel ────────────────────────────────────────── */}
         <aside
           className={[
-            'absolute inset-y-0 right-0 w-80',
+            'fixed inset-y-0 right-0 w-80',
             'bg-background border-l border-border shadow-lg',
             'flex flex-col transition-transform duration-300 ease-in-out z-30',
-            whatIfOpen ? 'translate-x-0' : 'translate-x-full',
+            whatIfOpen
+              ? 'translate-x-0'
+              : 'translate-x-full invisible pointer-events-none',
           ].join(' ')}
           aria-label="What-If simulator panel"
+          aria-hidden={!whatIfOpen}
         >
           <WhatIfPanel onClose={() => setWhatIfOpen(false)} />
         </aside>
+
+        {/* ── Course palette slide-in drawer ───────────────────────────────── */}
+        <aside
+          className={[
+            'fixed inset-y-0 right-0 w-72',
+            'bg-background border-l border-border shadow-lg',
+            'flex flex-col transition-transform duration-300 ease-in-out z-20',
+            paletteOpen
+              ? 'translate-x-0'
+              : 'translate-x-full invisible pointer-events-none',
+          ].join(' ')}
+          aria-label="Course palette"
+          aria-hidden={!paletteOpen}
+        >
+          <div className="flex items-center justify-between px-3 py-2 border-b border-border shrink-0">
+            <span className="text-sm font-medium">Courses</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setPaletteOpen(false)}
+              aria-label="Close course palette"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex-1 overflow-hidden min-h-0">
+            <CoursePalette />
+          </div>
+        </aside>
       </div>
+
+      {/* ── Command palette — Cmd/Ctrl+K to add a course to focused semester ─── */}
+      <CommandPalette />
 
       {/* ── Drag overlay — floats under cursor while dragging ──────────────── */}
       <DragOverlay dropAnimation={null}>

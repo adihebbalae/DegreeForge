@@ -41,9 +41,11 @@ import {
 } from '@/context/DataContext';
 import { computeWhatIfDiff } from '@/lib/what-if';
 import { runSolver } from '@/lib/run-solver';
+import { getCreditHourCap } from '@/lib/auto-planner';
 import { serverBaseUrl } from '@/lib/agent-loop';
 import { TechCoreTrack } from '@/types';
 import { useDegreeRequirements, useOfferingSchedule } from '@/context/DataContext';
+import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 import { usePrereqGraph as useEngineGraph } from '@/hooks/usePrereqGraph';
 import { Loader2, Sparkles } from 'lucide-react';
 import { useState } from 'react';
@@ -87,6 +89,7 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
   const mathReqs = useMathRequirements();
   const catalog = useCatalogRecord();
   const profile = useUserProfile();
+  const effectiveProfile = useEffectiveProfile();
   const degreeReqs = useDegreeRequirements();
   const offeringSchedule = useOfferingSchedule();
   const engineGraph = useEngineGraph();
@@ -143,6 +146,7 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
           pinnedCourseIds: state.pinnedCourses,
           plan: state.plan,
           semesters: state.semesters,
+          maxHoursOverride: effectiveProfile ? getCreditHourCap(effectiveProfile) : undefined,
         });
 
         // Apply both the what-if state AND the new plan
