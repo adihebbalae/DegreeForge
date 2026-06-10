@@ -8,7 +8,10 @@ import { SettingsProvider } from './context/SettingsContext.tsx'
 import { TooltipProvider } from './components/ui/tooltip'
 import { OnboardingWizard } from './components/OnboardingWizard.tsx'
 import { UiProvider } from './context/UiContext.tsx'
+import { initAnalytics } from './lib/analytics.ts'
 import './index.css'
+
+initAnalytics()
 
 function OnboardingGate({ children }: { children: React.ReactNode }) {
   const [isOnboarded, setIsOnboarded] = React.useState(

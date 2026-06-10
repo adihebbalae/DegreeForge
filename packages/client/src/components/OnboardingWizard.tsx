@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Notice } from '@/components/ui/notice';
 import { useTechCoresRecord } from '@/context/DataContext';
-import { useSettingsDispatch, type LoadTolerance } from '@/context/SettingsContext';
+import { useSettings, useSettingsDispatch, type LoadTolerance } from '@/context/SettingsContext';
 import { usePlanDispatch, SEMESTERS } from '@/context/PlanContext';
 import { parseTranscript, type ParsedCourse } from '@/lib/agent-tools/parse-transcript';
 
@@ -16,11 +16,14 @@ interface OnboardingWizardProps {
 
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const techCores = useTechCoresRecord();
+  const settings = useSettings();
   const settingsDispatch = useSettingsDispatch();
   const planDispatch = usePlanDispatch();
 
   const [step, setStep] = useState(1);
-  const totalSteps = 6;
+  const totalSteps = 7;
+
+  const [accessCodeInput, setAccessCodeInput] = useState(settings.accessCode);
 
   const [major, setMajor] = useState('ece-bse');
   const [catalogYear, setCatalogYear] = useState('2024');
@@ -102,6 +105,40 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         <CardContent className="min-h-[300px]">
           {step === 1 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
+              <h3 className="text-lg font-medium">Beta access code</h3>
+              <p className="text-sm text-muted-foreground">
+                Enter the access code you were given to enable the AI assistant.
+                No code? You can skip — the planner still works, and you can add a code later in Settings.
+              </p>
+              <div className="space-y-2">
+                <label className="text-sm font-medium" htmlFor="access-code-input">Access code</label>
+                <input
+                  id="access-code-input"
+                  type="password"
+                  className="w-full px-3 py-2 rounded-md border bg-background text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="Paste your access code here"
+                  value={accessCodeInput}
+                  onChange={e => setAccessCodeInput(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button
+                  onClick={() => {
+                    settingsDispatch({ type: 'SET_ACCESS_CODE', value: accessCodeInput });
+                    handleNext();
+                  }}
+                >
+                  Enter
+                </Button>
+                <Button variant="outline" onClick={handleNext}>
+                  Skip
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
               <h3 className="text-lg font-medium">Confirm Major & Catalog</h3>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Major</label>
@@ -130,7 +167,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             </div>
           )}
 
-          {step === 2 && (
+          {step === 3 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
               <h3 className="text-lg font-medium">Target Graduation</h3>
               <div className="space-y-2">
@@ -149,7 +186,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             </div>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
               <h3 className="text-lg font-medium">Load Tolerance</h3>
               <p className="text-sm text-muted-foreground">How many credit hours do you prefer to take per semester?</p>
@@ -173,7 +210,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             </div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
               <h3 className="text-lg font-medium">Tech Core Preference</h3>
               <p className="text-sm text-muted-foreground">Select a primary tech core track, or skip to let the recommender help you later.</p>
@@ -193,7 +230,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             </div>
           )}
 
-          {step === 5 && (
+          {step === 6 && (
             <div className="space-y-4 flex flex-col h-full animate-in fade-in slide-in-from-right-4">
               <h3 className="text-lg font-medium">Import Transcript (Optional)</h3>
               <p className="text-sm text-muted-foreground">Paste text from your UT Academic Summary to automatically mark courses as completed.</p>
@@ -214,7 +251,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             </div>
           )}
 
-          {step === 6 && (
+          {step === 7 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
               <h3 className="text-lg font-medium">Review & Commit</h3>
               <div className="space-y-3">
@@ -244,16 +281,18 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         </CardContent>
 
         <CardFooter className="flex justify-between border-t p-4">
+          {/* On step 1 (access code), Back is hidden — the wizard hasn't started yet */}
           <Button variant="ghost" onClick={handleBack} disabled={step === 1}>
             Back
           </Button>
           <div className="flex gap-2">
-            {step < totalSteps && (
+            {/* Step 1 uses its own inline Enter/Skip buttons; hide the global ones */}
+            {step > 1 && step < totalSteps && (
                <Button variant="outline" onClick={handleNext}>Skip</Button>
             )}
-            {step < totalSteps - 1 ? (
+            {step === 1 ? null : step < totalSteps - 1 ? (
               <Button onClick={handleNext}>Next</Button>
-            ) : step === 5 ? (
+            ) : step === 6 ? (
               <Button onClick={handleParseTranscript} disabled={isParsing}>
                 {isParsing ? 'Parsing...' : 'Next'}
               </Button>

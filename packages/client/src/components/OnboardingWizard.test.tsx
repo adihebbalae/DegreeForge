@@ -27,6 +27,17 @@ vi.mock('@/context/PlanContext', async (importOriginal) => {
   };
 });
 
+// Capture dispatched SettingsContext actions
+const mockSettingsDispatch = vi.fn();
+vi.mock('@/context/SettingsContext', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/context/SettingsContext')>();
+  return {
+    ...actual,
+    useSettingsDispatch: () => mockSettingsDispatch,
+    useSettings: () => actual.DEFAULT_SETTINGS,
+  };
+});
+
 function renderWithProviders(ui: React.ReactElement) {
   return render(
     <DataProvider>
@@ -39,41 +50,86 @@ function renderWithProviders(ui: React.ReactElement) {
   );
 }
 
+// Helper: advance past step 1 (access code) using the inline Skip button
+function skipAccessCodeStep() {
+  fireEvent.click(screen.getByRole('button', { name: 'Skip' }));
+}
+
 describe('OnboardingWizard', () => {
-  it('should render the first step initially', () => {
+  it('renders the access code step as the first step', () => {
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+    expect(screen.getByText('Beta access code')).toBeDefined();
+    expect(screen.getByLabelText('Access code')).toBeDefined();
+  });
+
+  it('shows step 1 of 7 on the access code step', () => {
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+    expect(screen.getByText('Step 1 of 7')).toBeDefined();
+  });
+
+  it('Enter button on access code step dispatches SET_ACCESS_CODE and advances', () => {
+    mockSettingsDispatch.mockClear();
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+
+    const input = screen.getByLabelText('Access code');
+    fireEvent.change(input, { target: { value: 'test-code-abc' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Enter' }));
+
+    expect(mockSettingsDispatch).toHaveBeenCalledWith({ type: 'SET_ACCESS_CODE', value: 'test-code-abc' });
+    expect(screen.getByText('Confirm Major & Catalog')).toBeDefined();
+  });
+
+  it('Skip button on access code step does NOT dispatch SET_ACCESS_CODE and advances', () => {
+    mockSettingsDispatch.mockClear();
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' }));
+
+    const setAccessCodeCalls = mockSettingsDispatch.mock.calls.filter(
+      ([action]) => action.type === 'SET_ACCESS_CODE'
+    );
+    expect(setAccessCodeCalls).toHaveLength(0);
+    expect(screen.getByText('Confirm Major & Catalog')).toBeDefined();
+  });
+
+  it('should render the major/catalog step after skipping access code', () => {
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+    skipAccessCodeStep();
     expect(screen.getByText('Confirm Major & Catalog')).toBeDefined();
   });
 
   it('should navigate through the steps when Next is clicked', () => {
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
 
-    // Step 1
-    fireEvent.click(screen.getByText('Next'));
+    // Step 1 (access code) -> step 2
+    skipAccessCodeStep();
+    expect(screen.getByText('Confirm Major & Catalog')).toBeDefined();
+
+    // Step 2 -> step 3
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(screen.getByText('Target Graduation')).toBeDefined();
 
-    // Step 2
-    fireEvent.click(screen.getByText('Next'));
+    // Step 3 -> step 4
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(screen.getByText('Load Tolerance')).toBeDefined();
   });
 
-  it('should skip to next step when Skip is clicked', () => {
+  it('should skip to next step when global Skip is clicked (step 2+)', () => {
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
 
-    // Step 1
-    fireEvent.click(screen.getByText('Skip'));
+    skipAccessCodeStep(); // step 1 -> 2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // step 2 -> 3
     expect(screen.getByText('Target Graduation')).toBeDefined();
   });
 
   it('should go back when Back is clicked', () => {
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
 
-    // Step 1 -> Step 2
-    fireEvent.click(screen.getByText('Next'));
+    skipAccessCodeStep(); // step 1 -> 2
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // step 2 -> 3
     expect(screen.getByText('Target Graduation')).toBeDefined();
 
-    // Step 2 -> Step 1
-    fireEvent.click(screen.getByText('Back'));
+    fireEvent.click(screen.getByRole('button', { name: 'Back' })); // step 3 -> 2
     expect(screen.getByText('Confirm Major & Catalog')).toBeDefined();
   });
 
@@ -81,15 +137,14 @@ describe('OnboardingWizard', () => {
     const handleComplete = vi.fn();
     renderWithProviders(<OnboardingWizard onComplete={handleComplete} />);
 
-    // Skip through to step 6
-    fireEvent.click(screen.getByText('Skip')); // 2
-    fireEvent.click(screen.getByText('Skip')); // 3
-    fireEvent.click(screen.getByText('Skip')); // 4
-    fireEvent.click(screen.getByText('Skip')); // 5
-    fireEvent.click(screen.getByText('Next')); // 6
+    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 6->7
 
-    // Click Start Planning
-    fireEvent.click(screen.getByText('Start Planning'));
+    fireEvent.click(screen.getByRole('button', { name: 'Start Planning' }));
     expect(handleComplete).toHaveBeenCalledTimes(1);
   });
 
@@ -98,14 +153,14 @@ describe('OnboardingWizard', () => {
     const handleComplete = vi.fn();
     renderWithProviders(<OnboardingWizard onComplete={handleComplete} />);
 
-    // Skip through to step 6 (step 5 uses Next button, which calls handleParseTranscript)
-    fireEvent.click(screen.getByText('Skip')); // 1→2
-    fireEvent.click(screen.getByText('Skip')); // 2→3
-    fireEvent.click(screen.getByText('Skip')); // 3→4
-    fireEvent.click(screen.getByText('Skip')); // 4→5
-    fireEvent.click(screen.getByText('Next')); // 5→6 (empty transcript, calls handleNext directly)
+    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 6->7 (empty transcript)
 
-    fireEvent.click(screen.getByText('Start Planning'));
+    fireEvent.click(screen.getByRole('button', { name: 'Start Planning' }));
 
     expect(mockPlanDispatch).toHaveBeenCalledWith({
       type: 'SET_PROFILE_META',
@@ -126,23 +181,24 @@ describe('OnboardingWizard', () => {
     const handleComplete = vi.fn();
     renderWithProviders(<OnboardingWizard onComplete={handleComplete} />);
 
-    // Navigate to step 5 (transcript)
-    fireEvent.click(screen.getByText('Skip')); // 1→2
-    fireEvent.click(screen.getByText('Skip')); // 2→3
-    fireEvent.click(screen.getByText('Skip')); // 3→4
-    fireEvent.click(screen.getByText('Skip')); // 4→5
+    // Navigate to step 6 (transcript)
+    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
 
     // Type something in the transcript textarea so parse is triggered
     const textarea = screen.getByPlaceholderText(/ECE 302/);
     fireEvent.change(textarea, { target: { value: 'ECE 302 Intro to Electrical Eng A Fall 2025 3' } });
 
-    // Click Next on step 5 — triggers handleParseTranscript
-    fireEvent.click(screen.getByText('Next'));
+    // Click Next on step 6 — triggers handleParseTranscript
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
 
-    // Now on step 6, commit
-    fireEvent.click(screen.getByText('Start Planning'));
+    // Now on step 7, commit
+    fireEvent.click(screen.getByRole('button', { name: 'Start Planning' }));
 
-    // ECE 302 → semester 'Fall 2025' (valid), ECE 306 → 'Spring 2099' unknown → fallback past semester
+    // ECE 302 -> semester 'Fall 2025' (valid), ECE 306 -> 'Spring 2099' unknown -> fallback past semester
     const addCourseDispatches = mockPlanDispatch.mock.calls.filter(
       ([action]) => action.type === 'ADD_COURSE'
     );
