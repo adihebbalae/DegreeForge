@@ -13,6 +13,10 @@
  *                       during the TASK-027 migration.
  *   --department <id>   Department filter for the authenticated/public probe
  *                       (default: "E E" — UT's pre-normalization ECE code)
+ *   --level <code>      Division filter for the registrar URL (e.g. "L" for
+ *                       lower-division, "U" for upper, "G" for graduate).
+ *                       Default: omitted — UT returns ALL divisions when the
+ *                       level param is absent.
  *   --dry-run           Print what would be written, without touching disk
  *   --help              Show this help
  *
@@ -83,6 +87,7 @@ interface CliArgs {
   sources: string[];
   fromLegacy: boolean;
   department: string;
+  level: string;
   dryRun: boolean;
   help: boolean;
 }
@@ -93,6 +98,7 @@ function parseArgs(argv: string[]): CliArgs {
     sources: [],
     fromLegacy: false,
     department: 'E E',
+    level: '',
     dryRun: false,
     help: false,
   };
@@ -104,6 +110,7 @@ function parseArgs(argv: string[]): CliArgs {
     else if (a === '--dry-run') out.dryRun = true;
     else if (a === '--source') out.sources.push(argv[++i] ?? '');
     else if (a === '--department') out.department = argv[++i] ?? out.department;
+    else if (a === '--level') out.level = argv[++i] ?? '';
     else if (a.startsWith('--')) throw new Error(`Unknown flag: ${a}`);
     else if (!out.termSlug) out.termSlug = a;
     else throw new Error(`Unexpected positional argument: ${a} (term slug already set to "${out.termSlug}")`);
@@ -126,6 +133,8 @@ Options:
   --source <path>     Locally-saved registrar HTML file (repeatable)
   --from-legacy       Use existing fall-2026-sections.json (migration helper)
   --department <id>   Department filter for authenticated/public probe (default "E E")
+  --level <code>      Division filter: omit for ALL divisions (default), or pass
+                      "L" (lower), "U" (upper), "G" (graduate), etc.
   --dry-run           Print preview, write nothing
   --help              Show this message
 
@@ -137,7 +146,8 @@ Authenticated fetch (opt-in):
 
 Manual-export fallback (always available):
   1. Log into UT EID in your browser
-  2. Open https://utdirect.utexas.edu/apps/registrar/course_schedule/<code>/results/?fos_fl=E+E&level=L&search=Search
+  2. Open https://utdirect.utexas.edu/apps/registrar/course_schedule/<code>/results/?fos_fl=E+E&search=Search
+     (add &level=L to restrict to lower-division only)
   3. Save the page as HTML to scripts/sections/raw/<term-slug>/ece.html
   4. npm run fetch:sections -- <term-slug> --source scripts/sections/raw/<term-slug>/ece.html
 
@@ -204,9 +214,18 @@ function mergeCourses(
   }
 }
 
-async function probePublicHtml(term: ParsedTerm, department: string): Promise<FallSections> {
+/**
+ * Build the level query segment. Returns "&level=<code>" when a code is
+ * provided, or an empty string when no level filter is wanted (UT returns
+ * all divisions when the param is absent).
+ */
+function levelParam(level: string): string {
+  return level.length > 0 ? `&level=${encodeURIComponent(level)}` : '';
+}
+
+async function probePublicHtml(term: ParsedTerm, department: string, level: string): Promise<FallSections> {
   const fos = encodeURIComponent(department);
-  const url = `https://utdirect.utexas.edu/apps/registrar/course_schedule/${term.code}/results/?fos_fl=${fos}&level=L&search=Search`;
+  const url = `https://utdirect.utexas.edu/apps/registrar/course_schedule/${term.code}/results/?fos_fl=${fos}${levelParam(level)}&search=Search`;
   console.log(`Probing public registrar page: ${url}`);
 
   let html: string;
@@ -255,10 +274,11 @@ export async function fetchWithCookie(
   term: ParsedTerm,
   department: string,
   cookie: string,
-  fetchFn: typeof fetch = fetch
+  fetchFn: typeof fetch = fetch,
+  level: string = ''
 ): Promise<FallSections> {
   const fos = encodeURIComponent(department);
-  const url = `https://utdirect.utexas.edu/apps/registrar/course_schedule/${term.code}/results/?fos_fl=${fos}&level=L&search=Search`;
+  const url = `https://utdirect.utexas.edu/apps/registrar/course_schedule/${term.code}/results/?fos_fl=${fos}${levelParam(level)}&search=Search`;
 
   // Safety: only ever send the cookie to utexas.edu
   const urlObj = new URL(url);
@@ -366,11 +386,11 @@ async function main(): Promise<void> {
     const cookie = readSessionCookie();
     if (cookie) {
       console.log(`Mode: authenticated fetch (UT session cookie present, ${maskCookie(cookie)})`);
-      data = await fetchWithCookie(term, args.department, cookie);
+      data = await fetchWithCookie(term, args.department, cookie, fetch, args.level);
     } else {
       console.log(`Mode: public-HTML probe (no session cookie — department="${args.department}")`);
       console.log(`Tip: set UT_SESSION_COOKIE or write to scripts/sections/.ut-session for authenticated fetch.`);
-      data = await probePublicHtml(term, args.department);
+      data = await probePublicHtml(term, args.department, args.level);
     }
   }
 

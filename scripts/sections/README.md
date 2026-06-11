@@ -14,12 +14,16 @@ Reproducible per-term section data for DegreeForge.
 # Refresh fall 2026 from the existing repo snapshot (one-time migration)
 npm run fetch:sections -- fall-2026 --from-legacy
 
-# Authenticated fetch for a new term (requires your UT session cookie)
+# Authenticated fetch for a new term — all divisions (default, recommended)
 export UT_SESSION_COOKIE="SC=<paste your cookie here>"
 npm run fetch:sections -- spring-2027
 
+# Authenticated fetch restricted to lower-division only
+npm run fetch:sections -- spring-2027 --level L
+
 # Manual export → parse (always-available fallback)
-#   1. Visit https://utdirect.utexas.edu/apps/registrar/course_schedule/20272/results/?fos_fl=E+E
+#   1. Visit https://utdirect.utexas.edu/apps/registrar/course_schedule/20272/results/?fos_fl=E+E&search=Search
+#      (add &level=L to restrict to lower-division only)
 #      while logged in to your browser. Right-click → Save As → HTML.
 #   2. Drop the saved file at scripts/sections/raw/spring-2027/ece.html
 #   3. Re-run:
@@ -228,7 +232,8 @@ The CLI handles the slug ↔ code conversion in `lib/term-codes.ts`.
 
 1. Log into UT EID in your browser.
 2. Open DevTools → Network → navigate to
-   `https://utdirect.utexas.edu/apps/registrar/course_schedule/<semcode>/results/?fos_fl=E+E&level=L&search=Search`
+   `https://utdirect.utexas.edu/apps/registrar/course_schedule/<semcode>/results/?fos_fl=E+E&search=Search`
+   (omitting `level=` returns all divisions — graduate, upper, lower, etc.)
 3. In DevTools Network tab, click the request and copy the full `Cookie:` header
    value (it starts with `SC=`).
 4. Set the cookie:
@@ -239,9 +244,10 @@ The CLI handles the slug ↔ code conversion in `lib/term-codes.ts`.
    # Option B: gitignored file (persists across sessions)
    echo "SC=<paste here>" > scripts/sections/.ut-session
    ```
-5. Fetch the term:
+5. Fetch the term (all divisions by default; add `--level L` to restrict):
    ```bash
    npm run fetch:sections -- spring-2027
+   # or: npm run fetch:sections -- spring-2027 --level L
    ```
 6. Aggregate offering patterns:
    ```bash
@@ -255,7 +261,8 @@ The CLI handles the slug ↔ code conversion in `lib/term-codes.ts`.
 1. As soon as UT publishes the next term's schedule (~6 weeks before registration
    opens), log into UT EID in your browser.
 2. Navigate to:
-   `https://utdirect.utexas.edu/apps/registrar/course_schedule/<semcode>/results/?fos_fl=E+E&level=L&search=Search`
+   `https://utdirect.utexas.edu/apps/registrar/course_schedule/<semcode>/results/?fos_fl=E+E&search=Search`
+   (omit `level=` to get all divisions; append `&level=L` for lower-division only)
 3. Save the resulting page as HTML to `scripts/sections/raw/<term-slug>/ece.html`.
 4. Run:
    ```bash
