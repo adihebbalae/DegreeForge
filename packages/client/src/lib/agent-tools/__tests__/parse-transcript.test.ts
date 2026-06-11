@@ -73,4 +73,29 @@ More random text
     expect(result).toHaveLength(1);
     expect(result[0].courseId).toBe('ECE 302');
   });
+
+  it('should not catastrophically backtrack on a valid-length line with many spaces (ReDoS guard)', () => {
+    // A dept abbreviation followed by 60 spaces then a course number — the old
+    // /^([A-Z\s]+?)\s+/ pattern could backtrack catastrophically here because
+    // [A-Z\s]+? and \s+ both compete to consume spaces.
+    const pathological = 'ECE' + ' '.repeat(60) + '302 Digital Logic A Fall 2025 3';
+    const start = Date.now();
+    parseTranscript(pathological);
+    expect(Date.now() - start).toBeLessThan(500);
+  });
+
+  it('should parse multi-token department codes correctly after regex fix', () => {
+    const lines = [
+      'E E 411 Electromagnetic Eng A Fall 2025 3',
+      'ECE 302H Intro Honors A Spring 2025 3',
+      'M 408C Calculus I B+ Fall 2024 4',
+      'C S 314 Data Structures A Spring 2024 3',
+    ];
+    const result = parseTranscript(lines.join('\n'));
+    expect(result).toHaveLength(4);
+    expect(result[0].courseId).toBe('ECE 411');
+    expect(result[1].courseId).toBe('ECE 302H');
+    expect(result[2].courseId).toBe('M 408C');
+    expect(result[3].courseId).toBe('C S 314');
+  });
 });
