@@ -129,6 +129,54 @@ export function generateSemesters(
 
 export const SEMESTERS: Semester[] = generateSemesters(2025, 2029);
 
+// ─── Semester reconciliation (rehydration fix) ────────────────────────────────
+//
+// When a persisted plan-state predates a SEMESTERS upgrade (e.g. TASK-051 added
+// Summer terms to a previously Fall/Spring-only list), the stored semesters array
+// is missing the new canonical entries.  This function merges the canonical list
+// into the persisted one without losing:
+//   • existing semester objects (their status may have been mutated by ADVANCE_SEMESTER)
+//   • course placements (we only touch `state.semesters`, not `state.plan`)
+//
+// Algorithm:
+//   1. Build a set of ids already in the persisted list.
+//   2. For every canonical semester whose id is absent, insert it at the
+//      chronologically correct position (index of canonical ordering).
+//   3. Re-sort the merged list using the canonical index as the sort key;
+//      semesters not present in the canonical list sort to the end.
+//
+// This is intentionally additive: it never removes or reorders existing semesters.
+
+export function reconcileSemesters(persisted: Semester[]): Semester[] {
+  const canonicalIds = SEMESTERS.map((s) => s.id);
+  const persistedIds = new Set(persisted.map((s) => s.id));
+
+  // Find canonical semesters missing from the persisted list
+  const missing = SEMESTERS.filter((s) => !persistedIds.has(s.id));
+
+  if (missing.length === 0) {
+    // Nothing to add — return the original array reference unchanged
+    return persisted;
+  }
+
+  // Merge and sort by canonical position; unknown ids sort to the end
+  const merged = [...persisted, ...missing];
+  merged.sort((a, b) => {
+    const ia = canonicalIds.indexOf(a.id);
+    const ib = canonicalIds.indexOf(b.id);
+    // Both in canonical list: sort by canonical index
+    if (ia !== -1 && ib !== -1) return ia - ib;
+    // Only a is canonical: a comes first
+    if (ia !== -1) return -1;
+    // Only b is canonical: b comes first
+    if (ib !== -1) return 1;
+    // Neither canonical: preserve relative order (stable sort; a before b)
+    return 0;
+  });
+
+  return merged;
+}
+
 // ─── Initial Plan (empty — tester starts fresh) ───────────────────────────────
 
 export const INITIAL_PLAN: Record<string, string[]> = Object.fromEntries(

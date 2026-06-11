@@ -12,6 +12,7 @@ import {
   type SnapshotState,
   type SnapshotAction,
   type PlanSnapshot,
+  reconcileSemesters,
 } from './PlanContext.constants';
 import { parsePlanState, parseSnapshotState } from '../lib/plan-schema';
 import { useSettings } from './SettingsContext';
@@ -41,14 +42,30 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
         if (parsed.present && parsed.present.semesters) {
           const validated = parsePlanState(parsed.present);
           if (validated) {
-            return { ...initial, present: validated, past: [], future: [] };
+            // Merge any canonical semesters missing from the persisted list (e.g.
+            // Summer terms added by TASK-051 for users whose state predates that change).
+            // Also backfill empty plan entries for newly-added semesters so the
+            // plan record stays coherent with the semesters list.
+            const reconciledSemesters = reconcileSemesters(validated.semesters);
+            const reconciledPlan = { ...validated.plan };
+            for (const sem of reconciledSemesters) {
+              if (!(sem.id in reconciledPlan)) reconciledPlan[sem.id] = [];
+            }
+            const reconciled = { ...validated, semesters: reconciledSemesters, plan: reconciledPlan };
+            return { ...initial, present: reconciled, past: [], future: [] };
           }
         }
         // Legacy migration (pre-HistoryState format).
         else if (parsed.semesters && parsed.plan) {
           const validated = parsePlanState(parsed);
           if (validated) {
-            return { ...initial, present: { ...validated, hoveredCourse: null } };
+            const reconciledSemesters = reconcileSemesters(validated.semesters);
+            const reconciledPlan = { ...validated.plan };
+            for (const sem of reconciledSemesters) {
+              if (!(sem.id in reconciledPlan)) reconciledPlan[sem.id] = [];
+            }
+            const reconciled = { ...validated, semesters: reconciledSemesters, plan: reconciledPlan };
+            return { ...initial, present: { ...reconciled, hoveredCourse: null } };
           }
         }
       } catch (e) {
