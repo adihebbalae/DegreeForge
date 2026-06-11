@@ -427,4 +427,74 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
     expect(groups[0].one_of).toContain('A');
     expect(groups[0].one_of).toContain('B');
   });
+
+  // ── Fix 1 regression: M 340L is a coreq of ECE 313, not a prereq ─────────
+  // Verifies that placing ECE 313 with M 340L in the SAME semester (alongside
+  // the real prereqs ECE 302 + M 427J in a prior semester) produces NO prereq
+  // violation for ECE 313. Before the fix, the CNF wrongly listed M 340L as a
+  // hard prereq group, causing a false "missing prereq" error.
+  it('Fix1-regression: ECE 313 with M 340L same-semester (coreq) produces no prereq violation', () => {
+    const data: PrereqGraphData = {
+      nodes: {
+        'ECE 302': { title: 'Intro EE',    credits: 3, category: 'ece_core', offered: ['fall'], flags: [] },
+        'M 427J':  { title: 'Diff Eq',     credits: 4, category: 'math',     offered: ['fall'], flags: [] },
+        'M 340L':  { title: 'Lin Alg',     credits: 3, category: 'math',     offered: ['fall', 'spring'], flags: [] },
+        'ECE 313': { title: 'Prob & Stats', credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+      },
+      edges: [
+        { from: 'ECE 302', to: 'ECE 313', type: 'prerequisite' },
+        { from: 'M 427J',  to: 'ECE 313', type: 'prerequisite' },
+        { from: 'M 340L',  to: 'ECE 313', type: 'corequisite' },
+      ],
+    };
+    // Corrected CNF: only two AND-groups (ECE 302 family + M 427J); M 340L is coreq
+    const cnf: PrereqCNF = {
+      'ECE 313': [
+        { one_of: ['ECE 302', 'ECE 302H'] },
+        { one_of: ['M 427J'] },
+      ],
+    };
+    const g = new PrereqGraph(data, cnf);
+
+    // Valid plan: prereqs in Sem 1, ECE 313 + M 340L (coreq) together in Sem 2
+    const plan: Plan = {
+      'Sem 1': ['ECE 302', 'M 427J'],
+      'Sem 2': ['ECE 313', 'M 340L'],
+    };
+    const order = ['Sem 1', 'Sem 2'];
+
+    // No prereq violation — M 340L in same semester is fine as a coreq
+    const violations = g.validatePlacement('ECE 313', 1, plan, order);
+    expect(violations).toHaveLength(0);
+  });
+
+  // ── Fix 1 regression (ECE 313H variant) ──────────────────────────────────
+  it('Fix1-regression: ECE 313H with M 340L same-semester (coreq) produces no prereq violation', () => {
+    const data: PrereqGraphData = {
+      nodes: {
+        'ECE 302H': { title: 'Intro EE H',    credits: 3, category: 'ece_core', offered: ['fall'], flags: [] },
+        'M 427J':   { title: 'Diff Eq',        credits: 4, category: 'math',     offered: ['fall'], flags: [] },
+        'M 340L':   { title: 'Lin Alg',        credits: 3, category: 'math',     offered: ['fall', 'spring'], flags: [] },
+        'ECE 313H': { title: 'Prob & Stats H', credits: 3, category: 'ece_core', offered: ['fall'], flags: [] },
+      },
+      edges: [
+        { from: 'ECE 302H', to: 'ECE 313H', type: 'prerequisite' },
+        { from: 'M 427J',   to: 'ECE 313H', type: 'prerequisite' },
+        { from: 'M 340L',   to: 'ECE 313H', type: 'corequisite' },
+      ],
+    };
+    const cnf: PrereqCNF = {
+      'ECE 313H': [
+        { one_of: ['ECE 302', 'ECE 302H'] },
+        { one_of: ['M 427J'] },
+      ],
+    };
+    const g = new PrereqGraph(data, cnf);
+
+    const plan: Plan = {
+      'Sem 1': ['ECE 302H', 'M 427J'],
+      'Sem 2': ['ECE 313H', 'M 340L'],
+    };
+    expect(g.validatePlacement('ECE 313H', 1, plan, ['Sem 1', 'Sem 2'])).toHaveLength(0);
+  });
 });

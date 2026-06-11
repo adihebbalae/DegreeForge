@@ -35,16 +35,16 @@ import type { PrereqCNF } from '../types';
  */
 export const PREREQ_CNF: PrereqCNF = {
   // ── ECE 313 / 313H — Probability & Statistics ─────────────────────────────
-  // Needs: (ECE 302 OR ECE 302H) AND M 427J AND M 340L
+  // Needs: (ECE 302 OR ECE 302H) AND M 427J
+  // M 340L is a COREQUISITE (same-semester), not a prereq — handled by the
+  // coreq path in graph-engine via the prerequisite-graph.json coreq edge.
   'ECE 313': [
     { one_of: ['ECE 302', 'ECE 302H'] },
     { one_of: ['M 427J'] },
-    { one_of: ['M 340L'] },
   ],
   'ECE 313H': [
     { one_of: ['ECE 302', 'ECE 302H'] },
     { one_of: ['M 427J'] },
-    { one_of: ['M 340L'] },
   ],
 
   // ── ECE 411 / 411H — Electromagnetic Engineering ──────────────────────────
@@ -77,9 +77,11 @@ export const PREREQ_CNF: PrereqCNF = {
   ],
 
   // ── ECE 333T / BME 333T — Technical Communication ─────────────────────────
-  // Needs: RHE 306 (rhetoric writing req) AND (ECE 319K OR ECE 319H)
+  // Needs: ECE 319K OR ECE 319H
+  // RHE 306 (writing flag / gen-ed rhetoric req) is intentionally NOT enforced
+  // here — it is satisfiable by multiple courses not in the equivalence map and
+  // belongs to the gen-ed/core-curriculum layer, not prereq validation.
   'ECE 333T': [
-    { one_of: ['RHE 306'] },
     { one_of: ['ECE 319K', 'ECE 319H'] },
   ],
 

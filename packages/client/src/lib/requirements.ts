@@ -16,13 +16,11 @@ import type {
   UserProfile,
 } from '../types';
 import { isTechCorePickOne } from '../types';
-import { LEGACY_TO_CANONICAL } from './catalog-rename';
-
 // ─── Unified equivalence map ─────────────────────────────────────────────────
 //
 // Three original sources merged into one:
 //   1. Honors variants (HONORS_EQUIVALENTS): ECE 306 ≡ ECE 306H
-//   2. Legacy catalog renames (LEGACY_TO_CANONICAL): ECE 302 ≡ ECE 402
+//   2. Legacy catalog renames: ECE 302 ≡ ECE 402
 //   3. ECE/BME cross-lists: ECE 306 ≡ BME 306, ECE 333T ≡ BME 333T, etc.
 //
 // Structure: canonical (or representative) course → all equivalent course IDs
@@ -45,10 +43,6 @@ const EQUIVALENCE_GROUPS: string[][] = [
   ['ECE 333T', 'BME 333T'],
   // BME 311 / ECE equivalent (circuits cross-list, used as 311 prereq in data)
   ['BME 311', 'ECE 311'],
-  // BME 343 / ECE 351K cross-list (signals and systems)
-  ['BME 343', 'ECE 351K'],
-  // BME 335 cross-list (used as equiv of ECE 335K in some edges)
-  ['BME 335', 'ECE 335K'],
 ];
 
 /**
@@ -73,25 +67,13 @@ export const EQUIVALENCE_MAP: ReadonlyMap<string, ReadonlySet<string>> = (() => 
 })();
 
 /**
- * Canonicalize a course ID: resolve LEGACY_TO_CANONICAL renames first,
- * then return the result. Used to normalize both the required and completed
- * course IDs before equivalence checks.
- *
- * Note: for equivalence-group matching we use EQUIVALENCE_MAP directly
- * (which already spans all variants); this function handles the rename layer
- * that sits on top for display/requirement-list purposes.
- */
-export function canonicalizeCourseId(courseId: string): string {
-  return LEGACY_TO_CANONICAL[courseId] ?? courseId;
-}
-
-/**
  * Check if a requirement is satisfied by any course in the completed set,
  * accounting for honors variants, legacy catalog renames, and cross-listed
  * equivalences (ECE/BME cross-lists).
  *
- * Called by: graph-engine.ts validatePlacement (AND semantics pre-TASK-057),
- *            buildRemainingRequirements filter, auto-planner satisfied check.
+ * Called by: graph-engine.ts validatePlacement (CNF OR-group semantics,
+ *            TASK-057+), buildRemainingRequirements filter, auto-planner
+ *            satisfied check.
  */
 export function isRequirementSatisfied(
   requiredCourse: string,
