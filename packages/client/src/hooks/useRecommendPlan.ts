@@ -9,7 +9,7 @@ import {
 } from '@/context/DataContext';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
-import { usePlanDispatch, useTechCoreId, useMathBAToggle, useSemesters, usePlan } from '@/context/PlanContext';
+import { usePlanDispatch, useTechCoreId, useMathBAToggle, useSemesters, usePlan, usePinnedCourses } from '@/context/PlanContext';
 import { generateAutoPlan } from '@/lib/auto-planner';
 import { sanitizePlan } from '@/lib/sanitize-course-list';
 import type { NoticeProps } from '@/components/ui/notice';
@@ -30,6 +30,7 @@ export function useRecommendPlan(): RecommendPlanResult {
   const mathBAToggle = useMathBAToggle();
   const semesters = useSemesters();
   const plan = usePlan();
+  const pinnedCourses = usePinnedCourses();
   const rawPrereqGraph = useRawPrereqGraph();
   const prereqGraphInstance = usePrereqGraph();
   const offeringSchedule = useOfferingSchedule();
@@ -40,12 +41,17 @@ export function useRecommendPlan(): RecommendPlanResult {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingRun, setPendingRun] = useState(false);
 
-  // Compute live future-course count for confirm copy
+  // Compute live future-course count for confirm copy.
+  // Only unpinned future courses are counted — pinned ones survive the recommend run.
   const { futureCourseCount, futureSemCount } = useMemo(() => {
     const futureSems = semesters.filter(s => s.status === 'future');
-    const courses = futureSems.reduce((sum, s) => sum + (plan[s.id]?.length ?? 0), 0);
+    const pinnedSet = new Set(pinnedCourses);
+    const courses = futureSems.reduce(
+      (sum, s) => sum + (plan[s.id] ?? []).filter(id => !pinnedSet.has(id)).length,
+      0
+    );
     return { futureCourseCount: courses, futureSemCount: futureSems.length };
-  }, [semesters, plan]);
+  }, [semesters, plan, pinnedCourses]);
 
   const runPlan = () => {
     const techCore = techCores?.[techCoreId];
@@ -57,6 +63,16 @@ export function useRecommendPlan(): RecommendPlanResult {
       });
       return;
     }
+
+    // H3(b): collect all unpinned courses currently in future semesters so we can
+    // detect which ones the solver did not re-place and surface them in the notice
+    // instead of silently dropping them.
+    const pinnedSet = new Set(pinnedCourses);
+    const futureCoursesBefore = new Set(
+      semesters
+        .filter(s => s.status === 'future')
+        .flatMap(s => (plan[s.id] ?? []).filter(id => !pinnedSet.has(id)))
+    );
 
     const result = generateAutoPlan({
       prereqGraph: prereqGraphInstance,
@@ -76,8 +92,24 @@ export function useRecommendPlan(): RecommendPlanResult {
     const { safePlan, dropped } = sanitizePlan(result.plan as Record<string, unknown[]>);
     dispatch({ type: 'SET_PLAN', plan: safePlan });
 
+    // H3(b): any course that was in a future semester before the run but did not
+    // end up in the new plan (and was not already in unplacedCourses) was silently
+    // dropped — add it to the unplaced notice so the user can see what was lost.
+    const futureCoursesAfter = new Set(
+      semesters
+        .filter(s => s.status === 'future')
+        .flatMap(s => safePlan[s.id] ?? [])
+    );
+    const silentlyDropped = Array.from(futureCoursesBefore).filter(
+      id => !futureCoursesAfter.has(id) && !result.unplacedCourses.includes(id)
+    );
+
     const msgs: string[] = [];
-    const allUnplaced = [...result.unplacedCourses, ...dropped.filter((t) => t !== null && t !== undefined)];
+    const allUnplaced = [
+      ...result.unplacedCourses,
+      ...dropped.filter((t) => t !== null && t !== undefined),
+      ...silentlyDropped,
+    ];
     if (allUnplaced.length > 0) {
       msgs.push(`${allUnplaced.length} course${allUnplaced.length === 1 ? '' : 's'} could not be placed: ${allUnplaced.join(', ')}`);
     }
