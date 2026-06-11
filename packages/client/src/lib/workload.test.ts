@@ -482,3 +482,18 @@ describe('computeGraduationDelay', () => {
     expect(_delayCache.size).toBe(2);
   });
 });
+
+// ─── C1 guard: courseLevel with undefined/empty input ────────────────────────
+// Directly tests the guard added in TASK-060 to prevent `.split` on undefined.
+// computeSemesterDifficulty is the public entry point that uses courseLevel internally.
+describe('computeSemesterDifficulty — C1 undefined-id guard', () => {
+  it('does not throw when plan contains an empty-string course id', () => {
+    const semester: Semester = SEMESTERS[2]; // Fall 2026 (future)
+    // A plan entry with an empty string id mimics the state that was crashing
+    // before the `if (!courseId) return 0` guard was added.
+    const plan: Plan = { [semester.id]: ['', 'ECE 302'] };
+    expect(() =>
+      computeSemesterDifficulty(semester, plan, emptyGradeDist, null, {})
+    ).not.toThrow();
+  });
+});

@@ -56,7 +56,7 @@ export function computeProgress(
     ...(profile.in_progress_courses?.map((c) => c.course) || []),
     ...Object.values(plan).flat(),
   ];
-  const unique = [...new Set(allPlacedOrCompleted)];
+  const unique = [...new Set(allPlacedOrCompleted)].filter(Boolean) as string[];
 
   // Transcript credit_hours win over catalog (e.g. ECE 302 catalog=5 but Adi got it for 3).
   const transcriptCredits = buildTranscriptCredits(profile);

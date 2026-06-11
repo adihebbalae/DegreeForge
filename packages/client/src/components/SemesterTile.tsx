@@ -176,7 +176,7 @@ export default function SemesterTile({
   transcriptCredits,
   isFocused,
   slackLabel = null,
-  creditHourCap = 18,
+  creditHourCap = 17,
   stressResult = null,
   onClick,
 }: SemesterTileProps) {
@@ -281,11 +281,12 @@ export default function SemesterTile({
         <div className="flex items-center gap-1.5 shrink-0">
           <span className={cn(
             'text-[10px] leading-none',
-            totalCredits > creditHourCap ? 'text-red-500 font-semibold' :
-            totalCredits === creditHourCap ? 'text-yellow-500 font-semibold' :
+            // Past tiles: never show over-cap-red — historical load is not constrainable.
+            !isPast && totalCredits > creditHourCap ? 'text-red-500 font-semibold' :
+            !isPast && totalCredits === creditHourCap ? 'text-yellow-500 font-semibold' :
             'text-muted-foreground'
           )}>
-            {totalCredits}/{creditHourCap} hrs
+            {isPast ? `${totalCredits} hrs` : `${totalCredits}/${creditHourCap} hrs`}
           </span>
           {slackLabel && (
             <span
@@ -297,7 +298,7 @@ export default function SemesterTile({
               )}
               aria-label={`Slack: ${slackLabel}`}
             >
-              {slackLabel === 'full' ? '● full' : `+${slackLabel}`}
+              {slackLabel === 'full' ? '● full' : `+${slackLabel.replace(/ hrs? spare$/, '')} spare`}
             </span>
           )}
         </div>

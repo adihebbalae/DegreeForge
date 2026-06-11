@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, BookOpen } from 'lucide-react';
+import { PlannerErrorBoundary } from '@/components/PlannerErrorBoundary';
 import {
   DndContext,
   DragOverlay,
@@ -209,6 +210,7 @@ export default function PlannerPage() {
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
+    <PlannerErrorBoundary>
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="h-full flex flex-col relative overflow-hidden">
 
@@ -363,5 +365,6 @@ export default function PlannerPage() {
         )}
       </DragOverlay>
     </DndContext>
+    </PlannerErrorBoundary>
   );
 }

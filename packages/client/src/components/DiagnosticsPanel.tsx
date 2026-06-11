@@ -55,12 +55,21 @@ export default function DiagnosticsPanel({ diagnostics }: DiagnosticsPanelProps)
           <ChevronRight className="h-3 w-3 shrink-0" aria-hidden="true" />
         )}
         <span>Best Path</span>
-        {!open && hasBottlenecks && (
-          <span className="ml-1 inline-flex items-center gap-0.5 text-amber-500">
-            <AlertTriangle className="h-2.5 w-2.5" aria-hidden="true" />
-            {bottlenecks.length}
-          </span>
-        )}
+        {!open && hasBottlenecks && (() => {
+          // Classify by worst bottleneck: zero-slack → amber warning; all have slack → blue info.
+          const hasZeroSlack = bottlenecks.some((b) => b.slack === 0);
+          return hasZeroSlack ? (
+            <span className="ml-1 inline-flex items-center gap-0.5 text-amber-500">
+              <AlertTriangle className="h-2.5 w-2.5" aria-hidden="true" />
+              {bottlenecks.length}
+            </span>
+          ) : (
+            <span className="ml-1 inline-flex items-center gap-0.5 text-blue-400">
+              <Info className="h-2.5 w-2.5" aria-hidden="true" />
+              {bottlenecks.length}
+            </span>
+          );
+        })()}
       </button>
 
       {open && (

@@ -22,6 +22,8 @@ import DiagnosticsPanel from './DiagnosticsPanel';
 import { useDiagnostics } from '@/hooks/useDiagnostics';
 import { useStressScore } from '@/hooks/useStressScore';
 import { buildTermLoadCredits } from '@/lib/course-utils';
+import { getCreditHourCap } from '@/lib/auto-planner';
+import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 import type { Semester } from '@/types';
 
 // ─── Academic-year key: "Fall 2025 → 2025", "Spring 2026 → 2025", "Summer 2026 → 2025"
@@ -53,6 +55,7 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
   const rawPrereqGraph = useRawPrereqGraph();
   const gradeDistributions = useGradeDistributions();
   const userProfile = useUserProfile();
+  const effectiveProfile = useEffectiveProfile();
   const loading = useDataLoading();
 
   const prereqNodes = rawPrereqGraph?.nodes ?? {};
@@ -78,9 +81,12 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
     );
   }, [diagnostics]);
 
-  // Credit-hour cap from diagnostics (reads from the first future semester's cap,
-  // which reflects the user's selected load tolerance via useDiagnostics).
-  const creditHourCap = diagnostics?.semesterSlack[0]?.cap ?? 18;
+  // Credit-hour cap: prefer the diagnostics-derived cap (reads the user's load tolerance);
+  // fall back to getCreditHourCap(effectiveProfile) which also respects the Settings override.
+  // Use the same canonical effectiveProfile source as FocusEditor so overview and detail agree.
+  const creditHourCap =
+    diagnostics?.semesterSlack[0]?.cap ??
+    (effectiveProfile ? getCreditHourCap(effectiveProfile) : 17);
 
   // ── Group semesters into academic years ────────────────────────────────────
   // Result: Map<academicYear, Map<season, Semester>>

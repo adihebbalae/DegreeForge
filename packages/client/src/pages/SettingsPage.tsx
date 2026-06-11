@@ -128,10 +128,10 @@ export default function SettingsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="light">Light (12–14 hrs)</SelectItem>
-                    <SelectItem value="normal">Normal (15–16 hrs)</SelectItem>
-                    <SelectItem value="above_average">Above Average (17–18 hrs)</SelectItem>
-                    <SelectItem value="heavy">Heavy (19+ hrs)</SelectItem>
+                    <SelectItem value="light">Light (up to 15 hrs/semester)</SelectItem>
+                    <SelectItem value="normal">Normal (up to 17 hrs/semester)</SelectItem>
+                    <SelectItem value="above_average">Above Average (up to 18 hrs/semester)</SelectItem>
+                    <SelectItem value="heavy">Heavy (up to 19 hrs/semester)</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">

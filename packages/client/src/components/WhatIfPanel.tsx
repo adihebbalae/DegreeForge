@@ -83,6 +83,7 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
   const [customInput, setCustomInput] = useState('');
   const [solverError, setSolverError] = useState<string | null>(null);
   const [recommendError, setRecommendError] = useState<string | null>(null);
+  const [unplacedNotice, setUnplacedNotice] = useState<string | null>(null);
   const gradeEntries = useGradeEntries();
 
   const techCores = useTechCoresRecord();
@@ -126,10 +127,21 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
     completedCourses
   ]);
 
+  /**
+   * A valid course-code token matches "DEPT 123" / "DEPT 123H" — uppercase prefix,
+   * space, then a number. Free-text placeholders like "any 2 UD math courses" and
+   * null slots emitted by the solver must never enter plan state.
+   */
+  const COURSE_CODE_RE = /^[A-Z]+ \d+\S*$/;
+  function isValidCourseId(id: unknown): id is string {
+    return typeof id === 'string' && id.length > 0 && COURSE_CODE_RE.test(id);
+  }
+
   const handleApply = () => {
     if (!techCores || !mathReqs || !profile || !degreeReqs) return;
 
     setIsSolving(true);
+    setUnplacedNotice(null);
 
     setTimeout(() => {
       try {
@@ -149,9 +161,37 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
           maxHoursOverride: effectiveProfile ? getCreditHourCap(effectiveProfile) : undefined,
         });
 
-        // Apply both the what-if state AND the new plan
-        dispatch({ type: 'APPLY_WHAT_IF', newPlan: newPlanOutput.plan });
-        onClose();
+        // FIX 1: Strip any null/placeholder tokens before they enter plan state.
+        // Reuses the same "couldn't place" notice pattern as useRecommendPlan.
+        const droppedTokens: unknown[] = [];
+        const safePlan: Record<string, string[]> = {};
+        for (const [semId, courseIds] of Object.entries(newPlanOutput.plan)) {
+          const rawIds = courseIds as unknown[];
+          const valid = rawIds.filter(isValidCourseId);
+          const dropped = rawIds.filter((id) => !isValidCourseId(id));
+          safePlan[semId] = valid;
+          droppedTokens.push(...dropped);
+        }
+
+        // Surface dropped tokens the same way useRecommendPlan surfaces unplacedCourses
+        const allUnplaced = [
+          ...newPlanOutput.unplacedCourses,
+          ...droppedTokens.filter((t) => t !== null && t !== undefined),
+        ];
+        const hasUnplaced = allUnplaced.length > 0;
+        if (hasUnplaced) {
+          const count = allUnplaced.length;
+          setUnplacedNotice(
+            `${count} course${count === 1 ? '' : 's'} could not be placed: ${allUnplaced.join(', ')}`
+          );
+        }
+
+        // Apply both the what-if state AND the sanitised new plan
+        dispatch({ type: 'APPLY_WHAT_IF', newPlan: safePlan });
+        // Close immediately unless we have unplaced items to surface
+        if (!hasUnplaced) {
+          onClose();
+        }
       } catch (error) {
         console.error('What-If solver failed:', error);
         setSolverError((error as Error).message);
@@ -402,6 +442,14 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
             onDismiss={() => setSolverError(null)}
           />
         )}
+        {unplacedNotice && (
+          <Notice
+            variant="info"
+            message={unplacedNotice}
+            action={{ label: 'Dismiss', onClick: () => { setUnplacedNotice(null); onClose(); } }}
+            onDismiss={() => { setUnplacedNotice(null); onClose(); }}
+          />
+        )}
         <Button
           className="w-full gap-2"
           onClick={() => { setSolverError(null); handleApply(); }}
@@ -410,9 +458,9 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
           {isSolving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
           {isSolving ? 'Calculating...' : 'Apply to Plan'}
         </Button>
-        <Button 
-          variant="outline" 
-          className="w-full" 
+        <Button
+          variant="outline"
+          className="w-full"
           onClick={handleCancel}
         >
           Cancel Simulation
