@@ -43,44 +43,104 @@ export interface PlanContextValue {
   canRedo: boolean;
 }
 
-// ─── Static Semester Sequence ─────────────────────────────────────────────────
-// Today = April 15, 2026 → Spring 2026 is current.
+// ─── Semester generator ───────────────────────────────────────────────────────
+// Produces an ordered Fall/Spring/Summer sequence across the given year range.
+//
+// Order within each academic year N:
+//   Fall N  →  Spring N+1  →  Summer N+1
+//
+// Covering academic years AY2025-26 through AY2028-29 gives:
+//   Fall 2025, Spring 2026, Summer 2026,
+//   Fall 2026, Spring 2027, Summer 2027,
+//   Fall 2027, Spring 2028, Summer 2028,
+//   Fall 2028, Spring 2029
+// (No Summer after the final Spring because the plan ends at Spring 2029.)
+//
+// Status rules (fixed reference point: Spring 2026 is current):
+//   Fall 2025        → past
+//   Spring 2026      → current
+//   everything else  → future
 
-export const SEMESTERS: Semester[] = [
-  { id: 'Fall 2025',   label: "Fall '25", status: 'past',    year: 2025, season: 'Fall'   },
-  { id: 'Spring 2026', label: "Sp '26",   status: 'current', year: 2026, season: 'Spring' },
-  { id: 'Fall 2026',   label: "Fall '26", status: 'future',  year: 2026, season: 'Fall'   },
-  { id: 'Spring 2027', label: "Sp '27",   status: 'future',  year: 2027, season: 'Spring' },
-  { id: 'Fall 2027',   label: "Fall '27", status: 'future',  year: 2027, season: 'Fall'   },
-  { id: 'Spring 2028', label: "Sp '28",   status: 'future',  year: 2028, season: 'Spring' },
-  { id: 'Fall 2028',   label: "Fall '28", status: 'future',  year: 2028, season: 'Fall'   },
-  { id: 'Spring 2029', label: "Sp '29",   status: 'future',  year: 2029, season: 'Spring' },
-];
+type SemesterStatus = 'past' | 'current' | 'future';
+
+function semesterStatus(season: 'Fall' | 'Spring' | 'Summer', year: number): SemesterStatus {
+  if (season === 'Fall' && year === 2025) return 'past';
+  if (season === 'Spring' && year === 2026) return 'current';
+  return 'future';
+}
+
+function shortYear(year: number): string {
+  return String(year).slice(2);
+}
+
+function semesterLabel(season: 'Fall' | 'Spring' | 'Summer', year: number): string {
+  if (season === 'Fall')   return `Fall '${shortYear(year)}`;
+  if (season === 'Spring') return `Sp '${shortYear(year)}`;
+  return `Su '${shortYear(year)}`;
+}
+
+/**
+ * Generate a semester list interleaving Fall, Spring, and Summer terms across
+ * academic years from `startFallYear` through a final Spring.
+ *
+ * The last academic year ends with a Spring (no trailing Summer) to avoid
+ * allocating an empty placeholder past the graduation horizon.
+ */
+export function generateSemesters(
+  startFallYear: number,
+  endSpringYear: number
+): Semester[] {
+  const semesters: Semester[] = [];
+  for (let ay = startFallYear; ay < endSpringYear; ay++) {
+    // Fall of AY
+    semesters.push({
+      id: `Fall ${ay}`,
+      label: semesterLabel('Fall', ay),
+      status: semesterStatus('Fall', ay),
+      year: ay,
+      season: 'Fall',
+    });
+    // Spring of AY+1
+    const springYear = ay + 1;
+    semesters.push({
+      id: `Spring ${springYear}`,
+      label: semesterLabel('Spring', springYear),
+      status: semesterStatus('Spring', springYear),
+      year: springYear,
+      season: 'Spring',
+    });
+    // Summer of AY+1 — omit for the final academic year (no summer after last Spring)
+    if (springYear < endSpringYear) {
+      semesters.push({
+        id: `Summer ${springYear}`,
+        label: semesterLabel('Summer', springYear),
+        status: semesterStatus('Summer', springYear),
+        year: springYear,
+        season: 'Summer',
+      });
+    }
+  }
+  return semesters;
+}
+
+// ─── Static Semester Sequence ─────────────────────────────────────────────────
+// Reference point: Spring 2026 is current (user profile baseline).
+// AY 2025-26 → AY 2028-29 (4 academic years; terminal Spring = 2029).
+
+export const SEMESTERS: Semester[] = generateSemesters(2025, 2029);
 
 // ─── Initial Plan (empty — tester starts fresh) ───────────────────────────────
 
-export const INITIAL_PLAN: Record<string, string[]> = {
-  'Fall 2025':   [],
-  'Spring 2026': [],
-  'Fall 2026':   [],
-  'Spring 2027': [],
-  'Fall 2027':   [],
-  'Spring 2028': [],
-  'Fall 2028':   [],
-  'Spring 2029': [],
-};
+export const INITIAL_PLAN: Record<string, string[]> = Object.fromEntries(
+  SEMESTERS.map((s) => [s.id, []])
+);
 
 // ─── Demo Plan (Adi's transcript — matches user-profile.json completed/in-progress) ──
 
 export const DEMO_PLAN: Record<string, string[]> = {
+  ...INITIAL_PLAN,
   'Fall 2025':   ['ECE 302', 'ECE 306', 'CTI 301G', 'M 427J', 'UGS 016'],
   'Spring 2026': ['ECE 312H', 'M 325K', 'CTI 302', 'ECE 319H'],
-  'Fall 2026':   [],
-  'Spring 2027': [],
-  'Fall 2027':   [],
-  'Spring 2028': [],
-  'Fall 2028':   [],
-  'Spring 2029': [],
 };
 
 export const INITIAL_STATE: PlanState = {
