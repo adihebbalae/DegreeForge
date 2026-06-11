@@ -94,6 +94,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         semester: c.semester,
         type: 'Imported',
         credit_hours: c.creditHours,
+        // Propagate the source inferred by the parser so AP/transfer credits
+        // don't inflate the destination semester's course-load total.
+        source: c.source,
       }));
 
     const inProgressCourses: UserProfile['in_progress_courses'] = parsedCourses

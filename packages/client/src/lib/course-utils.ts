@@ -92,6 +92,12 @@ const CREDIT_OVERRIDES: Record<string, number> = {
  * authoritative source for what the student actually got credit for —
  * it can legitimately differ from the catalog (e.g. ECE 302 catalog
  * lists 5 hrs but a student may have earned it for 3).
+ *
+ * IMPORTANT: this map is used for DEGREE PROGRESS totals (X/128 hrs).
+ * It intentionally includes ALL completed courses regardless of source
+ * (in_residence, ap, transfer, credit_by_exam) because they all count
+ * toward degree completion. Use buildTermLoadCredits for per-semester
+ * course-load totals instead.
  */
 export function buildTranscriptCredits(
   profile: UserProfile | null
@@ -100,6 +106,40 @@ export function buildTranscriptCredits(
   const map: Record<string, number> = {};
   for (const c of profile.completed_courses ?? []) {
     map[c.course] = c.credit_hours;
+  }
+  for (const c of profile.in_progress_courses ?? []) {
+    map[c.course] = c.credit_hours;
+  }
+  return map;
+}
+
+/**
+ * Build a course-id → credit_hours map for per-semester TERM LOAD totals.
+ *
+ * Differs from buildTranscriptCredits in one critical way: AP, transfer,
+ * and credit-by-exam courses are mapped to 0 credits. This prevents them
+ * from inflating any semester's "N/cap hrs" course-load display — they
+ * were not physically taken in a semester and would produce impossible
+ * loads like "27/18 hrs" if counted. They still count toward degree
+ * progress (use buildTranscriptCredits for that).
+ *
+ * Courses without a `source` field default to 'in_residence' (backward
+ * compatibility: existing profile data without the field is treated as
+ * physically taken, which is the safe assumption for UT-enrolled students).
+ *
+ * In-progress courses always count toward load (they are taken this term).
+ */
+export function buildTermLoadCredits(
+  profile: UserProfile | null
+): Record<string, number> {
+  if (!profile) return {};
+  const map: Record<string, number> = {};
+  for (const c of profile.completed_courses ?? []) {
+    // Absent source → treat as 'in_residence' (backward-compatible default).
+    const src = c.source ?? 'in_residence';
+    // Non-residence credits map to 0 so getCourseCredits returns 0 for them,
+    // preventing them from inflating any semester's load total.
+    map[c.course] = src === 'in_residence' ? c.credit_hours : 0;
   }
   for (const c of profile.in_progress_courses ?? []) {
     map[c.course] = c.credit_hours;

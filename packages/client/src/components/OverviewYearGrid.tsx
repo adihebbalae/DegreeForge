@@ -20,7 +20,7 @@ import {
 import SemesterTile from './SemesterTile';
 import DiagnosticsPanel from './DiagnosticsPanel';
 import { useDiagnostics } from '@/hooks/useDiagnostics';
-import { buildTranscriptCredits } from '@/lib/course-utils';
+import { buildTermLoadCredits } from '@/lib/course-utils';
 import type { Semester } from '@/types';
 
 // ─── Academic-year key: "Fall 2025 → 2025", "Spring 2026 → 2025", "Summer 2026 → 2025"
@@ -55,8 +55,11 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
   const loading = useDataLoading();
 
   const prereqNodes = rawPrereqGraph?.nodes ?? {};
+  // Term-load credits: AP/transfer/credit_by_exam mapped to 0 so they don't
+  // inflate the tile's "N/cap hrs" display. Degree progress still counts all
+  // sources (handled in progress.ts via buildTranscriptCredits).
   const transcriptCredits = useMemo(
-    () => buildTranscriptCredits(userProfile),
+    () => buildTermLoadCredits(userProfile),
     [userProfile]
   );
 

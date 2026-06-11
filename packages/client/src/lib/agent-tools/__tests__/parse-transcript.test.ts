@@ -15,6 +15,7 @@ M 408C  Calculus I  B+  Fall 2024  4
       grade: 'A',
       semester: 'Fall 2025',
       creditHours: 3,
+      source: 'in_residence',
     });
     expect(result[1]).toEqual({
       courseId: 'M 408C',
@@ -22,6 +23,7 @@ M 408C  Calculus I  B+  Fall 2024  4
       grade: 'B+',
       semester: 'Fall 2024',
       creditHours: 4,
+      source: 'in_residence',
     });
   });
 
@@ -42,6 +44,7 @@ M 408C  Calculus I  B+  Fall 2024  4
       grade: 'A',
       semester: 'Fall 2025',
       creditHours: 3,
+      source: 'in_residence',
     });
   });
 

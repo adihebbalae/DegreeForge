@@ -100,6 +100,20 @@ export interface GradeDistribution {
 export type GradeDistributions = Record<string, GradeDistribution>;
 
 // ─── User Profile ────────────────────────────────────────────────────────────
+
+/**
+ * How a student earned credit for a completed course.
+ *
+ * - 'in_residence': physically taken at UT in a specific semester.
+ *   Counts toward that term's course-load total AND toward degree progress.
+ * - 'ap': AP exam credit. Counts toward degree progress ONLY.
+ * - 'transfer': transfer credit from another institution. Counts toward degree progress ONLY.
+ * - 'credit_by_exam': UT credit-by-exam / CLEP. Counts toward degree progress ONLY.
+ *
+ * AP/transfer/credit_by_exam sources must NOT inflate any semester's course-load total.
+ */
+export type CreditSource = 'in_residence' | 'ap' | 'transfer' | 'credit_by_exam';
+
 interface CompletedCourse {
   course: string;
   title: string;
@@ -108,6 +122,8 @@ interface CompletedCourse {
   type: string;
   credit_hours: number;
   notes?: string;
+  /** How the credit was earned. Defaults to 'in_residence' for backward compatibility. */
+  source?: CreditSource;
 }
 
 interface InProgressCourse {
