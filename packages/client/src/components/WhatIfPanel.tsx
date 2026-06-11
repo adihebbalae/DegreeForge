@@ -42,6 +42,7 @@ import {
 import { computeWhatIfDiff } from '@/lib/what-if';
 import { runSolver } from '@/lib/run-solver';
 import { getCreditHourCap } from '@/lib/auto-planner';
+import { sanitizePlan } from '@/lib/sanitize-course-list';
 import { serverBaseUrl } from '@/lib/agent-loop';
 import { TechCoreTrack } from '@/types';
 import { useDegreeRequirements, useOfferingSchedule } from '@/context/DataContext';
@@ -127,16 +128,6 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
     completedCourses
   ]);
 
-  /**
-   * A valid course-code token matches "DEPT 123" / "DEPT 123H" — uppercase prefix,
-   * space, then a number. Free-text placeholders like "any 2 UD math courses" and
-   * null slots emitted by the solver must never enter plan state.
-   */
-  const COURSE_CODE_RE = /^[A-Z]+ \d+\S*$/;
-  function isValidCourseId(id: unknown): id is string {
-    return typeof id === 'string' && id.length > 0 && COURSE_CODE_RE.test(id);
-  }
-
   const handleApply = () => {
     if (!techCores || !mathReqs || !profile || !degreeReqs) return;
 
@@ -161,19 +152,11 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
           maxHoursOverride: effectiveProfile ? getCreditHourCap(effectiveProfile) : undefined,
         });
 
-        // FIX 1: Strip any null/placeholder tokens before they enter plan state.
-        // Reuses the same "couldn't place" notice pattern as useRecommendPlan.
-        const droppedTokens: unknown[] = [];
-        const safePlan: Record<string, string[]> = {};
-        for (const [semId, courseIds] of Object.entries(newPlanOutput.plan)) {
-          const rawIds = courseIds as unknown[];
-          const valid = rawIds.filter(isValidCourseId);
-          const dropped = rawIds.filter((id) => !isValidCourseId(id));
-          safePlan[semId] = valid;
-          droppedTokens.push(...dropped);
-        }
+        // Layer A: route through shared sanitizer so dropped tokens are surfaced here
+        // and never enter plan state silently. The reducer also has a layer-B guard but
+        // this layer provides the visible "could not be placed" feedback.
+        const { safePlan, dropped: droppedTokens } = sanitizePlan(newPlanOutput.plan as Record<string, unknown[]>);
 
-        // Surface dropped tokens the same way useRecommendPlan surfaces unplacedCourses
         const allUnplaced = [
           ...newPlanOutput.unplacedCourses,
           ...droppedTokens.filter((t) => t !== null && t !== undefined),
@@ -186,9 +169,7 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
           );
         }
 
-        // Apply both the what-if state AND the sanitised new plan
         dispatch({ type: 'APPLY_WHAT_IF', newPlan: safePlan });
-        // Close immediately unless we have unplaced items to surface
         if (!hasUnplaced) {
           onClose();
         }

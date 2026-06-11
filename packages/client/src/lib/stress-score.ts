@@ -190,6 +190,11 @@ export function computeSemesterStress(
   let coursesWithData = 0;
 
   const courses: CourseStressEntry[] = courseIds.map((courseId) => {
+    // Render-boundary guard: treat invalid ids as zero-credit no-data courses.
+    if (typeof courseId !== 'string' || !courseId) {
+      return { courseId: courseId ?? '', creditHours: 0, difficulty: NEUTRAL_DIFFICULTY, hasNoData: true };
+    }
+
     // Credit hours: prefer termLoadCredits (AP/transfer → 0), fallback to catalog
     const creditHours =
       termLoadCredits[courseId] !== undefined

@@ -233,10 +233,10 @@ describe('BUG 2 — profPreferences forwarded through generateSchedules', () => 
     const avoidPrefs: ProfPreference[] = [{ name: 'Prof Good', type: 'avoid' }];
     const noPrefs: ProfPreference[] = [];
 
-    const withAvoid = generateSchedules(courses, gradeDistributions, {
+    const { candidates: withAvoid } = generateSchedules(courses, gradeDistributions, {
       profPreferences: avoidPrefs,
     });
-    const withoutPrefs = generateSchedules(courses, gradeDistributions, {
+    const { candidates: withoutPrefs } = generateSchedules(courses, gradeDistributions, {
       profPreferences: noPrefs,
     });
 
@@ -287,7 +287,7 @@ describe('BUG 2 — profPreferences forwarded through generateSchedules', () => 
     };
     // With no prefs: Prof Good (0.1) > Prof Bad (0.0) → Prof Good ranks #1
     const noPrefs: ProfPreference[] = [];
-    const withNoPrefs = generateSchedules(courses, lowGpaDistributions, {
+    const { candidates: withNoPrefs } = generateSchedules(courses, lowGpaDistributions, {
       profPreferences: noPrefs,
       weights: { gpa: 0, timeOfDay: 0, buildingBreak: 0, instructionMode: 0, professor: 1, daySpread: 0 },
     });
@@ -295,7 +295,7 @@ describe('BUG 2 — profPreferences forwarded through generateSchedules', () => 
 
     // With prefer Prof Bad: Prof Bad gets clamped to max(0, 0.9) = 0.9 → ranks #1
     const preferProBad: ProfPreference[] = [{ name: 'Prof Bad', type: 'prefer' }];
-    const withPrefer = generateSchedules(courses, lowGpaDistributions, {
+    const { candidates: withPrefer } = generateSchedules(courses, lowGpaDistributions, {
       profPreferences: preferProBad,
       weights: { gpa: 0, timeOfDay: 0, buildingBreak: 0, instructionMode: 0, professor: 1, daySpread: 0 },
     });

@@ -4,6 +4,7 @@ import PlannerPage from '../pages/PlannerPage'
 import SchedulerPage from '../pages/SchedulerPage'
 import SettingsPage from '../pages/SettingsPage'
 import CareerPage from '../pages/CareerPage'
+import { RecoverableErrorBoundary } from './PlannerErrorBoundary'
 
 export default function Layout() {
   return (
@@ -12,8 +13,16 @@ export default function Layout() {
       <main className="flex-1 min-h-0 overflow-hidden" style={{ height: 'calc(100dvh - 56px)' }}>
         <Routes>
           <Route path="/" element={<PlannerPage />} />
-          <Route path="/schedule" element={<SchedulerPage />} />
-          <Route path="/career" element={<CareerPage />} />
+          <Route path="/schedule" element={
+            <RecoverableErrorBoundary label="scheduler page">
+              <SchedulerPage />
+            </RecoverableErrorBoundary>
+          } />
+          <Route path="/career" element={
+            <RecoverableErrorBoundary label="career page">
+              <CareerPage />
+            </RecoverableErrorBoundary>
+          } />
           <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       </main>

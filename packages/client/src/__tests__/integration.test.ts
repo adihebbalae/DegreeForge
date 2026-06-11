@@ -424,7 +424,10 @@ describe('Full planner flow', () => {
     // No grade data → scheduler falls back to 3.0 GPA for all
     const gradeDistributions = {};
 
-    const candidates = generateSchedules(courses, gradeDistributions);
+    const { candidates, truncated } = generateSchedules(courses, gradeDistributions);
+
+    // Small selection → should not be truncated
+    expect(truncated).toBe(false);
 
     // Should return multiple conflict-free combinations (up to 5)
     expect(candidates.length).toBeGreaterThan(0);
@@ -607,8 +610,9 @@ describe('Edge cases', () => {
       },
     ];
 
-    const candidates = generateSchedules(courses, {});
-    // Only one open section → exactly one candidate
+    const { candidates, truncated } = generateSchedules(courses, {});
+    // Only one open section → exactly one candidate, not truncated
+    expect(truncated).toBe(false);
     expect(candidates).toHaveLength(1);
     expect(candidates[0].sections[0].unique).toBe(16002);
   });

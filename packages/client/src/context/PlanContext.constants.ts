@@ -1,4 +1,5 @@
 import type { PlanState, Semester, WhatIfState } from '../types';
+import { sanitizePlan, isValidCourseId } from '../lib/sanitize-course-list';
 
 // ─── Action Types ─────────────────────────────────────────────────────────────
 
@@ -216,6 +217,8 @@ export const STORAGE_KEY = 'degreeforge-plan-state';
 export function planReducer(state: PlanState, action: PlanAction): PlanState {
   switch (action.type) {
     case 'ADD_COURSE': {
+      // Reducer-level guard (layer B): silently drop invalid course tokens.
+      if (!isValidCourseId(action.courseId)) return state;
       const alreadyPlaced = Object.values(state.plan).some((courses) =>
         courses.includes(action.courseId)
       );
@@ -258,17 +261,21 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
     }
 
     case 'REORDER_SEMESTER': {
+      // Reducer-level guard (layer B): strip invalid tokens from reordered list.
+      const { safePlan: guardedReorder } = sanitizePlan({ [action.semesterId]: action.courseIds as unknown[] });
       return {
         ...state,
         plan: {
           ...state.plan,
-          [action.semesterId]: action.courseIds,
+          [action.semesterId]: guardedReorder[action.semesterId],
         },
       };
     }
 
     case 'SET_PLAN': {
-      return { ...state, plan: action.plan };
+      // Reducer-level guard (layer B): strip any invalid tokens from incoming plan.
+      const { safePlan: guardedPlan } = sanitizePlan(action.plan as Record<string, unknown[]>);
+      return { ...state, plan: guardedPlan };
     }
 
     case 'PIN_COURSE': {
@@ -317,9 +324,11 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
     }
 
     case 'APPLY_WHAT_IF': {
+      // Reducer-level guard (layer B): strip any invalid tokens from the incoming plan.
+      const { safePlan: guardedWhatIf } = sanitizePlan(action.newPlan as Record<string, unknown[]>);
       return {
         ...state,
-        plan: action.newPlan,
+        plan: guardedWhatIf,
         whatIf: { ...state.whatIf, isActive: true },
       };
     }
@@ -391,7 +400,9 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
     }
 
     case 'SET_FULL_STATE': {
-      return action.state;
+      // Reducer-level guard (layer B): strip any invalid tokens from imported plan.
+      const { safePlan: guardedFullState } = sanitizePlan(action.state.plan as Record<string, unknown[]>);
+      return { ...action.state, plan: guardedFullState };
     }
 
     case 'SET_PROFILE_META': {

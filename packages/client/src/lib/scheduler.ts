@@ -88,20 +88,45 @@ function scoreScheduleComposite(
 
 // ─── Generation ───────────────────────────────────────────────────────────────
 
+/**
+ * Hard node budget for the backtracking search.
+ *
+ * Each call to `backtrack` counts as one node. At ~50 k nodes the search
+ * completes well under 100 ms on the main thread even with expensive section
+ * data, so the tab stays responsive.  A Web Worker could lift this cap while
+ * keeping the UI smooth, but that is heavier infrastructure — deferred.
+ */
+export const SEARCH_NODE_BUDGET = 50_000;
+
+export interface GenerateSchedulesResult {
+  candidates: CandidateSchedule[];
+  /** True when the node budget was exhausted before the full product was explored. */
+  truncated: boolean;
+}
+
 export function generateSchedules(
   selectedCourses: CourseSections[],
   gradeDistributions: GradeDistributions,
   scoringOptions?: Partial<ScheduleScoringOptions>
-): CandidateSchedule[] {
+): GenerateSchedulesResult {
   const results: CandidateSchedule[] = [];
+  let nodesVisited = 0;
+  let truncated = false;
 
-  function backtrack(index: number, current: ScheduledSection[]) {
+  function backtrack(index: number, current: ScheduledSection[]): void {
+    nodesVisited++;
+    if (nodesVisited > SEARCH_NODE_BUDGET) {
+      truncated = true;
+      return;
+    }
+
     if (index === selectedCourses.length) {
       const gpaSum = current.reduce((sum, s) => {
         const grade = gradeDistributions[s.courseId];
         return sum + (grade?.avg_gpa ?? 3.0);
       }, 0);
-      const avgGpa = gpaSum / current.length;
+      // Guard: empty selection produces 0/0 → return 0 instead of NaN
+      const avgGpa = current.length > 0 ? gpaSum / current.length : 0;
 
       const { score, factorScores, weights } = scoreScheduleComposite(current, {
         ...scoringOptions,
@@ -121,6 +146,7 @@ export function generateSchedules(
 
     const course = selectedCourses[index];
     for (const section of course.sections) {
+      if (truncated) return;
       if (section.status === 'cancelled') continue;
       if (!sectionConflicts(section, current)) {
         backtrack(index + 1, [
@@ -128,16 +154,15 @@ export function generateSchedules(
           { ...section, courseId: course.course, courseTitle: course.title },
         ]);
       }
-
-      // Limit to first 1000 combinations to prevent hang
-      if (results.length >= 1000) return;
     }
   }
 
   backtrack(0, []);
 
   // Rank by score descending and take top 5
-  return results
+  const candidates = results
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
+
+  return { candidates, truncated };
 }

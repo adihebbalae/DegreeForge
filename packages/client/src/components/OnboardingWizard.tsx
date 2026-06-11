@@ -11,6 +11,7 @@ import { useProfileDispatch, EMPTY_PROFILE } from '@/context/ProfileContext';
 import { parseTranscript, type ParsedCourse } from '@/lib/agent-tools/parse-transcript';
 import { parseIdaAudit } from '@/lib/parse-ida';
 import { deriveTimelinePlanFromProfile } from '@/lib/derive-timeline';
+import { sanitizePlan } from '@/lib/sanitize-course-list';
 import type { UserProfile } from '@/types';
 
 type ImportSource = 'transcript' | 'ida';
@@ -121,7 +122,10 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     profileDispatch({ type: 'SET_PROFILE', profile });
 
     // Seed timeline from the new profile so past/current semesters reflect imports.
-    planDispatch({ type: 'SET_PLAN', plan: deriveTimelinePlanFromProfile(profile, SEMESTERS) });
+    // Layer A: sanitize derived plan to drop any invalid tokens from transcript parse.
+    const rawDerived = deriveTimelinePlanFromProfile(profile, SEMESTERS);
+    const { safePlan: derivedPlan } = sanitizePlan(rawDerived as Record<string, unknown[]>);
+    planDispatch({ type: 'SET_PLAN', plan: derivedPlan });
 
     // Keep PlanState.major/catalogYear in sync for any consumers that read those fields.
     planDispatch({ type: 'SET_PROFILE_META', major, catalogYear });
