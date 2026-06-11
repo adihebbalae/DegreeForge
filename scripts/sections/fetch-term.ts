@@ -215,46 +215,70 @@ function mergeCourses(
 }
 
 /**
- * Build the level query segment. Returns "&level=<code>" when a code is
- * provided, or an empty string when no level filter is wanted (UT returns
- * all divisions when the param is absent).
+ * The levels that UT requires to be fetched separately to get all courses.
+ * UT does not accept an "all" value for the level param — you must fetch each
+ * level individually and merge the results.
  */
-function levelParam(level: string): string {
-  return level.length > 0 ? `&level=${encodeURIComponent(level)}` : '';
+const ALL_LEVELS = ['L', 'U', 'G'] as const;
+
+/**
+ * Build a registrar results URL for a single (dept, level) pair.
+ * search_type_main=FIELD is required — omitting it returns the empty search
+ * form instead of results.
+ */
+function buildUrl(termCode: string, department: string, level: string): string {
+  const fos = encodeURIComponent(department);
+  const lvl = encodeURIComponent(level);
+  return `https://utdirect.utexas.edu/apps/registrar/course_schedule/${termCode}/results/?fos_fl=${fos}&level=${lvl}&search_type_main=FIELD`;
 }
 
 async function probePublicHtml(term: ParsedTerm, department: string, level: string): Promise<FallSections> {
-  const fos = encodeURIComponent(department);
-  const url = `https://utdirect.utexas.edu/apps/registrar/course_schedule/${term.code}/results/?fos_fl=${fos}${levelParam(level)}&search=Search`;
-  console.log(`Probing public registrar page: ${url}`);
+  // When a specific level is given fetch only that one; otherwise loop L/U/G.
+  const levels = level.length > 0 ? [level] : [...ALL_LEVELS];
 
-  let html: string;
-  try {
-    const res = await fetch(url, {
-      redirect: 'follow',
-      headers: { 'User-Agent': 'DegreeForge/1.0 (https://github.com/) section-pipeline' },
-    });
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status} ${res.statusText}`);
+  const merged: FallSections = {
+    semester: term.label,
+    semester_code: term.code,
+    source: `public-probe:${department}`,
+    courses: {},
+  };
+
+  for (const lvl of levels) {
+    const url = buildUrl(term.code, department, lvl);
+    console.log(`Probing public registrar page: ${url}`);
+
+    let html: string;
+    try {
+      const res = await fetch(url, {
+        redirect: 'follow',
+        headers: { 'User-Agent': 'DegreeForge/1.0 (https://github.com/) section-pipeline' },
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      }
+      html = await res.text();
+    } catch (err) {
+      throw new Error(
+        `Public-HTML probe failed (${err instanceof Error ? err.message : String(err)}). ` +
+          `Use --source with a manually saved HTML file. See scripts/sections/README.md.`
+      );
     }
-    html = await res.text();
-  } catch (err) {
-    throw new Error(
-      `Public-HTML probe failed (${err instanceof Error ? err.message : String(err)}). ` +
-        `Use --source with a manually saved HTML file. See scripts/sections/README.md.`
-    );
+
+    const reason = detectNonScheduleHtml(html);
+    if (reason) {
+      throw new Error(
+        `Public-HTML probe returned non-schedule content: ${reason}\n` +
+          `This is expected for most filters — use --source with a manually saved HTML file. ` +
+          `See scripts/sections/README.md.`
+      );
+    }
+
+    const parsed = parseRegistrarHtml(html, term, url);
+    mergeCourses(merged.courses, parsed.courses);
   }
 
-  const reason = detectNonScheduleHtml(html);
-  if (reason) {
-    throw new Error(
-      `Public-HTML probe returned non-schedule content: ${reason}\n` +
-        `This is expected for most filters — use --source with a manually saved HTML file. ` +
-        `See scripts/sections/README.md.`
-    );
-  }
-
-  return parseRegistrarHtml(html, term, url);
+  merged.source = `public-probe:${department}:levels=${levels.join('+')}`;
+  return merged;
 }
 
 /**
@@ -277,52 +301,67 @@ export async function fetchWithCookie(
   fetchFn: typeof fetch = fetch,
   level: string = ''
 ): Promise<FallSections> {
-  const fos = encodeURIComponent(department);
-  const url = `https://utdirect.utexas.edu/apps/registrar/course_schedule/${term.code}/results/?fos_fl=${fos}${levelParam(level)}&search=Search`;
+  // When a specific level is given fetch only that one; otherwise loop L/U/G.
+  const levels = level.length > 0 ? [level] : [...ALL_LEVELS];
 
-  // Safety: only ever send the cookie to utexas.edu
-  const urlObj = new URL(url);
-  if (!urlObj.hostname.endsWith('.utexas.edu')) {
-    throw new Error(`Refusing to send cookie to non-utexas.edu host: ${urlObj.hostname}`);
-  }
+  const merged: FallSections = {
+    semester: term.label,
+    semester_code: term.code,
+    source: `authenticated-fetch:${department}`,
+    courses: {},
+  };
 
-  console.log(`Authenticated fetch: ${url}`);
-  console.log(`  Cookie: ${maskCookie(cookie)}`);
+  for (const lvl of levels) {
+    const url = buildUrl(term.code, department, lvl);
 
-  let html: string;
-  try {
-    const res = await fetchFn(url, {
-      redirect: 'follow',
-      headers: {
-        'User-Agent': 'DegreeForge/1.0 (degreeforge-local-dev) section-pipeline',
-        'Cookie': cookie,
-      },
-    });
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    // Safety: only ever send the cookie to utexas.edu
+    const urlObj = new URL(url);
+    if (!urlObj.hostname.endsWith('.utexas.edu')) {
+      throw new Error(`Refusing to send cookie to non-utexas.edu host: ${urlObj.hostname}`);
     }
-    html = await res.text();
-  } catch (err) {
-    throw new Error(
-      `Authenticated fetch failed (${err instanceof Error ? err.message : String(err)}). ` +
-        `Check your internet connection and try again.`
-    );
+
+    console.log(`Authenticated fetch: ${url}`);
+    console.log(`  Cookie: ${maskCookie(cookie)}`);
+
+    let html: string;
+    try {
+      const res = await fetchFn(url, {
+        redirect: 'follow',
+        headers: {
+          'User-Agent': 'DegreeForge/1.0 (degreeforge-local-dev) section-pipeline',
+          'Cookie': cookie,
+        },
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      }
+      html = await res.text();
+    } catch (err) {
+      throw new Error(
+        `Authenticated fetch failed (${err instanceof Error ? err.message : String(err)}). ` +
+          `Check your internet connection and try again.`
+      );
+    }
+
+    const reason = detectNonScheduleHtml(html);
+    if (reason) {
+      // Auth failure — CAS redirect or empty results
+      throw new AuthFailureError(
+        `Authenticated fetch got non-schedule content: ${reason}\n` +
+          `Your session cookie has likely expired. Re-paste a fresh cookie:\n` +
+          `  1. Log into UT EID in your browser\n` +
+          `  2. Copy the Cookie header from DevTools Network tab (utdirect.utexas.edu)\n` +
+          `  3. Set UT_SESSION_COOKIE=<value> or write to scripts/sections/.ut-session\n` +
+          `  4. Re-run: npm run fetch:sections -- ${term.slug}`
+      );
+    }
+
+    const parsed = parseRegistrarHtml(html, term, url);
+    mergeCourses(merged.courses, parsed.courses);
   }
 
-  const reason = detectNonScheduleHtml(html);
-  if (reason) {
-    // Auth failure — CAS redirect or empty results
-    throw new AuthFailureError(
-      `Authenticated fetch got non-schedule content: ${reason}\n` +
-        `Your session cookie has likely expired. Re-paste a fresh cookie:\n` +
-        `  1. Log into UT EID in your browser\n` +
-        `  2. Copy the Cookie header from DevTools Network tab (utdirect.utexas.edu)\n` +
-        `  3. Set UT_SESSION_COOKIE=<value> or write to scripts/sections/.ut-session\n` +
-        `  4. Re-run: npm run fetch:sections -- ${term.slug}`
-    );
-  }
-
-  return parseRegistrarHtml(html, term, `authenticated-fetch:${url}`);
+  merged.source = `authenticated-fetch:${department}:levels=${levels.join('+')}`;
+  return merged;
 }
 
 /** Thrown when the registrar responds with a CAS redirect or no Unique cells. */

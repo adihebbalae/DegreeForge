@@ -1,28 +1,57 @@
 <!DOCTYPE html>
-<html>
-<head><title>Course Schedule Search Results - Summer 2027</title></head>
+<html lang="en">
+<head><title>UT Austin Registrar: Summer 2027 Course Search</title><meta charset="utf-8"></head>
 <body>
-<h1>Course Schedule</h1>
-<table>
-  <!-- ECE 302 appears in summer too — proves summer gap is closeable -->
-  <tr><td colspan="2"><b>ECE 302 INTRO ELECTRICAL ENGINEERING</b></td></tr>
-  <tr><td>Unique:</td><td>72010</td></tr>
-  <tr><td>Days:</td><td>MTWF</td></tr>
-  <tr><td>Hour:</td><td>10:00 a.m.-12:00 p.m.</td></tr>
-  <tr><td>Room:</td><td>EER 1.516</td></tr>
-  <tr><td>Instruction Mode:</td><td>Face-to-face</td></tr>
-  <tr><td>Instructor:</td><td>Williams, T</td></tr>
-  <tr><td>Status:</td><td>open</td></tr>
+<div id="container">
+  <div id="small_search">
+    <form name="small_search" method="get" action="/apps/registrar/course_schedule/20276/results/">
+      <select name="fos_fl" id="fos_fl">
+        <option value="">Select a field of study</option>
+        <option value="ECE">ECE - Electrical/Computer Engr</option>
+      </select>
+    </form>
+  </div>
+  <div id="inner_body">
+    <table class="rwd-table results">
+      <thead>
+        <tr>
+          <th>Unique</th><th>Day</th><th>Hour</th><th>Room</th>
+          <th>Instruction Mode</th><th>Instructor</th><th>Status</th><th></th><th>Core</th>
+        </tr>
+      </thead>
+      <tbody>
 
-  <!-- ECE 411 appears in summer only (unique to summer fixture) -->
-  <tr><td colspan="2"><b>ECE 411 CIRCUIT THEORY</b></td></tr>
-  <tr><td>Unique:</td><td>72020</td></tr>
-  <tr><td>Days:</td><td>MTWF</td></tr>
-  <tr><td>Hour:</td><td>1:00 p.m.-3:00 p.m.</td></tr>
-  <tr><td>Room:</td><td>EER 0.812</td></tr>
-  <tr><td>Instruction Mode:</td><td>Face-to-face</td></tr>
-  <tr><td>Instructor:</td><td>Johnson, M</td></tr>
-  <tr><td>Status:</td><td>open</td></tr>
-</table>
+        <!-- ECE 302 appears in summer too — proves summer gap is closeable -->
+        <tr><td class="course_header" colspan="8"><h2>ECE  302 INTRO ELECTRICAL ENGINEERING</h2></td></tr>
+        <tr>
+          <td data-th="Unique"><a href="/apps/registrar/course_schedule/20276/72010/" title="Unique number">72010</a></td>
+          <td data-th="Days"> <span>MTWF</span><br> </td>
+          <td data-th="Hour"> <span>10:00 a.m.-12:00 p.m.</span><br> </td>
+          <td data-th="Room"> <span>EER 1.516</span><br> </td>
+          <td data-th="Instruction Mode">Face-to-face</td>
+          <td data-th="Instructor"> <span>Williams, T</span><br> </td>
+          <td data-th="Status">open</td>
+          <td data-th="Add"></td>
+          <td data-th="Core"><div class="core_block"><ul class="core"><li class="" title=""></li></ul></div></td>
+        </tr>
+
+        <!-- ECE 411 appears in summer only (unique to summer fixture) -->
+        <tr><td class="course_header" colspan="8"><h2>ECE  411 CIRCUIT THEORY</h2></td></tr>
+        <tr>
+          <td data-th="Unique"><a href="/apps/registrar/course_schedule/20276/72020/" title="Unique number">72020</a></td>
+          <td data-th="Days"> <span>MTWF</span><br> </td>
+          <td data-th="Hour"> <span>1:00 p.m.-3:00 p.m.</span><br> </td>
+          <td data-th="Room"> <span>EER 0.812</span><br> </td>
+          <td data-th="Instruction Mode">Face-to-face</td>
+          <td data-th="Instructor"> <span>Johnson, M</span><br> </td>
+          <td data-th="Status">open</td>
+          <td data-th="Add"></td>
+          <td data-th="Core"><div class="core_block"><ul class="core"><li class="" title=""></li></ul></div></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>
 </body>
 </html>

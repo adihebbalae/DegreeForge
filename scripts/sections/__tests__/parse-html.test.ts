@@ -1,33 +1,54 @@
 import { describe, it, expect } from 'vitest';
+import * as fs from 'fs';
+import * as path from 'path';
 import { parseRegistrarHtml, detectNonScheduleHtml } from '../lib/parse-html';
 import { parseTermSlug } from '../lib/term-codes';
 
 const FALL_2026 = parseTermSlug('fall-2026');
 
-// ─── Reference HTML — minimal table layout matching registrar's results page ─
+// ─── Reference HTML — real rwd-table results layout ──────────────────────────
+// Updated to match the actual registrar page structure where:
+//  - Course headers are <td class="course_header"><h2>ECE  302 TITLE</h2></td>
+//  - Unique numbers are <a title="Unique number">18310</a>
+//  - Days/Hour/Room use data-th attributes and <span> children per meeting slot
 
 const ECE_302_HTML = `
 <html>
   <body>
-    <table>
-      <tr><td colspan="2"><b>ECE 302 INTRO ELECTRICAL ENGINEERING</b></td></tr>
-      <tr><td>Unique:</td><td>18310</td></tr>
-      <tr><td>Days:</td><td>MW</td></tr>
-      <tr><td>Hour:</td><td>9:00 a.m.-10:30 a.m.</td></tr>
-      <tr><td>Room:</td><td>EER 1.516</td></tr>
-      <tr><td>Hour:</td><td>11:00 a.m.-1:00 p.m.</td></tr>
-      <tr><td>Room:</td><td>EER 1.826</td></tr>
-      <tr><td>Instruction Mode:</td><td>Face-to-face</td></tr>
-      <tr><td>Instructor:</td><td>Shyam Shankar</td></tr>
-      <tr><td>Status:</td><td>open</td></tr>
-
-      <tr><td>Unique:</td><td>18315</td></tr>
-      <tr><td>Days:</td><td>TTh</td></tr>
-      <tr><td>Hour:</td><td>2:00 p.m.-3:30 p.m.</td></tr>
-      <tr><td>Room:</td><td>ETC 2.108</td></tr>
-      <tr><td>Instruction Mode:</td><td>Face-to-face</td></tr>
-      <tr><td>Instructor:</td><td>Ruochen Lu</td></tr>
-      <tr><td>Status:</td><td>cancelled</td></tr>
+    <table class="rwd-table results">
+      <thead>
+        <tr>
+          <th>Unique</th><th>Day</th><th>Hour</th><th>Room</th>
+          <th>Instruction Mode</th><th>Instructor</th><th>Status</th><th></th><th>Core</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="course_header" colspan="8"><h2>ECE  302 INTRO ELECTRICAL ENGINEERING</h2></td>
+        </tr>
+        <tr>
+          <td data-th="Unique"><a href="/apps/registrar/course_schedule/20269/18310/" title="Unique number">18310</a></td>
+          <td data-th="Days"> <span>MW</span><br> <span class="second-row">W</span><br> </td>
+          <td data-th="Hour"> <span>9:00 a.m.-10:30 a.m.</span><br> <span class="second-row">11:00 a.m.-1:00 p.m.</span><br> </td>
+          <td data-th="Room"> <span>EER 1.516</span><br> <span class="second-row">EER 1.826</span><br> </td>
+          <td data-th="Instruction Mode">Face-to-face</td>
+          <td data-th="Instructor"> <span>Shyam Shankar</span><br> </td>
+          <td data-th="Status">open</td>
+          <td data-th="Add"></td>
+          <td data-th="Core"><div class="core_block"><ul class="core"><li class="" title=""></li></ul></div></td>
+        </tr>
+        <tr>
+          <td data-th="Unique"><a href="/apps/registrar/course_schedule/20269/18315/" title="Unique number">18315</a></td>
+          <td data-th="Days"> <span>TTh</span><br> </td>
+          <td data-th="Hour"> <span>2:00 p.m.-3:30 p.m.</span><br> </td>
+          <td data-th="Room"> <span>ETC 2.108</span><br> </td>
+          <td data-th="Instruction Mode">Face-to-face</td>
+          <td data-th="Instructor"> <span>Ruochen Lu</span><br> </td>
+          <td data-th="Status">cancelled</td>
+          <td data-th="Add"></td>
+          <td data-th="Core"><div class="core_block"><ul class="core"><li class="" title=""></li></ul></div></td>
+        </tr>
+      </tbody>
     </table>
   </body>
 </html>
@@ -35,18 +56,34 @@ const ECE_302_HTML = `
 
 const TWO_COURSE_HTML = `
 <html><body>
-<table>
-  <tr><td><b>ECE 411 BASIC CIRCUITS LAB</b></td></tr>
-  <tr><td>Unique:</td><td>20100</td></tr>
-  <tr><td>Days:</td><td>F</td></tr>
-  <tr><td>Hour:</td><td>10:00 a.m.-1:00 p.m.</td></tr>
-  <tr><td>Instructor:</td><td>Jane Doe</td></tr>
-
-  <tr><td><b>M 408D DIFFERENTIAL CALCULUS</b></td></tr>
-  <tr><td>Unique:</td><td>54000</td></tr>
-  <tr><td>Days:</td><td>MWF</td></tr>
-  <tr><td>Hour:</td><td>9:00 a.m.-10:00 a.m.</td></tr>
-  <tr><td>Instructor:</td><td>John Smith</td></tr>
+<table class="rwd-table results">
+  <thead><tr><th>Unique</th><th>Day</th><th>Hour</th><th>Room</th><th>Instruction Mode</th><th>Instructor</th><th>Status</th><th></th><th>Core</th></tr></thead>
+  <tbody>
+    <tr><td class="course_header" colspan="8"><h2>ECE  411 BASIC CIRCUITS LAB</h2></td></tr>
+    <tr>
+      <td data-th="Unique"><a href="/apps/registrar/course_schedule/20269/20100/" title="Unique number">20100</a></td>
+      <td data-th="Days"> <span>F</span><br> </td>
+      <td data-th="Hour"> <span>10:00 a.m.-1:00 p.m.</span><br> </td>
+      <td data-th="Room"></td>
+      <td data-th="Instruction Mode">Face-to-face</td>
+      <td data-th="Instructor"> <span>Jane Doe</span><br> </td>
+      <td data-th="Status">open</td>
+      <td data-th="Add"></td>
+      <td data-th="Core"><div class="core_block"><ul class="core"><li class="" title=""></li></ul></div></td>
+    </tr>
+    <tr><td class="course_header" colspan="8"><h2>M  408D DIFFERENTIAL CALCULUS</h2></td></tr>
+    <tr>
+      <td data-th="Unique"><a href="/apps/registrar/course_schedule/20269/54000/" title="Unique number">54000</a></td>
+      <td data-th="Days"> <span>MWF</span><br> </td>
+      <td data-th="Hour"> <span>9:00 a.m.-10:00 a.m.</span><br> </td>
+      <td data-th="Room"> <span>RLM 5.104</span><br> </td>
+      <td data-th="Instruction Mode">Face-to-face</td>
+      <td data-th="Instructor"> <span>John Smith</span><br> </td>
+      <td data-th="Status">open</td>
+      <td data-th="Add"></td>
+      <td data-th="Core"><div class="core_block"><ul class="core"><li class="" title=""></li></ul></div></td>
+    </tr>
+  </tbody>
 </table>
 </body></html>
 `;
@@ -66,12 +103,24 @@ describe('detectNonScheduleHtml', () => {
     expect(detectNonScheduleHtml(LOGIN_REDIRECT_HTML)).toMatch(/login/i);
   });
 
-  it('flags empty result pages (no Unique: labels)', () => {
-    expect(detectNonScheduleHtml(EMPTY_RESULTS_HTML)).toMatch(/no "unique:"/i);
+  it('flags pages with no Unique-number links (empty form or no results)', () => {
+    expect(detectNonScheduleHtml(EMPTY_RESULTS_HTML)).not.toBeNull();
   });
 
-  it('passes valid schedule HTML', () => {
+  it('passes valid schedule HTML (has title="Unique number" links)', () => {
     expect(detectNonScheduleHtml(ECE_302_HTML)).toBeNull();
+  });
+
+  it('returns null for real trimmed fixture (has Unique number links)', () => {
+    const fixturePath = path.resolve(__dirname, 'fixtures', 'ece-U-trimmed.html');
+    const html = fs.readFileSync(fixturePath, 'utf-8');
+    expect(detectNonScheduleHtml(html)).toBeNull();
+  });
+
+  it('returns non-null for empty-search-form fixture (no Unique number links)', () => {
+    const fixturePath = path.resolve(__dirname, 'fixtures', 'empty-search-form.html');
+    const html = fs.readFileSync(fixturePath, 'utf-8');
+    expect(detectNonScheduleHtml(html)).not.toBeNull();
   });
 });
 
@@ -93,7 +142,7 @@ describe('parseRegistrarHtml', () => {
     expect(s1.instructor).toBe('Shyam Shankar');
     expect(s1.instruction_mode).toBe('Face-to-face');
     expect(s1.status).toBe('open');
-    // Two meeting blocks: MW lecture + (no-day) lab
+    // Two meeting blocks: MW lecture + W lab
     expect(s1.meetings.length).toBeGreaterThanOrEqual(2);
     expect(s1.meetings[0]).toMatchObject({ days: 'MW', time: '9:00 a.m.-10:30 a.m.', room: 'EER 1.516' });
 
@@ -115,18 +164,81 @@ describe('parseRegistrarHtml', () => {
   });
 
   it('throws on empty results', () => {
-    expect(() => parseRegistrarHtml(EMPTY_RESULTS_HTML, FALL_2026, 'fixture')).toThrow(/no "unique:"/i);
+    expect(() => parseRegistrarHtml(EMPTY_RESULTS_HTML, FALL_2026, 'fixture')).toThrow();
   });
 
-  it('normalizes "E E 302" course-header prefix to "ECE 302"', () => {
+  it('normalizes "E E" course-header prefix to "ECE"', () => {
     const html = `
-      <table>
-        <tr><td>E E 302 INTRO EE</td></tr>
-        <tr><td>Unique:</td><td>11111</td></tr>
-        <tr><td>Days:</td><td>MW</td></tr>
-        <tr><td>Hour:</td><td>9:00 a.m.-10:00 a.m.</td></tr>
-      </table>`;
+      <html><body>
+      <table class="rwd-table results">
+        <thead><tr><th>Unique</th><th>Day</th><th>Hour</th><th>Room</th><th>Instruction Mode</th><th>Instructor</th><th>Status</th><th></th><th>Core</th></tr></thead>
+        <tbody>
+          <tr><td class="course_header" colspan="8"><h2>E E 302 INTRO EE</h2></td></tr>
+          <tr>
+            <td data-th="Unique"><a href="/apps/registrar/course_schedule/20269/11111/" title="Unique number">11111</a></td>
+            <td data-th="Days"> <span>MW</span><br> </td>
+            <td data-th="Hour"> <span>9:00 a.m.-10:00 a.m.</span><br> </td>
+            <td data-th="Room"></td>
+            <td data-th="Instruction Mode">Face-to-face</td>
+            <td data-th="Instructor"> <span>Test Instructor</span><br> </td>
+            <td data-th="Status">open</td>
+            <td data-th="Add"></td>
+            <td data-th="Core"><div class="core_block"><ul class="core"><li></li></ul></div></td>
+          </tr>
+        </tbody>
+      </table>
+      </body></html>`;
     const out = parseRegistrarHtml(html, FALL_2026, 'fixture');
     expect(out.courses['ECE 302']).toBeDefined();
+  });
+
+  // ─── Real fixture tests ───────────────────────────────────────────────────
+
+  it('parses real trimmed ece-U fixture — correct course IDs and unique numbers', () => {
+    const fixturePath = path.resolve(__dirname, 'fixtures', 'ece-U-trimmed.html');
+    const html = fs.readFileSync(fixturePath, 'utf-8');
+    const out = parseRegistrarHtml(html, FALL_2026, 'fixture');
+
+    // Three courses expected: ECE 422C, ECE 333T, ECE 125S
+    expect(Object.keys(out.courses).sort()).toEqual(['ECE 125S', 'ECE 333T', 'ECE 422C']);
+
+    // ECE 422C has two sections
+    expect(out.courses['ECE 422C'].sections).toHaveLength(2);
+    expect(out.courses['ECE 422C'].sections[0].unique).toBe(18685);
+    expect(out.courses['ECE 422C'].sections[1].unique).toBe(18690);
+
+    // First section has two meeting slots (TTH lecture + TH lab)
+    const sec = out.courses['ECE 422C'].sections[0];
+    expect(sec.meetings).toHaveLength(2);
+    expect(sec.meetings[0]).toMatchObject({ days: 'TTH', time: '12:30 p.m.-2:00 p.m.', room: 'EER 1.516' });
+    expect(sec.meetings[1]).toMatchObject({ days: 'TH', time: '11:00 a.m.-12:30 p.m.', room: 'EER 0.818' });
+
+    // Instructor is upper-case (as on real page)
+    expect(sec.instructor).toBe('THOMAZ, EDISON JR');
+
+    // Status
+    expect(sec.status).toBe('waitlisted');
+  });
+
+  it('parses real trimmed fixture — ECE 333T has core credit', () => {
+    const fixturePath = path.resolve(__dirname, 'fixtures', 'ece-U-trimmed.html');
+    const html = fs.readFileSync(fixturePath, 'utf-8');
+    const out = parseRegistrarHtml(html, FALL_2026, 'fixture');
+
+    const sec333t = out.courses['ECE 333T'].sections[0];
+    expect(sec333t.unique).toBe(18720);
+    expect(sec333t.core).toBe('Communication');
+    expect(sec333t.instruction_mode).toBe('Face-to-face');
+  });
+
+  it('parses real trimmed fixture — ECE 125S correspondence section has no meetings', () => {
+    const fixturePath = path.resolve(__dirname, 'fixtures', 'ece-U-trimmed.html');
+    const html = fs.readFileSync(fixturePath, 'utf-8');
+    const out = parseRegistrarHtml(html, FALL_2026, 'fixture');
+
+    const sec125s = out.courses['ECE 125S'].sections[0];
+    expect(sec125s.unique).toBe(18715);
+    expect(sec125s.meetings).toHaveLength(0);
+    expect(sec125s.instruction_mode).toBe('Correspondence');
   });
 });

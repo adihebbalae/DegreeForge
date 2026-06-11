@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>UT Austin Registrar: Course Schedule</title>
+<meta charset="utf-8">
+</head>
+<body>
+<div id="container">
+  <!-- This is the page returned when search_type_main=FIELD is omitted.
+       It contains the search form but NO section result rows. -->
+  <div id="small_search">
+    <h2>Search for courses:</h2>
+    <form name="small_search" method="get" action="/apps/registrar/course_schedule/20269/results/">
+      <label for="fos_fl" class="hidden">field</label>
+      <select name="fos_fl" id="fos_fl">
+        <option value="">Select a field of study</option>
+        <option value="ECE">ECE - Electrical/Computer Engr</option>
+        <option value="M">M - Mathematics</option>
+        <option value="PHY">PHY - Physics</option>
+      </select>
+      <select name="level" id="level">
+        <option value="">All levels</option>
+        <option value="L">Lower division</option>
+        <option value="U">Upper division</option>
+        <option value="G">Graduate</option>
+      </select>
+      <input type="submit" value="Search" />
+    </form>
+  </div>
+</div>
+</body>
+</html>
