@@ -232,6 +232,27 @@ function buildUrl(termCode: string, department: string, level: string): string {
   return `https://utdirect.utexas.edu/apps/registrar/course_schedule/${termCode}/results/?fos_fl=${fos}&level=${lvl}&search_type_main=FIELD`;
 }
 
+/**
+ * Extract the next_unique parameter from a registrar HTML page's next-page
+ * link. The link looks like:
+ *   <a href="?fos_fl=ECE&amp;level=U&amp;search_type_main=FIELD&amp;next_unique=18864"
+ *      id="next_nav_link" title="next page">
+ *
+ * The href uses HTML-encoded ampersands (&amp;) in saved HTML.
+ * Returns the next_unique value, or null on the last page (no link present).
+ * Exported for unit testing.
+ */
+export function extractNextUnique(html: string): string | null {
+  // Match next_unique= preceded by either a literal & or HTML-encoded &amp;
+  // href may appear before or after id="next_nav_link" in the tag.
+  const m =
+    /id="next_nav_link"[^>]*href="[^"]*(?:&amp;|[?&])next_unique=(\d+)/i.exec(html) ??
+    /href="[^"]*(?:&amp;|[?&])next_unique=(\d+)"[^>]*id="next_nav_link"/i.exec(html);
+  return m ? m[1] : null;
+}
+
+const MAX_PAGES = 50;
+
 async function probePublicHtml(term: ParsedTerm, department: string, level: string): Promise<FallSections> {
   // When a specific level is given fetch only that one; otherwise loop L/U/G.
   const levels = level.length > 0 ? [level] : [...ALL_LEVELS];
@@ -244,37 +265,58 @@ async function probePublicHtml(term: ParsedTerm, department: string, level: stri
   };
 
   for (const lvl of levels) {
-    const url = buildUrl(term.code, department, lvl);
-    console.log(`Probing public registrar page: ${url}`);
+    const baseUrl = buildUrl(term.code, department, lvl);
+    let nextUnique: string | null = null;
+    let pageNum = 0;
 
-    let html: string;
-    try {
-      const res = await fetch(url, {
-        redirect: 'follow',
-        headers: { 'User-Agent': 'DegreeForge/1.0 (https://github.com/) section-pipeline' },
-      });
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    do {
+      const url = nextUnique ? `${baseUrl}&next_unique=${nextUnique}` : baseUrl;
+      console.log(`Probing public registrar page: ${url}`);
+
+      let html: string;
+      try {
+        const res = await fetch(url, {
+          redirect: 'follow',
+          headers: { 'User-Agent': 'DegreeForge/1.0 (https://github.com/) section-pipeline' },
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} ${res.statusText}`);
+        }
+        html = await res.text();
+      } catch (err) {
+        throw new Error(
+          `Public-HTML probe failed (${err instanceof Error ? err.message : String(err)}). ` +
+            `Use --source with a manually saved HTML file. See scripts/sections/README.md.`
+        );
       }
-      html = await res.text();
-    } catch (err) {
-      throw new Error(
-        `Public-HTML probe failed (${err instanceof Error ? err.message : String(err)}). ` +
-          `Use --source with a manually saved HTML file. See scripts/sections/README.md.`
-      );
-    }
 
-    const reason = detectNonScheduleHtml(html);
-    if (reason) {
-      throw new Error(
-        `Public-HTML probe returned non-schedule content: ${reason}\n` +
-          `This is expected for most filters — use --source with a manually saved HTML file. ` +
-          `See scripts/sections/README.md.`
-      );
-    }
+      const reason = detectNonScheduleHtml(html);
+      if (reason) {
+        throw new Error(
+          `Public-HTML probe returned non-schedule content: ${reason}\n` +
+            `This is expected for most filters — use --source with a manually saved HTML file. ` +
+            `See scripts/sections/README.md.`
+        );
+      }
 
-    const parsed = parseRegistrarHtml(html, term, url);
-    mergeCourses(merged.courses, parsed.courses);
+      const parsed = parseRegistrarHtml(html, term, url);
+      mergeCourses(merged.courses, parsed.courses);
+
+      const prevUnique = nextUnique;
+      nextUnique = extractNextUnique(html);
+      pageNum++;
+
+      // Guard against a broken page that returns the same next_unique forever.
+      // null → null is the normal last-page case; only warn on a non-null repeat.
+      if (nextUnique !== null && nextUnique === prevUnique) {
+        console.warn(`Public probe: next_unique did not advance (${nextUnique}); stopping pagination.`);
+        break;
+      }
+      if (pageNum >= MAX_PAGES) {
+        console.warn(`Public probe: reached page cap (${MAX_PAGES}) for level=${lvl}; stopping pagination.`);
+        break;
+      }
+    } while (nextUnique !== null);
   }
 
   merged.source = `public-probe:${department}:levels=${levels.join('+')}`;
@@ -312,52 +354,74 @@ export async function fetchWithCookie(
   };
 
   for (const lvl of levels) {
-    const url = buildUrl(term.code, department, lvl);
+    const baseUrl = buildUrl(term.code, department, lvl);
 
     // Safety: only ever send the cookie to utexas.edu
-    const urlObj = new URL(url);
-    if (!urlObj.hostname.endsWith('.utexas.edu')) {
-      throw new Error(`Refusing to send cookie to non-utexas.edu host: ${urlObj.hostname}`);
+    const baseUrlObj = new URL(baseUrl);
+    if (!baseUrlObj.hostname.endsWith('.utexas.edu')) {
+      throw new Error(`Refusing to send cookie to non-utexas.edu host: ${baseUrlObj.hostname}`);
     }
 
-    console.log(`Authenticated fetch: ${url}`);
-    console.log(`  Cookie: ${maskCookie(cookie)}`);
+    let nextUnique: string | null = null;
+    let pageNum = 0;
 
-    let html: string;
-    try {
-      const res = await fetchFn(url, {
-        redirect: 'follow',
-        headers: {
-          'User-Agent': 'DegreeForge/1.0 (degreeforge-local-dev) section-pipeline',
-          'Cookie': cookie,
-        },
-      });
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    do {
+      const url = nextUnique ? `${baseUrl}&next_unique=${nextUnique}` : baseUrl;
+
+      console.log(`Authenticated fetch: ${url}`);
+      console.log(`  Cookie: ${maskCookie(cookie)}`);
+
+      let html: string;
+      try {
+        const res = await fetchFn(url, {
+          redirect: 'follow',
+          headers: {
+            'User-Agent': 'DegreeForge/1.0 (degreeforge-local-dev) section-pipeline',
+            'Cookie': cookie,
+          },
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} ${res.statusText}`);
+        }
+        html = await res.text();
+      } catch (err) {
+        throw new Error(
+          `Authenticated fetch failed (${err instanceof Error ? err.message : String(err)}). ` +
+            `Check your internet connection and try again.`
+        );
       }
-      html = await res.text();
-    } catch (err) {
-      throw new Error(
-        `Authenticated fetch failed (${err instanceof Error ? err.message : String(err)}). ` +
-          `Check your internet connection and try again.`
-      );
-    }
 
-    const reason = detectNonScheduleHtml(html);
-    if (reason) {
-      // Auth failure — CAS redirect or empty results
-      throw new AuthFailureError(
-        `Authenticated fetch got non-schedule content: ${reason}\n` +
-          `Your session cookie has likely expired. Re-paste a fresh cookie:\n` +
-          `  1. Log into UT EID in your browser\n` +
-          `  2. Copy the Cookie header from DevTools Network tab (utdirect.utexas.edu)\n` +
-          `  3. Set UT_SESSION_COOKIE=<value> or write to scripts/sections/.ut-session\n` +
-          `  4. Re-run: npm run fetch:sections -- ${term.slug}`
-      );
-    }
+      const reason = detectNonScheduleHtml(html);
+      if (reason) {
+        // Auth failure — CAS redirect or empty results
+        throw new AuthFailureError(
+          `Authenticated fetch got non-schedule content: ${reason}\n` +
+            `Your session cookie has likely expired. Re-paste a fresh cookie:\n` +
+            `  1. Log into UT EID in your browser\n` +
+            `  2. Copy the Cookie header from DevTools Network tab (utdirect.utexas.edu)\n` +
+            `  3. Set UT_SESSION_COOKIE=<value> or write to scripts/sections/.ut-session\n` +
+            `  4. Re-run: npm run fetch:sections -- ${term.slug}`
+        );
+      }
 
-    const parsed = parseRegistrarHtml(html, term, url);
-    mergeCourses(merged.courses, parsed.courses);
+      const parsed = parseRegistrarHtml(html, term, url);
+      mergeCourses(merged.courses, parsed.courses);
+
+      const prevUnique = nextUnique;
+      nextUnique = extractNextUnique(html);
+      pageNum++;
+
+      // Guard against a broken page that returns the same next_unique forever.
+      // null → null is the normal last-page case; only warn on a non-null repeat.
+      if (nextUnique !== null && nextUnique === prevUnique) {
+        console.warn(`Authenticated fetch: next_unique did not advance (${nextUnique}); stopping pagination.`);
+        break;
+      }
+      if (pageNum >= MAX_PAGES) {
+        console.warn(`Authenticated fetch: reached page cap (${MAX_PAGES}) for level=${lvl}; stopping pagination.`);
+        break;
+      }
+    } while (nextUnique !== null);
   }
 
   merged.source = `authenticated-fetch:${department}:levels=${levels.join('+')}`;

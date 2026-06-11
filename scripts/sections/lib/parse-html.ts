@@ -110,6 +110,23 @@ function normalizeCourseId(raw: string): string {
     .trim();
 }
 
+/**
+ * Strip a leading lowercase session letter from a summer course number token.
+ * Summer headers look like "ECE w422C" or "ECE n333T" where a single lowercase
+ * letter (w=whole, n=nine-week, f=first, s=second session) prefixes the
+ * numeric course number. UT course numbers are digits + optional UPPERCASE
+ * suffix, so a lowercase prefix is always a session code, never part of the
+ * course number itself.
+ *
+ * Examples:
+ *   "w422C" → "422C"
+ *   "n333T" → "333T"
+ *   "422C"  → "422C"  (unchanged — no session prefix)
+ */
+function stripSessionPrefix(numberToken: string): string {
+  return numberToken.replace(/^[a-z](\d)/, '$1');
+}
+
 // ─── Row-based parser ────────────────────────────────────────────────────────
 
 /**
@@ -155,12 +172,16 @@ export function parseRegistrarHtml(html: string, term: ParsedTerm, sourceLabel: 
       const raw = headerCell.text().replace(/\s+/g, ' ').trim();
       // Format: "ECE  422C SOFTWR DESIGN/IMPLEMENTATN II" (after space-collapse: "ECE 422C TITLE")
       // Also handles legacy "E E 302 TITLE" format (two-token dept code).
-      // Pattern: (dept num) TITLE, where dept is either "E E" or a single word,
-      // and num is an alphanumeric course number.
-      const m = /^((?:E\s+E|[A-Z]+)\s+\d+\w*)\s+(.+)$/.exec(raw);
+      // Summer format: "ECE w422C TITLE (Whole term)" — lowercase session letter
+      // prefixes the number; strip it before storing the course id.
+      // Pattern: (dept) (optional-session-letter)(num) TITLE
+      const m = /^((?:E\s+E|[A-Z]+))\s+([a-z]?\d+\w*)\s+(.+)$/.exec(raw);
       if (m) {
-        const courseId = normalizeCourseId(`${m[1]}`);
-        const title = m[2].trim();
+        const dept = m[1];
+        const numToken = stripSessionPrefix(m[2]);
+        const courseId = normalizeCourseId(`${dept} ${numToken}`);
+        // Strip session suffix from title (e.g. " (Whole term)", " (Nine week term)")
+        const title = m[3].replace(/\s*\([^)]*term\)\s*$/i, '').trim();
         if (!out.courses[courseId]) {
           out.courses[courseId] = { course: courseId, title, sections: [] };
         }
