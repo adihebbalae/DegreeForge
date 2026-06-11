@@ -248,7 +248,9 @@ describe('Full planner flow', () => {
         { from: 'ECE 316', to: 'ECE 460N', type: 'prerequisite' },
       ],
     };
-    const graph = new PrereqGraph(graphData);
+    // Pass empty CNF so this test exercises the graph's own edge (ECE 316 → ECE 460N),
+    // not the production authored CNF which uses a different OR-group for ECE 460N.
+    const graph = new PrereqGraph(graphData, {});
 
     // Plan: ECE 460N placed in Fall 2026 WITHOUT ECE 316 anywhere
     const plan = {
@@ -508,7 +510,7 @@ describe('Edge cases', () => {
       nodes: { 'ECE 302': { title: 'Intro', credits: 3, category: 'ece_lower', offered: ['fall'], flags: [] } },
       edges: [],
     };
-    const graph = new PrereqGraph(graphData);
+    const graph = new PrereqGraph(graphData, {});
     const emptyPlan = { 'Fall 2026': [] };
     const violations = graph.validatePlan(emptyPlan, ['Fall 2026']);
     expect(violations).toHaveLength(0);
@@ -523,7 +525,9 @@ describe('Edge cases', () => {
       },
       edges: [{ from: 'ECE 302', to: 'ECE 312H', type: 'prerequisite' }],
     };
-    const graph = new PrereqGraph(graphData);
+    // Pass empty CNF: test validates the edge ECE 302 → ECE 312H directly,
+    // not the production CNF group which requires the intro-computing family.
+    const graph = new PrereqGraph(graphData, {});
 
     // Valid: ECE 302 in Sem 1, ECE 312H in Sem 2
     const validPlan = { 'Sem 1': ['ECE 302'], 'Sem 2': ['ECE 312H'] };

@@ -29,8 +29,6 @@ function buildEffectivePlan(plan: Plan, profile: UserProfile | null, semesters: 
   if (firstSemester) {
     profile.completed_courses.forEach(c => {
       // If the course is NOT in any of our displayed semesters, it's prior credit.
-      // This is simpler than comparing year/season strings if we assume semesters
-      // are comprehensive for the tracked period.
       if (!semesterOrder.includes(c.semester)) {
         priorCourses.push(c.course);
       }
@@ -38,12 +36,9 @@ function buildEffectivePlan(plan: Plan, profile: UserProfile | null, semesters: 
   }
 
   // Also include in-progress courses if they aren't already in the plan
-  // (though in this app, they usually are).
   profile.in_progress_courses.forEach(c => {
     const alreadyInPlan = Object.values(plan).some(courses => courses.includes(c.course));
     if (!alreadyInPlan) {
-      // If it's in-progress but not in plan, we might want to know which semester it's in.
-      // For simplicity, if it has a semester matching one of ours, add it there.
       if (semesterOrder.includes(c.semester)) {
         effectivePlan[c.semester] = [...(effectivePlan[c.semester] || []), c.course];
       }
@@ -78,7 +73,21 @@ export function useValidation(): ValidationResult {
 
     // Filter out violations for courses that are already completed
     const completedIds = new Set(profile?.completed_courses.map(c => c.course) ?? []);
-    const violations = allViolations.filter(v => !completedIds.has(v.courseId));
+    const rawViolations = allViolations.filter(v => !completedIds.has(v.courseId));
+
+    // Build a semesterId → status map for past-term fade (TASK-057).
+    // A course in a "past" semester with an unmet prereq gets isSoftWarning=true,
+    // surfacing as an info badge rather than a hard red error.
+    const semesterStatusMap = new Map<string, 'past' | 'current' | 'future'>(
+      semesters.map(s => [s.id, s.status])
+    );
+
+    const violations: PrereqViolation[] = rawViolations.map(v => {
+      const semStatus = semesterStatusMap.get(v.semesterId);
+      return semStatus === 'past'
+        ? { ...v, isSoftWarning: true }
+        : v;
+    });
 
     // Map to Record for O(1) lookup by course card
     const violationsByCourse: Record<string, PrereqViolation> = {};
@@ -86,10 +95,14 @@ export function useValidation(): ValidationResult {
       violationsByCourse[v.courseId] = v;
     });
 
+    // Only count hard violations (not soft warnings) for hasViolations — drives the
+    // banner color and auto-fill prompt, which shouldn't fire for historical gaps.
+    const hardViolations = violations.filter(v => !v.isSoftWarning);
+
     return {
       violations,
       violationsByCourse,
-      hasViolations: violations.length > 0,
+      hasViolations: hardViolations.length > 0,
     };
   }, [plan, semesters, prereqGraph, profile]);
 

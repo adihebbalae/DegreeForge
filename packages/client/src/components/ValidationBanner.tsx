@@ -14,6 +14,9 @@ import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 
 export default function ValidationBanner() {
   const { violations, hasViolations } = useValidation();
+  // TASK-057: separate hard errors from soft past-term info badges
+  const hardViolations = violations.filter(v => !v.isSoftWarning);
+  const softViolations = violations.filter(v => v.isSoftWarning);
   const { state, dispatch } = usePlanContext();
   const semesters = useSemesters();
   const plan = usePlan();
@@ -35,7 +38,7 @@ export default function ValidationBanner() {
     return { futureCourseCount: courses, futureSemesterCount: futureSems.length };
   }, [semesters, plan]);
 
-  const firstViolationId = violations.length > 0 ? violations[0].courseId : null;
+  const firstViolationId = hardViolations.length > 0 ? hardViolations[0].courseId : null;
 
   const handleAutoFillConfirmed = () => {
     if (!degreeReqs || !techCores || !profile) return;
@@ -87,9 +90,14 @@ export default function ValidationBanner() {
           <>
             <AlertTriangle className="h-3 w-3 shrink-0" />
             <span className="truncate">
-              {violations.length === 1 && firstViolationId
+              {hardViolations.length === 1 && firstViolationId
                 ? `1 prereq violation — ${firstViolationId}`
-                : `${violations.length} prereq violations`}
+                : `${hardViolations.length} prereq violation${hardViolations.length === 1 ? '' : 's'}`}
+              {softViolations.length > 0 && (
+                <span className="opacity-60 ml-1.5">
+                  + {softViolations.length} past-term info
+                </span>
+              )}
             </span>
             <button
               className="underline underline-offset-2 opacity-80 hover:opacity-100 whitespace-nowrap text-[10px] shrink-0"
@@ -116,7 +124,14 @@ export default function ValidationBanner() {
         ) : (
           <>
             <CheckCircle2 className="h-3 w-3 shrink-0 text-green-600 dark:text-green-400" />
-            <span className="opacity-70">All prerequisites satisfied</span>
+            <span className="opacity-70">
+              All prerequisites satisfied
+              {softViolations.length > 0 && (
+                <span className="text-blue-500 dark:text-blue-400 ml-1.5 opacity-80">
+                  ({softViolations.length} past-term info badge{softViolations.length === 1 ? '' : 's'})
+                </span>
+              )}
+            </span>
             <div className="flex-1" />
             <Button
               variant="outline"

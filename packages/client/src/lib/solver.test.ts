@@ -80,7 +80,9 @@ describe('generatePlan', () => {
   let prereqGraph: PrereqGraph;
 
   beforeEach(() => {
-    prereqGraph = new PrereqGraph(mockGraphData);
+    // Pass empty CNF so tests exercise pure edge-based validation
+    // (not the production authored CNF, which requires courses not in this mini-graph).
+    prereqGraph = new PrereqGraph(mockGraphData, {});
   });
 
   it('generates a plan with no prereq violations', () => {
