@@ -145,7 +145,8 @@ describe('Full planner flow', () => {
   // ────────────────────────────────────────────────────────────────────────────
   it('loads Adi profile data on startup', () => {
     // The initial state should include Adi's semesters and plan
-    expect(INITIAL_STATE.semesters).toHaveLength(8);
+    // 4 AYs × (Fall + Spring + Summer) - 1 trailing Summer = 11 semesters
+    expect(INITIAL_STATE.semesters).toHaveLength(11);
     expect(INITIAL_STATE.semesters[0].id).toBe('Fall 2025');
     expect(INITIAL_STATE.semesters[1].id).toBe('Spring 2026');
     expect(INITIAL_STATE.semesters[1].status).toBe('current');
