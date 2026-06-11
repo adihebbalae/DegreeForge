@@ -128,7 +128,10 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
     completedCourses
   ]);
 
-  const handleApply = () => {
+  const handleApply = (
+    effectiveTechCoreId: string = stagedTechCoreId,
+    effectiveMathBA: boolean = stagedMathBA,
+  ) => {
     if (!techCores || !mathReqs || !profile || !degreeReqs) return;
 
     setIsSolving(true);
@@ -138,8 +141,8 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
       try {
         // D4: shared solver helper replaces duplicated setup
         const newPlanOutput = runSolver({
-          techCoreId: stagedTechCoreId,
-          mathBAToggle: stagedMathBA,
+          techCoreId: effectiveTechCoreId,
+          mathBAToggle: effectiveMathBA,
           degreeReqs,
           techCores,
           mathReqs,
@@ -210,13 +213,14 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
       const data = await response.json();
 
       if (autoAccept) {
-        // Questionnaire flow: skip the confirmation dialog and apply immediately
+        // Questionnaire flow: skip the confirmation dialog and apply immediately.
+        // Dispatch to keep the dropdowns in sync, then call handleApply with the
+        // recommended values directly — avoids the stale-closure bug where a
+        // delayed handleApply() would read the pre-recommendation staged values.
         dispatch({ type: 'SET_TECH_CORE', techCoreId: data.techCoreId });
         dispatch({ type: 'TOGGLE_MATH_BA', enabled: data.mathBA });
         setIsRecommending(false);
-        setTimeout(() => {
-          handleApply();
-        }, 100);
+        handleApply(data.techCoreId, data.mathBA);
         return;
       }
 
@@ -231,16 +235,14 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
 
   const acceptRecommendation = () => {
     if (!recommendationData) return;
-    
-    // Set the whatIf state to the recommended track
+
+    // Dispatch to keep the dropdowns in sync, then call handleApply with the
+    // recommended values directly — avoids the stale-closure bug where a
+    // delayed handleApply() would read the pre-recommendation staged values.
     dispatch({ type: 'SET_TECH_CORE', techCoreId: recommendationData.techCoreId });
     dispatch({ type: 'TOGGLE_MATH_BA', enabled: recommendationData.mathBA });
-    
-    // We delay the handleApply call to let the state update propagate
-    setTimeout(() => {
-      handleApply();
-      setRecommendationData(null);
-    }, 100);
+    handleApply(recommendationData.techCoreId, recommendationData.mathBA);
+    setRecommendationData(null);
   };
 
   const handleCancel = () => {

@@ -41,7 +41,7 @@ export function parseTranscript(transcriptText: string): ParsedCourse[] {
   // Example: E E 302 ...
   // Pattern: (Dept) (Num) (Title) (Grade) (Semester) (Credits)
   // We'll use a regex that handles common spacing and tabs
-  const transcriptRegex = /^([A-Z\s]+?)\s+(\d+[A-Z]?)\s+(.+?)\s+([A-DFQW][+-]?|CR|NC)\s+((?:Fall|Spring|Summer)\s+\d{4})\s+(\d+)\s*$/i;
+  const transcriptRegex = /^([A-Z]+(?:\s[A-Z]+)*)\s+(\d+[A-Z]?)\s+(.+?)\s+([A-DFQW][+-]?|CR|NC)\s+((?:Fall|Spring|Summer)\s+\d{4})\s+(\d+)\s*$/i;
 
   for (let line of lines) {
     line = line.trim();
@@ -78,7 +78,7 @@ export function parseTranscript(transcriptText: string): ParsedCourse[] {
             const semesterRaw = tabParts[3].trim();
             const creditsRaw = tabParts[4].trim();
 
-            const courseIdMatch = courseIdRaw.match(/^([A-Z\s]+?)\s+(\d+[A-Z]?)$/i);
+            const courseIdMatch = courseIdRaw.match(/^([A-Z]+(?:\s[A-Z]+)*)\s+(\d+[A-Z]?)$/i);
             if (courseIdMatch) {
                 let [_, dept, num] = courseIdMatch;
                 dept = dept.trim().toUpperCase().replace(/^E\s*E$/, 'ECE');
