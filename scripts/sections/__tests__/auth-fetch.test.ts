@@ -206,6 +206,30 @@ describe('fetchWithCookie', () => {
       fetchWithCookie(FALL_2026, 'E E', FAKE_COOKIE, mockFetch)
     ).rejects.toThrow(/HTTP 401/);
   });
+
+  it('(level flag) omits level param when no level is passed', async () => {
+    const html = loadFixture('fall-2026-fixture.html');
+    const mockFetch = makeMockFetch(html);
+
+    await fetchWithCookie(FALL_2026, 'E E', FAKE_COOKIE, mockFetch);
+
+    const callArgs = (mockFetch as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
+    const calledUrl = callArgs[0];
+    expect(calledUrl).not.toContain('level=');
+    expect(calledUrl).toContain('&search=Search');
+  });
+
+  it('(level flag) includes &level=<code> when a level is passed', async () => {
+    const html = loadFixture('fall-2026-fixture.html');
+    const mockFetch = makeMockFetch(html);
+
+    await fetchWithCookie(FALL_2026, 'E E', FAKE_COOKIE, mockFetch, 'G');
+
+    const callArgs = (mockFetch as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
+    const calledUrl = callArgs[0];
+    expect(calledUrl).toContain('&level=G');
+    expect(calledUrl).toContain('&search=Search');
+  });
 });
 
 // ─── Fixture parse path (acceptance 1) ───────────────────────────────────────
