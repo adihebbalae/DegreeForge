@@ -20,6 +20,7 @@ import {
 import SemesterTile from './SemesterTile';
 import DiagnosticsPanel from './DiagnosticsPanel';
 import { useDiagnostics } from '@/hooks/useDiagnostics';
+import { useStressScore } from '@/hooks/useStressScore';
 import { buildTermLoadCredits } from '@/lib/course-utils';
 import type { Semester } from '@/types';
 
@@ -65,6 +66,9 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
 
   // Diagnostics — memoized computation of critical path, slack, and bottlenecks
   const diagnostics = useDiagnostics();
+
+  // Stress Scores — memoized per-semester difficulty signal (TASK-059)
+  const stressScores = useStressScore();
 
   // Build semesterId → slackLabel map for SemesterTile
   const slackBySemester = useMemo(() => {
@@ -171,6 +175,7 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
                     isFocused={focusedSemesterId === sem.id}
                     slackLabel={slackBySemester.get(sem.id) ?? null}
                     creditHourCap={creditHourCap}
+                    stressResult={stressScores?.get(sem.id) ?? null}
                     onClick={() => onTileClick(sem.id)}
                   />
                 );

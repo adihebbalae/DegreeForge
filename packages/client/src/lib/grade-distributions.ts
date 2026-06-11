@@ -15,7 +15,9 @@
  *
  * See LICENSES/ for full license texts.
  *
- * DO NOT register this in DataContext.tsx. Integration is TASK-044.
+ * Integrated by TASK-059 (Stress Score): consumed directly by useStressScore.ts
+ * and stress-score.ts. Not registered in DataContext — this module loads the
+ * grade-distributions JSON independently via a static import.
  */
 
 import rawData from '../../public/data/grade-distributions.json';
