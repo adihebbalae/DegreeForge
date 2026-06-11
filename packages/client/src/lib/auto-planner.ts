@@ -120,9 +120,9 @@ export function computeRequiredCourses(
  *
  * Exported so run-solver.ts and useGhostPlan.ts call the same function.
  */
-export function getCreditHourCap(profile: UserProfile, overrideHours?: number): number {
+export function getCreditHourCap(profile: UserProfile | null, overrideHours?: number): number {
   if (typeof overrideHours === 'number' && overrideHours > 0) return overrideHours;
-  const tol = profile.preferences?.course_load_tolerance;
+  const tol = profile?.preferences?.course_load_tolerance;
   if (tol === 'heavy') return 19;
   if (tol === 'above_average' || tol === 'up_to_18') return 18;
   if (tol === 'light' || tol === 'below_average' || tol === 'up_to_15') return 15;

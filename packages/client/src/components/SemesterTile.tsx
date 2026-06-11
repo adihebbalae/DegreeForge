@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { getCourseCredits, inferCategory } from '@/lib/course-utils';
 import { computeSemesterDifficulty, type HeatBucket } from '@/lib/workload';
+import { getCreditHourCap } from '@/lib/auto-planner';
 import {
   Tooltip,
   TooltipTrigger,
@@ -76,7 +77,7 @@ interface SemesterTileProps {
   isFocused: boolean;
   /** Slack label from diagnostics, e.g. "14 hrs spare" or "full". Null for past/current semesters. */
   slackLabel?: string | null;
-  /** Per-semester credit-hour cap from the user's selected load tolerance. Defaults to 18. */
+  /** Per-semester credit-hour cap from the user's selected load tolerance. Defaults to getCreditHourCap(null) (normal load). */
   creditHourCap?: number;
   /** Stress Score result for this semester (TASK-059). Null while loading. */
   stressResult?: SemesterStressResult | null;
@@ -176,7 +177,7 @@ export default function SemesterTile({
   transcriptCredits,
   isFocused,
   slackLabel = null,
-  creditHourCap = 17,
+  creditHourCap = getCreditHourCap(null),
   stressResult = null,
   onClick,
 }: SemesterTileProps) {

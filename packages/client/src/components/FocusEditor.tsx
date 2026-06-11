@@ -55,7 +55,7 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
 
   // Derive credit-hour cap from the effective profile (respects Settings tolerance override).
   // Falls back to 17 (normal load) while profile is loading.
-  const creditHourCap = effectiveProfile ? getCreditHourCap(effectiveProfile) : 17;
+  const creditHourCap = getCreditHourCap(effectiveProfile);
 
   const { violationsByCourse } = useValidation();
   const hoveredCourse = useHoveredCourse();

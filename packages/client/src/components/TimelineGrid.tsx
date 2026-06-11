@@ -26,7 +26,7 @@ export default function TimelineGrid() {
   const catalog = useCatalogRecord();
 
   // Derive credit-hour cap from the effective profile (respects Settings tolerance override).
-  const creditHourCap = effectiveProfile ? getCreditHourCap(effectiveProfile) : 17;
+  const creditHourCap = getCreditHourCap(effectiveProfile);
   const rawPrereqGraph = useRawPrereqGraph();
   const gradeDistributions = useGradeDistributions();
   const loading = useDataLoading();
