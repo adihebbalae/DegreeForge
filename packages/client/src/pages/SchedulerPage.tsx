@@ -64,9 +64,9 @@ export default function SchedulerPage() {
   }, [allSections, selectedCourseIds]);
 
   // 3. Generate candidate schedules using all 6 factors with full settings plumbed through
-  const candidates = useMemo(() => {
-    if (selectedCourseData.length === 0) return [];
-    return generateSchedules(selectedCourseData, gradeDistributions, {
+  const { candidates, searchTruncated } = useMemo(() => {
+    if (selectedCourseData.length === 0) return { candidates: [], searchTruncated: false };
+    const result = generateSchedules(selectedCourseData, gradeDistributions, {
       weights,
       preferredWindows,
       buildingDistances,
@@ -75,6 +75,7 @@ export default function SchedulerPage() {
       daySpreadPreference: null,
       profPreferences: settings.profPreferences,
     });
+    return { candidates: result.candidates, searchTruncated: result.truncated };
   }, [selectedCourseData, gradeDistributions, weights, preferredWindows, buildingDistances, preferredMode, settings.profPreferences]);
 
   const activeSchedule = candidates[activeScheduleIndex] || null;
@@ -224,6 +225,12 @@ export default function SchedulerPage() {
                 <Badge variant="secondary" className="text-[10px]">Ranked by Score</Badge>
               )}
             </div>
+
+            {searchTruncated && (
+              <p className="text-[11px] text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded px-2 py-1.5 leading-snug">
+                Too many combinations — showing the best of a partial search. Narrow your course selection or add filters.
+              </p>
+            )}
 
             <div className="space-y-2">
               {candidates.length === 0 ? (
