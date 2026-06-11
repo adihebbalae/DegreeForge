@@ -14,9 +14,11 @@ import type {
   TechCoreCourseEntry,
   MathRequirements,
   UserProfile,
+  Semester,
+  Plan,
 } from '../types';
 import { isTechCorePickOne } from '../types';
-import { TRANSFER_EQUIVALENTS } from './variants';
+import { TRANSFER_EQUIVALENTS, addWithVariants } from './variants';
 // ─── Unified equivalence map ─────────────────────────────────────────────────
 //
 // Three original sources merged into one:
@@ -154,8 +156,154 @@ export function getTechCoreElectives(
     .slice(0, count);
 }
 
+// ─── Canonical remaining-required computation ─────────────────────────────────
+
+/**
+ * Canonical function: build the flat list of courses the user still needs to take,
+ * given a pre-built variant-expanded satisfied set.
+ *
+ * This is the single source of truth consumed by useDiagnostics (via
+ * computeRequiredCourses in auto-planner), useGhostPlan, and run-solver.
+ * All three paths must build their satisfied set via buildSatisfiedSet — which
+ * includes past/current plan semesters — before calling this function.
+ *
+ * Key semantics that differ from the old buildRemainingRequirements:
+ *   - The satisfied set is variant-expanded (honors/legacy/transfer/cross-dept).
+ *   - Pick-one tech-core groups: if ANY option is in the satisfied set the slot
+ *     is considered done.
+ *   - Gen-ed "same_as_his1" references are resolved. CTI substitutions honoured.
+ *   - list_of_approved gen-ed slots are surfaced in warnings, not silently skipped.
+ */
+export function computeRemainingRequired(
+  degreeReqs: DegreeRequirements,
+  techCore: TechCoreTrack,
+  mathReqs: MathRequirements | null,
+  mathBAToggle: boolean,
+  satisfied: Set<string>
+): { required: string[]; warnings: string[] } {
+  const required = new Set<string>();
+  const warnings: string[] = [];
+
+  const need = (id: string) => {
+    if (!id) return;
+    if (!satisfied.has(id)) required.add(id);
+  };
+
+  // ECE core
+  for (const id of degreeReqs.ece_core.courses) need(id);
+
+  // Math sequence
+  for (const id of degreeReqs.math_sequence.required) need(id);
+
+  // Physics sequence
+  for (const id of degreeReqs.physics_sequence.required) need(id);
+
+  // Tech-core required courses
+  const req = techCore.required_courses;
+  if (req.advanced_math) need(req.advanced_math.id);
+
+  req.core?.forEach((entry) => {
+    if (isTechCorePickOne(entry)) {
+      const matched = entry.options.some((o) => satisfied.has(o.id));
+      if (!matched && entry.options[0]) need(entry.options[0].id);
+    } else {
+      need(entry.id);
+    }
+  });
+
+  if (req.core_lab) {
+    if (isTechCorePickOne(req.core_lab)) {
+      const matched = req.core_lab.options.some((o) => satisfied.has(o.id));
+      if (!matched && req.core_lab.options[0]) need(req.core_lab.options[0].id);
+    } else {
+      need(req.core_lab.id);
+    }
+  }
+
+  if (req.required_elective) {
+    need(req.required_elective.id);
+  }
+
+  // Tech-core electives — pick first N from the pool that user hasn't taken
+  const electivesNeeded = techCore.elective_count?.general ?? 0;
+  if (electivesNeeded > 0) {
+    const candidates = techCore.elective_pool.filter((id) => !satisfied.has(id));
+    candidates.slice(0, electivesNeeded).forEach(need);
+  }
+
+  // Gen-ed slots with concrete option lists
+  for (const slot of degreeReqs.core_curriculum.slots) {
+    const opts = slot.options;
+    let resolvedOpts = opts;
+    if (opts.includes('same_as_his1')) {
+      const his1 = degreeReqs.core_curriculum.slots.find((s) => s.id === 'his1');
+      if (his1) resolvedOpts = his1.options;
+    }
+    if (resolvedOpts.includes('list_of_approved')) {
+      warnings.push(
+        `Slot "${slot.label}" requires manual selection from approved list (${slot.hours} hrs).`
+      );
+      continue;
+    }
+    const enhanced = [...resolvedOpts];
+    if (slot.id === 'vapa') enhanced.push('CTI 301G');
+    if (slot.id === 'humanities') enhanced.push('CTI 302');
+
+    if (enhanced.some((o) => satisfied.has(o))) continue;
+    if (resolvedOpts[0]) need(resolvedOpts[0]);
+  }
+
+  // Math BA additional courses (if toggle on)
+  if (mathBAToggle && mathReqs) {
+    for (const item of mathReqs.math_ba.additional_courses_needed.breakdown) {
+      if (item.example) need(item.example);
+    }
+  }
+
+  // Free electives — note in warnings, do NOT auto-place
+  if (degreeReqs.free_electives.total_hours > 0) {
+    warnings.push(
+      `${degreeReqs.free_electives.total_hours} hours of free electives are left for manual selection.`
+    );
+  }
+
+  // Advanced tech elective — note, do not auto-place
+  if (degreeReqs.advanced_tech_elective.count > 0) {
+    warnings.push(
+      `Advanced tech elective (${degreeReqs.advanced_tech_elective.count} course) is left for manual selection.`
+    );
+  }
+
+  return { required: Array.from(required), warnings };
+}
+
+/**
+ * Build the variant-expanded satisfied set from a user profile and the
+ * past/current semesters of the plan. This is the shared setup that all
+ * consumers of computeRemainingRequired must perform.
+ */
+export function buildSatisfiedSet(
+  profile: UserProfile,
+  degreeReqs: DegreeRequirements,
+  semesters: Semester[] = [],
+  plan: Plan = {}
+): Set<string> {
+  const satisfied = new Set<string>();
+  for (const c of profile.completed_courses) addWithVariants(satisfied, c.course, degreeReqs);
+  for (const c of profile.in_progress_courses) addWithVariants(satisfied, c.course, degreeReqs);
+  for (const sem of semesters) {
+    if (sem.status === 'past' || sem.status === 'current') {
+      for (const c of plan[sem.id] ?? []) addWithVariants(satisfied, c, degreeReqs);
+    }
+  }
+  return satisfied;
+}
+
 /**
  * Build the complete list of remaining required courses for a BSECE degree.
+ *
+ * Delegates to computeRemainingRequired with a full variant-expanded satisfied
+ * set (including past/current plan semesters when provided).
  *
  * @param degreeReqs - degree-requirements.json
  * @param techCores - tech-cores.json
@@ -163,6 +311,8 @@ export function getTechCoreElectives(
  * @param mathBA - whether Math BA double major is enabled
  * @param mathReqs - math-requirements.json
  * @param profile - user-profile.json
+ * @param semesters - full semester list (used to include past/current plan courses in satisfied)
+ * @param plan - current plan state (used alongside semesters)
  * @returns flat array of course IDs still needed
  */
 export function buildRemainingRequirements(
@@ -171,66 +321,14 @@ export function buildRemainingRequirements(
   techCoreId: string,
   mathBA: boolean,
   mathReqs: MathRequirements | null,
-  profile: UserProfile
+  profile: UserProfile,
+  semesters: Semester[] = [],
+  plan: Plan = {}
 ): string[] {
-  const completed = new Set<string>([
-    ...profile.completed_courses.map((c) => c.course),
-    ...profile.in_progress_courses.map((c) => c.course),
-  ]);
-
-  const allRequired = new Set<string>();
-
-  // 1. ECE Core courses
-  for (const course of degreeReqs.ece_core.courses) {
-    allRequired.add(course);
-  }
-
-  // 2. Math sequence
-  for (const course of degreeReqs.math_sequence.required) {
-    allRequired.add(course);
-  }
-
-  // 3. Physics sequence
-  for (const course of degreeReqs.physics_sequence.required) {
-    allRequired.add(course);
-  }
-
-  // 4. Tech core courses
   const track = techCores[techCoreId];
-  if (track) {
-    const techRequired = getTechCoreCourses(track);
-    for (const course of techRequired) {
-      allRequired.add(course);
-    }
+  if (!track) return [];
 
-    // Tech core electives — pick from pool
-    const electiveCount = track.elective_count.general;
-    const electives = getTechCoreElectives(track, allRequired, electiveCount);
-    for (const course of electives) {
-      allRequired.add(course);
-    }
-  }
-
-  // 5. Core curriculum gen ed — use first option from each slot
-  for (const slot of degreeReqs.core_curriculum.slots) {
-    if (slot.options.length > 0 && slot.options[0] !== 'list_of_approved' && slot.options[0] !== 'same_as_his1') {
-      allRequired.add(slot.options[0]);
-    }
-  }
-
-  // 6. Math BA additional courses (if enabled)
-  if (mathBA && mathReqs) {
-    for (const item of mathReqs.math_ba.additional_courses_needed.breakdown) {
-      if (item.example) {
-        allRequired.add(item.example);
-      }
-    }
-  }
-
-  // Filter out completed/in-progress courses
-  const remaining = [...allRequired].filter(
-    (course) => !isRequirementSatisfied(course, completed)
-  );
-
-  return remaining;
+  const satisfied = buildSatisfiedSet(profile, degreeReqs, semesters, plan);
+  const { required } = computeRemainingRequired(degreeReqs, track, mathReqs, mathBA, satisfied);
+  return required;
 }

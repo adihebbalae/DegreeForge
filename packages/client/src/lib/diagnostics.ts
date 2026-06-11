@@ -385,21 +385,23 @@ export function computeBottlenecks(
           offeredSemesters.length === 1 &&
           (offeredSemesters[0] === 'fall' || offeredSemesters[0] === 'spring');
 
-        const downstream = prereqGraph.getDownstream(criticalPathTail).filter((d) => requiredSet.has(d));
+        const isUnplaced = currentSemId === null;
+        const effectiveSlack = isUnplaced ? 0 : slack;
 
         const whyItMatters =
           `${criticalPathTail} — end of the longest prereq chain; graduation can't happen until after this course`;
 
-        const delayCost =
-          slack === 0
+        const delayCost = isUnplaced
+          ? `${criticalPathTail} — GRADUATION-BLOCKING: not yet placed; must be scheduled to graduate`
+          : effectiveSlack === 0
             ? `${criticalPathTail} — 0 semesters of slack; slip it and you graduate a term later`
-            : `${criticalPathTail} — ${slack} slot${slack === 1 ? '' : 's'} of slack (graduation gate)`;
+            : `${criticalPathTail} — ${effectiveSlack} slot${effectiveSlack === 1 ? '' : 's'} of slack (graduation gate)`;
 
         flags.push({
           courseId: criticalPathTail,
           semesterId: currentSemId,
           isTermLocked,
-          slack,
+          slack: effectiveSlack,
           whyItMatters,
           delayCost,
         });

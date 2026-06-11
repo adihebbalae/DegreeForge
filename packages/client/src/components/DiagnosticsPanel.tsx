@@ -106,7 +106,7 @@ export default function DiagnosticsPanel({ diagnostics }: DiagnosticsPanelProps)
                 </span>
                 {criticalPath.bottleneckSemesterId && (
                   <span className="ml-1.5 text-[9px] text-blue-500">
-                    → grad no earlier than {criticalPath.bottleneckSemesterId}
+                    → earliest by prerequisites: {criticalPath.bottleneckSemesterId}
                   </span>
                 )}
               </div>
