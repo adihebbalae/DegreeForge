@@ -2,7 +2,8 @@
  * SemesterTile — compact overview cell for the year-grid.
  *
  * Shows: term label + season emoji, credit count, status badge,
- * 4px workload heat stripe, course chips (code + category dot), overflow "+N more".
+ * 4px workload heat stripe, course chips (code + category dot), overflow "+N more",
+ * and a Stress Score badge (TASK-059: band color + 0–100 score + hover breakdown).
  * Also acts as a droppable target (extends the single DndContext in PlannerPage).
  */
 
@@ -12,6 +13,12 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { getCourseCredits, inferCategory } from '@/lib/course-utils';
 import { computeSemesterDifficulty, type HeatBucket } from '@/lib/workload';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from '@/components/ui/tooltip';
+import type { StressBand, SemesterStressResult } from '@/lib/stress-score';
 import type { Semester, CourseCatalog, PrereqNode, GradeDistributions } from '@/types';
 
 // ─── Heat stripe colors (same mapping as SemesterColumn) ─────────────────────
@@ -43,6 +50,22 @@ function seasonEmoji(season: 'Fall' | 'Spring' | 'Summer'): string {
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
+// ─── Stress badge colors ──────────────────────────────────────────────────────
+
+const STRESS_BAND_BADGE: Record<StressBand, string> = {
+  low:    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+  medium: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  high:   'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+};
+
+const STRESS_BAND_LABEL: Record<StressBand, string> = {
+  low: 'Low',
+  medium: 'Med',
+  high: 'High',
+};
+
+// ─── Props ────────────────────────────────────────────────────────────────────
+
 interface SemesterTileProps {
   semester: Semester;
   courseIds: string[];
@@ -55,7 +78,70 @@ interface SemesterTileProps {
   slackLabel?: string | null;
   /** Per-semester credit-hour cap from the user's selected load tolerance. Defaults to 18. */
   creditHourCap?: number;
+  /** Stress Score result for this semester (TASK-059). Null while loading. */
+  stressResult?: SemesterStressResult | null;
   onClick: () => void;
+}
+
+// ─── Stress badge (TASK-059) ──────────────────────────────────────────────────
+
+function StressBadge({ stressResult }: { stressResult: SemesterStressResult }) {
+  const { score, band, courses, coursesWithData, totalCourses } = stressResult;
+  const badgeClasses = STRESS_BAND_BADGE[band];
+  const bandLabel = STRESS_BAND_LABEL[band];
+
+  // Build the tooltip content
+  const coverageText =
+    coursesWithData === totalCourses
+      ? `${totalCourses} courses with data`
+      : `${coursesWithData}/${totalCourses} courses with data`;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span
+          className={cn(
+            'inline-flex items-center gap-0.5 px-1 py-0 rounded text-[9px] font-semibold leading-4 shrink-0 cursor-default',
+            badgeClasses,
+          )}
+          aria-label={`Stress: ${bandLabel} (${score}/100)`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span>{bandLabel}</span>
+          <span className="font-mono opacity-80">{score}</span>
+        </span>
+      </TooltipTrigger>
+      <TooltipContent
+        side="right"
+        className="max-w-[200px] p-2 text-[11px] leading-tight"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-col gap-1">
+          <div className="font-semibold text-[11px]">
+            Stress Score: {score}/100 ({bandLabel})
+          </div>
+          <div className="text-muted-foreground text-[10px]">{coverageText}</div>
+          <div className="flex flex-col gap-0.5 mt-0.5">
+            {courses
+              .filter((c) => c.creditHours > 0)
+              .map((c) => (
+                <div key={c.courseId} className="flex items-center justify-between gap-2">
+                  <span className={cn('font-mono truncate max-w-[120px]', c.hasNoData && 'opacity-60')}>
+                    {c.courseId}{c.hasNoData ? '*' : ''}
+                  </span>
+                  <span className="tabular-nums">{c.difficulty}</span>
+                </div>
+              ))}
+          </div>
+          {coursesWithData < totalCourses && (
+            <div className="text-muted-foreground text-[9px] mt-0.5 italic">
+              * no grade data — using neutral default (50)
+            </div>
+          )}
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 // ─── Course chip ──────────────────────────────────────────────────────────────
@@ -91,6 +177,7 @@ export default function SemesterTile({
   isFocused,
   slackLabel = null,
   creditHourCap = 18,
+  stressResult = null,
   onClick,
 }: SemesterTileProps) {
   const { id, label, status, season } = semester;
@@ -214,6 +301,11 @@ export default function SemesterTile({
             </span>
           )}
         </div>
+
+        {/* Stress Score badge (TASK-059) */}
+        {stressResult !== null && courseIds.length > 0 && (
+          <StressBadge stressResult={stressResult} />
+        )}
 
         {/* Course chips */}
         {courseIds.length === 0 ? (
