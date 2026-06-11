@@ -24,6 +24,7 @@ export function inferCategory(
   courseId: string,
   prereqNodes: Record<string, PrereqNode>
 ): CourseCategory {
+  if (typeof courseId !== 'string' || !courseId) return 'elective';
   const prefix = courseId.split(' ')[0];
 
   // Math courses by prefix (M 427J, M 325K, etc.)
@@ -184,6 +185,7 @@ export function getCourseCredits(
   prereqNodes: Record<string, PrereqNode>,
   transcriptCredits?: Record<string, number>
 ): number {
+  if (typeof courseId !== 'string' || !courseId) return 3;
   if (transcriptCredits?.[courseId] !== undefined) return transcriptCredits[courseId];
   if (CREDIT_OVERRIDES[courseId] !== undefined) return CREDIT_OVERRIDES[courseId];
   const catalogEntry = catalog?.[courseId];

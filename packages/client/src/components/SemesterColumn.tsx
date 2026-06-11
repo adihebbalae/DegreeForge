@@ -95,9 +95,9 @@ function SeasonIcon({ season }: { season: 'Fall' | 'Spring' | 'Summer' }) {
 
 // ─── Credit-count color ────────────────────────────────────────────────────────
 
-function creditCountClass(credits: number): string {
-  if (credits > 18) return 'text-red-500 font-semibold';
-  if (credits === 18) return 'text-yellow-500 font-semibold';
+function creditCountClass(credits: number, cap: number): string {
+  if (credits > cap) return 'text-red-500 font-semibold';
+  if (credits === cap) return 'text-yellow-500 font-semibold';
   return 'text-green-600 dark:text-green-400';
 }
 
@@ -136,6 +136,8 @@ interface SemesterColumnProps {
   ghostCourseIds?: string[];
   onAcceptGhost?: (courseId: string, semesterId: string) => void;
   onRejectGhost?: (courseId: string) => void;
+  /** Per-semester credit-hour cap from the user's selected load tolerance. Defaults to 17. */
+  creditHourCap?: number;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -156,6 +158,7 @@ export default function SemesterColumn({
   ghostCourseIds = [],
   onAcceptGhost,
   onRejectGhost,
+  creditHourCap = 17,
 }: SemesterColumnProps) {
   const { id, label, status, season } = semester;
   const isPast = status === 'past';
@@ -267,8 +270,8 @@ export default function SemesterColumn({
 
           {/* Credit count & optional GPA */}
           <div className="flex items-center justify-between">
-            <span className={cn('text-[11px]', creditCountClass(totalCredits))}>
-              {totalCredits} / 18 hrs
+            <span className={cn('text-[11px]', creditCountClass(totalCredits, creditHourCap))}>
+              {isPast ? `${totalCredits} hrs` : `${totalCredits} / ${creditHourCap} hrs`}
             </span>
             {estimatedGPA && (
               <span className="text-[10px] text-muted-foreground" title="Estimated GPA based on historical data">

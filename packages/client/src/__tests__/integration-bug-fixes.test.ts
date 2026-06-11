@@ -20,6 +20,7 @@ import { generateSchedules } from '../lib/scheduler';
 import { generateAutoPlan } from '../lib/auto-planner';
 import { getCreditHourCap } from '../lib/auto-planner';
 import { PrereqGraph } from '../lib/graph-engine';
+import { inferCategory, getCourseCredits } from '../lib/course-utils';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 import type {
@@ -524,5 +525,159 @@ describe('BUG 4 — getCreditHourCap canonical and legacy mappings', () => {
       );
       expect(semCredits).toBeLessThanOrEqual(15);
     }
+  });
+});
+
+// ─── FIX 1 — APPLY_WHAT_IF null + placeholder filter ──────────────────────────
+//
+// Root cause: solver emits null slots and `b.example` placeholder strings like
+// "any 2 UD math courses". WhatIfPanel dispatched these raw into plan state;
+// Zod rejected the null on reload and wiped the plan.
+//
+// Fix: before dispatching APPLY_WHAT_IF, filter every semesterId's array so only
+// tokens matching /^[A-Z]+ \d+\S*$/ survive. Dropped items are surfaced as a
+// "couldn't place" notice (same pattern as useRecommendPlan).
+//
+// These tests exercise the filter logic (extracted from the component) and verify
+// the reducer handles clean plan data.
+
+describe('FIX 1 — APPLY_WHAT_IF filters null and placeholder tokens', () => {
+  /** Mirror of the COURSE_CODE_RE / isValidCourseId logic in WhatIfPanel */
+  const COURSE_CODE_RE = /^[A-Z]+ \d+\S*$/;
+  function isValidCourseId(id: unknown): id is string {
+    return typeof id === 'string' && id.length > 0 && COURSE_CODE_RE.test(id);
+  }
+
+  function sanitisePlan(
+    rawPlan: Record<string, unknown[]>
+  ): { safePlan: Record<string, string[]>; dropped: unknown[] } {
+    const safePlan: Record<string, string[]> = {};
+    const dropped: unknown[] = [];
+    for (const [semId, ids] of Object.entries(rawPlan)) {
+      const valid = ids.filter(isValidCourseId);
+      const bad = ids.filter((id) => !isValidCourseId(id));
+      safePlan[semId] = valid;
+      dropped.push(...bad);
+    }
+    return { safePlan, dropped };
+  }
+
+  it('keeps valid course IDs and drops null', () => {
+    const raw = { 'Summer 2027': ['UGS 302', null, 'ECE 312'] };
+    const { safePlan, dropped } = sanitisePlan(raw as Record<string, unknown[]>);
+    expect(safePlan['Summer 2027']).toEqual(['UGS 302', 'ECE 312']);
+    expect(dropped).toContain(null);
+  });
+
+  it('drops placeholder strings ("any 2 UD math courses")', () => {
+    const raw = { 'Spring 2027': ['M 362K', 'any 2 UD math courses', 'M 325K'] };
+    const { safePlan, dropped } = sanitisePlan(raw as Record<string, unknown[]>);
+    expect(safePlan['Spring 2027']).toEqual(['M 362K', 'M 325K']);
+    expect(dropped).toContain('any 2 UD math courses');
+  });
+
+  it('drops undefined entries', () => {
+    const raw = { 'Fall 2026': ['ECE 460N', undefined, 'ECE 313'] };
+    const { safePlan, dropped } = sanitisePlan(raw as Record<string, unknown[]>);
+    expect(safePlan['Fall 2026']).toEqual(['ECE 460N', 'ECE 313']);
+    expect(dropped).toContain(undefined);
+  });
+
+  it('valid course IDs (including honors suffix) pass the filter', () => {
+    for (const id of ['ECE 312H', 'M 427J', 'ECE 460N', 'UGS 302', 'RHE 306']) {
+      expect(isValidCourseId(id)).toBe(true);
+    }
+  });
+
+  it('APPLY_WHAT_IF with a sanitised plan persists only valid course codes in reducer', () => {
+    // Simulate a solver output that contains placeholders + nulls
+    const dirtyPlan: Record<string, string[]> = {
+      'Fall 2026':   ['ECE 460N', 'ECE 313'],
+      'Summer 2027': ['UGS 302', 'any 2 UD math courses'],
+    };
+    // After filter: placeholders gone
+    const raw = dirtyPlan as Record<string, unknown[]>;
+    const { safePlan } = sanitisePlan(raw);
+
+    const after = planReducer(INITIAL_STATE, {
+      type: 'APPLY_WHAT_IF',
+      newPlan: safePlan,
+    });
+
+    // Plan state must contain ONLY valid course IDs — no placeholders
+    for (const courses of Object.values(after.plan)) {
+      for (const id of courses) {
+        expect(typeof id).toBe('string');
+        expect(COURSE_CODE_RE.test(id)).toBe(true);
+      }
+    }
+    expect(after.plan['Summer 2027']).toEqual(['UGS 302']);
+  });
+});
+
+// ─── FIX 2 — inferCategory + getCourseCredits null / empty guard ──────────────
+//
+// Root cause: courseId.split(' ') throws on null; inferCategory and getCourseCredits
+// were unguarded entry points for solver-emitted nulls/placeholders.
+//
+// Fix: guard at top of each function: `if (typeof courseId !== 'string' || !courseId) …`
+//   inferCategory → returns 'elective' (neutral)
+//   getCourseCredits → returns 3 (neutral default)
+
+describe('FIX 2 — inferCategory and getCourseCredits handle null / empty safely', () => {
+  it('inferCategory(null) returns neutral "elective" without throwing', () => {
+    expect(() => inferCategory(null as unknown as string, {})).not.toThrow();
+    expect(inferCategory(null as unknown as string, {})).toBe('elective');
+  });
+
+  it('inferCategory("") returns neutral "elective" without throwing', () => {
+    expect(() => inferCategory('', {})).not.toThrow();
+    expect(inferCategory('', {})).toBe('elective');
+  });
+
+  it('getCourseCredits(null) returns 3 without throwing', () => {
+    expect(() => getCourseCredits(null as unknown as string, null, {})).not.toThrow();
+    expect(getCourseCredits(null as unknown as string, null, {})).toBe(3);
+  });
+
+  it('getCourseCredits("") returns 3 without throwing', () => {
+    expect(getCourseCredits('', null, {})).toBe(3);
+  });
+
+  it('inferCategory still works correctly for valid ECE course', () => {
+    expect(inferCategory('ECE 302', {})).toBe('ece_core');
+  });
+});
+
+// ─── FIX 3 — credit cap consistency: heavy profile → 19 everywhere ────────────
+//
+// Root cause: SemesterColumn hardcoded /18; SemesterTile defaulted to 18;
+// OverviewYearGrid read raw userProfile not effectiveProfile.
+// Fix: getCreditHourCap(effectiveProfile) is the single source; all components
+// receive the cap via props.
+
+describe('FIX 3 — getCreditHourCap used consistently for heavy/light profiles', () => {
+  it('heavy profile → 19 cap', () => {
+    const heavyProfile = {
+      ...profile,
+      preferences: { ...profile.preferences, course_load_tolerance: 'heavy' as const },
+    };
+    expect(getCreditHourCap(heavyProfile)).toBe(19);
+  });
+
+  it('light profile → 15 cap', () => {
+    const lightProfile = {
+      ...profile,
+      preferences: { ...profile.preferences, course_load_tolerance: 'light' as const },
+    };
+    expect(getCreditHourCap(lightProfile)).toBe(15);
+  });
+
+  it('normal profile → 17 cap', () => {
+    const normalProfile = {
+      ...profile,
+      preferences: { ...profile.preferences, course_load_tolerance: 'normal' as const },
+    };
+    expect(getCreditHourCap(normalProfile)).toBe(17);
   });
 });

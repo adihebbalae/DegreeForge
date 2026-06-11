@@ -190,7 +190,6 @@ export function computeProgress(
   
   const electiveHours = unique
     .filter((courseId) => {
-      if (!courseId) return false;
       const prefix = courseId.split(' ')[0];
       const numStr = courseId.split(' ')[1];
       const num = parseInt(numStr);

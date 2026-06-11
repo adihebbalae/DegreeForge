@@ -176,7 +176,7 @@ export default function SemesterTile({
   transcriptCredits,
   isFocused,
   slackLabel = null,
-  creditHourCap = 18,
+  creditHourCap = 17,
   stressResult = null,
   onClick,
 }: SemesterTileProps) {
@@ -286,7 +286,7 @@ export default function SemesterTile({
             !isPast && totalCredits === creditHourCap ? 'text-yellow-500 font-semibold' :
             'text-muted-foreground'
           )}>
-            {totalCredits}/{creditHourCap} hrs
+            {isPast ? `${totalCredits} hrs` : `${totalCredits}/${creditHourCap} hrs`}
           </span>
           {slackLabel && (
             <span

@@ -28,8 +28,10 @@ import {
 } from '@/context/DataContext';
 import SemesterColumn from './SemesterColumn';
 import { buildTermLoadCredits } from '@/lib/course-utils';
+import { getCreditHourCap } from '@/lib/auto-planner';
 import { useValidation } from '@/hooks/useValidation';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
+import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 import type { PrereqNode } from '@/types';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -45,10 +47,15 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
   const semesters = useSemesters();
   const plan = usePlan();
   const userProfile = useUserProfile();
+  const effectiveProfile = useEffectiveProfile();
   const catalog = useCatalogRecord();
   const rawPrereqGraph = useRawPrereqGraph();
   const gradeDistributions = useGradeDistributions();
   const dispatch = usePlanDispatch();
+
+  // Derive credit-hour cap from the effective profile (respects Settings tolerance override).
+  // Falls back to 17 (normal load) while profile is loading.
+  const creditHourCap = effectiveProfile ? getCreditHourCap(effectiveProfile) : 17;
 
   const { violationsByCourse } = useValidation();
   const hoveredCourse = useHoveredCourse();
@@ -169,6 +176,7 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
               ghostCourseIds={ghostCourses[sem.id] ?? []}
               onAcceptGhost={handleAcceptGhost}
               onRejectGhost={handleRejectGhost}
+              creditHourCap={creditHourCap}
             />
           </div>
         ))}

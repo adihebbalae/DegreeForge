@@ -13,6 +13,8 @@ import { useValidation } from '@/hooks/useValidation';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { useEffect, useRef, useCallback } from 'react';
 import { buildTranscriptCredits } from '@/lib/course-utils';
+import { getCreditHourCap } from '@/lib/auto-planner';
+import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -20,7 +22,11 @@ export default function TimelineGrid() {
   const semesters = useSemesters();
   const plan = usePlan();
   const userProfile = useUserProfile();
+  const effectiveProfile = useEffectiveProfile();
   const catalog = useCatalogRecord();
+
+  // Derive credit-hour cap from the effective profile (respects Settings tolerance override).
+  const creditHourCap = effectiveProfile ? getCreditHourCap(effectiveProfile) : 17;
   const rawPrereqGraph = useRawPrereqGraph();
   const gradeDistributions = useGradeDistributions();
   const loading = useDataLoading();
@@ -134,6 +140,7 @@ export default function TimelineGrid() {
                 ghostCourseIds={ghostCourses[semester.id] ?? []}
                 onAcceptGhost={handleAcceptGhost}
                 onRejectGhost={handleRejectGhost}
+                creditHourCap={creditHourCap}
               />
             </div>
           );
