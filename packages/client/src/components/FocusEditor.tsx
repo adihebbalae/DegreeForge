@@ -27,7 +27,7 @@ import {
   useGradeDistributions,
 } from '@/context/DataContext';
 import SemesterColumn from './SemesterColumn';
-import { buildTranscriptCredits } from '@/lib/course-utils';
+import { buildTermLoadCredits } from '@/lib/course-utils';
 import { useValidation } from '@/hooks/useValidation';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import type { PrereqNode } from '@/types';
@@ -59,8 +59,11 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
 
   const prereqNodes: Record<string, PrereqNode> = rawPrereqGraph?.nodes ?? {};
 
+  // Term-load credits: AP/transfer/credit_by_exam mapped to 0 so they don't
+  // inflate the semester's "N/cap hrs" display. Degree progress still counts
+  // all sources (handled in progress.ts via buildTranscriptCredits).
   const transcriptCredits = useMemo(
-    () => buildTranscriptCredits(userProfile),
+    () => buildTermLoadCredits(userProfile),
     [userProfile]
   );
 

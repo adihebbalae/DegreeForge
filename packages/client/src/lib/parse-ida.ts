@@ -1,6 +1,7 @@
 // TODO(TASK-044): hardened against a representative IDA format only — needs a real UT IDA export to finalize field-order/section-header coverage.
 
 import type { ParsedCourse } from './agent-tools/parse-transcript';
+import type { CreditSource } from '../types';
 
 export type { ParsedCourse };
 
@@ -86,6 +87,27 @@ function extractTitle(line: string, codeEnd: number): string {
 }
 
 /**
+ * Infer a CreditSource from the grade token and IDA line text.
+ *
+ * Heuristics (best-effort — IDA format varies):
+ *   - grade "TR"/"TRANSFER" or line contains "TRANSFER" → 'transfer'
+ *   - grade "AP" or line contains "AP EXAM"/"ADV PLACEMENT"/"ADVANCED PLACEMENT" → 'ap'
+ *   - grade "CBE"/"EXAM" or line contains "CREDIT BY EXAM"/"CLEP" → 'credit_by_exam'
+ *   - otherwise → 'in_residence' (default; most IDA lines are in-residence courses)
+ *
+ * This is a best-effort heuristic — the IDA format was not designed for machine
+ * parsing and real exports may use different tokens. When in doubt, 'in_residence'
+ * is the safe default (it may cause a slight over-count but never under-count load).
+ */
+function inferIdaCreditSource(grade: string, normalisedLine: string): CreditSource {
+  const upper = normalisedLine.toUpperCase();
+  if (grade === 'TR' || upper.includes('TRANSFER')) return 'transfer';
+  if (grade === 'AP' || upper.includes('AP EXAM') || upper.includes('ADV PLACEMENT') || upper.includes('ADVANCED PLACEMENT')) return 'ap';
+  if (grade === 'CBE' || grade === 'EXAM' || upper.includes('CREDIT BY EXAM') || upper.includes('CLEP')) return 'credit_by_exam';
+  return 'in_residence';
+}
+
+/**
  * Parses pasted plain text from a UT Austin Interactive Degree Audit (IDA)
  * into an array of ParsedCourse objects.
  *
@@ -95,6 +117,7 @@ function extractTitle(line: string, codeEnd: number): string {
  * - "E E" department prefix is normalised to "ECE".
  * - Term abbreviations (FA/SP/SUM + year) are normalised to
  *   "Fall YYYY" / "Spring YYYY" / "Summer YYYY".
+ * - Source field set by best-effort heuristic (see inferIdaCreditSource).
  */
 export function parseIdaAudit(text: string): ParsedCourse[] {
   const lines = text.split('\n');
@@ -135,7 +158,7 @@ export function parseIdaAudit(text: string): ParsedCourse[] {
 
     const title = extractTitle(normalised, codeEnd);
 
-    results.push({ courseId, title, grade, semester, creditHours });
+    results.push({ courseId, title, grade, semester, creditHours, source: inferIdaCreditSource(grade, normalised) });
   }
 
   return results;

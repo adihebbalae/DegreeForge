@@ -3,6 +3,13 @@ import type { UserProfile } from '../types';
 
 // ─── Sub-schemas ───────────────────────────────────────────────────────────────
 
+/**
+ * Valid credit-source values. Default 'in_residence' ensures legacy profiles
+ * (data without this field) parse correctly and behave as before — all
+ * completed courses count toward term load, same as before this field existed.
+ */
+const creditSourceSchema = z.enum(['in_residence', 'ap', 'transfer', 'credit_by_exam']).default('in_residence');
+
 const completedCourseSchema = z.object({
   course: z.string(),
   title: z.string(),
@@ -11,6 +18,8 @@ const completedCourseSchema = z.object({
   type: z.string(),
   credit_hours: z.number().min(0).max(18),
   notes: z.string().optional(),
+  // Default 'in_residence' so legacy stored profiles load without breaking.
+  source: creditSourceSchema,
 });
 
 const inProgressCourseSchema = z.object({
