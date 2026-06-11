@@ -153,16 +153,18 @@ describe('fetchWithCookie', () => {
     ).rejects.toThrow(AuthFailureError);
   });
 
-  it('sends the Cookie header to the fetch call', async () => {
+  it('sends the Cookie header to every fetch call', async () => {
     const html = loadFixture('fall-2026-fixture.html');
     const mockFetch = makeMockFetch(html);
 
     await fetchWithCookie(FALL_2026, 'E E', FAKE_COOKIE, mockFetch);
 
-    expect(mockFetch).toHaveBeenCalledOnce();
-    const callArgs = (mockFetch as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
-    const headers = callArgs[1].headers as Record<string, string>;
-    expect(headers['Cookie']).toBe(FAKE_COOKIE);
+    // No level → 3 fetches (L, U, G); cookie must appear in all
+    expect((mockFetch as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThan(0);
+    for (const call of (mockFetch as ReturnType<typeof vi.fn>).mock.calls as [string, RequestInit][]) {
+      const headers = call[1].headers as Record<string, string>;
+      expect(headers['Cookie']).toBe(FAKE_COOKIE);
+    }
   });
 
   it('sends only to utexas.edu (rejects other domains in URL construction)', () => {
@@ -207,28 +209,37 @@ describe('fetchWithCookie', () => {
     ).rejects.toThrow(/HTTP 401/);
   });
 
-  it('(level flag) omits level param when no level is passed', async () => {
+  it('(level flag) loops L/U/G when no level is passed (3 fetches total)', async () => {
     const html = loadFixture('fall-2026-fixture.html');
     const mockFetch = makeMockFetch(html);
 
     await fetchWithCookie(FALL_2026, 'E E', FAKE_COOKIE, mockFetch);
 
-    const callArgs = (mockFetch as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
-    const calledUrl = callArgs[0];
-    expect(calledUrl).not.toContain('level=');
-    expect(calledUrl).toContain('&search=Search');
+    // No level arg → fetches L, U, and G separately
+    expect(mockFetch).toHaveBeenCalledTimes(3);
+    const calls = (mockFetch as ReturnType<typeof vi.fn>).mock.calls as [string, RequestInit][];
+    const urls = calls.map((c) => c[0]);
+    expect(urls[0]).toContain('level=L');
+    expect(urls[1]).toContain('level=U');
+    expect(urls[2]).toContain('level=G');
+    // All URLs use the correct search_type_main=FIELD parameter
+    for (const url of urls) {
+      expect(url).toContain('search_type_main=FIELD');
+    }
   });
 
-  it('(level flag) includes &level=<code> when a level is passed', async () => {
+  it('(level flag) fetches only the specified level when --level is passed', async () => {
     const html = loadFixture('fall-2026-fixture.html');
     const mockFetch = makeMockFetch(html);
 
     await fetchWithCookie(FALL_2026, 'E E', FAKE_COOKIE, mockFetch, 'G');
 
+    // Explicit level → single fetch
+    expect(mockFetch).toHaveBeenCalledTimes(1);
     const callArgs = (mockFetch as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
     const calledUrl = callArgs[0];
-    expect(calledUrl).toContain('&level=G');
-    expect(calledUrl).toContain('&search=Search');
+    expect(calledUrl).toContain('level=G');
+    expect(calledUrl).toContain('search_type_main=FIELD');
   });
 });
 

@@ -2,19 +2,38 @@
  * Parse UT registrar course-schedule HTML into the existing FallSections
  * schema. Uses cheerio for DOM traversal — no headless browser, no JS exec.
  *
- * Target structure: each course on the registrar results page appears as a
- * <table> (or grouped <tr> block) whose rows include labeled cells like
- *   <td>Unique:</td><td>18310</td>
- *   <td>Days:</td><td>MW</td>
- *   <td>Hour:</td><td>9:00 a.m.-10:30 a.m.</td>
- *   <td>Room:</td><td>EER 1.516</td>
- *   <td>Instructor:</td><td>Shankar, S</td>
+ * Real page layout (verified against live fall-2026 samples):
  *
- * The exact wrapping markup has changed multiple times in the past five
- * years, so this parser intentionally scans all <td> / <th> cells with
- * label-suffix matching ("Unique:", "Days:", etc.) and re-assembles records
- * keyed off `Unique:` cells. This is more forgiving than xpath against any
- * single layout revision.
+ *   <table class="rwd-table results">
+ *     <thead>
+ *       <tr>
+ *         <th>Unique</th><th>Day</th><th>Hour</th><th>Room</th>
+ *         <th>Instruction Mode</th><th>Instructor</th><th>Status</th>
+ *         <th></th><th>Core</th>
+ *       </tr>
+ *     </thead>
+ *     <tbody>
+ *       <!-- Course header row -->
+ *       <tr>
+ *         <td class="course_header" colspan="8"><h2>ECE  422C SOFTWR DESIGN/IMPLEMENTATN II</h2></td>
+ *       </tr>
+ *       <!-- Section row (one per unique number) -->
+ *       <tr>
+ *         <td data-th="Unique"><a href="..." title="Unique number">18685</a></td>
+ *         <td data-th="Days"><span>TTH</span><br><span class="second-row">TH</span><br></td>
+ *         <td data-th="Hour"><span>12:30 p.m.-2:00 p.m.</span><br><span class="second-row">11:00 a.m.-12:30 p.m.</span><br></td>
+ *         <td data-th="Room"><span>EER 1.516</span><br><span class="second-row">EER 0.818</span><br></td>
+ *         <td data-th="Instruction Mode">Face-to-face</td>
+ *         <td data-th="Instructor"><span>THOMAZ, EDISON JR</span><br></td>
+ *         <td data-th="Status">waitlisted</td>
+ *         <td data-th="Add">...</td>
+ *         <td data-th="Core"><div class="core_block"><ul class="core"><li class="C1" ...>Communication</li></ul></div></td>
+ *       </tr>
+ *     </tbody>
+ *   </table>
+ *
+ * Multi-meeting sections: the Days/Hour/Room cells each contain multiple
+ * <span> children (one per meeting slot). Slots are paired by index.
  */
 
 import * as cheerio from 'cheerio';
@@ -53,114 +72,56 @@ export interface FallSections {
 /**
  * Cheap check before parsing: does this HTML look like a registrar schedule
  * results page at all, or is it (a) an EID login redirect, (b) an empty
- * results page, (c) something completely unrelated?
+ * search form with no result rows?
  *
  * Returns null when the HTML looks parseable; otherwise a human-readable
  * reason the caller should surface and abort.
+ *
+ * Detection strategy for genuine results vs empty form:
+ *   - Login: page title / body contains "ut eid login" or "utlogin"
+ *   - Empty form (no search submitted yet): has <select name="fos_fl"> but
+ *     NO <a title="Unique number"> links — the form page returns course data
+ *     only after a query is submitted with search_type_main=FIELD
+ *   - Valid results: contains at least one <a title="Unique number"> link
  */
 export function detectNonScheduleHtml(html: string): string | null {
   const head = html.slice(0, 4000).toLowerCase();
   if (head.includes('ut eid login') || head.includes('utlogin')) {
     return 'Page is the UT EID login redirect. Log in to UT in your browser, save the results page, and pass it with --source.';
   }
-  if (!html.toLowerCase().includes('unique:')) {
-    return 'No "Unique:" labels found in the HTML. Either the page is empty or UT has changed the schedule layout.';
+  if (!html.includes('title="Unique number"')) {
+    return 'No sections found in the HTML. Either the page is the empty search form (missing search_type_main=FIELD), the query returned no results, or UT has changed the schedule layout.';
   }
   return null;
 }
 
-// ─── Cell-pair extraction ────────────────────────────────────────────────────
+// ─── Course-id normalization ─────────────────────────────────────────────────
 
 /**
- * Walk the DOM in document order and yield (label, value) pairs, where label
- * is the text of a cell ending in ":" and value is the text of the very next
- * sibling-or-descendant text cell.
- *
- * Course-header rows (e.g. "ECE 302 INTRO ELECTRICAL ENGINEERING") are
- * surfaced as a synthetic label "__course__" so the caller can use them as
- * section-group anchors.
+ * Normalize the raw course-id token extracted from the page.
+ * The registrar uses "E E" (with a space) for ECE; real pages now show "ECE"
+ * but old fixtures and "E E" dept codes must still be accepted.
+ * Also collapses multiple internal spaces (e.g. "ECE  422C" → "ECE 422C").
  */
-interface LabelledPair {
-  label: string;
-  value: string;
+function normalizeCourseId(raw: string): string {
+  return raw
+    .replace(/^E\s+E\s+/i, 'ECE ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 }
 
-const LABEL_PATTERN = /^(Unique|Days|Hour|Room|Instruction Mode|Instructor|Status|Core|Flags):\s*$/i;
+// ─── Row-based parser ────────────────────────────────────────────────────────
 
-const COURSE_HEADER_PATTERN = /^((?:ECE|E\s*E|M)\s+\d+\w?(?:H)?)\s+(.+?)$/;
-
-function extractPairs(html: string): LabelledPair[] {
-  const $ = cheerio.load(html);
-
-  // Registrar pages are table-based: each row contributes one or two text
-  // cells (a label cell ending in ":" and a value cell, or a single header
-  // cell like "ECE 302 INTRO ELECTRICAL ENGINEERING"). Collecting `td,th`
-  // text via `.text()` is the most layout-stable signal — it survives nested
-  // <b>, <a>, <span> wrappers.
-  const cells: string[] = [];
-  $('td, th').each((_, el) => {
-    const text = $(el).text().replace(/\s+/g, ' ').trim();
-    if (text.length > 0 && text.length < 400) {
-      cells.push(text);
-    }
-  });
-
-  const pairs: LabelledPair[] = [];
-  for (let i = 0; i < cells.length; i++) {
-    const t = cells[i];
-
-    // Course header (no label): "ECE 302 INTRO ELECTRICAL ENGINEERING"
-    const courseHit = COURSE_HEADER_PATTERN.exec(t);
-    if (courseHit) {
-      pairs.push({
-        label: '__course__',
-        value: `${courseHit[1].replace(/\s+/g, ' ').replace(/^E\s*E\s/i, 'ECE ')} ${courseHit[2].trim()}`,
-      });
-      continue;
-    }
-
-    // Labeled pair: "Unique:" cell followed by its value cell
-    const labelHit = LABEL_PATTERN.exec(t);
-    if (labelHit && i + 1 < cells.length) {
-      const valueText = cells[i + 1];
-      if (!LABEL_PATTERN.test(valueText) && !COURSE_HEADER_PATTERN.test(valueText)) {
-        pairs.push({ label: labelHit[1].trim(), value: valueText });
-        i++; // consume the value cell
-      }
-    }
-  }
-
-  return pairs;
-}
-
-// ─── Pair-stream → FallSections assembly ─────────────────────────────────────
-
-function blankSection(unique: number): CourseSection {
-  return {
-    unique,
-    meetings: [],
-    instruction_mode: '',
-    instructor: '',
-    status: '',
-    core: '',
-  };
-}
-
-function pushMeeting(
-  section: CourseSection,
-  field: 'days' | 'time' | 'room',
-  value: string
-): void {
-  // Each new "Days:" / "Hour:" / "Room:" starts a fresh meeting slot if the
-  // current one already has that field. Otherwise fill in the open slot.
-  const last = section.meetings[section.meetings.length - 1];
-  const target =
-    !last || (field === 'days' && last.days) || (field === 'time' && last.time) || (field === 'room' && last.room)
-      ? (section.meetings[section.meetings.push({ time: '' }) - 1] as SectionMeeting)
-      : last;
-  if (field === 'days') target.days = value;
-  if (field === 'time') target.time = value;
-  if (field === 'room') target.room = value;
+/**
+ * Extract the text of each <span> child of a cell, filtering empty strings.
+ * Used for Days / Hour / Room cells that contain one span per meeting slot.
+ */
+function spanTexts($: cheerio.CheerioAPI, cell: cheerio.Element): string[] {
+  return $(cell)
+    .find('span')
+    .map((_, el) => $(el).text().trim())
+    .get()
+    .filter((t) => t.length > 0);
 }
 
 export function parseRegistrarHtml(html: string, term: ParsedTerm, sourceLabel: string): FallSections {
@@ -169,7 +130,7 @@ export function parseRegistrarHtml(html: string, term: ParsedTerm, sourceLabel: 
     throw new Error(`Cannot parse HTML: ${reason}`);
   }
 
-  const pairs = extractPairs(html);
+  const $ = cheerio.load(html);
 
   const out: FallSections = {
     semester: term.label,
@@ -179,73 +140,102 @@ export function parseRegistrarHtml(html: string, term: ParsedTerm, sourceLabel: 
   };
 
   let currentCourse: CourseSections | null = null;
-  let currentSection: CourseSection | null = null;
 
-  const commitSection = () => {
-    if (currentCourse && currentSection) {
-      // Drop empty placeholder meetings the assembler may have created
-      currentSection.meetings = currentSection.meetings.filter(
-        (m) => m.time || m.days || m.room
-      );
-      currentCourse.sections.push(currentSection);
-    }
-    currentSection = null;
-  };
+  // Process every <tr> inside the results table body.
+  // The table may not exist in fixture HTML that uses the old label-pair
+  // format, so we fall back to scanning all <tr> in the document.
+  const rows = $('table.results tbody tr, table tbody tr').toArray();
 
-  for (const { label, value } of pairs) {
-    if (label === '__course__') {
-      commitSection();
-      const headerMatch = /^(\S+\s+\S+)\s+(.+)$/.exec(value);
-      if (!headerMatch) continue;
-      const courseId = headerMatch[1];
-      const title = headerMatch[2];
-      if (!out.courses[courseId]) {
-        out.courses[courseId] = { course: courseId, title, sections: [] };
+  for (const row of rows) {
+    const $row = $(row);
+
+    // ── Course header row ────────────────────────────────────────────────────
+    const headerCell = $row.find('td.course_header h2');
+    if (headerCell.length > 0) {
+      const raw = headerCell.text().replace(/\s+/g, ' ').trim();
+      // Format: "ECE  422C SOFTWR DESIGN/IMPLEMENTATN II" (after space-collapse: "ECE 422C TITLE")
+      // Also handles legacy "E E 302 TITLE" format (two-token dept code).
+      // Pattern: (dept num) TITLE, where dept is either "E E" or a single word,
+      // and num is an alphanumeric course number.
+      const m = /^((?:E\s+E|[A-Z]+)\s+\d+\w*)\s+(.+)$/.exec(raw);
+      if (m) {
+        const courseId = normalizeCourseId(`${m[1]}`);
+        const title = m[2].trim();
+        if (!out.courses[courseId]) {
+          out.courses[courseId] = { course: courseId, title, sections: [] };
+        }
+        currentCourse = out.courses[courseId];
       }
-      currentCourse = out.courses[courseId];
       continue;
     }
 
     if (!currentCourse) continue;
 
-    if (label === 'Unique') {
-      commitSection();
-      const n = Number(value.replace(/\D/g, ''));
-      if (Number.isFinite(n) && n > 0) {
-        currentSection = blankSection(n);
+    // ── Section row ──────────────────────────────────────────────────────────
+    // Unique number: <td data-th="Unique"><a title="Unique number">18685</a></td>
+    const uniqueAnchor = $row.find('a[title="Unique number"]');
+    if (uniqueAnchor.length === 0) continue;
+
+    const uniqueNum = Number(uniqueAnchor.text().trim());
+    if (!Number.isFinite(uniqueNum) || uniqueNum <= 0) continue;
+
+    // Days / Hour / Room: each cell may have multiple <span> children,
+    // one per meeting slot. Pair them by index.
+    const daysCell = $row.find('td[data-th="Days"]');
+    const hourCell = $row.find('td[data-th="Hour"]');
+    const roomCell = $row.find('td[data-th="Room"]');
+
+    const daysList = spanTexts($, daysCell[0]);
+    const hourList = spanTexts($, hourCell[0]);
+    const roomList = spanTexts($, roomCell[0]);
+
+    const slotCount = Math.max(daysList.length, hourList.length, roomList.length);
+    const meetings: SectionMeeting[] = [];
+
+    if (slotCount === 0) {
+      // Section with no scheduled meeting (e.g. correspondence / independent)
+      // — emit a placeholder meeting with empty time so schema is intact.
+    } else {
+      for (let i = 0; i < slotCount; i++) {
+        const time = hourList[i] ?? '';
+        const days = daysList[i];
+        const room = roomList[i];
+        const meeting: SectionMeeting = { time };
+        if (days) meeting.days = days;
+        if (room) meeting.room = room;
+        meetings.push(meeting);
       }
-      continue;
     }
 
-    if (!currentSection) continue;
+    // Instruction Mode
+    const instrMode = $row.find('td[data-th="Instruction Mode"]').text().trim();
 
-    switch (label) {
-      case 'Days':
-        pushMeeting(currentSection, 'days', value);
-        break;
-      case 'Hour':
-        pushMeeting(currentSection, 'time', value);
-        break;
-      case 'Room':
-        pushMeeting(currentSection, 'room', value);
-        break;
-      case 'Instruction Mode':
-        currentSection.instruction_mode = value;
-        break;
-      case 'Instructor':
-        currentSection.instructor = value;
-        break;
-      case 'Status':
-        currentSection.status = value.toLowerCase();
-        break;
-      case 'Core':
-      case 'Flags':
-        currentSection.core = value;
-        break;
-    }
+    // Instructor: may have multiple spans; join with ", "
+    const instructorSpans = $row.find('td[data-th="Instructor"] span');
+    const instructor = instructorSpans.length > 0
+      ? instructorSpans.map((_, el) => $(el).text().trim()).get().filter(Boolean).join(', ')
+      : $row.find('td[data-th="Instructor"]').text().trim();
+
+    // Status
+    const status = $row.find('td[data-th="Status"]').text().trim().toLowerCase();
+
+    // Core: text content of <li> elements inside core_block
+    const coreItems = $row.find('td[data-th="Core"] .core li');
+    const core = coreItems.length > 0
+      ? coreItems.map((_, el) => $(el).text().trim()).get().filter(Boolean).join('; ')
+      : '';
+
+    const section: CourseSection = {
+      unique: uniqueNum,
+      meetings,
+      instruction_mode: instrMode,
+      instructor,
+      status,
+      core,
+    };
+
+    currentCourse.sections.push(section);
   }
-
-  commitSection();
 
   // Drop courses that ended up with zero sections (parser noise)
   for (const [id, c] of Object.entries(out.courses)) {
