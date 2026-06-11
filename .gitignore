@@ -56,6 +56,11 @@ Thumbs.db
 _dev/
 
 # =========================
+# DegreeForge — UT session cookie (TASK-053 opt-in auth scrape)
+# NEVER commit these — they contain your personal EID session
+scripts/sections/.ut-session
+*.ut-session
+
 # DegreeForge Data Pipeline
 # =========================
 # Large data sources (not needed in git — reproducible via scripts)
