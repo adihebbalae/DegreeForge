@@ -17,7 +17,7 @@ import type {
   DegreeRequirements,
 } from '../types';
 import { PrereqGraph } from './graph-engine';
-import { expandVariants, isInPriorSemester, isInSameOrPriorSemester, addWithVariants } from './variants';
+import { expandVariants, isInSameOrPriorSemester, addWithVariants } from './variants';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -189,23 +189,31 @@ export function generatePlan(input: SolverInput): SolverOutput {
   const unplacedCourses: string[] = [];
 
   /**
-   * Check if all prerequisites are satisfied before a given semester index.
-   * "Before" means completed (with variant expansion) OR placed in an earlier
-   * semester (also checked with variant expansion when degreeReqs is provided).
+   * Build the set of courses available strictly before `semesterIndex`.
+   * Includes variant-expanded completed courses PLUS courses placed in earlier
+   * semesters of the current plan.  This set is passed to the graph's CNF
+   * evaluator so OR-group logic and equivalence resolution are handled there.
+   */
+  function buildBeforeSet(semesterIndex: number): Set<string> {
+    const before = new Set<string>(completedSet);
+    for (let i = 0; i < semesterIndex; i++) {
+      for (const c of plan[semesters[i].id] ?? []) {
+        before.add(c);
+        // Also add variants so isRequirementSatisfied inside the graph can match
+        for (const v of variants(c)) before.add(v);
+      }
+    }
+    return before;
+  }
+
+  /**
+   * Check if all CNF prereq groups are satisfied before a given semester index.
+   * Delegates entirely to graph-engine's getUnsatisfiedPrereqGroups so the solver
+   * and diagnostics share the same OR-group evaluation — they can never diverge.
    */
   function prereqsSatisfied(courseId: string, semesterIndex: number): boolean {
-    const prereqs = prereqGraph.getPrereqs(courseId);
-    if (prereqs.length === 0) return true;
-
-    for (const prereq of prereqs) {
-      // Satisfied if already completed (variant-expanded when degreeReqs present)
-      if (completedSet.has(prereq)) continue;
-
-      // Satisfied if placed in an earlier semester (variant-aware when degreeReqs present)
-      const foundInPlan = isInPriorSemester(prereq, semesterIndex, semesters, plan, variants);
-      if (!foundInPlan) return false;
-    }
-    return true;
+    const before = buildBeforeSet(semesterIndex);
+    return prereqGraph.getUnsatisfiedPrereqGroups(courseId, before).length === 0;
   }
 
   /**
