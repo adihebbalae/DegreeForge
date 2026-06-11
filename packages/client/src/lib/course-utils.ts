@@ -213,5 +213,6 @@ export function getCourseTitle(
   catalog: CourseCatalog | null,
   prereqNodes: Record<string, PrereqNode>
 ): string {
+  if (typeof courseId !== 'string' || !courseId) return '';
   return catalog?.[courseId]?.title ?? prereqNodes[courseId]?.title ?? courseId;
 }

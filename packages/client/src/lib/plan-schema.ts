@@ -3,6 +3,7 @@ import type { PlanState } from '../types';
 import type { SnapshotState } from '../context/PlanContext.constants';
 import type { SettingsState } from '../context/SettingsContext';
 import { DEFAULT_ENABLED_TOOLS } from './agent-tools/registry';
+import { isValidCourseId } from './sanitize-course-list';
 
 const semesterSchema = z.object({
   id: z.string(),
@@ -25,9 +26,21 @@ const whatIfSchema = z.object({
 // This also makes result.data already typed as T, removing the need for
 // `as T` casts in the parse helpers below.
 
+/**
+ * Tolerant course-list schema: accepts any array, silently drops non-string
+ * and invalid-code entries so a single corrupted course never kills the whole plan.
+ * This implements the "best-effort recover" requirement (TASK-061-A acceptance #5).
+ */
+const tolerantCourseListSchema = z
+  .unknown()
+  .transform((val): string[] => {
+    if (!Array.isArray(val)) return [];
+    return val.filter(isValidCourseId);
+  });
+
 const planStateSchema: z.ZodType<PlanState> = z.object({
   semesters: z.array(semesterSchema),
-  plan: z.record(z.string(), z.array(z.string())),
+  plan: z.record(z.string(), tolerantCourseListSchema),
   pinnedCourses: z.array(z.string()).default([]),
   hoveredCourse: z.string().nullable().default(null),
   whatIf: whatIfSchema.default({ techCoreId: '', mathBAToggle: false, isActive: false }),

@@ -190,9 +190,14 @@ export function computeProgress(
   
   const electiveHours = unique
     .filter((courseId) => {
-      const prefix = courseId.split(' ')[0];
-      const numStr = courseId.split(' ')[1];
-      const num = parseInt(numStr);
+      // Render-boundary guard: skip null/undefined/non-string tokens defensively.
+      if (typeof courseId !== 'string' || !courseId) return false;
+      const parts = courseId.split(' ');
+      const prefix = parts[0];
+      const numStr = parts[1];
+      if (!numStr) return false;
+      const num = parseInt(numStr, 10);
+      if (isNaN(num)) return false;
 
       const isEce = prefix === 'ECE';
       const isAdvanced = num >= 320;

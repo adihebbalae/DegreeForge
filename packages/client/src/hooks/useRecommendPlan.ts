@@ -11,6 +11,7 @@ import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 import { usePlanDispatch, useTechCoreId, useMathBAToggle, useSemesters, usePlan } from '@/context/PlanContext';
 import { generateAutoPlan } from '@/lib/auto-planner';
+import { sanitizePlan } from '@/lib/sanitize-course-list';
 import type { NoticeProps } from '@/components/ui/notice';
 import type { ConfirmDialogProps } from '@/components/ui/confirm-dialog';
 
@@ -70,11 +71,15 @@ export function useRecommendPlan(): RecommendPlanResult {
       currentPlan: plan,
     });
 
-    dispatch({ type: 'SET_PLAN', plan: result.plan });
+    // Layer A: sanitize solver output before dispatching so invalid tokens
+    // are surfaced to the user here and never enter plan state silently.
+    const { safePlan, dropped } = sanitizePlan(result.plan as Record<string, unknown[]>);
+    dispatch({ type: 'SET_PLAN', plan: safePlan });
 
     const msgs: string[] = [];
-    if (result.unplacedCourses.length > 0) {
-      msgs.push(`${result.unplacedCourses.length} course${result.unplacedCourses.length === 1 ? '' : 's'} could not be placed: ${result.unplacedCourses.join(', ')}`);
+    const allUnplaced = [...result.unplacedCourses, ...dropped.filter((t) => t !== null && t !== undefined)];
+    if (allUnplaced.length > 0) {
+      msgs.push(`${allUnplaced.length} course${allUnplaced.length === 1 ? '' : 's'} could not be placed: ${allUnplaced.join(', ')}`);
     }
     if (result.warnings.length > 0) {
       msgs.push(result.warnings.join(' — '));

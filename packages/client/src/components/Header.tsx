@@ -10,6 +10,7 @@ import { useUi } from '@/context/UiContext'
 import { useRecommendPlan } from '@/hooks/useRecommendPlan'
 import { parsePlanState } from '@/lib/plan-schema'
 import { parseProfileState } from '@/lib/profile-schema'
+import { sanitizePlan } from '@/lib/sanitize-course-list'
 import { useOwnedProfile, useProfileDispatch } from '@/context/ProfileContext'
 import type { UserProfile } from '@/types'
 import SemesterTransitionDialog from './SemesterTransitionDialog'
@@ -101,7 +102,15 @@ export default function Header() {
           return
         }
 
-        dispatch({ type: 'SET_FULL_STATE', state: validated })
+        // Layer A: sanitize imported plan course arrays so any invalid tokens in
+        // the JSON file are dropped and surfaced rather than entering plan state.
+        const { safePlan, dropped: importDropped } = sanitizePlan(validated.plan as Record<string, unknown[]>)
+        const sanitizedState = { ...validated, plan: safePlan }
+        if (importDropped.length > 0) {
+          console.warn('[Import] dropped invalid course tokens:', importDropped)
+        }
+
+        dispatch({ type: 'SET_FULL_STATE', state: sanitizedState })
 
         // If a v2 bundle, attempt to restore the profile. A malformed profile
         // is non-fatal: skip and keep the plan import.

@@ -65,9 +65,20 @@ describe('parsePlanState', () => {
     expect(parsePlanState(bad)).toBeNull();
   });
 
-  it('returns null when plan value is not an array', () => {
+  it('best-effort recovers: non-array plan value is coerced to empty array (TASK-061)', () => {
+    // The tolerant course-list schema converts any non-array to [] rather than
+    // rejecting the whole plan — so a single corrupted semester never wipes everything.
     const bad = { semesters: [], plan: { 'Fall 2026': 'not-an-array' } };
-    expect(parsePlanState(bad)).toBeNull();
+    const result = parsePlanState(bad);
+    expect(result).not.toBeNull();
+    expect(result?.plan['Fall 2026']).toEqual([]);
+  });
+
+  it('best-effort recovers: null entries in plan array are stripped (TASK-061)', () => {
+    const withNulls = { semesters: [], plan: { 'Fall 2026': ['ECE 302', null, 'ECE 306', 'any 2 UD math'] } };
+    const result = parsePlanState(withNulls as Record<string, unknown>);
+    expect(result).not.toBeNull();
+    expect(result?.plan['Fall 2026']).toEqual(['ECE 302', 'ECE 306']);
   });
 
   it('returns null when semesters is missing', () => {

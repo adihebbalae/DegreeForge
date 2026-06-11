@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, BookOpen } from 'lucide-react';
-import { PlannerErrorBoundary } from '@/components/PlannerErrorBoundary';
+import { PlannerErrorBoundary, RecoverableErrorBoundary } from '@/components/PlannerErrorBoundary';
 import {
   DndContext,
   DragOverlay,
@@ -298,7 +298,9 @@ export default function PlannerPage() {
             </Button>
           </div>
           <div className="flex-1 overflow-y-auto">
-            <ChatPanel />
+            <RecoverableErrorBoundary label="chat panel">
+              <ChatPanel />
+            </RecoverableErrorBoundary>
           </div>
         </aside>
 
@@ -315,7 +317,9 @@ export default function PlannerPage() {
           aria-label="What-If simulator panel"
           aria-hidden={!whatIfOpen}
         >
-          <WhatIfPanel onClose={() => setWhatIfOpen(false)} />
+          <RecoverableErrorBoundary label="what-if panel">
+            <WhatIfPanel onClose={() => setWhatIfOpen(false)} />
+          </RecoverableErrorBoundary>
         </aside>
 
         {/* ── Course palette slide-in drawer ───────────────────────────────── */}
