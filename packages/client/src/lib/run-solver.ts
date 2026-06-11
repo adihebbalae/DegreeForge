@@ -73,7 +73,9 @@ export function runSolver(params: RunSolverParams): SolverOutput {
     techCoreId,
     mathBAToggle,
     mathReqs,
-    profile
+    profile,
+    semesters,
+    plan
   );
 
   const pinnedCourses: Record<string, string> = {};

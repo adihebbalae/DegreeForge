@@ -71,7 +71,9 @@ export function useGhostPlan(): void {
       techCoreId,
       mathBA,
       mathReqs,
-      profile
+      profile,
+      semesters,
+      plan
     ).filter((id) => !rejectedGhosts.includes(id));
 
     const result = generatePlan({

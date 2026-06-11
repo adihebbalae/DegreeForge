@@ -18,9 +18,9 @@ import {
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 import { usePlan, useSemesters, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
-import { computeRequiredCourses, getCreditHourCap } from '@/lib/auto-planner';
+import { getCreditHourCap } from '@/lib/auto-planner';
+import { computeRemainingRequired, buildSatisfiedSet } from '@/lib/requirements';
 import { computeDiagnostics } from '@/lib/diagnostics';
-import { addWithVariants } from '@/lib/variants';
 import type { DiagnosticsResult } from '@/lib/diagnostics';
 
 /**
@@ -48,17 +48,9 @@ export function useDiagnostics(): DiagnosticsResult | null {
     const techCore = techCoresRecord[techCoreId];
     if (!techCore) return null;
 
-    // Build the variant-expanded satisfied set (same logic as generateAutoPlan)
-    const satisfied = new Set<string>();
-    for (const c of userProfile.completed_courses) addWithVariants(satisfied, c.course, degreeReqs);
-    for (const c of userProfile.in_progress_courses) addWithVariants(satisfied, c.course, degreeReqs);
-    for (const sem of semesters) {
-      if (sem.status === 'past' || sem.status === 'current') {
-        for (const c of plan[sem.id] ?? []) addWithVariants(satisfied, c, degreeReqs);
-      }
-    }
+    const satisfied = buildSatisfiedSet(userProfile, degreeReqs, semesters, plan);
 
-    const { required: remainingRequired } = computeRequiredCourses(
+    const { required: remainingRequired } = computeRemainingRequired(
       degreeReqs,
       techCore,
       mathReqs,
