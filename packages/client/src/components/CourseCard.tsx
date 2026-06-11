@@ -93,15 +93,19 @@ export default function CourseCard({
   const isPast = semesterStatus === 'past';
   const prereqDimmed = isPalette && !prereqsMet;
 
-  // Violation styles
-  const isPrereqViolation = violation?.violationType === 'prereq' || violation?.violationType === 'both';
-  const isCoreqViolation = violation?.violationType === 'coreq';
+  // Violation styles — TASK-057 past-term fade:
+  // isSoftWarning = course is in a past semester; show info badge, not hard error.
+  const isSoftWarning = violation?.isSoftWarning === true;
+  const isPrereqViolation = !isSoftWarning && (violation?.violationType === 'prereq' || violation?.violationType === 'both');
+  const isCoreqViolation = !isSoftWarning && violation?.violationType === 'coreq';
 
-  const violationBorder = isPrereqViolation
-    ? 'border-l-4 border-l-red-500 ring-1 ring-red-400'
-    : isCoreqViolation
-      ? 'border-l-4 border-l-amber-500 ring-1 ring-amber-400'
-      : '';
+  const violationBorder = isSoftWarning
+    ? 'border-l-4 border-l-blue-400 ring-1 ring-blue-300'
+    : isPrereqViolation
+      ? 'border-l-4 border-l-red-500 ring-1 ring-red-400'
+      : isCoreqViolation
+        ? 'border-l-4 border-l-amber-500 ring-1 ring-amber-400'
+        : '';
 
   // TASK-024: upstream / downstream chain highlight
   const highlightClass = isDownstreamHighlight
@@ -287,13 +291,13 @@ export default function CourseCard({
         </button>
       )}
 
-      {/* Prereq warning icon */}
+      {/* Prereq warning / soft info icon — TASK-057 past-term fade */}
       {violation && (
         <span className={cn(
           "absolute bottom-1 right-1 text-[10px] font-bold",
-          isPrereqViolation ? "text-red-500" : "text-amber-500"
+          isSoftWarning ? "text-blue-400" : isPrereqViolation ? "text-red-500" : "text-amber-500"
         )}>
-          ⚠
+          {isSoftWarning ? 'ℹ' : '⚠'}
         </span>
       )}
 
@@ -328,8 +332,27 @@ export default function CourseCard({
                   Removing {courseId} delays graduation by {graduationDelay} semester{graduationDelay !== 1 ? 's' : ''}.
                 </p>
               )}
-              {/* Prereq / coreq violations */}
-              {violation && (
+              {/* Prereq / coreq violations — TASK-057 past-term fade */}
+              {violation && isSoftWarning && (
+                <div className="space-y-1">
+                  <p className="font-semibold text-[11px] text-blue-500 uppercase tracking-wider">
+                    Prereq not on record (past semester)
+                  </p>
+                  {violation.missingPrereqs.length > 0 && (
+                    <>
+                      {violation.missingPrereqs.map((p) => (
+                        <p key={p} className="text-[11px] leading-tight flex gap-1.5 text-muted-foreground">
+                          <span className="shrink-0">•</span> {p} — taken elsewhere or equivalent?
+                        </p>
+                      ))}
+                    </>
+                  )}
+                  <p className="text-[10px] text-muted-foreground italic mt-1">
+                    This course is in a past semester. If you took the prerequisite under a different number or transferred credit, this warning is expected.
+                  </p>
+                </div>
+              )}
+              {violation && !isSoftWarning && (
                 <>
                   {violation.missingPrereqs.length > 0 && (
                     <div className="space-y-1">

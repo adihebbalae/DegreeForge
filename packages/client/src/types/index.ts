@@ -414,7 +414,29 @@ export interface PrereqViolation {
   /** Corequisites not placed in same or earlier semester */
   unsatisfiedCoreqs: string[];
   violationType: 'prereq' | 'coreq' | 'both';
+  /**
+   * When true, the course is in a past-status semester; the violation is shown
+   * as a soft informational badge ("taken — prereq not on record") rather than
+   * a hard red error. Computed in useValidation by checking semester.status.
+   */
+  isSoftWarning?: boolean;
 }
+
+/**
+ * A single OR-group: the requirement is satisfied if ANY member course is satisfied.
+ * Used in CNF prereq logic: `all_of: [ one_of: [...] ]` means every group must be met.
+ */
+export interface PrereqGroup {
+  /** At least one of these course IDs (after canonicalization) must be satisfied. */
+  one_of: string[];
+}
+
+/**
+ * Explicit CNF prereq structure for a course.
+ * Stored as an augmentation layer over the flat edge list.
+ * Key = target course ID; value = array of groups that ALL must be satisfied.
+ */
+export type PrereqCNF = Record<string, PrereqGroup[]>;
 
 // ─── Plan State ──────────────────────────────────────────────────────────────
 export type SemesterId = string; // e.g. "Fall 2025", "Spring 2026"

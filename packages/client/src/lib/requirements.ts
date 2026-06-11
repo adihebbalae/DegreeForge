@@ -18,32 +18,92 @@ import type {
 import { isTechCorePickOne } from '../types';
 import { LEGACY_TO_CANONICAL } from './catalog-rename';
 
-// ─── Honors variant mapping ──────────────────────────────────────────────────
-// Old course number → honors replacement (what Adi actually takes)
-// AND new catalog number → honors replacement
-const HONORS_EQUIVALENTS: Record<string, string[]> = {
-  'ECE 302':  ['ECE 302H'],
-  'ECE 402':  ['ECE 302', 'ECE 302H'],   // 402 is 2026 catalog version of 302
-  'ECE 306':  ['ECE 306H'],
-  'ECE 406':  ['ECE 306', 'ECE 306H'],
-  'ECE 312':  ['ECE 312H'],
-  'ECE 412':  ['ECE 312', 'ECE 312H'],
-  'ECE 319K': ['ECE 319H'],
-  'ECE 419K': ['ECE 319K', 'ECE 319H'],
-};
+// ─── Unified equivalence map ─────────────────────────────────────────────────
+//
+// Three original sources merged into one:
+//   1. Honors variants (HONORS_EQUIVALENTS): ECE 306 ≡ ECE 306H
+//   2. Legacy catalog renames (LEGACY_TO_CANONICAL): ECE 302 ≡ ECE 402
+//   3. ECE/BME cross-lists: ECE 306 ≡ BME 306, ECE 333T ≡ BME 333T, etc.
+//
+// Structure: canonical (or representative) course → all equivalent course IDs
+// (including itself and any variant). Any course in the completed set that maps
+// to the same equivalence class satisfies the requirement.
+//
+// The map is intentionally bidirectional: if A→[B,C], then B→[A,C] and C→[A,B]
+// are generated at module load time so callers don't need to know the canonical form.
+
+const EQUIVALENCE_GROUPS: string[][] = [
+  // ECE 302 family (intro EE + 2026 rename)
+  ['ECE 302', 'ECE 302H', 'ECE 402'],
+  // ECE 306 / BME 306 family (intro computing + honors + cross-list)
+  ['ECE 306', 'ECE 306H', 'BME 306', 'ECE 406'],
+  // ECE 312 family (software design + honors + 2026 rename)
+  ['ECE 312', 'ECE 312H', 'ECE 412'],
+  // ECE 319K / ECE 319H family (embedded + 2026 rename)
+  ['ECE 319K', 'ECE 319H', 'ECE 419K'],
+  // ECE 333T / BME 333T family (technical communication cross-list)
+  ['ECE 333T', 'BME 333T'],
+  // BME 311 / ECE equivalent (circuits cross-list, used as 311 prereq in data)
+  ['BME 311', 'ECE 311'],
+  // BME 343 / ECE 351K cross-list (signals and systems)
+  ['BME 343', 'ECE 351K'],
+  // BME 335 cross-list (used as equiv of ECE 335K in some edges)
+  ['BME 335', 'ECE 335K'],
+];
+
+/**
+ * Flat lookup: course ID → Set of all course IDs that are equivalent to it
+ * (including itself). Built once at module load from EQUIVALENCE_GROUPS.
+ */
+export const EQUIVALENCE_MAP: ReadonlyMap<string, ReadonlySet<string>> = (() => {
+  const map = new Map<string, Set<string>>();
+  for (const group of EQUIVALENCE_GROUPS) {
+    const groupSet = new Set(group);
+    for (const id of group) {
+      // Merge with any existing set (handles overlap between groups if any)
+      const existing = map.get(id);
+      if (existing) {
+        for (const g of groupSet) existing.add(g);
+      } else {
+        map.set(id, new Set(groupSet));
+      }
+    }
+  }
+  return map;
+})();
+
+/**
+ * Canonicalize a course ID: resolve LEGACY_TO_CANONICAL renames first,
+ * then return the result. Used to normalize both the required and completed
+ * course IDs before equivalence checks.
+ *
+ * Note: for equivalence-group matching we use EQUIVALENCE_MAP directly
+ * (which already spans all variants); this function handles the rename layer
+ * that sits on top for display/requirement-list purposes.
+ */
+export function canonicalizeCourseId(courseId: string): string {
+  return LEGACY_TO_CANONICAL[courseId] ?? courseId;
+}
 
 /**
  * Check if a requirement is satisfied by any course in the completed set,
- * accounting for honors variants and old/new catalog number equivalences.
+ * accounting for honors variants, legacy catalog renames, and cross-listed
+ * equivalences (ECE/BME cross-lists).
+ *
+ * Called by: graph-engine.ts validatePlacement (AND semantics pre-TASK-057),
+ *            buildRemainingRequirements filter, auto-planner satisfied check.
  */
 export function isRequirementSatisfied(
   requiredCourse: string,
   completedSet: Set<string>
 ): boolean {
   if (completedSet.has(requiredCourse)) return true;
-  const equivalents = HONORS_EQUIVALENTS[requiredCourse];
+  // Check equivalence group: any equivalent course in completedSet satisfies the requirement
+  const equivalents = EQUIVALENCE_MAP.get(requiredCourse);
   if (equivalents) {
-    return equivalents.some((eq) => completedSet.has(eq));
+    for (const eq of equivalents) {
+      if (completedSet.has(eq)) return true;
+    }
   }
   return false;
 }
