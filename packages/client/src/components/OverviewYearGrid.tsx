@@ -86,7 +86,7 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
   // Use the same canonical effectiveProfile source as FocusEditor so overview and detail agree.
   const creditHourCap =
     diagnostics?.semesterSlack[0]?.cap ??
-    (effectiveProfile ? getCreditHourCap(effectiveProfile) : 17);
+    getCreditHourCap(effectiveProfile);
 
   // ── Group semesters into academic years ────────────────────────────────────
   // Result: Map<academicYear, Map<season, Semester>>

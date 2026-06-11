@@ -8,6 +8,7 @@ import CourseCard from './CourseCard';
 import type { Semester, CourseCatalog, PrereqNode, PrereqViolation, GradeDistributions } from '@/types';
 // TASK-024: workload heat stripe
 import { computeSemesterDifficulty, type HeatBucket } from '@/lib/workload';
+import { getCreditHourCap } from '@/lib/auto-planner';
 
 // ─── Sortable course card (timeline cards that can be dragged/reordered) ─────
 
@@ -136,7 +137,7 @@ interface SemesterColumnProps {
   ghostCourseIds?: string[];
   onAcceptGhost?: (courseId: string, semesterId: string) => void;
   onRejectGhost?: (courseId: string) => void;
-  /** Per-semester credit-hour cap from the user's selected load tolerance. Defaults to 17. */
+  /** Per-semester credit-hour cap from the user's selected load tolerance. Defaults to getCreditHourCap(null) (normal load). */
   creditHourCap?: number;
 }
 
@@ -158,7 +159,7 @@ export default function SemesterColumn({
   ghostCourseIds = [],
   onAcceptGhost,
   onRejectGhost,
-  creditHourCap = 17,
+  creditHourCap = getCreditHourCap(null),
 }: SemesterColumnProps) {
   const { id, label, status, season } = semester;
   const isPast = status === 'past';
