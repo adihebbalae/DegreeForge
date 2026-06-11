@@ -1,7 +1,12 @@
 # Section Data Pipeline
 
-Reproducible per-term section data for DegreeForge — no cookie scraping, no auth
-bypass, no UT Portal session tokens.
+Reproducible per-term section data for DegreeForge.
+
+> **Scope-rule override (user decision, 2026-06-11):** the original pipeline
+> forbade cookie-based scraping. The user has explicitly opted in to an
+> authenticated fetch path for automated per-term pulls. The manual-export
+> path is retained as a fallback and the cookie is **local-only** (never
+> committed, never logged raw). See "Authenticated fetch" below.
 
 ## TL;DR
 
@@ -9,15 +14,19 @@ bypass, no UT Portal session tokens.
 # Refresh fall 2026 from the existing repo snapshot (one-time migration)
 npm run fetch:sections -- fall-2026 --from-legacy
 
-# Attempt a public-HTML pull for a new term (best-effort, will likely 401 on protected pages)
+# Authenticated fetch for a new term (requires your UT session cookie)
+export UT_SESSION_COOKIE="SC=<paste your cookie here>"
 npm run fetch:sections -- spring-2027
 
-# Manual export → parse (the dependable path)
+# Manual export → parse (always-available fallback)
 #   1. Visit https://utdirect.utexas.edu/apps/registrar/course_schedule/20272/results/?fos_fl=E+E
 #      while logged in to your browser. Right-click → Save As → HTML.
 #   2. Drop the saved file at scripts/sections/raw/spring-2027/ece.html
 #   3. Re-run:
 npm run fetch:sections -- spring-2027 --source scripts/sections/raw/spring-2027/ece.html
+
+# After fetching one or more terms, aggregate offering patterns:
+npm run aggregate:offerings
 ```
 
 Outputs:
@@ -91,34 +100,76 @@ substitute for the section-detail records the scheduler needs.
 
 ## Chosen approach
 
-**Manual export + cheerio parse**, with two fallbacks:
+Three paths, in order of preference:
 
-1. **Primary path** — the human:
-   - Save the registrar's course-schedule HTML page to
-     `scripts/sections/raw/<term-slug>/<dept>.html` while logged into UT EID
-     **in your own browser**. (DegreeForge never touches your cookie jar.)
-   - Run `npm run fetch:sections -- <term-slug> --source <path>`
-   - The CLI parses the HTML with cheerio into the existing JSON schema and
-     writes `packages/client/public/data/<term-slug>.json`.
+1. **Authenticated fetch** (TASK-053 opt-in, user override) — when a session
+   cookie is present, the CLI sends it to `utdirect.utexas.edu` and parses
+   the full results page. The cookie is read **only** from `UT_SESSION_COOKIE`
+   env var or the gitignored file `scripts/sections/.ut-session`. It is never
+   logged raw, never committed, and never sent to any non-UT domain.
 
-2. **Public-HTML probe** — when no `--source` is given, the CLI fetches the
-   public registrar URL and tries to parse it. If the response is an auth
-   redirect (heuristic: contains `<title>UT EID Login` or no `Unique` cell),
-   the CLI aborts cleanly with instructions to use the manual flow.
+2. **Manual export** — save the page HTML from your logged-in browser and
+   pass it with `--source`. The always-available fallback that requires no
+   credential automation.
 
-3. **Legacy migration** — `--from-legacy` copies the pre-existing
-   `fall-2026-sections.json` snapshot into the new per-term layout without
-   re-fetching. Used once during the TASK-027 migration so the existing
-   scheduler/CourseDetailDialog keep working out of the gate.
+3. **Public-HTML probe** — when no `--source` and no cookie is present, the
+   CLI fetches the public URL. Will usually get a CAS redirect and abort with
+   instructions.
 
-## Why not just scrape with a saved cookie?
+4. **Legacy migration** — `--from-legacy` copies the pre-existing
+   `fall-2026-sections.json` snapshot. Used once during the TASK-027 migration.
 
-That was the explicit scope rule and it's correct. UT's terms of service
-prohibit credential sharing, and the project doesn't want to ship a tool that
-encourages either (a) checking a cookie into the repo or (b) running a
-headless-browser auth flow that's one CAPTCHA away from breakage. The manual-
-export path is honest about the trade-off: you authenticate as yourself, in
-your own browser, once per term.
+## Authenticated fetch — how it works and the trade-offs
+
+**Opt-in override (2026-06-11):** the original no-cookie rule was overridden
+by the user. The mechanism is a server-side (Node script) fetch that sends your
+personal EID session cookie to `utdirect.utexas.edu` over HTTPS. UTRP uses the
+same endpoint via a browser extension (`credentials: include`) — this is the
+server-side adaptation.
+
+**Security guardrails (non-negotiable):**
+- Cookie read ONLY from `UT_SESSION_COOKIE` env var or the gitignored file
+  `scripts/sections/.ut-session`. Both paths are in `.gitignore`. Never
+  hardcoded, never committed.
+- Cookie value is ALWAYS masked in log output (`ABCD...[redacted]`).
+- Cookie is sent ONLY to `*.utexas.edu` over HTTPS. The code refuses any
+  non-UT URL.
+- No password handling. Cookie-paste only (avoids the CAPTCHA/credential-store
+  problem of headless EID login).
+- Requests are sequential with a polite delay between terms; abort on first
+  auth failure.
+
+**On auth failure:** if the registrar responds with a CAS-login redirect or
+no `Unique` cells (cookie expired), the script aborts with a re-paste message.
+Session cookies from UT typically last a few hours. Get a fresh one from
+DevTools → Network → any `utdirect.utexas.edu` request → Request Headers →
+`Cookie` value.
+
+**Circle-back clause:** if the live run hits UT resistance (rate-limit,
+CAPTCHA, ToS enforcement, cookie too short-lived), stop and reassess with the
+user. The manual-export path is the safety net and nothing is lost.
+
+## Offering aggregation
+
+After fetching one or more terms, run:
+
+```bash
+npm run aggregate:offerings
+```
+
+This reads every `fall-YYYY.json`, `spring-YYYY.json`, `summer-YYYY.json` in
+`packages/client/public/data/` and derives `offered_semesters` for each course
+from the observed terms (a course in a fall file → "fall", in a summer file →
+"summer", etc.). It then merges into `offering-schedule.json`:
+
+- **Observed entries** (from scraped data) — `offered_semesters` updated;
+  `provenance: "observed"`.
+- **Curated-only entries** (hand-authored, not yet scraped) — kept exactly
+  as-is; `provenance: "curated"`. Existing 76-course coverage is never
+  regressed.
+
+The summer-offering gap (currently 0 summer courses in `offering-schedule.json`)
+is closed as soon as you fetch and aggregate a summer term file.
 
 ## Output schema
 
@@ -161,23 +212,58 @@ The CLI handles the slug ↔ code conversion in `lib/term-codes.ts`.
 ## Files in this directory
 
 - `README.md` — this file
-- `fetch-term.ts` — CLI entry point (`npm run fetch:sections`)
+- `fetch-term.ts` — CLI entry point (`npm run fetch:sections`); includes the
+  authenticated fetch path added in TASK-053
+- `aggregate-offerings.ts` — offering-pattern aggregation (`npm run aggregate:offerings`)
 - `lib/term-codes.ts` — term-slug ↔ UT semester-code mapping
 - `lib/parse-html.ts` — cheerio-based parser for registrar HTML
 - `lib/parse-legacy.ts` — pass-through for the existing fall-2026 snapshot
 - `lib/write-index.ts` — updates `sections-index.json` after each successful run
 - `raw/` — drop-zone for manually exported HTML files (gitignored)
+- `.ut-session` — gitignored file for your UT session cookie (NEVER commit this)
 
 ## Running each semester
 
-1. As soon as UT publishes the next term's schedule (typically ~6 weeks before
-   registration opens), log into UT EID in your browser.
-2. Navigate to the relevant department(s):
+### Authenticated path (fastest)
+
+1. Log into UT EID in your browser.
+2. Open DevTools → Network → navigate to
+   `https://utdirect.utexas.edu/apps/registrar/course_schedule/<semcode>/results/?fos_fl=E+E&level=L&search=Search`
+3. In DevTools Network tab, click the request and copy the full `Cookie:` header
+   value (it starts with `SC=`).
+4. Set the cookie:
+   ```bash
+   # Option A: env var (current shell session only — preferred)
+   export UT_SESSION_COOKIE="SC=<paste here>"
+
+   # Option B: gitignored file (persists across sessions)
+   echo "SC=<paste here>" > scripts/sections/.ut-session
+   ```
+5. Fetch the term:
+   ```bash
+   npm run fetch:sections -- spring-2027
+   ```
+6. Aggregate offering patterns:
+   ```bash
+   npm run aggregate:offerings
+   ```
+7. Commit `packages/client/public/data/<term-slug>.json`, the updated
+   `sections-index.json`, and the updated `offering-schedule.json`.
+
+### Manual-export fallback
+
+1. As soon as UT publishes the next term's schedule (~6 weeks before registration
+   opens), log into UT EID in your browser.
+2. Navigate to:
    `https://utdirect.utexas.edu/apps/registrar/course_schedule/<semcode>/results/?fos_fl=E+E&level=L&search=Search`
 3. Save the resulting page as HTML to `scripts/sections/raw/<term-slug>/ece.html`.
-4. Run: `npm run fetch:sections -- <term-slug> --source scripts/sections/raw/<term-slug>/ece.html`
-5. Commit `packages/client/public/data/<term-slug>.json` and the updated
-   `sections-index.json`.
+4. Run:
+   ```bash
+   npm run fetch:sections -- <term-slug> --source scripts/sections/raw/<term-slug>/ece.html
+   npm run aggregate:offerings
+   ```
+5. Commit `packages/client/public/data/<term-slug>.json`, the updated
+   `sections-index.json`, and the updated `offering-schedule.json`.
 
 ## Limitations (honest notes)
 
