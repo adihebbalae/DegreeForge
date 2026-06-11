@@ -66,10 +66,17 @@ export interface SolverOutput {
  * Uses the `offered_semesters` array from offering-schedule.json.
  *
  * Rules:
- * - ["fall"] → only Fall semesters
- * - ["spring"] → only Spring semesters
- * - ["fall", "spring"] or empty/missing → any semester
- * - Summer: only if "summer" appears in offered_semesters (opt-in; no unconditional bypass)
+ * - Unknown course (not in schedule) → assume available (true)
+ * - Empty or missing offered_semesters → assume available (true)
+ * - ["fall"] → only Fall semesters (false for spring AND summer)
+ * - ["spring"] → only Spring semesters (false for fall AND summer)
+ * - ["fall", "spring"] → available in fall and spring, but NOT summer
+ * - Summer requires "summer" to appear explicitly in offered_semesters (opt-in only)
+ *
+ * The final `offeredSemesters.includes(season)` handles all cases correctly.
+ * The old "if fall+spring → always true" shortcut was redundant for fall/spring
+ * and WRONG for summer: it caused fall+spring-only courses (e.g. ECE 313) to be
+ * incorrectly treated as summer-placeable.
  *
  * Exported so auto-planner can use the same offering source (Behavior A unification).
  */
@@ -84,13 +91,7 @@ export function canOfferInSemester(
   const offeredSemesters = entry.offered_semesters;
   if (!offeredSemesters || offeredSemesters.length === 0) return true;
 
-  // If offered in both fall and spring, always available
-  if (offeredSemesters.includes('fall') && offeredSemesters.includes('spring')) {
-    return true;
-  }
-
   const season = semester.season.toLowerCase();
-
   return offeredSemesters.includes(season);
 }
 

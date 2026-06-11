@@ -279,17 +279,17 @@ describe('canOfferInSemester — H1 summer bypass removed', () => {
     expect(canOfferInSemester('ECE 302', fallSem, schedule)).toBe(true);
   });
 
-  it('course with fall+spring but NOT summer: summer → false (not bypass)', () => {
+  it('fall+spring course is NOT summer-placeable (ECE 313 regression)', () => {
+    // ECE 313 is offered in fall and spring only. The old code had an early-return
+    // `if (fall && spring) return true` which incorrectly made it summer-placeable.
+    // After removing that block the final `offeredSemesters.includes(season)` correctly
+    // returns false for summer because "summer" is not in the array.
     const schedule: OfferingSchedule = {
-      'ECE 312': { title: 'Software', offerings: {}, offered_semesters: ['fall', 'spring'] },
+      'ECE 313': { title: 'Linear Systems', offerings: {}, offered_semesters: ['fall', 'spring'] },
     };
-    // fall+spring → always available (existing rule for fall+spring only)
-    // This is the "always available" shortcut — but summer is NOT included
-    // since the shortcut only fires for fall+spring explicitly, and summer is
-    // excluded by the "not in offeredSemesters" check when offered_semesters has members.
-    // The "always available" rule: if offered in BOTH fall AND spring → return true for all.
-    // Summer should still be true here because fall+spring = "always available."
-    expect(canOfferInSemester('ECE 312', summerSem, schedule)).toBe(true);
+    expect(canOfferInSemester('ECE 313', summerSem, schedule)).toBe(false);
+    expect(canOfferInSemester('ECE 313', fallSem, schedule)).toBe(true);
+    expect(canOfferInSemester('ECE 313', springSem, schedule)).toBe(true);
   });
 
   it('unknown course (not in schedule): all seasons true (assume available)', () => {
