@@ -22,6 +22,7 @@ import DiagnosticsPanel from './DiagnosticsPanel';
 import { useDiagnostics } from '@/hooks/useDiagnostics';
 import { useStressScore } from '@/hooks/useStressScore';
 import { buildTermLoadCredits } from '@/lib/course-utils';
+import { getCreditHourCap } from '@/lib/auto-planner';
 import type { Semester } from '@/types';
 
 // ─── Academic-year key: "Fall 2025 → 2025", "Spring 2026 → 2025", "Summer 2026 → 2025"
@@ -80,7 +81,11 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
 
   // Credit-hour cap from diagnostics (reads from the first future semester's cap,
   // which reflects the user's selected load tolerance via useDiagnostics).
-  const creditHourCap = diagnostics?.semesterSlack[0]?.cap ?? 18;
+  // Prefer the cap from diagnostics (which reads the user's load tolerance setting);
+  // fall back to getCreditHourCap when profile is available, or the canonical default 17.
+  const creditHourCap =
+    diagnostics?.semesterSlack[0]?.cap ??
+    (userProfile ? getCreditHourCap(userProfile) : 17);
 
   // ── Group semesters into academic years ────────────────────────────────────
   // Result: Map<academicYear, Map<season, Semester>>

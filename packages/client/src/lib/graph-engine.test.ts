@@ -498,3 +498,64 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
     expect(g.validatePlacement('ECE 313H', 1, plan, ['Sem 1', 'Sem 2'])).toHaveLength(0);
   });
 });
+
+// ─── H2: M 411 satisfies M 340L coreq for ECE 313 ───────────────────────────
+// TASK-060: TRANSFER_EQUIVALENTS (M 411 → M 340L) must be honoured by
+// isRequirementSatisfied, which is called during coreq validation.
+// Prerequisites: ECE 411 + M 427J (both before semester).
+// Corequisite: M 340L — satisfied by M 411 (transfer equivalent).
+describe('H2: ECE 313 with M 411 variant satisfying M 340L coreq', () => {
+  it('no violation when M 411 is present (satisfies M 340L coreq)', () => {
+    const data: PrereqGraphData = {
+      nodes: {
+        'M 427J':   { title: 'Diff Eq', credits: 4, category: 'math', offered: ['fall', 'spring'], flags: [] },
+        'ECE 411':  { title: 'Circuits', credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+        'M 340L':   { title: 'Linear Algebra', credits: 3, category: 'math', offered: ['fall', 'spring'], flags: [] },
+        'M 411':    { title: 'Linear Algebra (transfer)', credits: 4, category: 'math', offered: ['fall', 'spring'], flags: [] },
+        'ECE 313':  { title: 'Linear Systems', credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+      },
+      edges: [
+        { from: 'M 427J',  to: 'ECE 313', type: 'prerequisite' },
+        { from: 'ECE 411', to: 'ECE 313', type: 'prerequisite' },
+        { from: 'M 340L',  to: 'ECE 313', type: 'corequisite' },
+        // NOTE: the duplicate prerequisite edge (M 340L → ECE 313 type:prerequisite)
+        // was removed from prerequisite-graph.json in TASK-060.
+      ],
+    };
+    // Use empty CNF so the flat prereq edges are evaluated as-is (single OR group each).
+    const g = new PrereqGraph(data, {});
+
+    // M 427J and ECE 411 are in semester 0 (before ECE 313 at index 1).
+    // M 411 is in semester 1 (same semester as ECE 313) — satisfies M 340L coreq.
+    const plan: Plan = {
+      'Sem 1': ['M 427J', 'ECE 411', 'M 411'],
+      'Sem 2': ['ECE 313'],
+    };
+    const violations = g.validatePlacement('ECE 313', 1, plan, ['Sem 1', 'Sem 2']);
+    expect(violations).toHaveLength(0);
+  });
+
+  it('violation when neither M 340L nor M 411 is present (coreq unmet)', () => {
+    const data: PrereqGraphData = {
+      nodes: {
+        'M 427J':  { title: 'Diff Eq', credits: 4, category: 'math', offered: ['fall', 'spring'], flags: [] },
+        'ECE 411': { title: 'Circuits', credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+        'M 340L':  { title: 'Linear Algebra', credits: 3, category: 'math', offered: ['fall', 'spring'], flags: [] },
+        'ECE 313': { title: 'Linear Systems', credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+      },
+      edges: [
+        { from: 'M 427J',  to: 'ECE 313', type: 'prerequisite' },
+        { from: 'ECE 411', to: 'ECE 313', type: 'prerequisite' },
+        { from: 'M 340L',  to: 'ECE 313', type: 'corequisite' },
+      ],
+    };
+    const g = new PrereqGraph(data, {});
+    const plan: Plan = {
+      'Sem 1': ['M 427J', 'ECE 411'],
+      'Sem 2': ['ECE 313'],
+    };
+    const violations = g.validatePlacement('ECE 313', 1, plan, ['Sem 1', 'Sem 2']);
+    expect(violations.length).toBeGreaterThan(0);
+    expect(violations[0].unsatisfiedCoreqs).toContain('M 340L');
+  });
+});

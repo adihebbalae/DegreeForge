@@ -16,6 +16,7 @@ import type {
   UserProfile,
 } from '../types';
 import { isTechCorePickOne } from '../types';
+import { TRANSFER_EQUIVALENTS } from './variants';
 // ─── Unified equivalence map ─────────────────────────────────────────────────
 //
 // Three original sources merged into one:
@@ -86,6 +87,12 @@ export function isRequirementSatisfied(
     for (const eq of equivalents) {
       if (completedSet.has(eq)) return true;
     }
+  }
+  // Check transfer equivalents (e.g. M 411 satisfies M 340L, M 508M satisfies M 408C/M 408D).
+  // Reverse-lookup: if requiredCourse appears in any TRANSFER_EQUIVALENTS value list,
+  // check whether the key (the transfer course) is in the completed set.
+  for (const [transferId, satisfies] of Object.entries(TRANSFER_EQUIVALENTS)) {
+    if (satisfies.includes(requiredCourse) && completedSet.has(transferId)) return true;
   }
   return false;
 }

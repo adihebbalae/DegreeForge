@@ -67,6 +67,7 @@ function memoSet(key: string, value: number): void {
  * Clamps to [200, 600] then normalises.
  */
 function courseLevel(courseId: string): number {
+  if (!courseId) return 0;
   const parts = courseId.split(' ');
   const rawNum = parts[1] ? parseInt(parts[1], 10) : NaN;
   if (isNaN(rawNum)) return 0.5; // neutral for unknown

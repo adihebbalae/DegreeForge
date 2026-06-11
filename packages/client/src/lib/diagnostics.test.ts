@@ -423,3 +423,70 @@ describe('computeDiagnostics (real ECE data)', () => {
     expect(ece360k!.whyItMatters).toMatch(/Spring-only/);
   });
 });
+
+// ─── H1: slack does not count summer semesters for fall-only courses ──────────
+// computeBottlenecks uses canOfferInSemester. After the summer bypass was removed
+// from solver.ts, a fall-only course must NOT count summer semesters as valid
+// offering slots. This test confirms slack=0 when the only remaining valid slot
+// is the current placement and no future falls are available after it.
+describe('H1: computeBottlenecks — summer semesters not counted for fall-only courses', () => {
+  it('fall-only course with summer between current and next fall: slack counts only falls', () => {
+    // Semester list: current fall (placed), then a summer, then a future fall.
+    // The course is placed in the current fall. With summer bypass removed,
+    // slack should be 1 (one future fall slot), not 2 (fall + summer).
+    const sems: Semester[] = [
+      { id: 'Fall 2026',   label: "Fall '26",   status: 'future', year: 2026, season: 'Fall'   },
+      { id: 'Summer 2027', label: "Sum '27",     status: 'future', year: 2027, season: 'Summer' },
+      { id: 'Fall 2027',   label: "Fall '27",    status: 'future', year: 2027, season: 'Fall'   },
+    ];
+
+    const fallOnlySchedule: OfferingSchedule = {
+      B: { title: 'Course B', offerings: {}, offered_semesters: ['fall'] },
+    };
+
+    // B is placed in Fall 2026. C depends on B (downstream), so B is a term-locked bottleneck.
+    // Remaining: B (fall-only), C (depends on B) — computeBottlenecks requires downstream
+    // required courses to flag a course as a bottleneck.
+    const plan: Plan = { 'Fall 2026': ['B'], 'Summer 2027': [], 'Fall 2027': [] };
+    const flags = computeBottlenecks(
+      ['B', 'C'],
+      plan,
+      sems,
+      PREREQ_GRAPH,
+      fallOnlySchedule,
+    );
+
+    const bFlag = flags.find((f) => f.courseId === 'B');
+    // With summer bypass removed: valid future semesters after Fall 2026 = [Fall 2027] only.
+    // Slack = 1 (one valid future fall remains after current placement).
+    expect(bFlag).toBeDefined();
+    expect(bFlag!.slack).toBe(1);
+  });
+});
+
+// ─── N1: computeSemesterSlack label format ────────────────────────────────────
+// The label must be "N hrs spare" (not "+N hrs spare").
+// SemesterTile prepends "+" and strips " hrs spare" to show "+N spare".
+describe('N1: computeSemesterSlack — label does not include "+" prefix', () => {
+  it('label is "N hrs spare" (no leading +)', () => {
+    const sems: Semester[] = [
+      { id: 'Fall 2026', label: "Fall '26", status: 'future', year: 2026, season: 'Fall' },
+    ];
+    const plan: Plan = { 'Fall 2026': ['A'] }; // A = 3 credits; cap 17 → spare 14
+    const slack = computeSemesterSlack(plan, sems, PREREQ_GRAPH, 17);
+    expect(slack).toHaveLength(1);
+    expect(slack[0].label).toBe('14 hrs spare');
+    expect(slack[0].label).not.toMatch(/^\+/);
+  });
+
+  it('label is "full" when placed hours equals cap', () => {
+    // Manually check: spare ≤ 0 → "full"
+    const sems: Semester[] = [
+      { id: 'Fall 2026', label: "Fall '26", status: 'future', year: 2026, season: 'Fall' },
+    ];
+    // Place more credits than cap: A+B+C+D+E+F = 18 = cap
+    const plan: Plan = { 'Fall 2026': ['A', 'B', 'C', 'D', 'E', 'F'] };
+    const slack = computeSemesterSlack(plan, sems, PREREQ_GRAPH, 18);
+    expect(slack[0].label).toBe('full');
+  });
+});

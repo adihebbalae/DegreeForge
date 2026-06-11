@@ -69,7 +69,7 @@ export interface SolverOutput {
  * - ["fall"] → only Fall semesters
  * - ["spring"] → only Spring semesters
  * - ["fall", "spring"] or empty/missing → any semester
- * - Summer semesters are allowed for courses offered "fall" or "spring" (lenient)
+ * - Summer: only if "summer" appears in offered_semesters (opt-in; no unconditional bypass)
  *
  * Exported so auto-planner can use the same offering source (Behavior A unification).
  */
@@ -90,9 +90,6 @@ export function canOfferInSemester(
   }
 
   const season = semester.season.toLowerCase();
-
-  // Summer → allow anything (lenient)
-  if (season === 'summer') return true;
 
   return offeredSemesters.includes(season);
 }

@@ -122,6 +122,46 @@ describe('buildTermLoadCredits', () => {
   });
 });
 
+// ─── H3: type-field detection (demo profile format) ─────────────────────────
+// The demo profile uses `type: "Transfer"` / `"Credit by exam"` with no `source`
+// field (or source defaulting to absent/in_residence). buildTermLoadCredits must
+// honour `type` as the authority when `source` is absent.
+describe('buildTermLoadCredits — H3 type-field detection', () => {
+  it('type="Transfer" with absent source → 0 term-load credit', () => {
+    const profile = makeProfile([
+      { course: 'M 411', title: 'Linear Algebra', grade: 'B', semester: 'Fall 2024', type: 'Transfer', credit_hours: 4 },
+    ]);
+    const map = buildTermLoadCredits(profile);
+    expect(map['M 411']).toBe(0);
+  });
+
+  it('type="Credit by exam" with absent source → 0 term-load credit', () => {
+    const profile = makeProfile([
+      { course: 'M 408C', title: 'Calc I', grade: 'CR', semester: 'Summer 2025', type: 'Credit by exam', credit_hours: 4 },
+    ]);
+    const map = buildTermLoadCredits(profile);
+    expect(map['M 408C']).toBe(0);
+  });
+
+  it('type="In residence" with absent source → full credit', () => {
+    const profile = makeProfile([
+      { course: 'ECE 302', title: 'Intro EE', grade: 'B+', semester: 'Fall 2025', type: 'In residence', credit_hours: 3 },
+    ]);
+    const map = buildTermLoadCredits(profile);
+    expect(map['ECE 302']).toBe(3);
+  });
+
+  it('buildTranscriptCredits still counts Transfer/exam courses for degree progress', () => {
+    const profile = makeProfile([
+      { course: 'M 411', title: 'Linear Algebra', grade: 'B', semester: 'Fall 2024', type: 'Transfer', credit_hours: 4 },
+      { course: 'M 408C', title: 'Calc I', grade: 'CR', semester: 'Summer 2025', type: 'Credit by exam', credit_hours: 4 },
+    ]);
+    const allCredits = buildTranscriptCredits(profile);
+    expect(allCredits['M 411']).toBe(4);
+    expect(allCredits['M 408C']).toBe(4);
+  });
+});
+
 // ─── buildTranscriptCredits (degree progress — unchanged behavior) ────────────
 
 describe('buildTranscriptCredits', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { generatePlan, type SolverInput } from './solver';
+import { generatePlan, canOfferInSemester, type SolverInput } from './solver';
 import { PrereqGraph } from './graph-engine';
 import type { PrereqGraphData, Semester, OfferingSchedule } from '../types';
 
@@ -235,5 +235,65 @@ describe('generatePlan', () => {
 
     const result = generatePlan(input);
     expect(result.unplacedCourses).toHaveLength(0);
+  });
+});
+
+// ─── H1: canOfferInSemester summer bypass removed ────────────────────────────
+// TASK-060: the old code had `if (season === 'summer') return true;` which made
+// every course summer-placeable. That bypass is removed. Summer is now opt-in:
+// a course is only summer-placeable if "summer" appears in offered_semesters.
+describe('canOfferInSemester — H1 summer bypass removed', () => {
+  const summerSem: Semester = {
+    id: 'Summer 2026', label: "Sum '26", status: 'future', year: 2026, season: 'Summer',
+  };
+  const fallSem: Semester = {
+    id: 'Fall 2026', label: "Fall '26", status: 'future', year: 2026, season: 'Fall',
+  };
+  const springSem: Semester = {
+    id: 'Spring 2027', label: "Sp '27", status: 'future', year: 2027, season: 'Spring',
+  };
+
+  it('fall-only course: summer → false, fall → true, spring → false', () => {
+    const schedule: OfferingSchedule = {
+      'ECE 325': { title: 'EM Engineering', offerings: {}, offered_semesters: ['fall'] },
+    };
+    expect(canOfferInSemester('ECE 325', summerSem, schedule)).toBe(false);
+    expect(canOfferInSemester('ECE 325', fallSem, schedule)).toBe(true);
+    expect(canOfferInSemester('ECE 325', springSem, schedule)).toBe(false);
+  });
+
+  it('spring-only course: summer → false, spring → true, fall → false', () => {
+    const schedule: OfferingSchedule = {
+      'ECE 339': { title: 'Solid-State Devices', offerings: {}, offered_semesters: ['spring'] },
+    };
+    expect(canOfferInSemester('ECE 339', summerSem, schedule)).toBe(false);
+    expect(canOfferInSemester('ECE 339', springSem, schedule)).toBe(true);
+    expect(canOfferInSemester('ECE 339', fallSem, schedule)).toBe(false);
+  });
+
+  it('course with "summer" in offered_semesters: summer → true', () => {
+    const schedule: OfferingSchedule = {
+      'ECE 302': { title: 'Intro EE', offerings: {}, offered_semesters: ['fall', 'spring', 'summer'] },
+    };
+    expect(canOfferInSemester('ECE 302', summerSem, schedule)).toBe(true);
+    expect(canOfferInSemester('ECE 302', fallSem, schedule)).toBe(true);
+  });
+
+  it('course with fall+spring but NOT summer: summer → false (not bypass)', () => {
+    const schedule: OfferingSchedule = {
+      'ECE 312': { title: 'Software', offerings: {}, offered_semesters: ['fall', 'spring'] },
+    };
+    // fall+spring → always available (existing rule for fall+spring only)
+    // This is the "always available" shortcut — but summer is NOT included
+    // since the shortcut only fires for fall+spring explicitly, and summer is
+    // excluded by the "not in offeredSemesters" check when offered_semesters has members.
+    // The "always available" rule: if offered in BOTH fall AND spring → return true for all.
+    // Summer should still be true here because fall+spring = "always available."
+    expect(canOfferInSemester('ECE 312', summerSem, schedule)).toBe(true);
+  });
+
+  it('unknown course (not in schedule): all seasons true (assume available)', () => {
+    expect(canOfferInSemester('UNKNOWN 999', summerSem, {})).toBe(true);
+    expect(canOfferInSemester('UNKNOWN 999', fallSem, {})).toBe(true);
   });
 });

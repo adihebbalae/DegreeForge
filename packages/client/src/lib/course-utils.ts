@@ -129,17 +129,40 @@ export function buildTranscriptCredits(
  *
  * In-progress courses always count toward load (they are taken this term).
  */
+/**
+ * Returns true when a completed course entry should NOT count toward per-semester
+ * term load (i.e. it was not physically taken in a UT residence semester).
+ *
+ * Checks BOTH `source` (API field used by some profiles) and `type` (field used by
+ * the demo profile — "Transfer", "Credit by exam", "AP"). Either one is sufficient
+ * to exclude the course from term-load counting. Degree-progress totals still
+ * count all sources (use buildTranscriptCredits for that).
+ */
+function isNonResidenceCourse(c: { source?: string; type?: string }): boolean {
+  const src = c.source ?? 'in_residence';
+  if (src !== 'in_residence') return true;
+
+  // The demo profile tags non-residence courses via `type` with `source`
+  // defaulting to its absent/undefined value treated as 'in_residence'.
+  const typ = (c.type ?? '').toLowerCase();
+  return (
+    typ === 'transfer' ||
+    typ === 'credit by exam' ||
+    typ === 'ap' ||
+    typ === 'advanced placement' ||
+    typ === 'dual enrollment'
+  );
+}
+
 export function buildTermLoadCredits(
   profile: UserProfile | null
 ): Record<string, number> {
   if (!profile) return {};
   const map: Record<string, number> = {};
   for (const c of profile.completed_courses ?? []) {
-    // Absent source → treat as 'in_residence' (backward-compatible default).
-    const src = c.source ?? 'in_residence';
-    // Non-residence credits map to 0 so getCourseCredits returns 0 for them,
-    // preventing them from inflating any semester's load total.
-    map[c.course] = src === 'in_residence' ? c.credit_hours : 0;
+    // Non-residence credits (transfer / AP / credit-by-exam) map to 0 so they
+    // don't inflate any semester's "N/cap hrs" term-load display.
+    map[c.course] = isNonResidenceCourse(c) ? 0 : c.credit_hours;
   }
   for (const c of profile.in_progress_courses ?? []) {
     map[c.course] = c.credit_hours;
