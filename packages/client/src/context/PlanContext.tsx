@@ -3,7 +3,6 @@ import type { PlanState, Semester, WhatIfState } from '../types';
 import {
   type PlanAction,
   type PlanContextValue,
-  type HistoryState,
   INITIAL_STATE,
   STORAGE_KEY,
   historyReducer,
@@ -12,9 +11,9 @@ import {
   type SnapshotState,
   type SnapshotAction,
   type PlanSnapshot,
-  reconcileSemesters,
+  hydratePlanState,
 } from './PlanContext.constants';
-import { parsePlanState, parseSnapshotState } from '../lib/plan-schema';
+import { parseSnapshotState } from '../lib/plan-schema';
 import { useSettings } from './SettingsContext';
 
 // ─── Re-export constants for backward compatibility ───────────────────────────
@@ -26,54 +25,11 @@ export type { PlanAction } from './PlanContext.constants';
 const PlanContext = createContext<PlanContextValue | null>(null);
 
 export function PlanProvider({ children }: { children: React.ReactNode }) {
-  const [historyState, dispatch] = useReducer(historyReducer, {
-    past: [],
-    present: INITIAL_STATE,
-    future: [],
-  }, (initial) => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-
-        // If it has present, it's the new HistoryState format.
-        // Validate through Zod before use: rejects malformed/tampered state and
-        // backfills fields added in later versions (e.g. ghostCourses) via per-field defaults.
-        if (parsed.present && parsed.present.semesters) {
-          const validated = parsePlanState(parsed.present);
-          if (validated) {
-            // Merge any canonical semesters missing from the persisted list (e.g.
-            // Summer terms added by TASK-051 for users whose state predates that change).
-            // Also backfill empty plan entries for newly-added semesters so the
-            // plan record stays coherent with the semesters list.
-            const reconciledSemesters = reconcileSemesters(validated.semesters);
-            const reconciledPlan = { ...validated.plan };
-            for (const sem of reconciledSemesters) {
-              if (!(sem.id in reconciledPlan)) reconciledPlan[sem.id] = [];
-            }
-            const reconciled = { ...validated, semesters: reconciledSemesters, plan: reconciledPlan };
-            return { ...initial, present: reconciled, past: [], future: [] };
-          }
-        }
-        // Legacy migration (pre-HistoryState format).
-        else if (parsed.semesters && parsed.plan) {
-          const validated = parsePlanState(parsed);
-          if (validated) {
-            const reconciledSemesters = reconcileSemesters(validated.semesters);
-            const reconciledPlan = { ...validated.plan };
-            for (const sem of reconciledSemesters) {
-              if (!(sem.id in reconciledPlan)) reconciledPlan[sem.id] = [];
-            }
-            const reconciled = { ...validated, semesters: reconciledSemesters, plan: reconciledPlan };
-            return { ...initial, present: { ...reconciled, hoveredCourse: null } };
-          }
-        }
-      } catch (e) {
-        console.error('Failed to parse stored plan state:', e);
-      }
-    }
-    return initial;
-  });
+  const [historyState, dispatch] = useReducer(
+    historyReducer,
+    { past: [], present: INITIAL_STATE, future: [] },
+    () => hydratePlanState(localStorage.getItem(STORAGE_KEY)),
+  );
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(historyState));

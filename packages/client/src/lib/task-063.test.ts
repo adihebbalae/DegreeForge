@@ -19,6 +19,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { generatePlan } from './solver';
 import { generateAutoPlan } from './auto-planner';
+import { addWithVariants } from './variants';
 import { PrereqGraph } from './graph-engine';
 import type {
   PrereqGraphData,
@@ -105,6 +106,46 @@ describe('H1 — OR-group prereq correctness (real data)', () => {
     expect(result.unplacedCourses).not.toContain('ECE 364D');
     expect(futureCourses).toContain('ECE 464K');
     expect(futureCourses).toContain('ECE 364D');
+  });
+
+  // Theme H (item 1): the production correctness contract — zero prereq violations
+  // under the AUTHORED PREREQ_CNF — was only ever asserted against an empty-CNF mock
+  // graph (solver.test.ts). generateAutoPlan drops the violations its internal
+  // generatePlan computes, so we re-validate the produced plan against the real graph.
+  // This fails if a future change (mistyped AND-stack, renamed slot, regressed
+  // OR-group eval) lets the solver place a course before its real prerequisites.
+  it('places courses with ZERO prereq violations under the real authored CNF', () => {
+    const result = generateAutoPlan({
+      prereqGraph: realGraph,
+      prereqNodes: prereqData.nodes,
+      offeringSchedule,
+      userProfile: SWE_PROFILE,
+      degreeReqs,
+      techCore: techCores.software_engineering,
+      mathReqs,
+      mathBAToggle: false,
+      semesters: SEMESTERS,
+      currentPlan: BASE_PLAN,
+    });
+
+    // Rebuild the same variant-expanded "already taken" set generatePlan builds
+    // internally (completed + in-progress, expanded to honors/legacy/transfer forms).
+    const completedSet = new Set<string>();
+    for (const c of SWE_PROFILE.completed_courses) addWithVariants(completedSet, c.course, degreeReqs);
+    for (const c of SWE_PROFILE.in_progress_courses) addWithVariants(completedSet, c.course, degreeReqs);
+
+    const semesterOrder = SEMESTERS.map((s) => s.id);
+
+    // Validate the whole plan against PREREQ_CNF, then keep only violations on
+    // solver-placed (future) courses — past/current placements are transcript.
+    const violations = realGraph
+      .validatePlan(result.plan, semesterOrder, completedSet)
+      .filter((v) => {
+        const sem = SEMESTERS.find((s) => s.id === v.semesterId);
+        return sem?.status === 'future';
+      });
+
+    expect(violations).toEqual([]);
   });
 });
 

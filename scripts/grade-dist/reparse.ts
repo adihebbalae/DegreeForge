@@ -34,6 +34,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
+// Theme H (item 4): consume the unit-tested parser instead of hand-copying it.
+// grade-dist-parser.ts has zero runtime imports (type-only), so importing its
+// pure functions into this tsx script is runtime-safe and makes the tested code
+// the live code. Types stay inline below (the script's data shapes; not "the parser").
+import { hasInstructorColumn, buildByInstructor } from '../../packages/client/src/lib/grade-dist-parser';
 
 // ─── Types (inline to avoid importing from packages/client) ──────────────────
 
@@ -90,14 +95,6 @@ const CSV_DIR = path.join(ROOT, 'utgradesdist_21-26');
 const GRADE_DIST_PATH = path.join(ROOT, 'packages', 'client', 'public', 'data', 'grade-distributions.json');
 const FALL_SECTIONS_PATH = path.join(ROOT, 'packages', 'client', 'public', 'data', 'fall-2026.json');
 
-const GRADE_LETTERS = [
-  'A+', 'A', 'A-',
-  'B+', 'B', 'B-',
-  'C+', 'C', 'C-',
-  'D+', 'D', 'D-',
-  'F', 'Other',
-] as const;
-
 // ─── CSV helpers ──────────────────────────────────────────────────────────────
 
 /**
@@ -116,21 +113,7 @@ async function readCsvHeaders(filePath: string): Promise<string[]> {
   });
 }
 
-/**
- * Check if the CSV headers include an instructor column.
- * Expected names (case-insensitive): "instructor", "professor",
- * "professor name", "instructor name".
- */
-function hasInstructorColumn(headers: string[]): boolean {
-  const normalized = headers.map((h) => h.toLowerCase());
-  return normalized.some(
-    (h) =>
-      h === 'instructor' ||
-      h === 'professor' ||
-      h === 'professor name' ||
-      h === 'instructor name'
-  );
-}
+// hasInstructorColumn is imported from grade-dist-parser.ts (Theme H item 4).
 
 // ─── Instructor attribution ───────────────────────────────────────────────────
 
@@ -157,64 +140,8 @@ function buildCourseInstructorMap(
   return map;
 }
 
-/**
- * Compute aggregate grade distribution across all sections of a course.
- */
-function aggregateDist(course: GradeDistribution): Record<string, number> {
-  const agg: Record<string, number> = {};
-  for (const letter of GRADE_LETTERS) {
-    agg[letter] = 0;
-  }
-  for (const sec of course.sections) {
-    for (const letter of GRADE_LETTERS) {
-      agg[letter] += sec.grades[letter] ?? 0;
-    }
-  }
-  return agg;
-}
-
-/**
- * Build `byInstructor` for a single course entry using instructor names from
- * fall-2026-sections.json. Each instructor is attributed a proportional share
- * of the course-level aggregate based on their section count.
- */
-function buildByInstructor(
-  course: GradeDistribution,
-  instructorNames: string[]
-): Record<string, InstructorGradeStats> {
-  if (instructorNames.length === 0) return {};
-
-  // Count sections per instructor
-  const sectionCounts = new Map<string, number>();
-  for (const raw of instructorNames) {
-    const name = raw.trim() || 'Unknown';
-    sectionCounts.set(name, (sectionCounts.get(name) ?? 0) + 1);
-  }
-
-  const totalSections = Array.from(sectionCounts.values()).reduce(
-    (a, b) => a + b,
-    0
-  );
-
-  const aggDist = aggregateDist(course);
-  const result: Record<string, InstructorGradeStats> = {};
-
-  for (const [name, count] of sectionCounts) {
-    const ratio = count / totalSections;
-    const distribution: Record<string, number> = {};
-    for (const letter of GRADE_LETTERS) {
-      distribution[letter] = Math.round((aggDist[letter] ?? 0) * ratio);
-    }
-
-    result[name] = {
-      avg_gpa: course.avg_gpa, // course-level estimate (best available)
-      total_enrollment: Math.round(course.total_enrollment * ratio),
-      distribution,
-    };
-  }
-
-  return result;
-}
+// aggregateDist + buildByInstructor are imported from grade-dist-parser.ts
+// (Theme H item 4) — the unit-tested implementations, no longer hand-copied.
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 

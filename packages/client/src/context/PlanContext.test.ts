@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { historyReducer, INITIAL_STATE, DEMO_PLAN, reconcileSemesters, SEMESTERS } from './PlanContext.constants';
+import { historyReducer, hydratePlanState, INITIAL_STATE, DEMO_PLAN, reconcileSemesters, SEMESTERS } from './PlanContext.constants';
 import type { HistoryState } from './PlanContext.constants';
 import type { Semester } from '../types';
 
@@ -149,5 +149,79 @@ describe('historyReducer — no Adi data injection on heavy past semester', () =
     }
     // gradeEntries preserved on RESET_PLAN.
     expect(next.present.gradeEntries).toEqual(state.gradeEntries);
+  });
+});
+
+// ─── Theme H (item 3): hydratePlanState — the lazy-initializer body ────────────
+//
+// The localStorage initializer (parse → Zod-validate → reconcile → backfill) was
+// previously inline in the PlanProvider and untested; the prior regression test
+// even admitted the bug lived in the initializer but tested the reducer instead.
+// hydratePlanState extracts that body so the real / legacy / malformed branches
+// are unit-testable. It must ALWAYS return a usable HistoryState and never throw.
+
+describe('hydratePlanState', () => {
+  it('returns the default HistoryState when storage is absent (null)', () => {
+    const result = hydratePlanState(null);
+    expect(result.present).toEqual(INITIAL_STATE);
+    expect(result.past).toEqual([]);
+    expect(result.future).toEqual([]);
+  });
+
+  it('returns the default for an empty string', () => {
+    expect(hydratePlanState('').present).toEqual(INITIAL_STATE);
+  });
+
+  it('returns the default for malformed JSON without throwing', () => {
+    expect(() => hydratePlanState('{not valid json')).not.toThrow();
+    expect(hydratePlanState('{not valid json').present).toEqual(INITIAL_STATE);
+  });
+
+  it('returns the default for valid JSON that is not plan-shaped', () => {
+    expect(hydratePlanState(JSON.stringify({ foo: 1 })).present).toEqual(INITIAL_STATE);
+  });
+
+  it('returns the default for a present whose schema is invalid (semesters not an array)', () => {
+    const raw = JSON.stringify({ present: { semesters: 'nope', plan: {} } });
+    expect(hydratePlanState(raw).present).toEqual(INITIAL_STATE);
+  });
+
+  it('hydrates the new HistoryState format and backfills missing semesters', () => {
+    const raw = JSON.stringify({
+      present: { semesters: SEMESTERS, plan: { 'Fall 2025': ['ECE 306'] } },
+      past: [],
+      future: [],
+    });
+    const result = hydratePlanState(raw);
+    expect(result.present.plan['Fall 2025']).toContain('ECE 306');
+    // Every canonical semester gets a (possibly empty) plan entry.
+    for (const sem of SEMESTERS) {
+      expect(result.present.plan[sem.id]).toBeDefined();
+    }
+  });
+
+  it('migrates the legacy top-level format and forces hoveredCourse to null', () => {
+    const raw = JSON.stringify({ semesters: SEMESTERS, plan: { 'Fall 2025': ['ECE 302'] } });
+    const result = hydratePlanState(raw);
+    expect(result.present.plan['Fall 2025']).toContain('ECE 302');
+    expect(result.present.hoveredCourse).toBeNull();
+  });
+
+  it('recovers valid courses and drops corrupt tokens via the tolerant schema', () => {
+    const raw = JSON.stringify({
+      present: { semesters: SEMESTERS, plan: { 'Fall 2025': ['ECE 302', null, 'garbage token!!', 'M 427J'] } },
+    });
+    const result = hydratePlanState(raw);
+    expect(result.present.plan['Fall 2025']).toEqual(['ECE 302', 'M 427J']);
+  });
+
+  it('reconciles a pre-Summer (8-entry) persisted semesters list', () => {
+    const PRE_051 = SEMESTERS.filter((s) => s.season !== 'Summer');
+    const raw = JSON.stringify({ semesters: PRE_051, plan: { 'Fall 2025': ['ECE 302'] } });
+    const result = hydratePlanState(raw);
+    const ids = result.present.semesters.map((s) => s.id);
+    expect(ids).toContain('Summer 2026');
+    expect(ids).toContain('Summer 2027');
+    expect(ids).toContain('Summer 2028');
   });
 });

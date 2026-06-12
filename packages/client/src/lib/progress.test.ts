@@ -1,12 +1,15 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { computeProgress } from './progress';
-import type { 
-  Plan, 
-  UserProfile, 
-  CourseCatalog, 
-  DegreeRequirements, 
-  TechCoreTrack, 
-  PrereqGraphData 
+import type {
+  Plan,
+  UserProfile,
+  CourseCatalog,
+  DegreeRequirements,
+  TechCoreTrack,
+  TechCores,
+  PrereqGraphData
 } from '../types';
 
 describe('computeProgress', () => {
@@ -179,7 +182,56 @@ describe('computeProgress', () => {
     };
 
     const result = computeProgress(planWithElective, mockProfile, catalogWithElective, mockPrereqNodes, mockDegreeReqs, mockTechCore);
-    
+
     expect(result.electiveHours).toBe(3);
+  });
+});
+
+// ─── Theme H (item 2): real-data characterization ─────────────────────────────
+//
+// The mock-based tests above run computeProgress against an inline DegreeRequirements
+// that production never uses. This block loads the REAL degree-requirements.json +
+// course-catalog.json + the canonical Adi user-profile.json and asserts concrete
+// counts, so a renamed slot id, a changed honors_variant, or a regressed counting
+// loop surfaces as a failing test rather than shipping silently.
+describe('computeProgress — real data (characterization)', () => {
+  function loadJson<T>(filename: string): T {
+    const path = join(__dirname, '../../public/data', filename);
+    return JSON.parse(readFileSync(path, 'utf8')) as T;
+  }
+
+  const catalog = loadJson<CourseCatalog>('course-catalog.json');
+  const prereqData = loadJson<PrereqGraphData>('prerequisite-graph.json');
+  const degreeReqs = loadJson<DegreeRequirements>('degree-requirements.json');
+  const techCores = loadJson<TechCores>('tech-cores.json');
+  const adiProfile = loadJson<UserProfile>('user-profile.json');
+  const techCore = techCores.software_engineering;
+
+  it('reports the canonical requirement totals from the real degree JSON', () => {
+    const result = computeProgress({}, adiProfile, catalog, prereqData.nodes, degreeReqs, techCore);
+
+    // Derivable / constant denominators — these pin the X/Y targets the bars render.
+    expect(result.totalHoursTarget).toBe(128);
+    expect(result.eceCoreTotal).toBe(degreeReqs.ece_core.courses.length); // 10
+    expect(result.genEdTotal).toBe(8);
+    expect(result.techCoreTotal).toBe(8);
+    expect(result.electiveTotalHours).toBe(11);
+  });
+
+  it("counts Adi's real transcript (completed + in-progress) against real requirements", () => {
+    const result = computeProgress({}, adiProfile, catalog, prereqData.nodes, degreeReqs, techCore);
+
+    // Concrete counts for the shipped Adi profile against the real requirements.
+    // Golden values — a refactor that changes how courses are counted breaks this.
+    // Adi's transcript: completed M 508M(5) M 411(4) RHE 306(3) M 408C(4) UGS 016(0)
+    // ECE 302(3) ECE 306(3) CTI 301G(3) M 427J(4) + in-progress ECE 312H(3) M 325K(3)
+    // CTI 302(3) ECE 319H(3) = 41 transcript credit hours.
+    expect(result.totalHours).toBe(41);
+    // ECE 302, ECE 306, ECE 312H (honors→core), ECE 319H (honors→core) → 4 of 10.
+    expect(result.eceCoreCompleted).toBe(4);
+    // RHE 306 (rhe), CTI 301G (vapa equiv), CTI 302 (humanities equiv) → 3 of 8.
+    expect(result.genEdCompleted).toBe(3);
+    // M 325K satisfies the software_engineering advanced-math slot → 1 of 8.
+    expect(result.techCoreCompleted).toBe(1);
   });
 });

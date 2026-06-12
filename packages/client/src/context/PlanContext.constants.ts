@@ -1,5 +1,6 @@
 import type { PlanState, Semester, WhatIfState } from '../types';
 import { sanitizePlan, isValidCourseId, isPastSemester } from '../lib/sanitize-course-list';
+import { parsePlanState } from '../lib/plan-schema';
 
 // ─── Action Types ─────────────────────────────────────────────────────────────
 
@@ -453,6 +454,53 @@ export interface HistoryState {
   past: PlanState[];
   present: PlanState;
   future: PlanState[];
+}
+
+// ─── Plan-state hydration (lazy-initializer body) ─────────────────────────────
+//
+// Pure parse → Zod-validate → reconcile → plan-backfill for the persisted plan
+// blob. Extracted from the PlanProvider lazy initializer so the real / legacy /
+// malformed branches are unit-testable without mounting React. Takes the raw
+// localStorage string (or null) and ALWAYS returns a usable HistoryState — never
+// throws. Distinguishing "absent" from "corrupt" is the persistence seam's job
+// (Theme A); this function defaults on both.
+
+/** Merge canonical semesters + backfill empty plan entries for new terms. */
+function reconcilePlanState(validated: PlanState): PlanState {
+  const reconciledSemesters = reconcileSemesters(validated.semesters);
+  const reconciledPlan = { ...validated.plan };
+  for (const sem of reconciledSemesters) {
+    if (!(sem.id in reconciledPlan)) reconciledPlan[sem.id] = [];
+  }
+  return { ...validated, semesters: reconciledSemesters, plan: reconciledPlan };
+}
+
+export function hydratePlanState(rawStored: string | null): HistoryState {
+  const fallback: HistoryState = { past: [], present: INITIAL_STATE, future: [] };
+  if (!rawStored) return fallback;
+
+  try {
+    const parsed = JSON.parse(rawStored);
+
+    // New HistoryState format: plan state is nested under `present`.
+    if (parsed.present && parsed.present.semesters) {
+      const validated = parsePlanState(parsed.present);
+      if (validated) {
+        return { ...fallback, present: reconcilePlanState(validated) };
+      }
+    }
+    // Legacy migration (pre-HistoryState format): semesters/plan at top level.
+    else if (parsed.semesters && parsed.plan) {
+      const validated = parsePlanState(parsed);
+      if (validated) {
+        return { ...fallback, present: { ...reconcilePlanState(validated), hoveredCourse: null } };
+      }
+    }
+  } catch (e) {
+    console.error('Failed to parse stored plan state:', e);
+  }
+
+  return fallback;
 }
 
 export function historyReducer(state: HistoryState, action: PlanAction): HistoryState {
