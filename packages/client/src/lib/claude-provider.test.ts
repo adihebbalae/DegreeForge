@@ -32,6 +32,7 @@ const minimalToolContext = {
   semesters: [],
   techCoreId: 'computer_architecture',
   mathBAToggle: false,
+  satisfiedSet: new Set<string>(),
 } as ToolContext;
 
 /** A simple tool that returns a fixed result. */

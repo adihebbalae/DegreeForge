@@ -1,46 +1,39 @@
 import type { ToolContext, ToolResult } from './types';
 import { isTechCorePickOne } from '../../types';
+import { isRequirementSatisfied } from '../requirements';
 
 export function listRemainingRequirements(ctx: ToolContext, _args: Record<string, unknown>): ToolResult {
-  const allPlacedCourses = new Set<string>(
-    Object.values(ctx.plan).flat()
-  );
-
-  const completedIds = new Set<string>(
-    ctx.userProfile.completed_courses.map(c => c.course)
-  );
-  const inProgressIds = new Set<string>(
-    ctx.userProfile.in_progress_courses.map(c => c.course)
-  );
-
-  const satisfied = new Set<string>([...allPlacedCourses, ...completedIds, ...inProgressIds]);
+  // F: the shared variant-expanded read model — honors/legacy/cross-dept and
+  // transfer forms count, matching the Progress panel and the solver.
+  const satisfied = ctx.satisfiedSet;
+  const done = (id: string) => isRequirementSatisfied(id, satisfied);
 
   // ECE core
   const eceCore = ctx.degreeRequirements.ece_core.courses;
-  const missingEceCore = eceCore.filter(id => !satisfied.has(id));
+  const missingEceCore = eceCore.filter(id => !done(id));
 
   // Math sequence
   const mathReq = ctx.degreeRequirements.math_sequence.required;
-  const missingMath = mathReq.filter(id => !satisfied.has(id));
+  const missingMath = mathReq.filter(id => !done(id));
 
   // Physics sequence
   const physReq = ctx.degreeRequirements.physics_sequence.required;
-  const missingPhysics = physReq.filter(id => !satisfied.has(id));
+  const missingPhysics = physReq.filter(id => !done(id));
 
   // Tech core
   const techCore = ctx.techCores[ctx.techCoreId];
   const missingTechCore: string[] = [];
   if (techCore) {
     const rc = techCore.required_courses;
-    if (rc.advanced_math && !satisfied.has(rc.advanced_math.id)) {
+    if (rc.advanced_math && !done(rc.advanced_math.id)) {
       missingTechCore.push(rc.advanced_math.id);
     }
     if (rc.core) {
       for (const entry of rc.core) {
         if (isTechCorePickOne(entry)) {
-          const anyDone = entry.options.some(o => satisfied.has(o.id));
+          const anyDone = entry.options.some(o => done(o.id));
           if (!anyDone) missingTechCore.push(`[one of: ${entry.options.map(o => o.id).join(', ')}]`);
-        } else if (!satisfied.has(entry.id)) {
+        } else if (!done(entry.id)) {
           missingTechCore.push(entry.id);
         }
       }

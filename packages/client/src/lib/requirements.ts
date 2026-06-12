@@ -36,7 +36,7 @@ import { getEquivalenceRegistry, satisfiesRequirement } from './equivalence';
  */
 export function isRequirementSatisfied(
   requiredCourse: string,
-  completedSet: Set<string>
+  completedSet: ReadonlySet<string>
 ): boolean {
   return satisfiesRequirement(requiredCourse, completedSet, getEquivalenceRegistry());
 }
@@ -220,21 +220,28 @@ export function computeRemainingRequired(
 }
 
 /**
- * Build the variant-expanded satisfied set from a user profile and the
- * past/current semesters of the plan. This is the shared setup that all
- * consumers of computeRemainingRequired must perform.
+ * THE single entry for "what has the student taken" — every completion read
+ * (solver, auto-planner, diagnostics, ghost plan, agent tools) builds its
+ * satisfied set here, variant-expanded through the equivalence registry.
+ *
+ * By default counts the transcript (completed + in-progress) plus the
+ * past/current plan semesters. Pass `includePlannedFuture = true` for
+ * "taken-or-planned" reads (the chat tools treat future-planned courses as
+ * handled when listing what remains to schedule); planning paths must NOT —
+ * the solver re-derives future placements itself.
  */
 export function buildSatisfiedSet(
   profile: UserProfile,
   degreeReqs: DegreeRequirements,
   semesters: Semester[] = [],
-  plan: Plan = {}
+  plan: Plan = {},
+  includePlannedFuture: boolean = false
 ): Set<string> {
   const satisfied = new Set<string>();
   for (const c of profile.completed_courses) addWithVariants(satisfied, c.course, degreeReqs);
   for (const c of profile.in_progress_courses) addWithVariants(satisfied, c.course, degreeReqs);
   for (const sem of semesters) {
-    if (sem.status === 'past' || sem.status === 'current') {
+    if (sem.status === 'past' || sem.status === 'current' || includePlannedFuture) {
       for (const c of plan[sem.id] ?? []) addWithVariants(satisfied, c, degreeReqs);
     }
   }

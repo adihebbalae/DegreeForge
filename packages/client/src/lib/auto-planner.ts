@@ -29,8 +29,7 @@
 
 import { PrereqGraph } from './graph-engine';
 import { generatePlan } from './solver';
-import { addWithVariants } from './variants';
-import { computeRemainingRequired } from './requirements';
+import { computeRemainingRequired, buildSatisfiedSet } from './requirements';
 import type {
   UserProfile,
   DegreeRequirements,
@@ -145,16 +144,9 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
   } = input;
 
   // ── 1. Build the variant-expanded satisfied set (completed + in-progress +
-  //       past/current plan) for use by computeRequiredCourses.
+  //       past/current plan) through the single chokepoint (F).
   //       generatePlan will rebuild its own set internally from completedCourses.
-  const satisfied = new Set<string>();
-  for (const c of userProfile.completed_courses) addWithVariants(satisfied, c.course, degreeReqs);
-  for (const c of userProfile.in_progress_courses) addWithVariants(satisfied, c.course, degreeReqs);
-  for (const sem of semesters) {
-    if (sem.status === 'past' || sem.status === 'current') {
-      for (const c of currentPlan[sem.id] ?? []) addWithVariants(satisfied, c, degreeReqs);
-    }
-  }
+  const satisfied = buildSatisfiedSet(userProfile, degreeReqs, semesters, currentPlan);
 
   // ── 2. Compute remaining required courses (uses satisfied for filtering) ──
   const { required, warnings } = computeRequiredCourses(

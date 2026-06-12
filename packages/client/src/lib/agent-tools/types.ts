@@ -39,6 +39,14 @@ export interface ToolContext {
   techCoreId: string;
   /** Whether Math BA double-major is toggled on */
   mathBAToggle: boolean;
+  /**
+   * Variant-expanded "taken or planned" set, built ONCE per turn via
+   * buildSatisfiedSet(profile, degreeReqs, semesters, plan, true) — the single
+   * read model (F). Tools must use this (with isRequirementSatisfied) instead
+   * of hand-rolling completed/in-progress/plan sets, so the chat agent can
+   * never disagree with the Progress panel about what the student has taken.
+   */
+  satisfiedSet: ReadonlySet<string>;
 }
 
 // ─── Tool Result ──────────────────────────────────────────────────────────────

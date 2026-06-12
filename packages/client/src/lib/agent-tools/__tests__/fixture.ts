@@ -3,8 +3,9 @@
  * All tools receive a ToolContext — this provides the minimum fields needed.
  */
 import type { ToolContext } from '../types';
+import { buildSatisfiedSet } from '../../requirements';
 
-export const FIXTURE_CTX: ToolContext = {
+const BASE_CTX: Omit<ToolContext, 'satisfiedSet'> = {
   catalog: {
     'ECE 302': {
       id: 'ECE 302',
@@ -256,4 +257,16 @@ export const FIXTURE_CTX: ToolContext = {
 
   techCoreId: 'computer_architecture',
   mathBAToggle: false,
+};
+
+export const FIXTURE_CTX: ToolContext = {
+  ...BASE_CTX,
+  // F: built through the single chokepoint, exactly like ChatPanel does.
+  satisfiedSet: buildSatisfiedSet(
+    BASE_CTX.userProfile,
+    BASE_CTX.degreeRequirements,
+    BASE_CTX.semesters,
+    BASE_CTX.plan,
+    true
+  ),
 };

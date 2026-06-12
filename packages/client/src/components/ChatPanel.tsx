@@ -22,6 +22,7 @@ import { TOOL_REGISTRY, DEFAULT_ENABLED_TOOLS } from '@/lib/agent-tools/registry
 import { useSettings } from '@/context/SettingsContext';
 import { validateOp, validateOpCount } from '@/lib/plan-edit-validation';
 import { makeDefaultUserProfile, DEFAULT_DEGREE_REQUIREMENTS } from '@/lib/chat-defaults';
+import { buildSatisfiedSet } from '@/lib/requirements';
 import { isPastSemester } from '@/lib/sanitize-course-list';
 import ProposalCard from '@/components/chat/ProposalCard';
 
@@ -249,6 +250,9 @@ export default function ChatPanel() {
       // Keep agent history in sync with the 20-message window
       const historyWindow = agentHistory.slice(-(HISTORY_WINDOW - 1));
 
+      const ctxProfile = profile ?? makeDefaultUserProfile(techCoreId);
+      const ctxDegreeReqs = degreeRequirements ?? DEFAULT_DEGREE_REQUIREMENTS;
+
       const result = await runAgentTurn(historyWindow, userText, {
         provider,
         tools: resolvedTools,
@@ -256,8 +260,8 @@ export default function ChatPanel() {
           catalog: catalog ?? {},
           prereqGraph,
           gradeDistributions,
-          userProfile: profile ?? makeDefaultUserProfile(techCoreId),
-          degreeRequirements: degreeRequirements ?? DEFAULT_DEGREE_REQUIREMENTS,
+          userProfile: ctxProfile,
+          degreeRequirements: ctxDegreeReqs,
           techCores: techCores ?? {},
           offeringSchedule,
           fallSections,
@@ -265,6 +269,8 @@ export default function ChatPanel() {
           semesters,
           techCoreId,
           mathBAToggle,
+          // F: built once per turn — the single "taken or planned" read model
+          satisfiedSet: buildSatisfiedSet(ctxProfile, ctxDegreeReqs, semesters, plan, true),
         },
         systemPrompt,
       });

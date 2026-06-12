@@ -1,5 +1,6 @@
 import type { ToolContext, ToolResult } from './types';
 import { getCourseCredits } from '../course-utils';
+import { isRequirementSatisfied } from '../requirements';
 
 /**
  * Given a target course, returns the shortest prerequisite chain leading to it,
@@ -35,13 +36,9 @@ export function findEasiestPath(ctx: ToolContext, args: Record<string, unknown>)
     }
   }
 
-  const satisfied = new Set<string>([
-    ...ctx.userProfile.completed_courses.map(c => c.course),
-    ...ctx.userProfile.in_progress_courses.map(c => c.course),
-    ...Object.values(ctx.plan).flat(),
-  ]);
-
-  const remaining = allPrereqs.filter(id => !satisfied.has(id));
+  // F: the shared variant-expanded read model — a student who took ECE 312H
+  // is no longer told to take ECE 312.
+  const remaining = allPrereqs.filter(id => !isRequirementSatisfied(id, ctx.satisfiedSet));
 
   const enriched = remaining.map(id => ({
     id,
