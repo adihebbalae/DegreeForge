@@ -18,6 +18,7 @@ import {
 import { useSettings, useSettingsDispatch, type LoadTolerance, type InstructionMode, type TimeWindow, type ChatProvider } from '@/context/SettingsContext';
 import { useTechCoresRecord } from '@/context/DataContext';
 import { TOOL_REGISTRY } from '@/lib/agent-tools/registry';
+import { safeRemoveItem } from '@/lib/persist';
 import { ProfileEditor } from '@/components/ProfileEditor';
 import type { TechCoreTrack } from '@/types';
 
@@ -504,7 +505,7 @@ export default function SettingsPage() {
         consequence={`Overwrites ${settings.profPreferences.length} saved professor preference${settings.profPreferences.length === 1 ? '' : 's'} and resets onboarding flags. Reloads the page.`}
         confirmLabel="Re-run Onboarding"
         onConfirm={() => {
-          localStorage.removeItem('degreeforge:onboarded');
+          safeRemoveItem('degreeforge:onboarded');
           window.location.reload();
         }}
       />

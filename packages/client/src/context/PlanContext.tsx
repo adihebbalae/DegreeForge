@@ -11,10 +11,13 @@ import {
   type SnapshotState,
   type SnapshotAction,
   type PlanSnapshot,
-  hydratePlanState,
+  parseStoredPlan,
 } from './PlanContext.constants';
 import { parseSnapshotState } from '../lib/plan-schema';
+import { safeGetItem, safeSetItem, fromJson } from '../lib/persist';
 import { useSettings } from './SettingsContext';
+
+const SNAPSHOT_STORAGE_KEY = 'degreeforge-snapshots';
 
 // ─── Re-export constants for backward compatibility ───────────────────────────
 export { SEMESTERS, INITIAL_PLAN, DEMO_PLAN, INITIAL_STATE, planReducer, historyReducer } from './PlanContext.constants';
@@ -28,11 +31,16 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
   const [historyState, dispatch] = useReducer(
     historyReducer,
     { past: [], present: INITIAL_STATE, future: [] },
-    () => hydratePlanState(localStorage.getItem(STORAGE_KEY)),
+    () => {
+      const loaded = safeGetItem(STORAGE_KEY, parseStoredPlan);
+      // 'absent' (first run) and 'corrupt' (backed up by the seam) both default;
+      // only 'ok' replaces the initial state.
+      return loaded.status === 'ok' ? loaded.value : { past: [], present: INITIAL_STATE, future: [] };
+    },
   );
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(historyState));
+    safeSetItem(STORAGE_KEY, JSON.stringify(historyState));
   }, [historyState]);
 
   return (
@@ -130,21 +138,13 @@ interface SnapshotContextValue {
 const SnapshotContext = createContext<SnapshotContextValue | null>(null);
 
 export function SnapshotProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(snapshotReducer, INITIAL_SNAPSHOT_STATE, (initial) => {
-    const stored = localStorage.getItem('degreeforge-snapshots');
-    if (stored) {
-      try {
-        const validated = parseSnapshotState(JSON.parse(stored));
-        if (validated) return validated;
-      } catch (e) {
-        console.error('Failed to parse stored snapshots:', e);
-      }
-    }
-    return initial;
+  const [state, dispatch] = useReducer(snapshotReducer, INITIAL_SNAPSHOT_STATE, () => {
+    const loaded = safeGetItem(SNAPSHOT_STORAGE_KEY, fromJson(parseSnapshotState));
+    return loaded.status === 'ok' ? loaded.value : INITIAL_SNAPSHOT_STATE;
   });
 
   useEffect(() => {
-    localStorage.setItem('degreeforge-snapshots', JSON.stringify(state));
+    safeSetItem(SNAPSHOT_STORAGE_KEY, JSON.stringify(state));
   }, [state]);
 
   return (

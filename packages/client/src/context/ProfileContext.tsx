@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import type { UserProfile } from '../types';
 import { parseProfileState } from '../lib/profile-schema';
+import { safeGetItem, safeSetItem, fromJson } from '../lib/persist';
 import { loadDemoProfile } from '../lib/data-loaders';
 
 // ─── Storage Key ───────────────────────────────────────────────────────────────
@@ -133,21 +134,13 @@ const ProfileContext = createContext<ProfileContextValue | null>(null);
 
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const [profile, dispatch] = useReducer(profileReducer, EMPTY_PROFILE, () => {
-    const stored = localStorage.getItem(PROFILE_STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = parseProfileState(JSON.parse(stored));
-        if (parsed) return parsed;
-      } catch (e) {
-        console.error('Failed to parse stored profile state:', e);
-      }
-    }
-    return EMPTY_PROFILE;
+    const loaded = safeGetItem(PROFILE_STORAGE_KEY, fromJson(parseProfileState));
+    return loaded.status === 'ok' ? loaded.value : EMPTY_PROFILE;
   });
 
   // Auto-persist on every profile change
   useEffect(() => {
-    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
+    safeSetItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
   }, [profile]);
 
   return (

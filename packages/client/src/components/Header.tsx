@@ -11,6 +11,7 @@ import { useRecommendPlan } from '@/hooks/useRecommendPlan'
 import { parsePlanState } from '@/lib/plan-schema'
 import { parseProfileState } from '@/lib/profile-schema'
 import { sanitizePlan } from '@/lib/sanitize-course-list'
+import { safeGetRaw, safeSetItem } from '@/lib/persist'
 import { useOwnedProfile, useProfileDispatch } from '@/context/ProfileContext'
 import type { UserProfile } from '@/types'
 import SemesterTransitionDialog from './SemesterTransitionDialog'
@@ -43,7 +44,7 @@ export default function Header() {
   const { handleRecommendPlan, noticeProps, confirmProps } = useRecommendPlan()
 
   const [dark, setDark] = useState<boolean>(() => {
-    const stored = localStorage.getItem('theme')
+    const stored = safeGetRaw('theme')
     if (stored) return stored === 'dark'
     return window.matchMedia('(prefers-color-scheme: dark)').matches
   })
@@ -51,10 +52,10 @@ export default function Header() {
   useEffect(() => {
     if (dark) {
       document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
+      safeSetItem('theme', 'dark')
     } else {
       document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
+      safeSetItem('theme', 'light')
     }
   }, [dark])
 

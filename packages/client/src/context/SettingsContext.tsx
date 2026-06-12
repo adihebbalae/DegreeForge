@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { parseSettingsState } from '../lib/plan-schema';
+import { safeGetItem, safeSetItem, fromJson } from '../lib/persist';
 import { DEFAULT_ENABLED_TOOLS } from '../lib/agent-tools/registry';
 
 // ─── Settings State Shape ─────────────────────────────────────────────────────
@@ -157,22 +158,14 @@ export const SETTINGS_STORAGE_KEY = 'degreeforge:settings:v1';
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const [settings, dispatch] = useReducer(settingsReducer, DEFAULT_SETTINGS, (initial) => {
-    const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = parseSettingsState(JSON.parse(stored));
-        if (parsed) return parsed;
-      } catch {
-        // Corrupted storage — fall back to defaults silently
-      }
-    }
-    return initial;
+  const [settings, dispatch] = useReducer(settingsReducer, DEFAULT_SETTINGS, () => {
+    const loaded = safeGetItem(SETTINGS_STORAGE_KEY, fromJson(parseSettingsState));
+    return loaded.status === 'ok' ? loaded.value : DEFAULT_SETTINGS;
   });
 
   // Persist settings to localStorage on every change
   useEffect(() => {
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    safeSetItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
   }, [settings]);
 
   return (
