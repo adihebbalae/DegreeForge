@@ -3,7 +3,7 @@ import { AlertTriangle, CheckCircle2, Wand2, Loader2 } from 'lucide-react';
 import { useValidation } from '@/hooks/useValidation';
 import { usePlanContext, useSemesters, usePlan } from '@/context/PlanContext';
 import { runSolver } from '@/lib/run-solver';
-import { useDegreeRequirements, useTechCoresRecord, useMathRequirements, useUserProfile, useOfferingSchedule } from '@/context/DataContext';
+import { useDegreeRequirements, useTechCoresRecord, useMathRequirements, useUserProfile, useOfferingSchedule, useCatalogRecord } from '@/context/DataContext';
 import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 import { getCreditHourCap } from '@/lib/auto-planner';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,7 @@ export default function ValidationBanner() {
   const techCores = useTechCoresRecord();
   const mathReqs = useMathRequirements();
   const offeringSchedule = useOfferingSchedule();
+  const catalog = useCatalogRecord();
   const profile = useUserProfile();
   const effectiveProfile = useEffectiveProfile();
   const engineGraph = usePrereqGraph();
@@ -56,6 +57,7 @@ export default function ValidationBanner() {
           mathReqs,
           profile,
           prereqGraph: engineGraph,
+          catalog: catalog ?? {},
           offeringSchedule: offeringSchedule,
           pinnedCourseIds: state.pinnedCourses,
           plan: state.plan,

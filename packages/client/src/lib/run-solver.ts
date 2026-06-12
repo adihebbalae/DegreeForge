@@ -18,6 +18,7 @@ import type {
   OfferingSchedule,
   Plan,
   Semester,
+  CourseCatalog,
 } from '../types';
 
 export interface RunSolverParams {
@@ -30,6 +31,8 @@ export interface RunSolverParams {
   mathReqs: MathRequirements | null;
   profile: UserProfile;
   prereqGraph: PrereqGraph;
+  /** Course catalog — canonical credit source (via getCourseCredits) */
+  catalog: CourseCatalog;
   offeringSchedule: OfferingSchedule;
   /** Pinned courses array (from PlanContext state.pinnedCourses) */
   pinnedCourseIds: string[];
@@ -60,6 +63,7 @@ export function runSolver(params: RunSolverParams): SolverOutput {
     mathReqs,
     profile,
     prereqGraph,
+    catalog,
     offeringSchedule,
     pinnedCourseIds,
     plan,
@@ -99,6 +103,7 @@ export function runSolver(params: RunSolverParams): SolverOutput {
     ],
     remainingRequirements: remaining,
     prereqGraph,
+    catalog,
     offeringSchedule,
     pinnedCourses,
     maxHoursPerSemester,

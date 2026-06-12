@@ -60,11 +60,11 @@ export const FIXTURE_CTX: ToolContext = {
 
   prereqGraph: {
     nodes: {
-      'ECE 302': { title: 'Intro EE', credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
-      'ECE 306': { title: 'Intro Computing', credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
-      'ECE 312': { title: 'Software Design', credits: 3, category: 'ece_core', offered: ['spring'], flags: [] },
-      'ECE 460N': { title: 'Computer Architecture', credits: 3, category: 'tech_core', offered: ['fall'], flags: [] },
-      'M 408C': { title: 'Diff Calculus', credits: 4, category: 'math', offered: ['fall', 'spring'], flags: [] },
+      'ECE 302': { title: 'Intro EE', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+      'ECE 306': { title: 'Intro Computing', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+      'ECE 312': { title: 'Software Design', category: 'ece_core', offered: ['spring'], flags: [] },
+      'ECE 460N': { title: 'Computer Architecture', category: 'tech_core', offered: ['fall'], flags: [] },
+      'M 408C': { title: 'Diff Calculus', category: 'math', offered: ['fall', 'spring'], flags: [] },
     },
     edges: [
       { from: 'M 408C', to: 'ECE 302', type: 'prerequisite' },

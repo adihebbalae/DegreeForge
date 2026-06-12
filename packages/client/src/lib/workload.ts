@@ -31,7 +31,7 @@
 import { generateAutoPlan, type AutoPlannerInput } from './auto-planner';
 import { getCourseCredits } from './course-utils';
 import { parseCourseId } from './sanitize-course-list';
-import type { Semester, CourseCatalog, PrereqNode, GradeDistributions, Plan } from '../types';
+import type { Semester, CourseCatalog, GradeDistributions, Plan } from '../types';
 
 // Course-level normalisation bounds: clamp a numeric course level to [MIN, MAX]
 // before mapping to [0,1]. 200 = lower-division floor, 600 = graduate ceiling.
@@ -80,17 +80,6 @@ function courseLevel(courseId: string): number {
   return (clamped - COURSE_LEVEL_MIN) / (COURSE_LEVEL_MAX - COURSE_LEVEL_MIN); // → [0, 1]
 }
 
-// ─── Helper: get credit hours for a course ───────────────────────────────────
-// D7: delegate to shared getCourseCredits from course-utils instead of inlining lookup
-
-function getCredits(
-  courseId: string,
-  catalog: CourseCatalog | null,
-  prereqNodes: Record<string, PrereqNode>
-): number {
-  return getCourseCredits(courseId, catalog, prereqNodes);
-}
-
 // ─── computeSemesterDifficulty ────────────────────────────────────────────────
 
 /**
@@ -101,8 +90,7 @@ export function computeSemesterDifficulty(
   semester: Semester,
   plan: Plan,
   gradeDistributions: GradeDistributions,
-  catalog: CourseCatalog | null,
-  prereqNodes: Record<string, PrereqNode> = {}
+  catalog: CourseCatalog | null
 ): DifficultyResult {
   const courseIds = plan[semester.id] ?? [];
 
@@ -112,7 +100,7 @@ export function computeSemesterDifficulty(
 
   // ── credit_load_factor ───────────────────────────────────────────────────
   const totalCredits = courseIds.reduce(
-    (sum, id) => sum + getCredits(id, catalog, prereqNodes),
+    (sum, id) => sum + getCourseCredits(id, catalog),
     0
   );
   const creditLoadFactor = Math.min(1, totalCredits / 18);

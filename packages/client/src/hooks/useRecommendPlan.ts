@@ -4,7 +4,7 @@ import {
   useDegreeRequirements,
   useTechCoresRecord,
   useMathRequirements,
-  usePrereqGraph as useRawPrereqGraph,
+  useCatalogRecord,
   useOfferingSchedule,
 } from '@/context/DataContext';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
@@ -31,7 +31,7 @@ export function useRecommendPlan(): RecommendPlanResult {
   const semesters = useSemesters();
   const plan = usePlan();
   const pinnedCourses = usePinnedCourses();
-  const rawPrereqGraph = useRawPrereqGraph();
+  const catalog = useCatalogRecord();
   const prereqGraphInstance = usePrereqGraph();
   const offeringSchedule = useOfferingSchedule();
   const dispatch = usePlanDispatch();
@@ -76,7 +76,7 @@ export function useRecommendPlan(): RecommendPlanResult {
 
     const result = generateAutoPlan({
       prereqGraph: prereqGraphInstance,
-      prereqNodes: rawPrereqGraph?.nodes ?? {},
+      catalog: catalog ?? {},
       offeringSchedule,
       userProfile: userProfile!,
       degreeReqs: degreeReqs!,

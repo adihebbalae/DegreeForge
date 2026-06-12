@@ -15,8 +15,10 @@ import type {
   OfferingSchedule,
   PrereqViolation,
   DegreeRequirements,
+  CourseCatalog,
 } from '../types';
 import { PrereqGraph } from './graph-engine';
+import { getCourseCredits } from './course-utils';
 import { expandVariants, isInSameOrPriorSemester, addWithVariants } from './variants';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
@@ -28,6 +30,8 @@ export interface SolverInput {
   remainingRequirements: string[];
   /** PrereqGraph instance from TASK-003 */
   prereqGraph: PrereqGraph;
+  /** Course catalog — canonical credit source (via getCourseCredits) */
+  catalog: CourseCatalog;
   /** Offering schedule from offering-schedule.json */
   offeringSchedule: OfferingSchedule;
   /** Pinned courses: courseId → semesterId (locked in place) */
@@ -143,6 +147,7 @@ export function generatePlan(input: SolverInput): SolverOutput {
     completedCourses,
     remainingRequirements,
     prereqGraph,
+    catalog,
     offeringSchedule,
     pinnedCourses,
     maxHoursPerSemester,
@@ -195,7 +200,7 @@ export function generatePlan(input: SolverInput): SolverOutput {
   // 3. Place pinned courses first
   for (const [courseId, semesterId] of Object.entries(pinnedCourses)) {
     if (!remainingRequirements.includes(courseId)) continue;
-    const credits = prereqGraph.getCredits(courseId);
+    const credits = getCourseCredits(courseId, catalog);
     plan[semesterId] = plan[semesterId] ?? [];
     plan[semesterId].push(courseId);
     semesterHours[semesterId] = (semesterHours[semesterId] ?? 0) + credits;
@@ -261,7 +266,7 @@ export function generatePlan(input: SolverInput): SolverOutput {
       if (!canOfferInSemester(courseId, sem, offeringSchedule, prereqGraph)) continue;
 
       // Check credit hour limit
-      const credits = prereqGraph.getCredits(courseId);
+      const credits = getCourseCredits(courseId, catalog);
       if (semesterHours[sem.id] + credits > maxHoursPerSemester) continue;
 
       // Check prerequisites satisfied

@@ -1,4 +1,5 @@
 import type { ToolContext, ToolResult } from './types';
+import { getCourseCredits } from '../course-utils';
 
 export function getCreditProgress(ctx: ToolContext, _args: Record<string, unknown>): ToolResult {
   const profile = ctx.userProfile;
@@ -21,11 +22,7 @@ export function getCreditProgress(ctx: ToolContext, _args: Record<string, unknow
   let plannedFutureHours = 0;
   for (const sem of futureSemesters) {
     for (const courseId of ctx.plan[sem.id] ?? []) {
-      const credits =
-        ctx.catalog[courseId]?.credits ??
-        ctx.prereqGraph.nodes[courseId]?.credits ??
-        3;
-      plannedFutureHours += credits;
+      plannedFutureHours += getCourseCredits(courseId, ctx.catalog);
     }
   }
 

@@ -109,7 +109,7 @@ describe('computeProgress', () => {
 
   it('counts Adi profile completed courses correctly', () => {
     const plan: Plan = {};
-    const result = computeProgress(plan, mockProfile, mockCatalog, mockPrereqNodes, mockDegreeReqs, mockTechCore);
+    const result = computeProgress(plan, mockProfile, mockCatalog, mockDegreeReqs, mockTechCore);
     
     // ECE 302 is honors variant for ECE 402, ECE 312H is variant for ECE 412
     expect(result.eceCoreCompleted).toBe(2);
@@ -123,7 +123,7 @@ describe('computeProgress', () => {
     const plan: Plan = {
       'Fall 2026': ['ECE 316', 'M 325K']
     };
-    const result = computeProgress(plan, mockProfile, mockCatalog, mockPrereqNodes, mockDegreeReqs, mockTechCore);
+    const result = computeProgress(plan, mockProfile, mockCatalog, mockDegreeReqs, mockTechCore);
     
     // ECE 316 and M 325K are tech core
     expect(result.techCoreCompleted).toBe(2);
@@ -135,7 +135,7 @@ describe('computeProgress', () => {
     const plan: Plan = {
       'Fall 2026': ['ECE 302'] // Already in completed_courses
     };
-    const result = computeProgress(plan, mockProfile, mockCatalog, mockPrereqNodes, mockDegreeReqs, mockTechCore);
+    const result = computeProgress(plan, mockProfile, mockCatalog, mockDegreeReqs, mockTechCore);
     
     expect(result.totalHours).toBe(9);
   });
@@ -144,7 +144,7 @@ describe('computeProgress', () => {
     const plan: Plan = {
       'Fall 2026': ['ECE 316', 'ECE 422C'] // ECE 316 is required, ECE 422C is in pool
     };
-    const result = computeProgress(plan, mockProfile, mockCatalog, mockPrereqNodes, mockDegreeReqs, mockTechCore);
+    const result = computeProgress(plan, mockProfile, mockCatalog, mockDegreeReqs, mockTechCore);
     
     expect(result.techCoreCompleted).toBe(2);
   });
@@ -159,7 +159,7 @@ describe('computeProgress', () => {
       ]
     };
     const plan: Plan = {};
-    const result = computeProgress(plan, profileWithCTI, mockCatalog, mockPrereqNodes, mockDegreeReqs, mockTechCore);
+    const result = computeProgress(plan, profileWithCTI, mockCatalog, mockDegreeReqs, mockTechCore);
     
     // RHE 306 (1) + CTI 301G (1) + CTI 302 (1) = 3
     expect(result.genEdCompleted).toBe(3);
@@ -181,7 +181,7 @@ describe('computeProgress', () => {
       'ECE 325': { id: 'ECE 325', title: 'EM Fields', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' }
     };
 
-    const result = computeProgress(planWithElective, mockProfile, catalogWithElective, mockPrereqNodes, mockDegreeReqs, mockTechCore);
+    const result = computeProgress(planWithElective, mockProfile, catalogWithElective, mockDegreeReqs, mockTechCore);
 
     expect(result.electiveHours).toBe(3);
   });
@@ -208,7 +208,7 @@ describe('computeProgress — real data (characterization)', () => {
   const techCore = techCores.software_engineering;
 
   it('reports the canonical requirement totals from the real degree JSON', () => {
-    const result = computeProgress({}, adiProfile, catalog, prereqData.nodes, degreeReqs, techCore);
+    const result = computeProgress({}, adiProfile, catalog, degreeReqs, techCore);
 
     // Derivable / constant denominators — these pin the X/Y targets the bars render.
     expect(result.totalHoursTarget).toBe(128);
@@ -219,7 +219,7 @@ describe('computeProgress — real data (characterization)', () => {
   });
 
   it("counts Adi's real transcript (completed + in-progress) against real requirements", () => {
-    const result = computeProgress({}, adiProfile, catalog, prereqData.nodes, degreeReqs, techCore);
+    const result = computeProgress({}, adiProfile, catalog, degreeReqs, techCore);
 
     // Concrete counts for the shipped Adi profile against the real requirements.
     // Golden values — a refactor that changes how courses are counted breaks this.

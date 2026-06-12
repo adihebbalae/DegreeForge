@@ -2,7 +2,6 @@
     "nodes": {
         "ECE 302": {
             "title": "Introduction to Electrical Engineering",
-            "credits": 5,
             "category": "ece_core",
             "offered": [
                 "fall",
@@ -12,7 +11,6 @@
         },
         "ECE 302H": {
             "title": "Introduction to Electrical Engineering: Honors",
-            "credits": 5,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -22,7 +20,6 @@
         },
         "ECE 306": {
             "title": "Introduction to Computing",
-            "credits": 3,
             "category": "ece_core",
             "offered": [
                 "fall",
@@ -32,7 +29,6 @@
         },
         "ECE 306H": {
             "title": "Introduction to Computing: Honors",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -42,7 +38,6 @@
         },
         "ECE 307E": {
             "title": "Elements of Electrical and Computer Engineering",
-            "credits": 4,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -52,7 +47,6 @@
         },
         "ECE 107H": {
             "title": "Engineering Leadership: Honors",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -62,7 +56,6 @@
         },
         "ECE 108S": {
             "title": "Topics in Technical Skills",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -72,7 +65,6 @@
         },
         "ECE 109K": {
             "title": "Topics in Electrical Engineering",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -82,7 +74,6 @@
         },
         "ECE 209K": {
             "title": "Topics in Electrical Engineering",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -92,7 +83,6 @@
         },
         "ECE 309K": {
             "title": "Topics in Electrical Engineering",
-            "credits": 1,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -102,7 +92,6 @@
         },
         "ECE 409K": {
             "title": "Topics in Electrical Engineering",
-            "credits": 1,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -112,7 +101,6 @@
         },
         "ECE 209P": {
             "title": "Introduction to Professional Engineering",
-            "credits": 2,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -122,7 +110,6 @@
         },
         "ECE 309S": {
             "title": "Development of a Solar-Powered Vehicle",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -132,7 +119,6 @@
         },
         "ECE 411": {
             "title": "Circuit Theory",
-            "credits": 3,
             "category": "ece_core",
             "offered": [
                 "fall",
@@ -142,7 +128,6 @@
         },
         "ECE 411H": {
             "title": "Circuit Theory: Honors",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -152,7 +137,6 @@
         },
         "ECE 111S": {
             "title": "Tools to Enhance Academic Success",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -162,7 +146,6 @@
         },
         "ECE 312": {
             "title": "Software Design and Implementation I",
-            "credits": 3,
             "category": "ece_core",
             "offered": [
                 "fall",
@@ -172,7 +155,6 @@
         },
         "ECE 312H": {
             "title": "Software Design and Implementation I: Honors",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -182,7 +164,6 @@
         },
         "ECE 313": {
             "title": "Linear Systems and Signals",
-            "credits": 3,
             "category": "ece_core",
             "offered": [
                 "fall",
@@ -192,7 +173,6 @@
         },
         "ECE 313H": {
             "title": "Linear Systems and Signals: Honors",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -202,7 +182,6 @@
         },
         "ECE 316": {
             "title": "Digital Logic Design",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -212,7 +191,6 @@
         },
         "ECE 319H": {
             "title": "Introduction to Embedded Systems: Honors",
-            "credits": 4,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -222,7 +200,6 @@
         },
         "ECE 319K": {
             "title": "Introduction to Embedded Systems",
-            "credits": 4,
             "category": "ece_core",
             "offered": [
                 "fall",
@@ -232,7 +209,6 @@
         },
         "ECE 119S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -242,7 +218,6 @@
         },
         "ECE 219S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -252,7 +227,6 @@
         },
         "ECE 319S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -262,7 +236,6 @@
         },
         "ECE 419S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -272,7 +245,6 @@
         },
         "ECE 519S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -282,7 +254,6 @@
         },
         "ECE 619S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -292,7 +263,6 @@
         },
         "ECE 719S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -302,7 +272,6 @@
         },
         "ECE 819S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -312,7 +281,6 @@
         },
         "ECE 919S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -322,7 +290,6 @@
         },
         "ECE 321K": {
             "title": "Mixed Signal and Circuits Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -332,7 +299,6 @@
         },
         "ECE 422C": {
             "title": "Software Design and Implementation II",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -342,7 +308,6 @@
         },
         "ECE 325": {
             "title": "Electromagnetic Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -352,7 +317,6 @@
         },
         "ECE 325K": {
             "title": "Antennas and Wireless Propagation",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -362,7 +326,6 @@
         },
         "ECE 125S": {
             "title": "Internship in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -372,7 +335,6 @@
         },
         "ECE 129S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -382,7 +344,6 @@
         },
         "ECE 229S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -392,7 +353,6 @@
         },
         "ECE 329S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -402,7 +362,6 @@
         },
         "ECE 429S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -412,7 +371,6 @@
         },
         "ECE 529S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -422,7 +380,6 @@
         },
         "ECE 629S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -432,7 +389,6 @@
         },
         "ECE 729S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -442,7 +398,6 @@
         },
         "ECE 829S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -452,7 +407,6 @@
         },
         "ECE 929S": {
             "title": "Topics in Electrical and Computer Engineering",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -462,7 +416,6 @@
         },
         "ECE 331": {
             "title": "Electrical Circuits, Electronics, and Machinery",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -472,7 +425,6 @@
         },
         "ECE 333T": {
             "title": "Engineering Communication",
-            "credits": 3,
             "category": "ece_core",
             "offered": [
                 "fall",
@@ -482,7 +434,6 @@
         },
         "ECE 334K": {
             "title": "Quantum Theory of Electronic Materials",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -492,7 +443,6 @@
         },
         "ECE 438": {
             "title": "Fundamentals of Electronic Circuits I Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -502,7 +452,6 @@
         },
         "ECE 438K": {
             "title": "Analog Electronics",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -512,7 +461,6 @@
         },
         "ECE 338L": {
             "title": "Analog Integrated Circuit Design",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -522,7 +470,6 @@
         },
         "ECE 339": {
             "title": "Solid-State Electronic Devices",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -532,7 +479,6 @@
         },
         "ECE 339S": {
             "title": "Solar Energy Conversion Devices",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -542,7 +488,6 @@
         },
         "ECE 440": {
             "title": "Integrated Circuit Nanomanufacturing Techniques",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -552,7 +497,6 @@
         },
         "ECE 340P": {
             "title": "High-Throughput Nanopatterning",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -562,7 +506,6 @@
         },
         "ECE 341": {
             "title": "Electric Drives and Machines",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -572,7 +515,6 @@
         },
         "ECE 445L": {
             "title": "Embedded Systems Design Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -582,7 +524,6 @@
         },
         "ECE 445M": {
             "title": "Embedded and Real-Time Systems Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -592,7 +533,6 @@
         },
         "ECE 445S": {
             "title": "Real-Time Digital Signal Processing Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -602,7 +542,6 @@
         },
         "ECE 347": {
             "title": "Modern Optics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -612,7 +551,6 @@
         },
         "ECE 348": {
             "title": "Laser and Optical Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -622,7 +560,6 @@
         },
         "ECE 351H": {
             "title": "Probability and Random Processes: Honors",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -632,7 +569,6 @@
         },
         "ECE 351K": {
             "title": "Probability and Random Processes",
-            "credits": 3,
             "category": "ece_core",
             "offered": [
                 "fall",
@@ -642,7 +578,6 @@
         },
         "ECE 351M": {
             "title": "Digital Signal Processing",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -652,7 +587,6 @@
         },
         "ECE 155": {
             "title": "Electrical and Computer Engineering Seminar",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -662,7 +596,6 @@
         },
         "ECE 155L": {
             "title": "Engineering Leadership Seminar",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -672,7 +605,6 @@
         },
         "ECE 155R": {
             "title": "Undergraduate Research Seminar",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -682,7 +614,6 @@
         },
         "ECE 160": {
             "title": "Special Problems in Electrical and Computer Engineering",
-            "credits": 3,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -692,7 +623,6 @@
         },
         "ECE 260": {
             "title": "Special Problems in Electrical and Computer Engineering",
-            "credits": 3,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -702,7 +632,6 @@
         },
         "ECE 360": {
             "title": "Special Problems in Electrical and Computer Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -712,7 +641,6 @@
         },
         "ECE 460": {
             "title": "Special Problems in Electrical and Computer Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -722,7 +650,6 @@
         },
         "ECE 360C": {
             "title": "Algorithms",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -732,7 +659,6 @@
         },
         "ECE 360F": {
             "title": "Introduction to Software Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -742,7 +668,6 @@
         },
         "ECE 360G": {
             "title": "Programming Paradigms",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -752,7 +677,6 @@
         },
         "ECE 460J": {
             "title": "Data Science Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -762,7 +686,6 @@
         },
         "ECE 360K": {
             "title": "Introduction to Digital Communications",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -772,7 +695,6 @@
         },
         "ECE 460M": {
             "title": "Digital Systems Design Using Hardware Description Languages",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -782,7 +704,6 @@
         },
         "ECE 460N": {
             "title": "Computer Architecture",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -792,7 +713,6 @@
         },
         "ECE 360P": {
             "title": "Concurrent and Distributed Systems",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -802,7 +722,6 @@
         },
         "ECE 460R": {
             "title": "Introduction to VLSI Design",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -812,7 +731,6 @@
         },
         "ECE 360S": {
             "title": "Digital Integrated Circuit Design",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -822,7 +740,6 @@
         },
         "ECE 360T": {
             "title": "Software Testing",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -832,7 +749,6 @@
         },
         "ECE 361C": {
             "title": "Multicore Computing",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -842,7 +758,6 @@
         },
         "ECE 361D": {
             "title": "System Design Metrics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -852,7 +767,6 @@
         },
         "ECE 361E": {
             "title": "Machine Learning and Data Analytics for Edge Artificial Intelligence",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -862,7 +776,6 @@
         },
         "ECE 361G": {
             "title": "Engineering Program Analysis",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -872,7 +785,6 @@
         },
         "ECE 461L": {
             "title": "Software Engineering and Design Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -882,7 +794,6 @@
         },
         "ECE 361M": {
             "title": "Software Architectures",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -892,7 +803,6 @@
         },
         "ECE 361N": {
             "title": "Information Security and Privacy",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -902,7 +812,6 @@
         },
         "ECE 461P": {
             "title": "Data Science Principles",
-            "credits": 4,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -912,7 +821,6 @@
         },
         "ECE 361Q": {
             "title": "Requirements Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -922,7 +830,6 @@
         },
         "ECE 361R": {
             "title": "Radio-Frequency Electronics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -932,7 +839,6 @@
         },
         "ECE 461S": {
             "title": "Operating Systems",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -942,7 +848,6 @@
         },
         "ECE 362G": {
             "title": "Smart Grids",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -952,7 +857,6 @@
         },
         "ECE 362K": {
             "title": "Introduction to Automatic Control",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -962,7 +866,6 @@
         },
         "ECE 462L": {
             "title": "Power Electronics Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -972,7 +875,6 @@
         },
         "ECE 362M": {
             "title": "Power Electronics II",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -982,7 +884,6 @@
         },
         "ECE 362Q": {
             "title": "Power Quality and Harmonics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -992,7 +893,6 @@
         },
         "ECE 362R": {
             "title": "Renewable Energy and Power Systems",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1002,7 +902,6 @@
         },
         "ECE 362S": {
             "title": "Development of a Solar-Powered Vehicle",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1012,7 +911,6 @@
         },
         "ECE 363M": {
             "title": "Microwave and Radio Frequency Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1022,7 +920,6 @@
         },
         "ECE 363N": {
             "title": "Engineering Acoustics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1032,7 +929,6 @@
         },
         "ECE 464C": {
             "title": "Corporate Senior Design Project",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1042,7 +938,6 @@
         },
         "ECE 364D": {
             "title": "Introduction to Engineering Design",
-            "credits": 5,
             "category": "ece_core",
             "offered": [
                 "fall",
@@ -1052,7 +947,6 @@
         },
         "ECE 364E": {
             "title": "Interdisciplinary Entrepreneurship",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1062,7 +956,6 @@
         },
         "ECE 464G": {
             "title": "Multidisciplinary Senior Design Project",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1072,7 +965,6 @@
         },
         "ECE 464H": {
             "title": "Honors Senior Design Project",
-            "credits": 9,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1082,7 +974,6 @@
         },
         "ECE 464K": {
             "title": "Senior Design Project",
-            "credits": 9,
             "category": "ece_core",
             "offered": [
                 "fall",
@@ -1092,7 +983,6 @@
         },
         "ECE 464R": {
             "title": "Research Senior Design Project",
-            "credits": 9,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1102,7 +992,6 @@
         },
         "ECE 464S": {
             "title": "Start-Up Senior Design Project",
-            "credits": 9,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1112,7 +1001,6 @@
         },
         "ECE 366": {
             "title": "Engineering Economics I",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1122,7 +1010,6 @@
         },
         "ECE 366K": {
             "title": "Engineering Economics II",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1132,7 +1019,6 @@
         },
         "ECE 366L": {
             "title": "Statistics for Manufacturing",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1142,7 +1028,6 @@
         },
         "ECE 368L": {
             "title": "Power Systems Apparatus and Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1152,7 +1037,6 @@
         },
         "ECE 468L": {
             "title": "Power Systems Apparatus and Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1162,7 +1046,6 @@
         },
         "ECE 369": {
             "title": "Power Systems Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1172,7 +1055,6 @@
         },
         "ECE 369L": {
             "title": "Relay Protection of Power Systems",
-            "credits": 5,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1182,7 +1064,6 @@
         },
         "ECE 370": {
             "title": "Automatic Control II",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1192,7 +1073,6 @@
         },
         "ECE 370K": {
             "title": "Computer Control Systems",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1202,7 +1082,6 @@
         },
         "ECE 370L": {
             "title": "Introduction to Manufacturing Systems Automation",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1212,7 +1091,6 @@
         },
         "ECE 370N": {
             "title": "Introduction to Robotics and Mechatronics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1222,7 +1100,6 @@
         },
         "ECE 471C": {
             "title": "Wireless Communications Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1232,7 +1109,6 @@
         },
         "ECE 371D": {
             "title": "Introduction to Neural Networks",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1242,7 +1118,6 @@
         },
         "ECE 371M": {
             "title": "Communication Systems",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1252,7 +1127,6 @@
         },
         "ECE 371P": {
             "title": "Introduction to Computer Vision",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1262,7 +1136,6 @@
         },
         "ECE 371Q": {
             "title": "Digital Image Processing",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1272,7 +1145,6 @@
         },
         "ECE 472L": {
             "title": "Network Engineering Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1282,7 +1154,6 @@
         },
         "ECE 372N": {
             "title": "Telecommunication Networks",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1292,7 +1163,6 @@
         },
         "ECE 372S": {
             "title": "Cryptography and Network Security",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1302,7 +1172,6 @@
         },
         "ECE 374K": {
             "title": "Biomedical Electronic Instrument Design",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1312,7 +1181,6 @@
         },
         "ECE 374L": {
             "title": "Applications of Biomedical Engineering",
-            "credits": 9,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1322,7 +1190,6 @@
         },
         "ECE 374N": {
             "title": "Neural Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1332,7 +1199,6 @@
         },
         "ECE 679H": {
             "title": "Undergraduate Honors Thesis",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1342,7 +1208,6 @@
         },
         "ECE 179K": {
             "title": "Topics in Electrical Engineering",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -1352,7 +1217,6 @@
         },
         "ECE 279K": {
             "title": "Topics in Electrical Engineering",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -1362,7 +1226,6 @@
         },
         "ECE 379K": {
             "title": "Topics in Electrical Engineering",
-            "credits": 1,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1372,7 +1235,6 @@
         },
         "ECE 479K": {
             "title": "Topics in Electrical Engineering",
-            "credits": 1,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1382,7 +1244,6 @@
         },
         "ECE 380C": {
             "title": "Introduction to Optimization",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1392,7 +1253,6 @@
         },
         "ECE 380K": {
             "title": "Introduction to System Theory",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1402,7 +1262,6 @@
         },
         "ECE 380L": {
             "title": "Topics in Computer Systems in Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1412,7 +1271,6 @@
         },
         "ECE 380N": {
             "title": "Topics in System Theory",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1422,7 +1280,6 @@
         },
         "ECE 381C": {
             "title": "Verification and Validation",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1432,7 +1289,6 @@
         },
         "ECE 381J": {
             "title": "Probability and Stochastic Processes I",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1442,7 +1298,6 @@
         },
         "ECE 381K": {
             "title": "Topics in Decision, Information, and Communications Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1452,7 +1307,6 @@
         },
         "ECE 381L": {
             "title": "Digital Time Series Analysis and Applications",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1462,7 +1316,6 @@
         },
         "ECE 381M": {
             "title": "Probability and Stochastic Processes II",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1472,7 +1325,6 @@
         },
         "ECE 381S": {
             "title": "Space-Time Communication",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1482,7 +1334,6 @@
         },
         "ECE 381V": {
             "title": "Topics in Communications, Networks, and Systems",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1492,7 +1343,6 @@
         },
         "ECE 382C": {
             "title": "Topics in Software Engineering and Systems",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1502,7 +1352,6 @@
         },
         "ECE 382L": {
             "title": "Topics in Theory of Digital Systems",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1512,7 +1361,6 @@
         },
         "ECE 382M": {
             "title": "Topics in Integrated Circuits and Systems",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1522,7 +1370,6 @@
         },
         "ECE 382N": {
             "title": "Topics in Architecture, Computer Systems, and Embedded Systems",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1532,7 +1379,6 @@
         },
         "ECE 382V": {
             "title": "Topics in Computer Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1542,7 +1388,6 @@
         },
         "ECE 383L": {
             "title": "Electromagnetic Field Theory",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1552,7 +1397,6 @@
         },
         "ECE 383M": {
             "title": "Microwave Field Theory",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1562,7 +1406,6 @@
         },
         "ECE 383N": {
             "title": "Theory of Electromagnetic Fields: Electrodynamics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1572,7 +1415,6 @@
         },
         "ECE 383P": {
             "title": "Topics in Optical Processing and Laser Communications",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1582,7 +1424,6 @@
         },
         "ECE 383V": {
             "title": "Topics in Electromagnetics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1592,7 +1433,6 @@
         },
         "ECE 384N": {
             "title": "Topics in Acoustics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1602,7 +1442,6 @@
         },
         "ECE 385J": {
             "title": "Topics in Biomedical Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1612,7 +1451,6 @@
         },
         "ECE 386C": {
             "title": "Software Architecture",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1622,7 +1460,6 @@
         },
         "ECE 390C": {
             "title": "Statistical Methods in Engineering and Quality Assurance",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1632,7 +1469,6 @@
         },
         "ECE 390V": {
             "title": "Topics in Manufacturing Systems Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1642,7 +1478,6 @@
         },
         "ECE 391C": {
             "title": "Technical Entrepreneurship",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1652,7 +1487,6 @@
         },
         "ECE 392C": {
             "title": "Software Testing",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1662,7 +1496,6 @@
         },
         "ECE 392K": {
             "title": "Antenna Theory and Practice",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1672,7 +1505,6 @@
         },
         "ECE 392L": {
             "title": "Computational Electromagnetics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1682,7 +1514,6 @@
         },
         "ECE 392N": {
             "title": "Principles of Radar",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1692,7 +1523,6 @@
         },
         "ECE 393C": {
             "title": "Topics in Plasma Dynamics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1702,7 +1532,6 @@
         },
         "ECE 394": {
             "title": "Topics in Power System Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1712,7 +1541,6 @@
         },
         "ECE 394J": {
             "title": "Topics in Energy Systems",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1722,7 +1550,6 @@
         },
         "ECE 394L": {
             "title": "Power Systems Apparatus and Laboratory",
-            "credits": 6,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1732,7 +1559,6 @@
         },
         "ECE 396K": {
             "title": "Topics in Solid-State Device Theory",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1742,7 +1568,6 @@
         },
         "ECE 396M": {
             "title": "Topics in Quantum Electronics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1752,7 +1577,6 @@
         },
         "ECE 396N": {
             "title": "Topics in Nanotechnology",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1762,7 +1586,6 @@
         },
         "ECE 396V": {
             "title": "Topics in Solid-State Electronics",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1772,7 +1595,6 @@
         },
         "ECE 197C": {
             "title": "Research Problems",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -1782,7 +1604,6 @@
         },
         "ECE 297C": {
             "title": "Research Problems",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -1792,7 +1613,6 @@
         },
         "ECE 397C": {
             "title": "Research Problems",
-            "credits": 1,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1802,7 +1622,6 @@
         },
         "ECE 697C": {
             "title": "Research Problems",
-            "credits": 1,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1812,7 +1631,6 @@
         },
         "ECE 997C": {
             "title": "Research Problems",
-            "credits": 1,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1822,7 +1640,6 @@
         },
         "ECE 197G": {
             "title": "Research Problems",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -1832,7 +1649,6 @@
         },
         "ECE 297G": {
             "title": "Research Problems",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -1842,7 +1658,6 @@
         },
         "ECE 397G": {
             "title": "Research Problems",
-            "credits": 1,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1852,7 +1667,6 @@
         },
         "ECE 697G": {
             "title": "Research Problems",
-            "credits": 1,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1862,7 +1676,6 @@
         },
         "ECE 997G": {
             "title": "Research Problems",
-            "credits": 1,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1872,7 +1685,6 @@
         },
         "ECE 397K": {
             "title": "Advanced Topics in Electrical Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1882,7 +1694,6 @@
         },
         "ECE 197M": {
             "title": "Graduate Research Internship",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -1892,7 +1703,6 @@
         },
         "ECE 297M": {
             "title": "Graduate Research Internship",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -1902,7 +1712,6 @@
         },
         "ECE 397M": {
             "title": "Graduate Research Internship",
-            "credits": 1,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1912,7 +1721,6 @@
         },
         "ECE 397N": {
             "title": "Conference Course",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1922,7 +1730,6 @@
         },
         "ECE 197S": {
             "title": "Graduate Seminar in Electrical Engineering",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -1932,7 +1739,6 @@
         },
         "ECE 297S": {
             "title": "Graduate Seminar in Electrical Engineering",
-            "credits": 1,
             "category": "ece_lower",
             "offered": [
                 "fall",
@@ -1942,7 +1748,6 @@
         },
         "ECE 397S": {
             "title": "Graduate Seminar in Electrical Engineering",
-            "credits": 1,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1952,7 +1757,6 @@
         },
         "ECE 698": {
             "title": "Thesis",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1962,7 +1766,6 @@
         },
         "ECE 398R": {
             "title": "Master's Report",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1972,7 +1775,6 @@
         },
         "ECE 398T": {
             "title": "Supervised Teaching in Electrical Engineering",
-            "credits": 3,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1982,7 +1784,6 @@
         },
         "ECE 399W": {
             "title": "Dissertation",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -1992,7 +1793,6 @@
         },
         "ECE 499W": {
             "title": "Dissertation",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -2002,7 +1802,6 @@
         },
         "ECE 599W": {
             "title": "Dissertation",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -2012,7 +1811,6 @@
         },
         "ECE 699W": {
             "title": "Dissertation",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -2022,7 +1820,6 @@
         },
         "ECE 799W": {
             "title": "Dissertation",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -2032,7 +1829,6 @@
         },
         "ECE 899W": {
             "title": "Dissertation",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -2042,7 +1838,6 @@
         },
         "ECE 999W": {
             "title": "Dissertation",
-            "credits": null,
             "category": "ece_upper",
             "offered": [
                 "fall",
@@ -2052,7 +1847,6 @@
         },
         "M 301": {
             "title": "College Algebra",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2062,7 +1856,6 @@
         },
         "M 302": {
             "title": "Introduction to Mathematics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2072,7 +1865,6 @@
         },
         "M 303D": {
             "title": "Applicable Mathematics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2082,7 +1874,6 @@
         },
         "M 303F": {
             "title": "Mathematics of Investment",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2092,7 +1883,6 @@
         },
         "M 403K": {
             "title": "Calculus I for Business and Economics",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2102,7 +1892,6 @@
         },
         "M 403L": {
             "title": "Calculus II for Business and Economics",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2112,7 +1901,6 @@
         },
         "M 305E": {
             "title": "Analytic Geometry",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2122,7 +1910,6 @@
         },
         "M 305G": {
             "title": "Preparation for Calculus",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2132,7 +1919,6 @@
         },
         "M 408C": {
             "title": "Differential and Integral Calculus",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2142,7 +1928,6 @@
         },
         "M 408D": {
             "title": "Sequences, Series, and Multivariable Calculus",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2152,7 +1937,6 @@
         },
         "M 408K": {
             "title": "Differential Calculus",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2162,7 +1946,6 @@
         },
         "M 308L": {
             "title": "Integral Calculus",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2172,7 +1955,6 @@
         },
         "M 408L": {
             "title": "Integral Calculus",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2182,7 +1964,6 @@
         },
         "M 308M": {
             "title": "Multivariable Calculus",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2192,7 +1973,6 @@
         },
         "M 408M": {
             "title": "Multivariable Calculus",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2202,7 +1982,6 @@
         },
         "M 408N": {
             "title": "Differential Calculus for Science",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2212,7 +1991,6 @@
         },
         "M 408Q": {
             "title": "Differential and Integral Calculus for Business",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2222,7 +2000,6 @@
         },
         "M 408R": {
             "title": "Differential and Integral Calculus for the Sciences",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2232,7 +2009,6 @@
         },
         "M 408S": {
             "title": "Integral Calculus for Science",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2242,7 +2018,6 @@
         },
         "M 110C": {
             "title": "Conference Course",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2252,7 +2027,6 @@
         },
         "M 210C": {
             "title": "Conference Course",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2262,7 +2036,6 @@
         },
         "M 310C": {
             "title": "Conference Course",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2272,7 +2045,6 @@
         },
         "M 410C": {
             "title": "Conference Course",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2282,7 +2054,6 @@
         },
         "M 210E": {
             "title": "Emerging Scholars Seminar",
-            "credits": 4,
             "category": "math",
             "offered": [
                 "fall",
@@ -2292,7 +2063,6 @@
         },
         "M 310P": {
             "title": "Modern Mathematics: Plan II",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2302,7 +2072,6 @@
         },
         "M 110T": {
             "title": "Topics in Mathematics",
-            "credits": 4,
             "category": "math",
             "offered": [
                 "fall",
@@ -2312,7 +2081,6 @@
         },
         "M 210T": {
             "title": "Topics in Mathematics",
-            "credits": 4,
             "category": "math",
             "offered": [
                 "fall",
@@ -2322,7 +2090,6 @@
         },
         "M 310T": {
             "title": "Topics in Mathematics",
-            "credits": 4,
             "category": "math",
             "offered": [
                 "fall",
@@ -2332,7 +2099,6 @@
         },
         "M 410T": {
             "title": "Topics in Mathematics",
-            "credits": 4,
             "category": "math",
             "offered": [
                 "fall",
@@ -2342,7 +2108,6 @@
         },
         "M 315C": {
             "title": "Foundations, Functions, and Regression Models",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2352,7 +2117,6 @@
         },
         "M 316K": {
             "title": "Foundations of Arithmetic",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2362,7 +2126,6 @@
         },
         "M 316L": {
             "title": "Foundations of Geometry, Statistics, and Probability",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2372,7 +2135,6 @@
         },
         "M 119S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2382,7 +2144,6 @@
         },
         "M 219S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2392,7 +2153,6 @@
         },
         "M 319S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2402,7 +2162,6 @@
         },
         "M 419S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2412,7 +2171,6 @@
         },
         "M 519S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2422,7 +2180,6 @@
         },
         "M 619S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2432,7 +2189,6 @@
         },
         "M 719S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2442,7 +2198,6 @@
         },
         "M 819S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2452,7 +2207,6 @@
         },
         "M 919S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2462,7 +2216,6 @@
         },
         "M 325K": {
             "title": "Discrete Mathematics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2472,7 +2225,6 @@
         },
         "M 326K": {
             "title": "Foundations of Number Systems",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2482,7 +2234,6 @@
         },
         "M 427J": {
             "title": "Differential Equations with Linear Algebra",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2492,7 +2243,6 @@
         },
         "M 427K": {
             "title": "Advanced Calculus for Applications I",
-            "credits": 5,
             "category": "math",
             "offered": [
                 "fall",
@@ -2502,7 +2252,6 @@
         },
         "M 427L": {
             "title": "Advanced Calculus for Applications II",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2512,7 +2261,6 @@
         },
         "M 328K": {
             "title": "Introduction to Number Theory",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2522,7 +2270,6 @@
         },
         "M 329F": {
             "title": "Theory of Interest",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2532,7 +2279,6 @@
         },
         "M 129S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2542,7 +2288,6 @@
         },
         "M 229S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2552,7 +2297,6 @@
         },
         "M 329S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2562,7 +2306,6 @@
         },
         "M 429S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2572,7 +2315,6 @@
         },
         "M 529S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2582,7 +2324,6 @@
         },
         "M 629S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2592,7 +2333,6 @@
         },
         "M 729S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2602,7 +2342,6 @@
         },
         "M 829S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2612,7 +2351,6 @@
         },
         "M 929S": {
             "title": "Topics in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2622,7 +2360,6 @@
         },
         "M 329W": {
             "title": "Cooperative Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2632,7 +2369,6 @@
         },
         "M 333L": {
             "title": "Structure of Modern Geometry",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2642,7 +2378,6 @@
         },
         "M 339C": {
             "title": "Actuarial Case Studies",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2652,7 +2387,6 @@
         },
         "M 339D": {
             "title": "Introduction to Financial Mathematics for Actuaries",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2662,7 +2396,6 @@
         },
         "M 339G": {
             "title": "Predictive Analytics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2672,7 +2405,6 @@
         },
         "M 339J": {
             "title": "Probability Models with Actuarial Applications",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2682,7 +2414,6 @@
         },
         "M 139S": {
             "title": "Seminar on Actuarial Practice",
-            "credits": 1,
             "category": "math",
             "offered": [
                 "fall",
@@ -2692,7 +2423,6 @@
         },
         "M 339U": {
             "title": "Actuarial Contingent Payments I",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2702,7 +2432,6 @@
         },
         "M 339V": {
             "title": "Actuarial Contingent Payments II",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2712,7 +2441,6 @@
         },
         "M 340L": {
             "title": "Matrices and Matrix Calculations",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2722,7 +2450,6 @@
         },
         "M 341": {
             "title": "Linear Algebra and Matrix Theory",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2732,7 +2459,6 @@
         },
         "M 343K": {
             "title": "Introduction to Algebraic Structures",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2742,7 +2468,6 @@
         },
         "M 343L": {
             "title": "Applied Number Theory",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2752,7 +2477,6 @@
         },
         "M 343M": {
             "title": "Error-Correcting Codes",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2762,7 +2486,6 @@
         },
         "M 344K": {
             "title": "Intermediate Symbolic Logic",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2772,7 +2495,6 @@
         },
         "M 346": {
             "title": "Applied Linear Algebra",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2782,7 +2504,6 @@
         },
         "M 348": {
             "title": "Scientific Computation in Numerical Analysis",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2792,7 +2513,6 @@
         },
         "M 349P": {
             "title": "Actuarial Statistical Estimates",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2802,7 +2522,6 @@
         },
         "M 349R": {
             "title": "Applied Regression and Time Series",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2812,7 +2531,6 @@
         },
         "M 349T": {
             "title": "Time Series and Survival-Model Estimation",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2822,7 +2540,6 @@
         },
         "M 358K": {
             "title": "Applied Statistics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2832,7 +2549,6 @@
         },
         "M 360M": {
             "title": "Mathematics as Problem Solving",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2842,7 +2558,6 @@
         },
         "M 361": {
             "title": "Theory of Functions of a Complex Variable",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2852,7 +2567,6 @@
         },
         "M 361K": {
             "title": "Introduction to Real Analysis",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2862,7 +2576,6 @@
         },
         "M 362K": {
             "title": "Probability I",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2872,7 +2585,6 @@
         },
         "M 362M": {
             "title": "Introduction to Stochastic Processes",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2882,7 +2594,6 @@
         },
         "M 364K": {
             "title": "Vector and Tensor Analysis I",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2892,7 +2603,6 @@
         },
         "M 364L": {
             "title": "Vector and Tensor Analysis II",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2902,7 +2612,6 @@
         },
         "M 365C": {
             "title": "Real Analysis I",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2912,7 +2621,6 @@
         },
         "M 365D": {
             "title": "Real Analysis II",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2922,7 +2630,6 @@
         },
         "M 365G": {
             "title": "Curves and Surfaces",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2932,7 +2639,6 @@
         },
         "M 367K": {
             "title": "Topology I",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2942,7 +2648,6 @@
         },
         "M 367L": {
             "title": "Topology II",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2952,7 +2657,6 @@
         },
         "M 368K": {
             "title": "Numerical Methods for Applications",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2962,7 +2666,6 @@
         },
         "M 371E": {
             "title": "Learning Assistant Experience in Mathematics",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -2972,7 +2675,6 @@
         },
         "M 372": {
             "title": "Fourier Series and Boundary Value Problems",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2982,7 +2684,6 @@
         },
         "M 372K": {
             "title": "Partial Differential Equations and Applications",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -2992,7 +2693,6 @@
         },
         "M 373K": {
             "title": "Algebraic Structures I",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3002,7 +2702,6 @@
         },
         "M 373L": {
             "title": "Algebraic Structures II",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3012,7 +2711,6 @@
         },
         "M 374": {
             "title": "Fourier and Laplace Transforms",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3022,7 +2720,6 @@
         },
         "M 374G": {
             "title": "Linear Regression Analysis",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3032,7 +2729,6 @@
         },
         "M 374K": {
             "title": "Fourier and Laplace Transforms",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3042,7 +2738,6 @@
         },
         "M 374M": {
             "title": "Mathematical Modeling in Science and Engineering",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3052,7 +2747,6 @@
         },
         "M 175": {
             "title": "Conference Course",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -3062,7 +2756,6 @@
         },
         "M 275": {
             "title": "Conference Course",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -3072,7 +2765,6 @@
         },
         "M 375": {
             "title": "Conference Course",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -3082,7 +2774,6 @@
         },
         "M 475": {
             "title": "Conference Course",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -3092,7 +2783,6 @@
         },
         "M 375C": {
             "title": "Topics in Conference Course: Computer-Assisted",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -3102,7 +2792,6 @@
         },
         "M 375D": {
             "title": "Discovery: An Introduction to Advanced Study in Mathematics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3112,7 +2801,6 @@
         },
         "M 175S": {
             "title": "Seminar in Instruction of Mathematics",
-            "credits": 1,
             "category": "math",
             "offered": [
                 "fall",
@@ -3122,7 +2810,6 @@
         },
         "M 175T": {
             "title": "Topics in Mathematics",
-            "credits": 4,
             "category": "math",
             "offered": [
                 "fall",
@@ -3132,7 +2819,6 @@
         },
         "M 275T": {
             "title": "Topics in Mathematics",
-            "credits": 4,
             "category": "math",
             "offered": [
                 "fall",
@@ -3142,7 +2828,6 @@
         },
         "M 375T": {
             "title": "Topics in Mathematics",
-            "credits": 4,
             "category": "math",
             "offered": [
                 "fall",
@@ -3152,7 +2837,6 @@
         },
         "M 475T": {
             "title": "Topics in Mathematics",
-            "credits": 4,
             "category": "math",
             "offered": [
                 "fall",
@@ -3162,7 +2846,6 @@
         },
         "M 376C": {
             "title": "Topics in Methods of Applied Mathematics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3172,7 +2855,6 @@
         },
         "M 378K": {
             "title": "Introduction to Mathematical Statistics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3182,7 +2864,6 @@
         },
         "M 378N": {
             "title": "Generalized Linear Models",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3192,7 +2873,6 @@
         },
         "M 378P": {
             "title": "Decision Analytics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3202,7 +2882,6 @@
         },
         "M 379H": {
             "title": "Honors Tutorial Course",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -3212,7 +2891,6 @@
         },
         "M 380C": {
             "title": "Algebra",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3222,7 +2900,6 @@
         },
         "M 380D": {
             "title": "Algebra",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3232,7 +2909,6 @@
         },
         "M 381C": {
             "title": "Real Analysis",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3242,7 +2918,6 @@
         },
         "M 381D": {
             "title": "Complex Analysis",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3252,7 +2927,6 @@
         },
         "M 381E": {
             "title": "Functional Analysis",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3262,7 +2936,6 @@
         },
         "M 382C": {
             "title": "Algebraic Topology",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3272,7 +2945,6 @@
         },
         "M 382D": {
             "title": "Differential Topology",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3282,7 +2954,6 @@
         },
         "M 382E": {
             "title": "Advanced Algebraic Topology",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3292,7 +2963,6 @@
         },
         "M 382F": {
             "title": "Algebraic Topology",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3302,7 +2972,6 @@
         },
         "M 382G": {
             "title": "Differential Geometry",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3312,7 +2981,6 @@
         },
         "M 383C": {
             "title": "Methods of Applied Mathematics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3322,7 +2990,6 @@
         },
         "M 383D": {
             "title": "Methods of Applied Mathematics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3332,7 +2999,6 @@
         },
         "M 383E": {
             "title": "Numerical Analysis: Linear Algebra",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3342,7 +3008,6 @@
         },
         "M 383F": {
             "title": "Numerical Analysis: Interpolation, Approximation, Quadrature, and Differential Equations",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3352,7 +3017,6 @@
         },
         "M 384C": {
             "title": "Mathematical Statistics I",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3362,7 +3026,6 @@
         },
         "M 384D": {
             "title": "Mathematical Statistics II",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3372,7 +3035,6 @@
         },
         "M 384E": {
             "title": "Design and Analysis of Experiments",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3382,7 +3044,6 @@
         },
         "M 384F": {
             "title": "Design of Experiments",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3392,7 +3053,6 @@
         },
         "M 384G": {
             "title": "Regression Analysis",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3402,7 +3062,6 @@
         },
         "M 384H": {
             "title": "Multivariate Statistical Analysis",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3412,7 +3071,6 @@
         },
         "M 385C": {
             "title": "Theory of Probability",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3422,7 +3080,6 @@
         },
         "M 385D": {
             "title": "Theory of Probability",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3432,7 +3089,6 @@
         },
         "M 387C": {
             "title": "Numerical Analysis: Algebra and Approximation",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3442,7 +3098,6 @@
         },
         "M 387D": {
             "title": "Numerical Analysis: Differential Equations",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3452,7 +3107,6 @@
         },
         "M 389C": {
             "title": "Actuarial Case Studies",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3462,7 +3116,6 @@
         },
         "M 389D": {
             "title": "Introduction to Financial Mathematics for Actuaries",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3472,7 +3125,6 @@
         },
         "M 389F": {
             "title": "Theory of Interest",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3482,7 +3134,6 @@
         },
         "M 389G": {
             "title": "Predictive Analytics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3492,7 +3143,6 @@
         },
         "M 389J": {
             "title": "Probability Models with Actuarial Applications",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3502,7 +3152,6 @@
         },
         "M 389P": {
             "title": "Actuarial Statistical Estimates",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3512,7 +3161,6 @@
         },
         "M 189S": {
             "title": "Seminar on Actuarial Practice",
-            "credits": 1,
             "category": "math",
             "offered": [
                 "fall",
@@ -3522,7 +3170,6 @@
         },
         "M 389T": {
             "title": "Time Series and Survival-Model Estimation",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3532,7 +3179,6 @@
         },
         "M 389U": {
             "title": "Actuarial Contingent Payments I",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3542,7 +3188,6 @@
         },
         "M 389V": {
             "title": "Actuarial Contingent Payments II",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3552,7 +3197,6 @@
         },
         "M 389W": {
             "title": "Financial Mathematics for Actuarial Applications",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3562,7 +3206,6 @@
         },
         "M 390C": {
             "title": "Topics in Algebra",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3572,7 +3215,6 @@
         },
         "M 391C": {
             "title": "Topics in Analysis",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3582,7 +3224,6 @@
         },
         "M 392C": {
             "title": "Topics in Topology",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3592,7 +3233,6 @@
         },
         "M 393C": {
             "title": "Topics in Applied Mathematics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3602,7 +3242,6 @@
         },
         "M 393N": {
             "title": "Numerical Solution of Elliptic Partial Differential Equations",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3612,7 +3251,6 @@
         },
         "M 394C": {
             "title": "Topics in Probability and Statistics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3622,7 +3260,6 @@
         },
         "M 395C": {
             "title": "Topics in Logic and Foundations",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3632,7 +3269,6 @@
         },
         "M 396C": {
             "title": "Topics in Mathematics",
-            "credits": 1,
             "category": "math",
             "offered": [
                 "fall",
@@ -3642,7 +3278,6 @@
         },
         "M 696C": {
             "title": "Topics in Mathematics",
-            "credits": 1,
             "category": "math",
             "offered": [
                 "fall",
@@ -3652,7 +3287,6 @@
         },
         "M 996C": {
             "title": "Topics in Mathematics",
-            "credits": 1,
             "category": "math",
             "offered": [
                 "fall",
@@ -3662,7 +3296,6 @@
         },
         "M 396D": {
             "title": "Conference Course",
-            "credits": 1,
             "category": "math",
             "offered": [
                 "fall",
@@ -3672,7 +3305,6 @@
         },
         "M 696D": {
             "title": "Conference Course",
-            "credits": 1,
             "category": "math",
             "offered": [
                 "fall",
@@ -3682,7 +3314,6 @@
         },
         "M 996D": {
             "title": "Conference Course",
-            "credits": 1,
             "category": "math",
             "offered": [
                 "fall",
@@ -3692,7 +3323,6 @@
         },
         "M 397C": {
             "title": "Topics in Numerical Analysis",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3702,7 +3332,6 @@
         },
         "M 197S": {
             "title": "Topics in Mathematics: Seminar",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3712,7 +3341,6 @@
         },
         "M 397S": {
             "title": "Topics in Mathematics: Seminar",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3722,7 +3350,6 @@
         },
         "M 698": {
             "title": "Thesis",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3732,7 +3359,6 @@
         },
         "M 398R": {
             "title": "Master's Report",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3742,7 +3368,6 @@
         },
         "M 398T": {
             "title": "Supervised Teaching in Mathematics",
-            "credits": 3,
             "category": "math",
             "offered": [
                 "fall",
@@ -3752,7 +3377,6 @@
         },
         "M 399W": {
             "title": "Dissertation",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -3762,7 +3386,6 @@
         },
         "M 699W": {
             "title": "Dissertation",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",
@@ -3772,7 +3395,6 @@
         },
         "M 999W": {
             "title": "Dissertation",
-            "credits": null,
             "category": "math",
             "offered": [
                 "fall",

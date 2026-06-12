@@ -19,6 +19,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { planReducer, INITIAL_STATE, SEMESTERS } from '../context/PlanContext.constants';
 import { isPastSemester } from './sanitize-course-list';
+import { getCourseCredits } from './course-utils';
 import { canOfferInSemester } from './solver';
 import { generateAutoPlan } from './auto-planner';
 import { PrereqGraph } from './graph-engine';
@@ -49,20 +50,8 @@ const prereqData = loadJson<PrereqGraphData>('prerequisite-graph.json');
 const offeringSchedule = loadJson<OfferingSchedule>('offering-schedule.json');
 const prereqGraph = new PrereqGraph(prereqData);
 
-// Minimal catalog from prereq nodes
-const catalog: CourseCatalog = {};
-Object.entries(prereqData.nodes).forEach(([id, node]) => {
-  catalog[id] = {
-    id,
-    title: node.title,
-    credits: node.credits,
-    description: '',
-    prerequisites: [],
-    corequisites: [],
-    grading: '',
-    department: id.split(' ')[0],
-  };
-});
+// The REAL catalog — the canonical credit source the production solver uses.
+const catalog = loadJson<CourseCatalog>('course-catalog.json');
 
 // Canonical SEMESTERS (with Summer terms — matches production)
 const CANONICAL_SEMESTERS: Semester[] = SEMESTERS; // from PlanContext.constants
@@ -193,7 +182,6 @@ describe('AC2 — offering source fallback: ECE 464K never placed in summer', ()
   it('generateAutoPlan (with summer semesters): ECE 464K lands in fall or spring, never summer', () => {
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       offeringSchedule,
       userProfile: profile,
       degreeReqs,
@@ -230,7 +218,6 @@ describe('AC3 — no future term exceeds credit-hour cap (full canonical semeste
   it('generateAutoPlan with Summer semesters: every future term ≤ cap (above_average=18)', () => {
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       offeringSchedule,
       userProfile: profile,
       degreeReqs,
@@ -247,7 +234,7 @@ describe('AC3 — no future term exceeds credit-hour cap (full canonical semeste
     const futureSemesters = CANONICAL_SEMESTERS.filter((s) => s.status === 'future');
     for (const sem of futureSemesters) {
       const credits = (result.plan[sem.id] ?? []).reduce(
-        (sum, id) => sum + (prereqData.nodes[id]?.credits ?? 3),
+        (sum, id) => sum + getCourseCredits(id, catalog),
         0
       );
       expect(credits).toBeLessThanOrEqual(cap);
@@ -287,7 +274,6 @@ describe('AC4 — single source of truth for past-term and offering rules', () =
       nodes: {
         'ECE 999': {
           title: 'Test Course',
-          credits: 3,
           category: 'ece_core',
           offered: ['fall', 'spring'],
           flags: [],

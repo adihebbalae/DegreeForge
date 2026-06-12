@@ -86,7 +86,7 @@ describe('Acceptance #1 — cap is identical across tile, column, and slack for 
       // computeSemesterSlack is the single function used by useDiagnostics to
       // populate semesterSlack[n].cap, which OverviewYearGrid reads back to
       // pass as creditHourCap to every SemesterTile.
-      const slack = computeSemesterSlack(EMPTY_PLAN, FUTURE_SEMESTERS, prereqGraph, cap);
+      const slack = computeSemesterSlack(EMPTY_PLAN, FUTURE_SEMESTERS, {}, cap);
 
       expect(slack).toHaveLength(FUTURE_SEMESTERS.length);
 

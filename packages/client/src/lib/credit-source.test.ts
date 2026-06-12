@@ -225,7 +225,7 @@ describe('computeProgress with AP credits', () => {
     ]);
 
     const plan: Plan = {};
-    const result = computeProgress(plan, profile, mockCatalog, {}, mockDegreeReqs, mockTechCore);
+    const result = computeProgress(plan, profile, mockCatalog, mockDegreeReqs, mockTechCore);
 
     // ECE 302 (3) + M 408C AP (4) = 7 total hours toward degree
     expect(result.totalHours).toBe(7);

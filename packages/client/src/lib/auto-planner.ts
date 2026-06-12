@@ -47,11 +47,6 @@ import type {
 
 export interface AutoPlannerInput {
   prereqGraph: PrereqGraph;
-  /**
-   * Raw prereq graph nodes — kept for backward compat with workload.ts / tests.
-   * No longer used for offering pattern (use offeringSchedule instead).
-   */
-  prereqNodes?: Record<string, PrereqNode>;
   /** Offering schedule from offering-schedule.json. Used for offering pattern checks. */
   offeringSchedule?: OfferingSchedule;
   userProfile: UserProfile;
@@ -63,7 +58,8 @@ export interface AutoPlannerInput {
   currentPlan: Plan;
   /** courseId -> semesterId. Pinned courses are placed first and not moved. */
   pinnedCourses?: Record<string, string>;
-  catalog?: CourseCatalog;
+  /** Course catalog — canonical credit source (via getCourseCredits) */
+  catalog: CourseCatalog;
   /**
    * Override the profile-derived credit-hour cap per semester.
    * When set, used instead of the value derived from load-tolerance.
@@ -135,6 +131,7 @@ export function getCreditHourCap(profile: UserProfile | null, overrideHours?: nu
 export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
   const {
     prereqGraph,
+    catalog,
     offeringSchedule = {},
     userProfile,
     degreeReqs,
@@ -184,6 +181,7 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
     completedCourses,
     remainingRequirements: required,
     prereqGraph,
+    catalog,
     offeringSchedule,
     pinnedCourses,
     maxHoursPerSemester: creditHourCap,

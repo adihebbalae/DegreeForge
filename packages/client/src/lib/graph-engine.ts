@@ -42,8 +42,6 @@ export class PrereqGraph {
   private readonly coreqsOf: Map<string, Set<string>> = new Map();
   /** course → set of courses that directly or transitively depend on it */
   private readonly directDependents: Map<string, Set<string>> = new Map();
-  /** course → credit hours */
-  private readonly creditsOf: Map<string, number> = new Map();
   /** course → offered seasons (e.g. ['fall', 'spring']). Empty = not declared. */
   private readonly offeredOf: Map<string, string[]> = new Map();
   /**
@@ -57,7 +55,6 @@ export class PrereqGraph {
     this.cnf = cnfOverride !== undefined ? cnfOverride : PREREQ_CNF;
     // Initialize from nodes
     for (const [courseId, node] of Object.entries(graphData.nodes)) {
-      this.creditsOf.set(courseId, node.credits);
       if (node.offered && node.offered.length > 0) {
         this.offeredOf.set(courseId, node.offered);
       }
@@ -96,11 +93,6 @@ export class PrereqGraph {
   /** Direct corequisites of `courseId` (courses that must be taken same-or-earlier). */
   getCoreqs(courseId: string): string[] {
     return Array.from(this.coreqsOf.get(courseId) ?? []);
-  }
-
-  /** Credit hours for a course (defaults to 3 for courses not in the graph). */
-  getCredits(courseId: string): number {
-    return this.creditsOf.get(courseId) ?? 3;
   }
 
   /**

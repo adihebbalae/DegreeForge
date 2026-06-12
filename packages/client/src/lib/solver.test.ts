@@ -7,26 +7,26 @@ import type { PrereqGraphData, Semester, OfferingSchedule } from '../types';
 
 const mockGraphData: PrereqGraphData = {
   nodes: {
-    'M 408C':   { title: 'Calc I',             credits: 4, category: 'math',     offered: ['fall', 'spring'], flags: [] },
-    'M 408D':   { title: 'Calc II',            credits: 4, category: 'math',     offered: ['fall', 'spring'], flags: [] },
-    'M 427J':   { title: 'Diff Eq',            credits: 4, category: 'math',     offered: ['fall', 'spring'], flags: [] },
-    'M 340L':   { title: 'Linear Algebra',     credits: 3, category: 'math',     offered: ['fall', 'spring'], flags: [] },
-    'M 325K':   { title: 'Discrete Math',      credits: 3, category: 'math',     offered: ['fall', 'spring'], flags: [] },
-    'ECE 302':  { title: 'Intro EE',           credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
-    'ECE 306':  { title: 'Intro Computing',    credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
-    'ECE 312':  { title: 'Software I',         credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
-    'ECE 319K': { title: 'Embedded Systems',   credits: 4, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
-    'ECE 411':  { title: 'Circuit Theory',     credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
-    'ECE 313':  { title: 'Linear Systems',     credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
-    'ECE 316':  { title: 'Digital Logic',      credits: 3, category: 'ece_upper',offered: ['fall', 'spring'], flags: [] },
-    'ECE 460N': { title: 'Computer Arch',      credits: 3, category: 'ece_upper',offered: ['fall', 'spring'], flags: [] },
-    'ECE 360C': { title: 'Algorithms',         credits: 3, category: 'ece_upper',offered: ['fall', 'spring'], flags: [] },
-    'ECE 445L': { title: 'Embedded Lab',       credits: 6, category: 'ece_upper',offered: ['fall', 'spring'], flags: [] },
-    'ECE 351K': { title: 'Probability',        credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
-    'ECE 333T': { title: 'Eng Communication',  credits: 3, category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
-    'ECE 325':  { title: 'EM Engineering',     credits: 3, category: 'ece_upper',offered: ['fall'], flags: [] },
-    'ECE 339':  { title: 'Solid-State Devices', credits: 3, category: 'ece_upper',offered: ['spring'], flags: [] },
-    'ECE 422C': { title: 'Software II',        credits: 3, category: 'ece_upper',offered: ['fall', 'spring'], flags: [] },
+    'M 408C':   { title: 'Calc I', category: 'math',     offered: ['fall', 'spring'], flags: [] },
+    'M 408D':   { title: 'Calc II', category: 'math',     offered: ['fall', 'spring'], flags: [] },
+    'M 427J':   { title: 'Diff Eq', category: 'math',     offered: ['fall', 'spring'], flags: [] },
+    'M 340L':   { title: 'Linear Algebra', category: 'math',     offered: ['fall', 'spring'], flags: [] },
+    'M 325K':   { title: 'Discrete Math', category: 'math',     offered: ['fall', 'spring'], flags: [] },
+    'ECE 302':  { title: 'Intro EE', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+    'ECE 306':  { title: 'Intro Computing', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+    'ECE 312':  { title: 'Software I', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+    'ECE 319K': { title: 'Embedded Systems', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+    'ECE 411':  { title: 'Circuit Theory', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+    'ECE 313':  { title: 'Linear Systems', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+    'ECE 316':  { title: 'Digital Logic', category: 'ece_upper',offered: ['fall', 'spring'], flags: [] },
+    'ECE 460N': { title: 'Computer Arch', category: 'ece_upper',offered: ['fall', 'spring'], flags: [] },
+    'ECE 360C': { title: 'Algorithms', category: 'ece_upper',offered: ['fall', 'spring'], flags: [] },
+    'ECE 445L': { title: 'Embedded Lab', category: 'ece_upper',offered: ['fall', 'spring'], flags: [] },
+    'ECE 351K': { title: 'Probability', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+    'ECE 333T': { title: 'Eng Communication', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+    'ECE 325':  { title: 'EM Engineering', category: 'ece_upper',offered: ['fall'], flags: [] },
+    'ECE 339':  { title: 'Solid-State Devices', category: 'ece_upper',offered: ['spring'], flags: [] },
+    'ECE 422C': { title: 'Software II', category: 'ece_upper',offered: ['fall', 'spring'], flags: [] },
   },
   edges: [
     { from: 'M 408C',   to: 'M 408D',   type: 'prerequisite' },
@@ -94,6 +94,7 @@ describe('generatePlan', () => {
       pinnedCourses: {},
       maxHoursPerSemester: 18,
       semesters: testSemesters,
+      catalog: {},
     };
 
     const result = generatePlan(input);
@@ -111,6 +112,7 @@ describe('generatePlan', () => {
       pinnedCourses: {},
       maxHoursPerSemester: 18,
       semesters: testSemesters,
+      catalog: {},
     };
 
     const result = generatePlan(input);
@@ -139,6 +141,7 @@ describe('generatePlan', () => {
       pinnedCourses: {},
       maxHoursPerSemester: 12, // Tight limit
       semesters: testSemesters,
+      catalog: {},
     };
 
     const result = generatePlan(input);
@@ -158,6 +161,7 @@ describe('generatePlan', () => {
       pinnedCourses: { 'ECE 411': 'Spring 2027' },
       maxHoursPerSemester: 18,
       semesters: testSemesters,
+      catalog: {},
     };
 
     const result = generatePlan(input);
@@ -175,6 +179,7 @@ describe('generatePlan', () => {
       pinnedCourses: {},
       maxHoursPerSemester: 18,
       semesters: testSemesters,
+      catalog: {},
     };
 
     const result = generatePlan(input);
@@ -215,6 +220,7 @@ describe('generatePlan', () => {
       pinnedCourses: {},
       maxHoursPerSemester: 18,
       semesters: testSemesters,
+      catalog: {},
     };
 
     const result = generatePlan(input);
@@ -231,6 +237,7 @@ describe('generatePlan', () => {
       pinnedCourses: {},
       maxHoursPerSemester: 18,
       semesters: testSemesters,
+      catalog: {},
     };
 
     const result = generatePlan(input);

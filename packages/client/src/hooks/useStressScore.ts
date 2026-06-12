@@ -14,8 +14,8 @@
 
 import { useMemo } from 'react';
 import { useSemesters, usePlan } from '@/context/PlanContext';
-import { useCatalogRecord, usePrereqGraph, useUserProfile, useDataLoading } from '@/context/DataContext';
-import { buildTermLoadCredits } from '@/lib/course-utils';
+import { useCatalogRecord, useUserProfile, useDataLoading } from '@/context/DataContext';
+import { buildTermLoadCredits, getCourseCredits } from '@/lib/course-utils';
 import { computeSemesterStress } from '@/lib/stress-score';
 import type { SemesterStressResult } from '@/lib/stress-score';
 
@@ -29,8 +29,8 @@ export type StressScoreMap = Map<string, SemesterStressResult>;
  * How credit-hours are resolved for each course:
  *   1. termLoadCredits (from buildTermLoadCredits): authoritative for completed/in-progress
  *      courses. AP/transfer/credit_by_exam → 0, so they don't inflate stress.
- *   2. catalogCredits (from the course catalog): used for future courses not yet
- *      in the transcript. Falls back to 3 if not in catalog either.
+ *   2. getCourseCredits (canonical accessor): used for future courses not yet
+ *      in the transcript.
  */
 export function useStressScore(): StressScoreMap | null {
   const loading = useDataLoading();
@@ -38,37 +38,22 @@ export function useStressScore(): StressScoreMap | null {
   const plan = usePlan();
   const userProfile = useUserProfile();
   const catalog = useCatalogRecord();
-  const prereqGraph = usePrereqGraph();
 
   return useMemo(() => {
     if (loading) return null;
 
-    // Build credit-hours maps
     const termLoadCredits = buildTermLoadCredits(userProfile);
-
-    // Catalog credits from the course catalog + prereq-graph nodes as fallback
-    const catalogCredits: Record<string, number> = {};
-    if (catalog) {
-      for (const [id, entry] of Object.entries(catalog)) {
-        catalogCredits[id] = entry.credits;
-      }
-    }
-    // Fill any gaps from prereq-graph node credits
-    for (const [id, node] of Object.entries(prereqGraph.nodes)) {
-      if (catalogCredits[id] === undefined) {
-        catalogCredits[id] = node.credits;
-      }
-    }
+    const resolveCredits = (id: string) => getCourseCredits(id, catalog);
 
     const result: StressScoreMap = new Map();
     for (const semester of semesters) {
       const courseIds = plan[semester.id] ?? [];
       result.set(
         semester.id,
-        computeSemesterStress(courseIds, termLoadCredits, catalogCredits),
+        computeSemesterStress(courseIds, termLoadCredits, resolveCredits),
       );
     }
 
     return result;
-  }, [loading, semesters, plan, userProfile, catalog, prereqGraph]);
+  }, [loading, semesters, plan, userProfile, catalog]);
 }

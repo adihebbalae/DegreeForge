@@ -15,8 +15,9 @@
  * Catalog-year as a solver input is deferred to TASK-048.
  */
 
-import type { Plan, Semester, OfferingSchedule } from '../types';
+import type { Plan, Semester, OfferingSchedule, CourseCatalog } from '../types';
 import { PrereqGraph } from './graph-engine';
+import { getCourseCredits } from './course-utils';
 import { canOfferInSemester } from './solver';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
@@ -30,6 +31,8 @@ export interface DiagnosticsInput {
   semesters: Semester[];
   /** PrereqGraph instance. */
   prereqGraph: PrereqGraph;
+  /** Course catalog — canonical credit source (via getCourseCredits). */
+  catalog: CourseCatalog;
   /** Offering schedule from offering-schedule.json. */
   offeringSchedule: OfferingSchedule;
   /** Per-semester credit-hour cap (from getCreditHourCap). */
@@ -93,9 +96,9 @@ export interface DiagnosticsResult {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Sum credit hours for a list of course IDs. */
-function sumCredits(courseIds: string[], prereqGraph: PrereqGraph): number {
-  return courseIds.reduce((sum, id) => sum + prereqGraph.getCredits(id), 0);
+/** Sum credit hours for a list of course IDs (canonical accessor). */
+function sumCredits(courseIds: string[], catalog: CourseCatalog): number {
+  return courseIds.reduce((sum, id) => sum + getCourseCredits(id, catalog), 0);
 }
 
 /**
@@ -235,14 +238,14 @@ export function computeCriticalPath(
 export function computeSemesterSlack(
   plan: Plan,
   semesters: Semester[],
-  prereqGraph: PrereqGraph,
+  catalog: CourseCatalog,
   creditHourCap: number
 ): SemesterSlack[] {
   return semesters
     .filter((s) => s.status === 'future')
     .map((s) => {
       const courses = plan[s.id] ?? [];
-      const placedHours = sumCredits(courses, prereqGraph);
+      const placedHours = sumCredits(courses, catalog);
       const spare = creditHourCap - placedHours;
 
       let label: string;
@@ -425,10 +428,10 @@ export function computeBottlenecks(
  * Returns a DiagnosticsResult that is safe to memoize (same inputs → same output).
  */
 export function computeDiagnostics(input: DiagnosticsInput): DiagnosticsResult {
-  const { remainingRequired, plan, semesters, prereqGraph, offeringSchedule, creditHourCap } = input;
+  const { remainingRequired, plan, semesters, prereqGraph, catalog, offeringSchedule, creditHourCap } = input;
 
   const criticalPath = computeCriticalPath(remainingRequired, plan, prereqGraph, semesters);
-  const semesterSlack = computeSemesterSlack(plan, semesters, prereqGraph, creditHourCap);
+  const semesterSlack = computeSemesterSlack(plan, semesters, catalog, creditHourCap);
 
   // The tail of the critical path is the graduation bottleneck
   const criticalPathTail =

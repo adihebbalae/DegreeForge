@@ -23,6 +23,7 @@ import type {
   Semester,
   PrereqGraphData,
   OfferingSchedule,
+  CourseCatalog,
 } from '../types';
 
 // ─── Minimal fixture ──────────────────────────────────────────────────────────
@@ -34,12 +35,12 @@ import type {
 
 const FIXTURE_GRAPH_DATA: PrereqGraphData = {
   nodes: {
-    A: { title: 'Course A', credits: 3, category: 'ece_core', offered: [], flags: [] },
-    B: { title: 'Course B', credits: 3, category: 'ece_core', offered: ['fall'], flags: [] },
-    C: { title: 'Course C', credits: 3, category: 'ece_core', offered: [], flags: [] },
-    D: { title: 'Course D', credits: 3, category: 'ece_core', offered: ['fall'], flags: [] },
-    E: { title: 'Course E', credits: 3, category: 'ece_core', offered: [], flags: [] },
-    F: { title: 'Course F', credits: 3, category: 'ece_core', offered: [], flags: [] },
+    A: { title: 'Course A', category: 'ece_core', offered: [], flags: [] },
+    B: { title: 'Course B', category: 'ece_core', offered: ['fall'], flags: [] },
+    C: { title: 'Course C', category: 'ece_core', offered: [], flags: [] },
+    D: { title: 'Course D', category: 'ece_core', offered: ['fall'], flags: [] },
+    E: { title: 'Course E', category: 'ece_core', offered: [], flags: [] },
+    F: { title: 'Course F', category: 'ece_core', offered: [], flags: [] },
   },
   edges: [
     { from: 'A', to: 'B', type: 'prerequisite' },
@@ -49,6 +50,12 @@ const FIXTURE_GRAPH_DATA: PrereqGraphData = {
     { from: 'E', to: 'F', type: 'prerequisite' },
   ],
 };
+
+// Catalog fixture: credits for A–F (all 3), used by computeSemesterSlack
+const mkCatalog = (m: Record<string, number | null>): CourseCatalog =>
+  Object.fromEntries(Object.entries(m).map(([id, credits]) => [id, { id, title: '', credits, description: '', prerequisites: [], corequisites: [], grading: '', department: '' }]));
+
+const FIXTURE_CATALOG: CourseCatalog = mkCatalog({ A: 3, B: 3, C: 3, D: 3, E: 3, F: 3 });
 
 const FIXTURE_OFFERING: OfferingSchedule = {
   B: { title: 'Course B', offerings: {}, offered_semesters: ['fall'] },
@@ -134,8 +141,8 @@ describe('computeCriticalPath', () => {
     // Cyclic graph: X → Y → X (A→B back-edge creates a cycle in remainingRequired)
     const cyclicGraphData: PrereqGraphData = {
       nodes: {
-        X: { title: 'Course X', credits: 3, category: 'ece_core', offered: [], flags: [] },
-        Y: { title: 'Course Y', credits: 3, category: 'ece_core', offered: [], flags: [] },
+        X: { title: 'Course X', category: 'ece_core', offered: [], flags: [] },
+        Y: { title: 'Course Y', category: 'ece_core', offered: [], flags: [] },
       },
       edges: [
         { from: 'X', to: 'Y', type: 'prerequisite' },
@@ -176,7 +183,7 @@ describe('computeSemesterSlack', () => {
   const CAP = 17;
 
   it('only returns future semesters', () => {
-    const slack = computeSemesterSlack(FIXTURE_PLAN, SEMESTERS, PREREQ_GRAPH, CAP);
+    const slack = computeSemesterSlack(FIXTURE_PLAN, SEMESTERS, FIXTURE_CATALOG, CAP);
     const ids = slack.map((s) => s.semesterId);
     expect(ids).not.toContain('Fall 2025');   // past
     expect(ids).not.toContain('Spring 2026'); // current
@@ -185,7 +192,7 @@ describe('computeSemesterSlack', () => {
   });
 
   it('slack = cap − placed hours', () => {
-    const slack = computeSemesterSlack(FIXTURE_PLAN, SEMESTERS, PREREQ_GRAPH, CAP);
+    const slack = computeSemesterSlack(FIXTURE_PLAN, SEMESTERS, FIXTURE_CATALOG, CAP);
     const fall26 = slack.find((s) => s.semesterId === 'Fall 2026')!;
     expect(fall26.placedHours).toBe(3);       // B = 3 hrs
     expect(fall26.spare).toBe(CAP - 3);       // 14 spare
@@ -202,7 +209,7 @@ describe('computeSemesterSlack', () => {
       ...FIXTURE_PLAN,
       'Spring 2027': [], // we'll test with spare=0 through cap=3
     };
-    const slack = computeSemesterSlack(exactPlan, SEMESTERS, PREREQ_GRAPH, 3);
+    const slack = computeSemesterSlack(exactPlan, SEMESTERS, FIXTURE_CATALOG, 3);
     // Spring 2027 is empty → spare = 3
     const sp27 = slack.find((s) => s.semesterId === 'Spring 2027')!;
     expect(sp27.spare).toBe(3);
@@ -214,7 +221,7 @@ describe('computeSemesterSlack', () => {
       ...FIXTURE_PLAN,
       'Fall 2026': ['B'],  // 3 hrs
     };
-    const slack = computeSemesterSlack(plan, SEMESTERS, PREREQ_GRAPH, 3); // cap=3
+    const slack = computeSemesterSlack(plan, SEMESTERS, FIXTURE_CATALOG, 3); // cap=3
     const fall26 = slack.find((s) => s.semesterId === 'Fall 2026')!;
     expect(fall26.spare).toBe(0);
     expect(fall26.label).toBe('full');
@@ -229,7 +236,7 @@ describe('computeSemesterSlack', () => {
       'Fall 2027': [],
       'Spring 2028': [],
     };
-    const slack = computeSemesterSlack(emptyPlan, SEMESTERS, PREREQ_GRAPH, 17);
+    const slack = computeSemesterSlack(emptyPlan, SEMESTERS, FIXTURE_CATALOG, 17);
     for (const s of slack) {
       expect(s.spare).toBe(17);
       expect(s.label).toBe('17 hrs spare');
@@ -341,6 +348,7 @@ describe('computeDiagnostics (real ECE data)', () => {
       plan: REAL_PLAN,
       semesters: REAL_SEMESTERS,
       prereqGraph,
+      catalog: {},
       offeringSchedule,
       creditHourCap: 17,
     });
@@ -355,6 +363,7 @@ describe('computeDiagnostics (real ECE data)', () => {
       plan: REAL_PLAN,
       semesters: REAL_SEMESTERS,
       prereqGraph,
+      catalog: {},
       offeringSchedule,
       creditHourCap: 17,
     });
@@ -375,6 +384,7 @@ describe('computeDiagnostics (real ECE data)', () => {
       plan: REAL_PLAN,
       semesters: REAL_SEMESTERS,
       prereqGraph,
+      catalog: {},
       offeringSchedule,
       creditHourCap: 17,
     });
@@ -412,6 +422,7 @@ describe('computeDiagnostics (real ECE data)', () => {
       },
       semesters: REAL_SEMESTERS,
       prereqGraph,
+      catalog: {},
       offeringSchedule,
       creditHourCap: 17,
     });
@@ -473,7 +484,7 @@ describe('N1: computeSemesterSlack — label does not include "+" prefix', () =>
       { id: 'Fall 2026', label: "Fall '26", status: 'future', year: 2026, season: 'Fall' },
     ];
     const plan: Plan = { 'Fall 2026': ['A'] }; // A = 3 credits; cap 17 → spare 14
-    const slack = computeSemesterSlack(plan, sems, PREREQ_GRAPH, 17);
+    const slack = computeSemesterSlack(plan, sems, FIXTURE_CATALOG, 17);
     expect(slack).toHaveLength(1);
     expect(slack[0].label).toBe('14 hrs spare');
     expect(slack[0].label).not.toMatch(/^\+/);
@@ -486,7 +497,7 @@ describe('N1: computeSemesterSlack — label does not include "+" prefix', () =>
     ];
     // Place more credits than cap: A+B+C+D+E+F = 18 = cap
     const plan: Plan = { 'Fall 2026': ['A', 'B', 'C', 'D', 'E', 'F'] };
-    const slack = computeSemesterSlack(plan, sems, PREREQ_GRAPH, 18);
+    const slack = computeSemesterSlack(plan, sems, FIXTURE_CATALOG, 18);
     expect(slack[0].label).toBe('full');
   });
 });

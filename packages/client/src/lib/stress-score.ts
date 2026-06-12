@@ -165,15 +165,15 @@ export function scoreToStressBand(score: number): StressBand {
  * @param termLoadCredits  course-id → credit_hours mapping from buildTermLoadCredits.
  *                      AP/transfer courses will have 0 credits here, so they do
  *                      NOT inflate the stress score.
- * @param catalogCredits  Fallback credit-hours map (course catalog or prereq graph
- *                      credits). Used when a course is not in termLoadCredits
- *                      (i.e. a future course the student hasn't yet taken).
- *                      Pass an empty object if no fallback is needed.
+ * @param resolveCredits  Canonical credit resolver for courses not in
+ *                      termLoadCredits (i.e. future courses the student hasn't
+ *                      yet taken). Callers pass
+ *                      `(id) => getCourseCredits(id, catalog)`.
  */
 export function computeSemesterStress(
   courseIds: string[],
   termLoadCredits: Record<string, number>,
-  catalogCredits: Record<string, number>,
+  resolveCredits: (courseId: string) => number,
 ): SemesterStressResult {
   if (courseIds.length === 0) {
     return {
@@ -195,11 +195,12 @@ export function computeSemesterStress(
       return { courseId: courseId ?? '', creditHours: 0, difficulty: NEUTRAL_DIFFICULTY, hasNoData: true };
     }
 
-    // Credit hours: prefer termLoadCredits (AP/transfer → 0), fallback to catalog
+    // Credit hours: prefer termLoadCredits (AP/transfer → 0), fallback to the
+    // canonical resolver
     const creditHours =
       termLoadCredits[courseId] !== undefined
         ? termLoadCredits[courseId]
-        : (catalogCredits[courseId] ?? 3);
+        : resolveCredits(courseId);
 
     const stats = getCourseGradeStats(courseId);
     const hasNoData = stats === undefined;

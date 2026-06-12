@@ -4,7 +4,6 @@ import type {
   CourseCatalog,
   DegreeRequirements,
   TechCoreTrack,
-  PrereqNode,
 } from '../types';
 import { getCourseCredits, buildTranscriptCredits } from './course-utils';
 import { parseCourseId } from './sanitize-course-list';
@@ -66,7 +65,6 @@ export function computeProgress(
   plan: Plan,
   profile: UserProfile,
   catalog: CourseCatalog,
-  prereqNodes: Record<string, PrereqNode>,
   degreeReqs: DegreeRequirements,
   techCore: TechCoreTrack,
   mathBAToggle: boolean = false
@@ -84,7 +82,7 @@ export function computeProgress(
 
   // 2. Total Credit Hours
   const totalHours = unique.reduce((sum, courseId) => {
-    return sum + getCourseCredits(courseId, catalog, prereqNodes, transcriptCredits);
+    return sum + getCourseCredits(courseId, catalog, transcriptCredits);
   }, 0);
 
   // 3. ECE Core
@@ -224,7 +222,7 @@ export function computeProgress(
 
       return isEce && isAdvanced && !isEceCore && !isTechCore;
     })
-    .reduce((sum, id) => sum + getCourseCredits(id, catalog, prereqNodes, transcriptCredits), 0);
+    .reduce((sum, id) => sum + getCourseCredits(id, catalog, transcriptCredits), 0);
 
   return {
     totalHours,

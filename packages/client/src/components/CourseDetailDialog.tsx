@@ -62,7 +62,7 @@ export default function CourseDetailDialog({
     return {
       id: courseId,
       title: getCourseTitle(courseId, catalog, prereqNodes),
-      credits: getCourseCredits(courseId, catalog, prereqNodes, transcriptCredits),
+      credits: getCourseCredits(courseId, catalog, transcriptCredits),
       description: cat?.description ?? 'No description available.',
       category,
       avgGpa: grade?.avg_gpa ?? null,

@@ -59,12 +59,12 @@ const mockCatalog: CourseCatalog = {
 };
 
 const mockPrereqNodes: PrereqGraphData['nodes'] = {
-  'ECE 302':  { title: 'Intro to EE',           credits: 3, category: 'ece_lower', offered: ['fall'], flags: [] },
-  'ECE 306':  { title: 'Intro to Computing',     credits: 3, category: 'ece_lower', offered: ['fall'], flags: [] },
-  'ECE 312H': { title: 'Software I Honors',      credits: 3, category: 'ece_core',  offered: ['spring'], flags: [] },
-  'ECE 319H': { title: 'Embedded Systems Honors',credits: 3, category: 'ece_core',  offered: ['spring'], flags: [] },
-  'ECE 316':  { title: 'Digital Logic Design',   credits: 3, category: 'ece_upper', offered: ['fall'], flags: [] },
-  'ECE 460N': { title: 'Computer Architecture',  credits: 4, category: 'ece_upper', offered: ['fall'], flags: [] },
+  'ECE 302':  { title: 'Intro to EE',           category: 'ece_lower', offered: ['fall'], flags: [] },
+  'ECE 306':  { title: 'Intro to Computing',     category: 'ece_lower', offered: ['fall'], flags: [] },
+  'ECE 312H': { title: 'Software I Honors',      category: 'ece_core',  offered: ['spring'], flags: [] },
+  'ECE 319H': { title: 'Embedded Systems Honors',category: 'ece_core',  offered: ['spring'], flags: [] },
+  'ECE 316':  { title: 'Digital Logic Design',   category: 'ece_upper', offered: ['fall'], flags: [] },
+  'ECE 460N': { title: 'Computer Architecture',  category: 'ece_upper', offered: ['fall'], flags: [] },
 };
 
 const mockDegreeReqs: DegreeRequirements = {
@@ -208,7 +208,6 @@ describe('Full planner flow', () => {
       INITIAL_PLAN,
       mockProfile,
       mockCatalog,
-      mockPrereqNodes,
       mockDegreeReqs,
       mockTechCore
     );
@@ -227,7 +226,6 @@ describe('Full planner flow', () => {
       stateAfterDrop.plan,
       mockProfile,
       mockCatalog,
-      mockPrereqNodes,
       mockDegreeReqs,
       mockTechCore
     );
@@ -244,8 +242,8 @@ describe('Full planner flow', () => {
     // Build a small graph: ECE 460N requires ECE 316
     const graphData: PrereqGraphData = {
       nodes: {
-        'ECE 316':  { title: 'Digital Logic', credits: 3, category: 'ece_upper', offered: ['fall'],   flags: [] },
-        'ECE 460N': { title: 'Comp Arch',     credits: 4, category: 'ece_upper', offered: ['fall'],   flags: [] },
+        'ECE 316':  { title: 'Digital Logic', category: 'ece_upper', offered: ['fall'],   flags: [] },
+        'ECE 460N': { title: 'Comp Arch',     category: 'ece_upper', offered: ['fall'],   flags: [] },
       },
       edges: [
         { from: 'ECE 316', to: 'ECE 460N', type: 'prerequisite' },
@@ -513,7 +511,7 @@ describe('Edge cases', () => {
   // ─── Empty plan — no crash ─────────────────────────────────────────────────
   it('empty plan state: RESET_PLAN + empty semesters do not crash validation', () => {
     const graphData: PrereqGraphData = {
-      nodes: { 'ECE 302': { title: 'Intro', credits: 3, category: 'ece_lower', offered: ['fall'], flags: [] } },
+      nodes: { 'ECE 302': { title: 'Intro', category: 'ece_lower', offered: ['fall'], flags: [] } },
       edges: [],
     };
     const graph = new PrereqGraph(graphData, {});
@@ -526,8 +524,8 @@ describe('Edge cases', () => {
   it('moving a prereq course to a later semester invalidates dependents', () => {
     const graphData: PrereqGraphData = {
       nodes: {
-        'ECE 302':  { title: 'Intro',     credits: 3, category: 'ece_lower', offered: ['fall'], flags: [] },
-        'ECE 312H': { title: 'Software',  credits: 3, category: 'ece_core',  offered: ['spring'], flags: [] },
+        'ECE 302':  { title: 'Intro',     category: 'ece_lower', offered: ['fall'], flags: [] },
+        'ECE 312H': { title: 'Software',  category: 'ece_core',  offered: ['spring'], flags: [] },
       },
       edges: [{ from: 'ECE 302', to: 'ECE 312H', type: 'prerequisite' }],
     };
@@ -554,7 +552,6 @@ describe('Edge cases', () => {
       {},                // empty plan (only completed/in-progress count)
       mockProfile,
       mockCatalog,
-      mockPrereqNodes,
       mockDegreeReqs,
       mockTechCore
     );
@@ -575,7 +572,6 @@ describe('Edge cases', () => {
       heavyPlan,
       mockProfile,
       mockCatalog,
-      mockPrereqNodes,
       mockDegreeReqs,
       mockTechCore
     );

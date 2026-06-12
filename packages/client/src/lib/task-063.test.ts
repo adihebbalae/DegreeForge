@@ -30,6 +30,7 @@ import type {
   Semester,
   Plan,
   OfferingSchedule,
+  CourseCatalog,
 } from '../types';
 
 // ─── Real data ────────────────────────────────────────────────────────────────
@@ -45,6 +46,7 @@ const techCores = loadJson<TechCores>('tech-cores.json');
 const mathReqs = loadJson<MathRequirements>('math-requirements.json');
 const offeringSchedule = loadJson<OfferingSchedule>('offering-schedule.json');
 const baseProfile = loadJson<UserProfile>('user-profile.json');
+const catalog = loadJson<CourseCatalog>('course-catalog.json');
 
 // Real graph using production PREREQ_CNF (default — no override)
 const realGraph = new PrereqGraph(prereqData);
@@ -86,7 +88,6 @@ describe('H1 — OR-group prereq correctness (real data)', () => {
   it('generateAutoPlan for software_engineering places ECE 464K and ECE 364D', () => {
     const result = generateAutoPlan({
       prereqGraph: realGraph,
-      prereqNodes: prereqData.nodes,
       offeringSchedule,
       userProfile: SWE_PROFILE,
       degreeReqs,
@@ -95,6 +96,7 @@ describe('H1 — OR-group prereq correctness (real data)', () => {
       mathBAToggle: false,
       semesters: SEMESTERS,
       currentPlan: BASE_PLAN,
+      catalog,
     });
 
     const futureCourses = SEMESTERS
@@ -117,7 +119,6 @@ describe('H1 — OR-group prereq correctness (real data)', () => {
   it('places courses with ZERO prereq violations under the real authored CNF', () => {
     const result = generateAutoPlan({
       prereqGraph: realGraph,
-      prereqNodes: prereqData.nodes,
       offeringSchedule,
       userProfile: SWE_PROFILE,
       degreeReqs,
@@ -126,6 +127,7 @@ describe('H1 — OR-group prereq correctness (real data)', () => {
       mathBAToggle: false,
       semesters: SEMESTERS,
       currentPlan: BASE_PLAN,
+      catalog,
     });
 
     // Rebuild the same variant-expanded "already taken" set generatePlan builds
@@ -162,10 +164,10 @@ describe('H1 — Synthetic OR-group prereq (unit test)', () => {
    */
   const syntheticData: PrereqGraphData = {
     nodes: {
-      'OPT_A': { title: 'Option A', credits: 3, category: 'ece_upper', offered: [], flags: [] },
-      'OPT_B': { title: 'Option B', credits: 3, category: 'ece_upper', offered: [], flags: [] },
-      'OPT_C': { title: 'Option C', credits: 3, category: 'ece_upper', offered: [], flags: [] },
-      'CAPSTONE': { title: 'Capstone', credits: 3, category: 'ece_upper', offered: [], flags: [] },
+      'OPT_A': { title: 'Option A', category: 'ece_upper', offered: [], flags: [] },
+      'OPT_B': { title: 'Option B', category: 'ece_upper', offered: [], flags: [] },
+      'OPT_C': { title: 'Option C', category: 'ece_upper', offered: [], flags: [] },
+      'CAPSTONE': { title: 'Capstone', category: 'ece_upper', offered: [], flags: [] },
     },
     edges: [
       { from: 'OPT_A', to: 'CAPSTONE', type: 'prerequisite' },
@@ -193,6 +195,7 @@ describe('H1 — Synthetic OR-group prereq (unit test)', () => {
       pinnedCourses: {},
       maxHoursPerSemester: 18,
       semesters,
+      catalog,
     });
 
     expect(result.unplacedCourses).not.toContain('CAPSTONE');
@@ -213,6 +216,7 @@ describe('H1 — Synthetic OR-group prereq (unit test)', () => {
       pinnedCourses: {},
       maxHoursPerSemester: 18,
       semesters,
+      catalog,
     });
 
     expect(result.unplacedCourses).toContain('CAPSTONE');
@@ -230,6 +234,7 @@ describe('H1 — Synthetic OR-group prereq (unit test)', () => {
       pinnedCourses: {},
       maxHoursPerSemester: 18,
       semesters,
+      catalog,
     });
 
     expect(result.unplacedCourses).not.toContain('OPT_A');
@@ -363,6 +368,7 @@ describe('H1 regression — OR-group fix does not break ECE 411 (AND-stack)', ()
       pinnedCourses: {},
       maxHoursPerSemester: 18,
       semesters,
+      catalog,
     });
 
     expect(result.unplacedCourses).toContain('ECE 411');
@@ -381,6 +387,7 @@ describe('H1 regression — OR-group fix does not break ECE 411 (AND-stack)', ()
       pinnedCourses: {},
       maxHoursPerSemester: 18,
       semesters,
+      catalog,
     });
 
     expect(result.unplacedCourses).not.toContain('ECE 411');

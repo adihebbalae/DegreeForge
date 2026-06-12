@@ -13,6 +13,7 @@ import {
   useTechCoresRecord,
   useMathRequirements,
   useOfferingSchedule,
+  useCatalogRecord,
   useDataLoading,
 } from '@/context/DataContext';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
@@ -36,6 +37,7 @@ export function useDiagnostics(): DiagnosticsResult | null {
   const techCoresRecord = useTechCoresRecord();
   const mathReqs = useMathRequirements();
   const offeringSchedule = useOfferingSchedule();
+  const catalog = useCatalogRecord();
   const prereqGraph = usePrereqGraph();
   const plan = usePlan();
   const semesters = useSemesters();
@@ -65,6 +67,7 @@ export function useDiagnostics(): DiagnosticsResult | null {
       plan,
       semesters,
       prereqGraph,
+      catalog: catalog ?? {},
       offeringSchedule,
       creditHourCap,
     });
@@ -75,6 +78,7 @@ export function useDiagnostics(): DiagnosticsResult | null {
     techCoresRecord,
     mathReqs,
     offeringSchedule,
+    catalog,
     prereqGraph,
     plan,
     semesters,

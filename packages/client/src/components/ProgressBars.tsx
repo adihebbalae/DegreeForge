@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { usePlan, useTechCoreId, useMathBAToggle, useWhatIf } from '@/context/PlanContext';
 import {
   useCatalogRecord,
-  usePrereqGraph,
   useDegreeRequirements,
   useUserProfile,
   useTechCoresRecord
@@ -11,12 +10,10 @@ import { computeProgress } from '@/lib/progress';
 import { Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import type { PrereqNode } from '@/types';
 
 export function ProgressBars() {
   const plan = usePlan();
   const catalog = useCatalogRecord();
-  const prereqGraph = usePrereqGraph();
   const degreeReqs = useDegreeRequirements();
   const profile = useUserProfile();
   const techCores = useTechCoresRecord();
@@ -28,14 +25,12 @@ export function ProgressBars() {
   const techCoreId = whatIf.isActive ? whatIf.techCoreId : currentTechCoreId;
   const mathBAToggle = whatIf.isActive ? whatIf.mathBAToggle : currentMathBA;
 
-  const prereqNodes: Record<string, PrereqNode> = prereqGraph?.nodes ?? {};
-
   const progress = useMemo(() => {
-    if (!catalog || !prereqNodes || !degreeReqs || !profile || !techCores) return null;
+    if (!catalog || !degreeReqs || !profile || !techCores) return null;
     const techCore = techCores[techCoreId];
     if (!techCore) return null;
-    return computeProgress(plan, profile, catalog, prereqNodes, degreeReqs, techCore, mathBAToggle);
-  }, [plan, catalog, prereqNodes, degreeReqs, profile, techCores, techCoreId, mathBAToggle]);
+    return computeProgress(plan, profile, catalog, degreeReqs, techCore, mathBAToggle);
+  }, [plan, catalog, degreeReqs, profile, techCores, techCoreId, mathBAToggle]);
 
   if (!progress || !profile || !techCores) {
     return (

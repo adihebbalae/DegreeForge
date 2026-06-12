@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { generateAutoPlan } from './auto-planner';
+import { getCourseCredits } from './course-utils';
 import { PrereqGraph } from './graph-engine';
 import type {
   UserProfile,
@@ -28,20 +29,8 @@ const mathReqs = loadJson<MathRequirements>('math-requirements.json');
 const prereqData = loadJson<PrereqGraphData>('prerequisite-graph.json');
 const prereqGraph = new PrereqGraph(prereqData);
 
-// Minimal catalog from prereq nodes (real catalog has more — not needed for solver)
-const catalog: CourseCatalog = {};
-Object.entries(prereqData.nodes).forEach(([id, node]) => {
-  catalog[id] = {
-    id,
-    title: node.title,
-    credits: node.credits,
-    description: '',
-    prerequisites: [],
-    corequisites: [],
-    grading: '',
-    department: id.split(' ')[0],
-  };
-});
+// The REAL catalog — the canonical credit source the production solver uses.
+const catalog = loadJson<CourseCatalog>('course-catalog.json');
 
 const SEMESTERS: Semester[] = [
   { id: 'Fall 2025',   label: "Fall '25", status: 'past',    year: 2025, season: 'Fall'   },
@@ -71,7 +60,6 @@ describe('generateAutoPlan', () => {
   it('preserves past + current semesters and fills future ones with content', () => {
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       userProfile: profile,
       degreeReqs,
       techCore: techCores.computer_architecture,
@@ -100,7 +88,6 @@ describe('generateAutoPlan', () => {
   it('respects offering pattern — fall-only courses never appear in spring', () => {
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       userProfile: profile,
       degreeReqs,
       techCore: techCores.computer_architecture,
@@ -128,7 +115,6 @@ describe('generateAutoPlan', () => {
     // credit hours so 6 three-credit courses (18 hrs) is valid — 7 would not be.
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       userProfile: profile,
       degreeReqs,
       techCore: techCores.computer_architecture,
@@ -140,7 +126,7 @@ describe('generateAutoPlan', () => {
     });
     for (const sem of SEMESTERS.filter((s) => s.status === 'future')) {
       const semCredits = result.plan[sem.id].reduce(
-        (sum, id) => sum + (prereqData.nodes[id]?.credits ?? 3),
+        (sum, id) => sum + getCourseCredits(id, catalog),
         0
       );
       // 18 = credit-hour cap for above_average load tolerance (Behavior B)
@@ -153,7 +139,6 @@ describe('generateAutoPlan', () => {
     // Setting it to 12 means at most 12 credit hours per future semester.
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       userProfile: profile,
       degreeReqs,
       techCore: techCores.computer_architecture,
@@ -166,7 +151,7 @@ describe('generateAutoPlan', () => {
     });
     for (const sem of SEMESTERS.filter((s) => s.status === 'future')) {
       const semCredits = result.plan[sem.id].reduce(
-        (sum, id) => sum + (prereqData.nodes[id]?.credits ?? 3),
+        (sum, id) => sum + getCourseCredits(id, catalog),
         0
       );
       // 12 = the credit-hour override we passed in
@@ -177,7 +162,6 @@ describe('generateAutoPlan', () => {
   it('does not re-add courses Adi already completed (ECE 402/406/412/419K)', () => {
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       userProfile: profile,
       degreeReqs,
       techCore: techCores.computer_architecture,
@@ -201,7 +185,6 @@ describe('generateAutoPlan', () => {
   it('places tech-core required courses for the chosen track', () => {
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       userProfile: profile,
       degreeReqs,
       techCore: techCores.computer_architecture,
@@ -224,7 +207,6 @@ describe('generateAutoPlan', () => {
   it('switches tech-core required courses when track changes', () => {
     const sweResult = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       userProfile: profile,
       degreeReqs,
       techCore: techCores.software_engineering,
@@ -248,7 +230,6 @@ describe('generateAutoPlan', () => {
   it('includes Math BA additional courses when toggle is on', () => {
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       userProfile: profile,
       degreeReqs,
       techCore: techCores.computer_architecture,
@@ -268,7 +249,6 @@ describe('generateAutoPlan', () => {
   it('places pinned courses in their pinned semester', () => {
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       userProfile: profile,
       degreeReqs,
       techCore: techCores.computer_architecture,
@@ -297,7 +277,6 @@ describe('generateAutoPlan', () => {
     };
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       userProfile: normalProfile,
       degreeReqs,
       techCore: techCores.computer_architecture,
@@ -309,7 +288,7 @@ describe('generateAutoPlan', () => {
     });
     for (const sem of SEMESTERS.filter((s) => s.status === 'future')) {
       const semCredits = result.plan[sem.id].reduce(
-        (sum, id) => sum + (prereqData.nodes[id]?.credits ?? 3),
+        (sum, id) => sum + getCourseCredits(id, catalog),
         0
       );
       // Must be ≤17 (normal cap), NOT 18 (above_average cap from JSON profile)
@@ -321,7 +300,6 @@ describe('generateAutoPlan', () => {
     const start = performance.now();
     generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       userProfile: profile,
       degreeReqs,
       techCore: techCores.computer_architecture,

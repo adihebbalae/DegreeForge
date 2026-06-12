@@ -1,4 +1,5 @@
 import type { ToolContext, ToolResult } from './types';
+import { getCourseCredits } from '../course-utils';
 
 export function getCourseInfo(ctx: ToolContext, args: Record<string, unknown>): ToolResult {
   const courseId = String(args.course_id ?? '').trim().toUpperCase();
@@ -18,7 +19,7 @@ export function getCourseInfo(ctx: ToolContext, args: Record<string, unknown>): 
     content: {
       id: courseId,
       title: catalogEntry?.title ?? graphNode?.title ?? 'Unknown',
-      credits: catalogEntry?.credits ?? graphNode?.credits ?? 3,
+      credits: getCourseCredits(courseId, ctx.catalog),
       description: catalogEntry?.description ?? '',
       prerequisites: catalogEntry?.prerequisites ?? [],
       corequisites: catalogEntry?.corequisites ?? [],

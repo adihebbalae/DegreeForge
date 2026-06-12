@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { generatePlan } from '@/lib/solver';
 import { buildRemainingRequirements } from '@/lib/requirements';
 import { getCreditHourCap } from '@/lib/auto-planner';
-import { useOfferingSchedule, useDegreeRequirements, useTechCoresRecord, useMathRequirements } from '@/context/DataContext';
+import { useOfferingSchedule, useDegreeRequirements, useTechCoresRecord, useMathRequirements, useCatalogRecord } from '@/context/DataContext';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 import { usePlan, usePinnedCourses, useRejectedGhosts, useSemesters, usePlanDispatch, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
@@ -25,6 +25,7 @@ export function useGhostPlan(): void {
 
   const prereqGraph = usePrereqGraph();
   const offeringSchedule = useOfferingSchedule();
+  const catalog = useCatalogRecord();
   const profile = useEffectiveProfile();
   const degreeReqs = useDegreeRequirements();
   const techCores = useTechCoresRecord();
@@ -80,6 +81,7 @@ export function useGhostPlan(): void {
       completedCourses,
       remainingRequirements,
       prereqGraph,
+      catalog: catalog ?? {},
       offeringSchedule,
       pinnedCourses: pinnedMap,
       maxHoursPerSemester: getCreditHourCap(profile),
@@ -105,6 +107,7 @@ export function useGhostPlan(): void {
     placedCourseIds,
     prereqGraph,
     offeringSchedule,
+    catalog,
     profile,
     degreeReqs,
     techCores,

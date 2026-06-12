@@ -197,9 +197,9 @@ describe('Acceptance #2 — unplaced critical-path tail is GRADUATION-BLOCKING',
     // Minimal synthetic test: use a simple linear chain A→B→C where the tail C is unplaced.
     const simpleGraphData = {
       nodes: {
-        A: { title: 'A', credits: 3, category: 'ece_core', offered: [], flags: [] },
-        B: { title: 'B', credits: 3, category: 'ece_core', offered: [], flags: [] },
-        C: { title: 'C', credits: 3, category: 'ece_core', offered: [], flags: [] },
+        A: { title: 'A', category: 'ece_core', offered: [], flags: [] },
+        B: { title: 'B', category: 'ece_core', offered: [], flags: [] },
+        C: { title: 'C', category: 'ece_core', offered: [], flags: [] },
       },
       edges: [
         { from: 'A', to: 'B', type: 'prerequisite' as const },
@@ -227,6 +227,7 @@ describe('Acceptance #2 — unplaced critical-path tail is GRADUATION-BLOCKING',
       prereqGraph: simpleGraph,
       offeringSchedule: {},
       creditHourCap: 17,
+      catalog: {},
     });
 
     // C is the tail of chain A→B→C
@@ -245,9 +246,9 @@ describe('Acceptance #2 — unplaced critical-path tail is GRADUATION-BLOCKING',
     // When the tail IS placed, it should show normal slack messaging.
     const simpleGraphData = {
       nodes: {
-        A: { title: 'A', credits: 3, category: 'ece_core', offered: [], flags: [] },
-        B: { title: 'B', credits: 3, category: 'ece_core', offered: [], flags: [] },
-        C: { title: 'C', credits: 3, category: 'ece_core', offered: [], flags: [] },
+        A: { title: 'A', category: 'ece_core', offered: [], flags: [] },
+        B: { title: 'B', category: 'ece_core', offered: [], flags: [] },
+        C: { title: 'C', category: 'ece_core', offered: [], flags: [] },
       },
       edges: [
         { from: 'A', to: 'B', type: 'prerequisite' as const },
@@ -275,6 +276,7 @@ describe('Acceptance #2 — unplaced critical-path tail is GRADUATION-BLOCKING',
       prereqGraph: simpleGraph,
       offeringSchedule: {},
       creditHourCap: 17,
+      catalog: {},
     });
 
     const tailEntry = result.criticalPath.chain[result.criticalPath.chain.length - 1];
@@ -319,6 +321,7 @@ describe('Acceptance #3 — bottleneckSemesterId is the prerequisites-only lower
       prereqGraph,
       offeringSchedule,
       creditHourCap: 17,
+      catalog: {},
     });
 
     // The bottleneckSemesterId should be 'Spring 2027' (where ECE 460N is placed)

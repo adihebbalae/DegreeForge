@@ -1,4 +1,5 @@
 import type { ToolContext, ToolResult } from './types';
+import { getCourseCredits } from '../course-utils';
 
 /**
  * Given a target course, returns the shortest prerequisite chain leading to it,
@@ -46,7 +47,7 @@ export function findEasiestPath(ctx: ToolContext, args: Record<string, unknown>)
     id,
     title: ctx.prereqGraph.nodes[id]?.title ?? ctx.catalog[id]?.title ?? id,
     avg_gpa: ctx.gradeDistributions[id]?.avg_gpa ?? null,
-    credits: ctx.prereqGraph.nodes[id]?.credits ?? ctx.catalog[id]?.credits ?? 3,
+    credits: getCourseCredits(id, ctx.catalog),
   }));
 
   // Sort by avg_gpa descending (higher GPA = "easier") to suggest easiest-first

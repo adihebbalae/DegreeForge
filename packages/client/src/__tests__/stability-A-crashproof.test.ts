@@ -211,9 +211,9 @@ describe('Render helpers — null/empty/non-string guards (TASK-061-A2)', () => 
     const sem = INITIAL_STATE.semesters[0];
     const planWithNull: Record<string, unknown[]> = { [sem.id]: [null, 'ECE 302'] };
     expect(() =>
-      computeSemesterDifficulty(sem, planWithNull as Record<string, string[]>, {}, null, {})
+      computeSemesterDifficulty(sem, planWithNull as Record<string, string[]>, {}, null)
     ).not.toThrow();
-    const result = computeSemesterDifficulty(sem, planWithNull as Record<string, string[]>, {}, null, {});
+    const result = computeSemesterDifficulty(sem, planWithNull as Record<string, string[]>, {}, null);
     // Should not crash; bucket is one of the valid values
     expect(['green', 'yellow', 'orange', 'red']).toContain(result.bucket);
   });
@@ -221,8 +221,8 @@ describe('Render helpers — null/empty/non-string guards (TASK-061-A2)', () => 
   // ── computeSemesterStress ─────────────────────────────────────────────────
   it('computeSemesterStress with null in courseIds returns valid result without throwing', () => {
     const courseIds = [null as unknown as string, 'ECE 302', undefined as unknown as string];
-    expect(() => computeSemesterStress(courseIds, {}, {})).not.toThrow();
-    const result = computeSemesterStress(courseIds, {}, {});
+    expect(() => computeSemesterStress(courseIds, {}, () => 3)).not.toThrow();
+    const result = computeSemesterStress(courseIds, {}, () => 3);
     expect(typeof result.score).toBe('number');
     expect(['low', 'medium', 'high']).toContain(result.band);
   });
@@ -237,7 +237,6 @@ describe('Render helpers — null/empty/non-string guards (TASK-061-A2)', () => 
       computeProgress(
         planWithNull as Record<string, string[]>,
         profile,
-        {} as never,
         {},
         degreeReqs,
         techCores.computer_architecture,

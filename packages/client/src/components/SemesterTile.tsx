@@ -213,17 +213,17 @@ export default function SemesterTile({
   // ── Credits ───────────────────────────────────────────────────────────────
   const totalCredits = useMemo(
     () => courseIds.reduce(
-      (sum, cId) => sum + getCourseCredits(cId, catalog, prereqNodes, transcriptCredits),
+      (sum, cId) => sum + getCourseCredits(cId, catalog, transcriptCredits),
       0
     ),
-    [courseIds, catalog, prereqNodes, transcriptCredits]
+    [courseIds, catalog, transcriptCredits]
   );
 
   // ── Workload heat bucket ──────────────────────────────────────────────────
   const { bucket } = useMemo(() => {
     const minimalPlan: Record<string, string[]> = { [id]: courseIds };
-    return computeSemesterDifficulty(semester, minimalPlan, gradeDistributions, catalog, prereqNodes);
-  }, [id, courseIds, semester, gradeDistributions, catalog, prereqNodes]);
+    return computeSemesterDifficulty(semester, minimalPlan, gradeDistributions, catalog);
+  }, [id, courseIds, semester, gradeDistributions, catalog]);
 
   // ── Chip overflow ─────────────────────────────────────────────────────────
   const visibleCourses = courseIds.slice(0, MAX_CHIPS);

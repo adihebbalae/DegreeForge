@@ -89,15 +89,13 @@ export function computeWhatIfDiff(
     c => !proposedEssential.has(c) && !completedCourses.includes(c)
   );
 
-  // D7: use getCourseCredits for consistent credit lookup (prereqNodes not available here,
-  // so pass empty object — catalog is the primary source in what-if context)
   const addedHours = coursesAdded.reduce(
-    (sum, id) => sum + getCourseCredits(id, catalog, {}),
+    (sum, id) => sum + getCourseCredits(id, catalog),
     0
   );
 
   const removedHours = coursesRemoved.reduce(
-    (sum, id) => sum + getCourseCredits(id, catalog, {}),
+    (sum, id) => sum + getCourseCredits(id, catalog),
     0
   );
 

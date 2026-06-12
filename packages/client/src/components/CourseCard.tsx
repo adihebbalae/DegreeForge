@@ -84,7 +84,7 @@ export default function CourseCard({
   const borderClass = CATEGORY_BORDER[category];
 
   const title = getCourseTitle(courseId, catalog, prereqNodes);
-  const credits = getCourseCredits(courseId, catalog, prereqNodes, transcriptCredits);
+  const credits = getCourseCredits(courseId, catalog, transcriptCredits);
 
   const avgGpa = gradeDistributions[courseId]?.avg_gpa ?? null;
   const gpaBgClass = gpaColorClass(avgGpa);
@@ -133,7 +133,7 @@ export default function CourseCard({
     try {
       return computeGraduationDelay(courseId, {
         prereqGraph: prereqGraphInstance,
-        prereqNodes,
+        catalog: catalog ?? {},
         userProfile: profile,
         degreeReqs,
         techCore,
@@ -148,7 +148,7 @@ export default function CourseCard({
   }, [
     courseId, plan, semesters, techCoreId, mathBAToggle,
     degreeReqs, techCoresRecord, mathReqs, prereqGraphInstance,
-    prereqNodes, isPalette, isPast, isDragOverlay, profile,
+    catalog, isPalette, isPast, isDragOverlay, profile,
   ]);
 
   // ── Ghost card (solver-proposed, not yet accepted) ──────────────────────────

@@ -199,7 +199,7 @@ export default function SemesterColumn({
 
   // Compute total credits for the semester
   const totalCredits = courseIds.reduce(
-    (sum, courseId) => sum + getCourseCredits(courseId, catalog, prereqNodes, transcriptCredits),
+    (sum, courseId) => sum + getCourseCredits(courseId, catalog, transcriptCredits),
     0
   );
 
@@ -211,7 +211,7 @@ export default function SemesterColumn({
     courseIds.forEach(courseId => {
       const dist = gradeDistributions[courseId];
       if (dist && dist.avg_gpa > 0) {
-        const credits = getCourseCredits(courseId, catalog, prereqNodes);
+        const credits = getCourseCredits(courseId, catalog);
         weightedGpaSum += (dist.avg_gpa * credits);
         gpaCredits += credits;
       }
@@ -223,8 +223,8 @@ export default function SemesterColumn({
   // TASK-024: workload heat-stripe — build a minimal plan object for the helper
   const { bucket: heatBucket } = useMemo(() => {
     const minimalPlan: Record<string, string[]> = { [id]: courseIds };
-    return computeSemesterDifficulty(semester, minimalPlan, gradeDistributions, catalog, prereqNodes);
-  }, [id, courseIds, semester, gradeDistributions, catalog, prereqNodes]);
+    return computeSemesterDifficulty(semester, minimalPlan, gradeDistributions, catalog);
+  }, [id, courseIds, semester, gradeDistributions, catalog]);
 
   return (
     <div

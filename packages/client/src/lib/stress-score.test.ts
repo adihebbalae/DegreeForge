@@ -129,7 +129,7 @@ describe('computeCourseDifficulty — ECE 312 vs ECE 411 (real data)', () => {
 
 describe('computeSemesterStress — aggregation', () => {
   it('empty semester returns score=0 and band=low', () => {
-    const result = computeSemesterStress([], {}, {});
+    const result = computeSemesterStress([], {}, () => 3);
     expect(result.score).toBe(0);
     expect(result.band).toBe('low');
     expect(result.courses).toHaveLength(0);
@@ -151,7 +151,7 @@ describe('computeSemesterStress — aggregation', () => {
     const result = computeSemesterStress(
       ['ECE 312'],
       { 'ECE 312': 3 },
-      {},
+      () => 3,
     );
     expect(result.score).toBe(d312);
     expect(result.totalCourses).toBe(1);
@@ -168,7 +168,7 @@ describe('computeSemesterStress — aggregation', () => {
     const result = computeSemesterStress(
       ['ECE 312', 'ECE 411'],
       { 'ECE 312': 3, 'ECE 411': 3 },
-      {},
+      () => 3,
     );
     expect(result.score).toBe(expected);
   });
@@ -182,7 +182,7 @@ describe('computeSemesterStress — aggregation', () => {
     const result = computeSemesterStress(
       ['ECE 312', 'ECE 411'],
       { 'ECE 312': 4, 'ECE 411': 3 },
-      {},
+      () => 3,
     );
     expect(result.score).toBe(expected);
   });
@@ -195,14 +195,14 @@ describe('computeSemesterStress — AP/transfer does not inflate score', () => {
     const baseline = computeSemesterStress(
       ['ECE 312'],
       { 'ECE 312': 3 },
-      {},
+      () => 3,
     );
 
     // Add an AP course (termLoadCredits gives 0 for it, per buildTermLoadCredits)
     const withAp = computeSemesterStress(
       ['ECE 312', 'M 408C'],
       { 'ECE 312': 3, 'M 408C': 0 },  // 0 = AP/transfer, matches buildTermLoadCredits behavior
-      {},
+      () => 3,
     );
 
     expect(withAp.score).toBe(baseline.score);
@@ -212,7 +212,7 @@ describe('computeSemesterStress — AP/transfer does not inflate score', () => {
     const result = computeSemesterStress(
       ['ECE 312', 'M 408C'],
       { 'ECE 312': 3, 'M 408C': 0 },
-      {},
+      () => 3,
     );
     const apEntry = result.courses.find((c) => c.courseId === 'M 408C');
     expect(apEntry).toBeDefined();
@@ -225,7 +225,7 @@ describe('computeSemesterStress — AP/transfer does not inflate score', () => {
     const result = computeSemesterStress(
       ['M 408C', 'M 408D'],
       { 'M 408C': 0, 'M 408D': 0 },
-      {},
+      () => 3,
     );
     expect(result.score).toBe(0);
     expect(result.band).toBe('low');
@@ -239,7 +239,7 @@ describe('computeSemesterStress — missing data', () => {
     const result = computeSemesterStress(
       ['ECE 999_FAKE'],  // definitely not in the dataset
       { 'ECE 999_FAKE': 3 },
-      {},
+      () => 3,
     );
     expect(result.courses[0].hasNoData).toBe(true);
     expect(result.courses[0].difficulty).toBe(NEUTRAL_DIFFICULTY);
@@ -253,7 +253,7 @@ describe('computeSemesterStress — missing data', () => {
     const result = computeSemesterStress(
       ['FAKE 001', 'FAKE 002'],
       { 'FAKE 001': 3, 'FAKE 002': 3 },
-      {},
+      () => 3,
     );
     expect(result.coursesWithData).toBe(0);
     expect(result.totalCourses).toBe(2);
@@ -263,7 +263,7 @@ describe('computeSemesterStress — missing data', () => {
     const result = computeSemesterStress(
       ['ECE 312', 'FAKE 001'],
       { 'ECE 312': 3, 'FAKE 001': 3 },
-      {},
+      () => 3,
     );
     expect(result.coursesWithData).toBe(1);
     expect(result.totalCourses).toBe(2);
@@ -273,7 +273,7 @@ describe('computeSemesterStress — missing data', () => {
     const result = computeSemesterStress(
       ['FAKE 001'],
       { 'FAKE 001': 3 },
-      {},
+      () => 3,
     );
     expect(result.score).toBeGreaterThan(0);
     expect(result.score).toBe(NEUTRAL_DIFFICULTY);
@@ -287,8 +287,8 @@ describe('computeSemesterStress — determinism', () => {
     const courseIds = ['ECE 312', 'ECE 411', 'FAKE 001'];
     const termLoad = { 'ECE 312': 3, 'ECE 411': 3, 'FAKE 001': 3 };
 
-    const r1 = computeSemesterStress(courseIds, termLoad, {});
-    const r2 = computeSemesterStress(courseIds, termLoad, {});
+    const r1 = computeSemesterStress(courseIds, termLoad, () => 3);
+    const r2 = computeSemesterStress(courseIds, termLoad, () => 3);
 
     expect(r1.score).toBe(r2.score);
     expect(r1.band).toBe(r2.band);
@@ -316,7 +316,7 @@ describe('computeSemesterStress — catalog credit fallback', () => {
     const result = computeSemesterStress(
       ['ECE 312'],
       {},                     // not in termLoadCredits
-      { 'ECE 312': 4 },       // catalog says 4 credits
+      (id) => ({ 'ECE 312': 4 }[id] ?? 3),       // catalog says 4 credits
     );
     const d312 = computeCourseDifficulty(getCourseGradeStats('ECE 312')!);
     expect(result.score).toBe(d312);       // single course → score = difficulty
@@ -327,7 +327,7 @@ describe('computeSemesterStress — catalog credit fallback', () => {
     const result = computeSemesterStress(
       ['ECE 312'],
       {},
-      {},
+      () => 3,
     );
     expect(result.courses[0].creditHours).toBe(3);
   });

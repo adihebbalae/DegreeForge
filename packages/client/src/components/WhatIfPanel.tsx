@@ -148,6 +148,7 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
           mathReqs,
           profile,
           prereqGraph: engineGraph,
+          catalog: catalog ?? {},
           offeringSchedule: offeringSchedule,
           pinnedCourseIds: state.pinnedCourses,
           plan: state.plan,

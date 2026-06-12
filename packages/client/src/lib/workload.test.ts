@@ -41,20 +41,8 @@ const techCores = loadJson<TechCores>('tech-cores.json');
 const mathReqs = loadJson<MathRequirements>('math-requirements.json');
 const prereqNodes = prereqData.nodes;
 
-// Minimal catalog from prereq graph
-const catalog: CourseCatalog = {};
-Object.entries(prereqData.nodes).forEach(([id, node]) => {
-  catalog[id] = {
-    id,
-    title: node.title,
-    credits: node.credits,
-    description: '',
-    prerequisites: [],
-    corequisites: [],
-    grading: '',
-    department: id.split(' ')[0],
-  };
-});
+// The REAL catalog — the canonical credit source the production solver uses.
+const catalog = loadJson<CourseCatalog>('course-catalog.json');
 
 // ─── Shared test fixtures ─────────────────────────────────────────────────────
 
@@ -125,7 +113,7 @@ describe('computeSemesterDifficulty', () => {
   it('returns green bucket for empty semester', () => {
     const emptySem: Semester = { id: 'Fall 2026', label: "Fall '26", status: 'future', year: 2026, season: 'Fall' };
     const plan: Plan = { 'Fall 2026': [] };
-    const result = computeSemesterDifficulty(emptySem, plan, emptyGradeDist, null, {});
+    const result = computeSemesterDifficulty(emptySem, plan, emptyGradeDist, null);
     expect(result.bucket).toBe('green');
     expect(result.score).toBe(0);
   });
@@ -133,7 +121,7 @@ describe('computeSemesterDifficulty', () => {
   it('returns green bucket for empty semester when key is missing from plan', () => {
     const emptySem: Semester = { id: 'Fall 2026', label: "Fall '26", status: 'future', year: 2026, season: 'Fall' };
     const plan: Plan = {};
-    const result = computeSemesterDifficulty(emptySem, plan, emptyGradeDist, null, {});
+    const result = computeSemesterDifficulty(emptySem, plan, emptyGradeDist, null);
     expect(result.bucket).toBe('green');
     expect(result.score).toBe(0);
   });
@@ -158,8 +146,8 @@ describe('computeSemesterDifficulty', () => {
     const upperPlan: Plan = { 'Fall 2026': ['ECE 460'] };  // 460-level
     const lowerPlan: Plan = { 'Fall 2026': ['ECE 202'] };  // 200-level
 
-    const upperResult = computeSemesterDifficulty(sem, upperPlan, emptyGradeDist, null, {});
-    const lowerResult = computeSemesterDifficulty(sem, lowerPlan, emptyGradeDist, null, {});
+    const upperResult = computeSemesterDifficulty(sem, upperPlan, emptyGradeDist, null);
+    const lowerResult = computeSemesterDifficulty(sem, lowerPlan, emptyGradeDist, null);
     expect(upperResult.score).toBeGreaterThan(lowerResult.score);
   });
 
@@ -218,7 +206,7 @@ describe('computeSemesterDifficulty', () => {
 
   it('score is in [0, 1] range', () => {
     const sem: Semester = { id: 'Fall 2025', label: "Fall '25", status: 'past', year: 2025, season: 'Fall' };
-    const result = computeSemesterDifficulty(sem, INITIAL_PLAN, sampleGradeDist, catalog, prereqNodes);
+    const result = computeSemesterDifficulty(sem, INITIAL_PLAN, sampleGradeDist, catalog);
     expect(result.score).toBeGreaterThanOrEqual(0);
     expect(result.score).toBeLessThanOrEqual(1);
   });
@@ -243,7 +231,6 @@ describe('computeSemesterDifficulty', () => {
 describe('computeGraduationDelay', () => {
   const basePlannerInput: AutoPlannerInput = {
     prereqGraph,
-    prereqNodes: prereqData.nodes,
     userProfile,
     degreeReqs,
     techCore: techCores.computer_architecture,
@@ -251,6 +238,7 @@ describe('computeGraduationDelay', () => {
     mathBAToggle: false,
     semesters: SEMESTERS,
     currentPlan: INITIAL_PLAN,
+    catalog,
   };
 
   beforeEach(() => {
@@ -493,7 +481,7 @@ describe('computeSemesterDifficulty — C1 undefined-id guard', () => {
     // before the `if (!courseId) return 0` guard was added.
     const plan: Plan = { [semester.id]: ['', 'ECE 302'] };
     expect(() =>
-      computeSemesterDifficulty(semester, plan, emptyGradeDist, null, {})
+      computeSemesterDifficulty(semester, plan, emptyGradeDist, null)
     ).not.toThrow();
   });
 });

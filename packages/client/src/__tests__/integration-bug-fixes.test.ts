@@ -31,6 +31,7 @@ import type {
   PrereqGraphData,
   OfferingSchedule,
   CourseSections,
+  CourseCatalog,
 } from '../types';
 import type { ProfPreference } from '../context/SettingsContext';
 
@@ -47,6 +48,7 @@ const techCores = loadJson<TechCores>('tech-cores.json');
 const mathReqs = loadJson<MathRequirements>('math-requirements.json');
 const prereqData = loadJson<PrereqGraphData>('prerequisite-graph.json');
 const offeringSchedule = loadJson<OfferingSchedule>('offering-schedule.json');
+const catalog = loadJson<CourseCatalog>('course-catalog.json');
 const prereqGraph = new PrereqGraph(prereqData);
 
 // ─── Shared semester fixture (matches PlanContext INITIAL_STATE) ──────────────
@@ -155,7 +157,6 @@ describe('BUG 1 — WhatIfPanel staged-value correctness', () => {
 
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       offeringSchedule,
       userProfile: profile,
       degreeReqs,
@@ -164,6 +165,7 @@ describe('BUG 1 — WhatIfPanel staged-value correctness', () => {
       mathBAToggle: false,
       semesters: SEMESTERS,
       currentPlan: INITIAL_PLAN,
+      catalog,
     });
 
     const futureCourses = SEMESTERS
@@ -337,7 +339,6 @@ describe('BUG 3 — offeringSchedule constrains recommend-path planner', () => {
     // Run the planner WITH the offering schedule
     const withSchedule = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       offeringSchedule,
       userProfile: profile,
       degreeReqs,
@@ -346,6 +347,7 @@ describe('BUG 3 — offeringSchedule constrains recommend-path planner', () => {
       mathBAToggle: false,
       semesters: SEMESTERS,
       currentPlan: INITIAL_PLAN,
+      catalog,
     });
 
     const courseId = springOnlyCourse[0];
@@ -368,7 +370,6 @@ describe('BUG 3 — offeringSchedule constrains recommend-path planner', () => {
     // Run with {} to confirm no offering constraint is applied.
     const withoutSchedule = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       offeringSchedule: {},  // empty — no constraints
       userProfile: profile,
       degreeReqs,
@@ -377,6 +378,7 @@ describe('BUG 3 — offeringSchedule constrains recommend-path planner', () => {
       mathBAToggle: false,
       semesters: SEMESTERS,
       currentPlan: INITIAL_PLAN,
+      catalog,
     });
 
     // Planner should still produce a valid plan (no crash)
@@ -394,7 +396,6 @@ describe('BUG 3 — offeringSchedule constrains recommend-path planner', () => {
     // Confirm the planner input accepts and processes it without error
     expect(() => generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       offeringSchedule,
       userProfile: profile,
       degreeReqs,
@@ -403,6 +404,7 @@ describe('BUG 3 — offeringSchedule constrains recommend-path planner', () => {
       mathBAToggle: false,
       semesters: SEMESTERS,
       currentPlan: INITIAL_PLAN,
+      catalog,
     })).not.toThrow();
   });
 });
@@ -483,7 +485,6 @@ describe('BUG 4 — getCreditHourCap canonical and legacy mappings', () => {
     const heavyProfile = makeProfile('heavy');
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       offeringSchedule,
       userProfile: heavyProfile,
       degreeReqs,
@@ -492,11 +493,12 @@ describe('BUG 4 — getCreditHourCap canonical and legacy mappings', () => {
       mathBAToggle: false,
       semesters: SEMESTERS,
       currentPlan: INITIAL_PLAN,
+      catalog,
     });
 
     for (const sem of SEMESTERS.filter(s => s.status === 'future')) {
       const semCredits = (result.plan[sem.id] ?? []).reduce(
-        (sum, id) => sum + (prereqData.nodes[id]?.credits ?? 3),
+        (sum, id) => sum + getCourseCredits(id, catalog),
         0
       );
       expect(semCredits).toBeLessThanOrEqual(19);
@@ -507,7 +509,6 @@ describe('BUG 4 — getCreditHourCap canonical and legacy mappings', () => {
     const lightProfile = makeProfile('light');
     const result = generateAutoPlan({
       prereqGraph,
-      prereqNodes: prereqData.nodes,
       offeringSchedule,
       userProfile: lightProfile,
       degreeReqs,
@@ -516,11 +517,12 @@ describe('BUG 4 — getCreditHourCap canonical and legacy mappings', () => {
       mathBAToggle: false,
       semesters: SEMESTERS,
       currentPlan: INITIAL_PLAN,
+      catalog,
     });
 
     for (const sem of SEMESTERS.filter(s => s.status === 'future')) {
       const semCredits = (result.plan[sem.id] ?? []).reduce(
-        (sum, id) => sum + (prereqData.nodes[id]?.credits ?? 3),
+        (sum, id) => sum + getCourseCredits(id, catalog),
         0
       );
       expect(semCredits).toBeLessThanOrEqual(15);

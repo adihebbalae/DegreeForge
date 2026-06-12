@@ -172,28 +172,33 @@ export function buildTermLoadCredits(
   return map;
 }
 
+/** Credits assumed for a course no source knows about. */
+export const DEFAULT_CREDITS = 3;
+
 /**
- * Get credit hours for a course, trying sources in priority order:
+ * THE canonical credit accessor — every credit figure in the app must come
+ * from this function. Priority order:
  * 1. User transcript (completed/in-progress) — authoritative for past courses
- * 2. Hardcoded overrides (for non-catalog courses)
+ * 2. Hardcoded overrides (non-catalog courses + known-bad catalog rows,
+ *    see .agents/data-diffs/e1-credits.md)
  * 3. Course catalog
- * 4. Prereq-graph node
- * 5. Default: 3
+ * 4. Default: 3
+ *
+ * prerequisite-graph.json no longer carries a credits copy (it agreed with the
+ * catalog on all 378 shared courses and existed only as a drift surface).
  */
 export function getCourseCredits(
   courseId: string,
   catalog: CourseCatalog | null,
-  prereqNodes: Record<string, PrereqNode>,
   transcriptCredits?: Record<string, number>
 ): number {
-  if (typeof courseId !== 'string' || !courseId) return 3;
+  if (typeof courseId !== 'string' || !courseId) return DEFAULT_CREDITS;
   if (transcriptCredits?.[courseId] !== undefined) return transcriptCredits[courseId];
   if (CREDIT_OVERRIDES[courseId] !== undefined) return CREDIT_OVERRIDES[courseId];
-  const catalogEntry = catalog?.[courseId];
-  if (catalogEntry?.credits !== undefined) return catalogEntry.credits;
-  const node = prereqNodes[courseId];
-  if (node?.credits !== undefined) return node.credits;
-  return 3;
+  const catalogCredits = catalog?.[courseId]?.credits;
+  // null = variable-credit Topics row — fall through to the default
+  if (typeof catalogCredits === 'number') return catalogCredits;
+  return DEFAULT_CREDITS;
 }
 
 // ─── GPA Badge ────────────────────────────────────────────────────────────────

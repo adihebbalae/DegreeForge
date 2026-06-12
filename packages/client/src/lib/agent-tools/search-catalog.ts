@@ -1,4 +1,5 @@
 import type { ToolContext, ToolResult } from './types';
+import { getCourseCredits } from '../course-utils';
 
 export function searchCatalog(ctx: ToolContext, args: Record<string, unknown>): ToolResult {
   const query = String(args.query ?? '').trim().toLowerCase();
@@ -32,7 +33,7 @@ export function searchCatalog(ctx: ToolContext, args: Record<string, unknown>): 
       results.push({
         id,
         title: course.title,
-        credits: course.credits,
+        credits: getCourseCredits(id, ctx.catalog),
         description: course.description.slice(0, 200),
         avg_gpa: ctx.gradeDistributions[id]?.avg_gpa ?? null,
       });

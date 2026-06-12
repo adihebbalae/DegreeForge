@@ -2,7 +2,8 @@
 export interface CatalogCourse {
   id: string;
   title: string;
-  credits: number;
+  /** null for variable-credit Topics courses (61 catalog rows) */
+  credits: number | null;
   description: string;
   prerequisites: string[];
   corequisites: string[];
@@ -16,7 +17,6 @@ export type CourseCatalog = Record<string, CatalogCourse>;
 // ─── Prerequisite Graph ──────────────────────────────────────────────────────
 export interface PrereqNode {
   title: string;
-  credits: number;
   category: string;
   offered: string[];
   flags: string[];
