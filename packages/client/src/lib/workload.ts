@@ -30,7 +30,13 @@
 
 import { generateAutoPlan, type AutoPlannerInput } from './auto-planner';
 import { getCourseCredits } from './course-utils';
+import { parseCourseId } from './sanitize-course-list';
 import type { Semester, CourseCatalog, PrereqNode, GradeDistributions, Plan } from '../types';
+
+// Course-level normalisation bounds: clamp a numeric course level to [MIN, MAX]
+// before mapping to [0,1]. 200 = lower-division floor, 600 = graduate ceiling.
+const COURSE_LEVEL_MIN = 200;
+const COURSE_LEVEL_MAX = 600;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -68,11 +74,10 @@ function memoSet(key: string, value: number): void {
  */
 function courseLevel(courseId: string): number {
   if (typeof courseId !== 'string' || !courseId) return 0;
-  const parts = courseId.split(' ');
-  const rawNum = parts[1] ? parseInt(parts[1], 10) : NaN;
-  if (isNaN(rawNum)) return 0.5; // neutral for unknown
-  const clamped = Math.max(200, Math.min(600, rawNum));
-  return (clamped - 200) / (600 - 200); // → [0, 1]
+  const parsed = parseCourseId(courseId);
+  if (!parsed) return 0.5; // neutral for a non-numeric / unparseable course token
+  const clamped = Math.max(COURSE_LEVEL_MIN, Math.min(COURSE_LEVEL_MAX, parsed.number));
+  return (clamped - COURSE_LEVEL_MIN) / (COURSE_LEVEL_MAX - COURSE_LEVEL_MIN); // → [0, 1]
 }
 
 // ─── Helper: get credit hours for a course ───────────────────────────────────

@@ -36,6 +36,20 @@ describe('profileReducer', () => {
     expect(result.in_progress_courses).toHaveLength(1);
   });
 
+  // Theme B: SET_PROFILE is a course-identity ingress — invalid course codes must
+  // be dropped here so they never reach the solver/progress through the verbatim
+  // reducer return.
+  it('SET_PROFILE drops completed/in-progress courses with invalid course ids', () => {
+    const dirty: UserProfile = {
+      ...DEMO_PROFILE,
+      completed_courses: [DEMO_COMPLETED, { ...DEMO_COMPLETED, course: 'JUNK' }],
+      in_progress_courses: [DEMO_INPROGRESS, { ...DEMO_INPROGRESS, course: 'NEEDS REVIEW' }],
+    };
+    const result = profileReducer(EMPTY_PROFILE, { type: 'SET_PROFILE', profile: dirty });
+    expect(result.completed_courses.map((c) => c.course)).toEqual(['ECE 302']);
+    expect(result.in_progress_courses.map((c) => c.course)).toEqual(['ECE 312H']);
+  });
+
   // ─── UPDATE_PROFILE_FIELD ───────────────────────────────────────────────────
   it('UPDATE_PROFILE_FIELD updates a single field shallowly', () => {
     const result = profileReducer(EMPTY_PROFILE, {

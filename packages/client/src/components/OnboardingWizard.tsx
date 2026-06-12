@@ -11,7 +11,7 @@ import { useProfileDispatch, EMPTY_PROFILE } from '@/context/ProfileContext';
 import { parseTranscript, type ParsedCourse } from '@/lib/agent-tools/parse-transcript';
 import { parseIdaAudit } from '@/lib/parse-ida';
 import { deriveTimelinePlanFromProfile } from '@/lib/derive-timeline';
-import { sanitizePlan } from '@/lib/sanitize-course-list';
+import { sanitizePlan, sanitizeCourseList, isValidCourseId } from '@/lib/sanitize-course-list';
 import type { UserProfile } from '@/types';
 
 type ImportSource = 'transcript' | 'ida';
@@ -86,7 +86,17 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     // handles in-progress courses correctly via the "IP" grade token. If in-progress
     // courses are missing after a transcript import, use the IDA path or add them
     // manually via Settings > Profile.
-    const completedCourses: UserProfile['completed_courses'] = parsedCourses
+    // Theme B: validate course identity at the transcript / IDA ingress. Drop any
+    // extracted token that isn't a valid course code (e.g. a requirement-section
+    // header the IDA parser mistook for a course) so it can't become a phantom
+    // completed course that satisfies a requirement or pins a non-existent node.
+    const { dropped } = sanitizeCourseList(parsedCourses.map(c => c.courseId));
+    if (dropped.length > 0) {
+      console.warn(`[onboarding] dropped ${dropped.length} unrecognized course token(s):`, dropped);
+    }
+    const cleanParsed = parsedCourses.filter(c => isValidCourseId(c.courseId));
+
+    const completedCourses: UserProfile['completed_courses'] = cleanParsed
       .filter(c => c.grade !== 'IP')
       .map(c => ({
         course: c.courseId,
@@ -100,7 +110,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         source: c.source,
       }));
 
-    const inProgressCourses: UserProfile['in_progress_courses'] = parsedCourses
+    const inProgressCourses: UserProfile['in_progress_courses'] = cleanParsed
       .filter(c => c.grade === 'IP')
       .map(c => ({
         course: c.courseId,

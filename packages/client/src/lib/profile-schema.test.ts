@@ -99,6 +99,35 @@ describe('parseProfileState', () => {
     expect(parseProfileState(bad)).toBeNull();
   });
 
+  // Theme B: a structurally-valid element with an invalid course CODE is dropped
+  // (tolerant), not rejected — one junk id must not wipe the whole profile.
+  it('drops a completed_course whose course id is not a valid code, keeps valid ones', () => {
+    const mixed = {
+      ...validProfile,
+      completed_courses: [
+        validProfile.completed_courses[0],
+        { course: 'JUNK', title: 'Section header', grade: 'A', semester: 'Fall 2025', type: 'In residence', credit_hours: 3 },
+      ],
+    };
+    const result = parseProfileState(mixed);
+    expect(result).not.toBeNull();
+    expect(result?.completed_courses).toHaveLength(1);
+    expect(result?.completed_courses[0].course).toBe('ECE 302');
+  });
+
+  it('drops an in_progress_course whose course id is not a valid code', () => {
+    const mixed = {
+      ...validProfile,
+      in_progress_courses: [
+        validProfile.in_progress_courses[0],
+        { course: 'NEEDS REVIEW', title: 'x', semester: 'Spring 2026', credit_hours: 3 },
+      ],
+    };
+    const result = parseProfileState(mixed);
+    expect(result?.in_progress_courses).toHaveLength(1);
+    expect(result?.in_progress_courses[0].course).toBe('ECE 312H');
+  });
+
   it('falls back to default empty array for missing completed_courses', () => {
     const noCompletedCourses = { ...validProfile, completed_courses: undefined };
     const result = parseProfileState(noCompletedCourses);

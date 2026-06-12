@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import type { UserProfile } from '../types';
-import { parseProfileState } from '../lib/profile-schema';
+import { parseProfileState, sanitizeProfileCourses } from '../lib/profile-schema';
 import { safeGetItem, safeSetItem, fromJson } from '../lib/persist';
 import { loadDemoProfile } from '../lib/data-loaders';
 
@@ -75,7 +75,10 @@ export type ProfileAction =
 export function profileReducer(state: UserProfile, action: ProfileAction): UserProfile {
   switch (action.type) {
     case 'SET_PROFILE':
-      return action.profile;
+      // Drop invalid course-code entries at this ingress (localStorage import,
+      // onboarding commit, programmatic dispatch) so junk ids never reach the
+      // solver/progress. parseProfileState guards the load path; this guards SET.
+      return sanitizeProfileCourses(action.profile);
 
     case 'UPDATE_PROFILE_FIELD':
       return { ...state, [action.field]: action.value };

@@ -1,5 +1,21 @@
 import { z } from 'zod';
 import type { UserProfile } from '../types';
+import { isValidCourseId } from './sanitize-course-list';
+
+/**
+ * Drop course entries whose `.course` is not a valid course-code token. The
+ * profile is a second course-identity ingress (localStorage, JSON import, IDA
+ * paste); without this, junk ids (free-text placeholders, section headers) flow
+ * straight into the solver / progress / addWithVariants with no validation.
+ *
+ * Tolerant by design — it drops the invalid ENTRIES, mirroring how the plan uses
+ * tolerantCourseListSchema, so one bad id never wipes the whole profile. Note:
+ * structurally-malformed elements (null, missing fields, out-of-range numbers)
+ * still fail their element schema and reject the profile, as before.
+ */
+function dropInvalidCourseEntries<T extends { course: string }>(arr: T[]): T[] {
+  return arr.filter((c) => isValidCourseId(c.course));
+}
 
 // ─── Sub-schemas ───────────────────────────────────────────────────────────────
 
@@ -109,8 +125,8 @@ const profileStateSchema: z.ZodType<UserProfile> = z.object({
     total_hours_taken: 0,
     total_hours: 0,
   }),
-  completed_courses: z.array(completedCourseSchema).default([]),
-  in_progress_courses: z.array(inProgressCourseSchema).default([]),
+  completed_courses: z.array(completedCourseSchema).default([]).transform(dropInvalidCourseEntries),
+  in_progress_courses: z.array(inProgressCourseSchema).default([]).transform(dropInvalidCourseEntries),
   career_interests: z.array(z.string()).default([]),
   notes: z.string().default(''),
 });
@@ -126,4 +142,18 @@ const profileStateSchema: z.ZodType<UserProfile> = z.object({
 export function parseProfileState(raw: unknown): UserProfile | null {
   const result = profileStateSchema.safeParse(raw);
   return result.success ? result.data : null;
+}
+
+/**
+ * Drop invalid course-code entries from an already-typed UserProfile. Used by the
+ * SET_PROFILE reducer so the wizard / programmatic dispatch path is guarded the
+ * same way parseProfileState guards the localStorage / import path — invalid ids
+ * can never reach the solver/progress through SET_PROFILE's verbatim return.
+ */
+export function sanitizeProfileCourses(profile: UserProfile): UserProfile {
+  return {
+    ...profile,
+    completed_courses: dropInvalidCourseEntries(profile.completed_courses),
+    in_progress_courses: dropInvalidCourseEntries(profile.in_progress_courses),
+  };
 }

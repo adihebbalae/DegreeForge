@@ -1,4 +1,5 @@
 import type { CourseCatalog, PrereqNode, CourseCategory, UserProfile } from '../types';
+import { parseCourseId } from './sanitize-course-list';
 
 // ─── Category Inference ───────────────────────────────────────────────────────
 
@@ -24,8 +25,8 @@ export function inferCategory(
   courseId: string,
   prereqNodes: Record<string, PrereqNode>
 ): CourseCategory {
-  if (typeof courseId !== 'string' || !courseId) return 'elective';
-  const prefix = courseId.split(' ')[0];
+  const prefix = parseCourseId(courseId)?.prefix;
+  if (!prefix) return 'elective';
 
   // Math courses by prefix (M 427J, M 325K, etc.)
   if (prefix === 'M') return 'math';

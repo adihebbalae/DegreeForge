@@ -7,8 +7,16 @@ import type {
   PrereqNode,
 } from '../types';
 import { getCourseCredits, buildTranscriptCredits } from './course-utils';
+import { parseCourseId } from './sanitize-course-list';
 import { isTechCorePickOne } from '../types';
 import { LEGACY_TO_CANONICAL } from './catalog-rename';
+
+/**
+ * Minimum course number that counts as an "advanced" ECE elective toward the free
+ * elective bar. ECE 320+ are upper-division; anything below is lower-division and
+ * does not count here.
+ */
+const ADVANCED_ELECTIVE_MIN_NUMBER = 320;
 
 export interface ProgressSummary {
   totalHours: number;
@@ -190,17 +198,12 @@ export function computeProgress(
   
   const electiveHours = unique
     .filter((courseId) => {
-      // Render-boundary guard: skip null/undefined/non-string tokens defensively.
-      if (typeof courseId !== 'string' || !courseId) return false;
-      const parts = courseId.split(' ');
-      const prefix = parts[0];
-      const numStr = parts[1];
-      if (!numStr) return false;
-      const num = parseInt(numStr, 10);
-      if (isNaN(num)) return false;
+      // Single course-identity parser; null covers non-string / unparseable tokens.
+      const parsed = parseCourseId(courseId);
+      if (!parsed) return false;
 
-      const isEce = prefix === 'ECE';
-      const isAdvanced = num >= 320;
+      const isEce = parsed.prefix === 'ECE';
+      const isAdvanced = parsed.number >= ADVANCED_ELECTIVE_MIN_NUMBER;
 
       const isEceCore = eceCoreAllIds.has(courseId);
       const isTechCore = techCoreUsed.has(courseId);

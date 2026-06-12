@@ -32,6 +32,34 @@ export function isValidCourseId(id: unknown): id is string {
   return typeof id === 'string' && id.length > 0 && COURSE_CODE_RE.test(id);
 }
 
+/** Structured parts of a course code: prefix (dept), numeric level, and optional suffix. */
+export interface ParsedCourseId {
+  /** Department prefix, e.g. "ECE", "M", "CTI". */
+  prefix: string;
+  /** Numeric level (leading digits parsed as an integer), e.g. 302, 427. */
+  number: number;
+  /** Anything after the leading digits, e.g. "H", "K", "L" (usually a single letter). */
+  suffix: string;
+}
+
+// Matches the same shape as COURSE_CODE_RE (`[A-Z]+ \d+\S*`) but captures the
+// three parts. The number is the LEADING run of digits, mirroring the historic
+// `parseInt(courseId.split(' ')[1], 10)` behaviour exactly for any valid code.
+const COURSE_ID_PARTS_RE = /^([A-Z]+) (\d+)(\S*)$/;
+
+/**
+ * Parse a course code into {prefix, number, suffix}, or null if it is not a
+ * valid course-code token. This is the single course-identity parser — it
+ * replaces the hand-rolled `split(' ')` + `parseInt` + NaN-handling that was
+ * duplicated across progress.ts, workload.ts, and course-utils.ts.
+ */
+export function parseCourseId(id: unknown): ParsedCourseId | null {
+  if (typeof id !== 'string') return null;
+  const m = COURSE_ID_PARTS_RE.exec(id);
+  if (!m) return null;
+  return { prefix: m[1], number: parseInt(m[2], 10), suffix: m[3] };
+}
+
 export interface SanitizeCourseListResult {
   /** Only the valid course-code strings. */
   valid: string[];
