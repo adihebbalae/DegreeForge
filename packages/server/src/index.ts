@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
 import { getCachedResponse, setCachedResponse } from './cache';
+import { extractText } from './llm';
 import { tokenCapMiddleware } from './middleware/tokenCap';
 import { requireAccessCode } from './middleware/accessCode';
 
@@ -247,7 +248,7 @@ You MUST respond with ONLY a valid JSON object in this exact format, with no mar
         messages: [{ role: 'user', content: userContent }],
       });
 
-      const text = (response.content[0] as any).text;
+      const text = extractText(response);
       try {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text);
@@ -333,7 +334,7 @@ Respond with ONLY a valid JSON object in this exact format:
         system: "You are an academic advisor. Output raw JSON only. Do not wrap in ```json or any markdown.",
         messages: [{ role: 'user', content: prompt }],
       });
-      const text = (response.content[0] as any).text;
+      const text = extractText(response);
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text);
       await setCachedResponse(prompt, parsed, 'json');
