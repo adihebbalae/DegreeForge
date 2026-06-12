@@ -1,5 +1,5 @@
 import type { ToolContext, ToolResult } from './types';
-import { getCourseCredits } from '../course-utils';
+import { getCourseCredits, getOfferedSeasons } from '../course-utils';
 
 export function getCourseInfo(ctx: ToolContext, args: Record<string, unknown>): ToolResult {
   const courseId = String(args.course_id ?? '').trim().toUpperCase();
@@ -24,7 +24,7 @@ export function getCourseInfo(ctx: ToolContext, args: Record<string, unknown>): 
       prerequisites: catalogEntry?.prerequisites ?? [],
       corequisites: catalogEntry?.corequisites ?? [],
       category: graphNode?.category ?? '',
-      offered_semesters: graphNode?.offered ?? [],
+      offered_semesters: getOfferedSeasons(courseId, ctx.offeringSchedule) ?? [],
       avg_gpa: gradeDist?.avg_gpa ?? null,
       total_enrollment: gradeDist?.total_enrollment ?? null,
     },

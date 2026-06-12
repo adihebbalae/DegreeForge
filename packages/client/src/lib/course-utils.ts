@@ -1,4 +1,4 @@
-import type { CourseCatalog, PrereqNode, CourseCategory, UserProfile } from '../types';
+import type { CourseCatalog, PrereqNode, CourseCategory, UserProfile, OfferingSchedule } from '../types';
 import { parseCourseId } from './sanitize-course-list';
 
 // ─── Category Inference ───────────────────────────────────────────────────────
@@ -199,6 +199,26 @@ export function getCourseCredits(
   // null = variable-credit Topics row — fall through to the default
   if (typeof catalogCredits === 'number') return catalogCredits;
   return DEFAULT_CREDITS;
+}
+
+// ─── Offered Seasons ──────────────────────────────────────────────────────────
+
+/**
+ * THE canonical offered-seasons accessor — every offering read must come from
+ * this function. offering-schedule.json is the single source (observed /
+ * curated / baseline provenance per row; prerequisite-graph.json no longer
+ * carries an `offered` copy — see .agents/data-diffs/e2-offering.md).
+ *
+ * Returns null when nothing is known (course absent or empty row) — callers
+ * treat null as "may be offered any season" (open-world default).
+ */
+export function getOfferedSeasons(
+  courseId: string,
+  offeringSchedule: OfferingSchedule
+): string[] | null {
+  const seasons = offeringSchedule[courseId]?.offered_semesters;
+  if (seasons && seasons.length > 0) return seasons;
+  return null;
 }
 
 // ─── GPA Badge ────────────────────────────────────────────────────────────────

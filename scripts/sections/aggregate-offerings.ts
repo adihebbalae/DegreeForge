@@ -42,13 +42,16 @@ interface TermFile {
  * `offerings` is a legacy map of specific term keys like "fall_26" → bool.
  * `offered_semesters` is the derived season list (fall/spring/summer).
  * `provenance` is "observed" when derived from scraped data, "curated" when
- * the entry was hand-authored and has not yet been confirmed by observed data.
+ * the entry was hand-authored and has not yet been confirmed by observed data,
+ * and "baseline" when migrated from the prereq graph's former `offered` copy
+ * (E2 canonicalization). Baseline rows are preserved as-is until a scrape
+ * observes the course, at which point they upgrade to "observed".
  */
 export interface OfferingEntry {
   title: string;
   offerings: Record<string, boolean>;
   offered_semesters: Season[];
-  provenance?: 'observed' | 'curated';
+  provenance?: 'observed' | 'curated' | 'baseline';
 }
 
 export type OfferingSchedule = Record<string, OfferingEntry>;

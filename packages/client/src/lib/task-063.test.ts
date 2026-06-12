@@ -164,10 +164,10 @@ describe('H1 — Synthetic OR-group prereq (unit test)', () => {
    */
   const syntheticData: PrereqGraphData = {
     nodes: {
-      'OPT_A': { title: 'Option A', category: 'ece_upper', offered: [], flags: [] },
-      'OPT_B': { title: 'Option B', category: 'ece_upper', offered: [], flags: [] },
-      'OPT_C': { title: 'Option C', category: 'ece_upper', offered: [], flags: [] },
-      'CAPSTONE': { title: 'Capstone', category: 'ece_upper', offered: [], flags: [] },
+      'OPT_A': { title: 'Option A', category: 'ece_upper', flags: [] },
+      'OPT_B': { title: 'Option B', category: 'ece_upper', flags: [] },
+      'OPT_C': { title: 'Option C', category: 'ece_upper', flags: [] },
+      'CAPSTONE': { title: 'Capstone', category: 'ece_upper', flags: [] },
     },
     edges: [
       { from: 'OPT_A', to: 'CAPSTONE', type: 'prerequisite' },

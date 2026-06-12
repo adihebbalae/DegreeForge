@@ -35,12 +35,12 @@ import type {
 
 const FIXTURE_GRAPH_DATA: PrereqGraphData = {
   nodes: {
-    A: { title: 'Course A', category: 'ece_core', offered: [], flags: [] },
-    B: { title: 'Course B', category: 'ece_core', offered: ['fall'], flags: [] },
-    C: { title: 'Course C', category: 'ece_core', offered: [], flags: [] },
-    D: { title: 'Course D', category: 'ece_core', offered: ['fall'], flags: [] },
-    E: { title: 'Course E', category: 'ece_core', offered: [], flags: [] },
-    F: { title: 'Course F', category: 'ece_core', offered: [], flags: [] },
+    A: { title: 'Course A', category: 'ece_core', flags: [] },
+    B: { title: 'Course B', category: 'ece_core', flags: [] },
+    C: { title: 'Course C', category: 'ece_core', flags: [] },
+    D: { title: 'Course D', category: 'ece_core', flags: [] },
+    E: { title: 'Course E', category: 'ece_core', flags: [] },
+    F: { title: 'Course F', category: 'ece_core', flags: [] },
   },
   edges: [
     { from: 'A', to: 'B', type: 'prerequisite' },
@@ -141,8 +141,8 @@ describe('computeCriticalPath', () => {
     // Cyclic graph: X → Y → X (A→B back-edge creates a cycle in remainingRequired)
     const cyclicGraphData: PrereqGraphData = {
       nodes: {
-        X: { title: 'Course X', category: 'ece_core', offered: [], flags: [] },
-        Y: { title: 'Course Y', category: 'ece_core', offered: [], flags: [] },
+        X: { title: 'Course X', category: 'ece_core', flags: [] },
+        Y: { title: 'Course Y', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'X', to: 'Y', type: 'prerequisite' },

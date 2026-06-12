@@ -145,10 +145,10 @@ describe('AC1 — past-term write guard in planReducer', () => {
   });
 });
 
-// ─── AC2: ECE 464K (absent from offering-schedule, fall/spring from prereq-graph)
-//          must never be placed in a summer semester ────────────────────────────
+// ─── AC2: ECE 464K baseline row in offering-schedule.json is [fall, spring]
+//          so it must never be placed in a summer semester ────────────────────
 
-describe('AC2 — offering source fallback: ECE 464K never placed in summer', () => {
+describe('AC2 — offering-schedule.json baseline row: ECE 464K never placed in summer', () => {
   const summerSem: Semester = {
     id: 'Summer 2026', label: "Su '26", status: 'future', year: 2026, season: 'Summer',
   };
@@ -159,24 +159,30 @@ describe('AC2 — offering source fallback: ECE 464K never placed in summer', ()
     id: 'Spring 2027', label: "Sp '27", status: 'future', year: 2027, season: 'Spring',
   };
 
-  it('ECE 464K is absent from offering-schedule.json', () => {
-    expect(offeringSchedule['ECE 464K']).toBeUndefined();
+  it('offering-schedule.json has an ECE 464K row with offered_semesters [fall, spring]', () => {
+    // The former graph fallback rows were merged into offering-schedule.json as
+    // provenance:"baseline" during the E2 canonicalization. ECE 464K is now present.
+    expect(offeringSchedule['ECE 464K']).toBeDefined();
+    expect(offeringSchedule['ECE 464K']!.offered_semesters).toEqual(['fall', 'spring']);
   });
 
-  it('ECE 464K prereq-graph offered is [fall, spring]', () => {
-    expect(prereqData.nodes['ECE 464K']?.offered).toEqual(['fall', 'spring']);
+  it('ECE 464K prereq-graph node no longer carries an offered field', () => {
+    // After E2 the graph node is stripped of `offered`; the schedule row is the single source.
+    const node = prereqData.nodes['ECE 464K'];
+    expect(node).toBeDefined();
+    expect((node as unknown as Record<string, unknown>)['offered']).toBeUndefined();
   });
 
-  it('canOfferInSemester: ECE 464K + prereqGraph → summer=false, fall=true, spring=true', () => {
-    expect(canOfferInSemester('ECE 464K', summerSem, offeringSchedule, prereqGraph)).toBe(false);
-    expect(canOfferInSemester('ECE 464K', fallSem, offeringSchedule, prereqGraph)).toBe(true);
-    expect(canOfferInSemester('ECE 464K', springSem, offeringSchedule, prereqGraph)).toBe(true);
+  it('canOfferInSemester: ECE 464K via real schedule → summer=false, fall=true, spring=true', () => {
+    expect(canOfferInSemester('ECE 464K', summerSem, offeringSchedule)).toBe(false);
+    expect(canOfferInSemester('ECE 464K', fallSem, offeringSchedule)).toBe(true);
+    expect(canOfferInSemester('ECE 464K', springSem, offeringSchedule)).toBe(true);
   });
 
-  it('canOfferInSemester: unknown course with no prereqGraph entry → all seasons true (open-world)', () => {
-    // Verify backward compatibility: courses with no data in either source are still open-world.
-    expect(canOfferInSemester('UNKNOWN 999', summerSem, offeringSchedule, prereqGraph)).toBe(true);
-    expect(canOfferInSemester('UNKNOWN 999', fallSem, offeringSchedule, prereqGraph)).toBe(true);
+  it('canOfferInSemester: unknown course with no schedule entry → all seasons true (open-world)', () => {
+    // Courses absent from the schedule are open-world (null → any season allowed).
+    expect(canOfferInSemester('UNKNOWN 999', summerSem, offeringSchedule)).toBe(true);
+    expect(canOfferInSemester('UNKNOWN 999', fallSem, offeringSchedule)).toBe(true);
   });
 
   it('generateAutoPlan (with summer semesters): ECE 464K lands in fall or spring, never summer', () => {
@@ -261,32 +267,26 @@ describe('AC4 — single source of truth for past-term and offering rules', () =
     expect(isPastSemester('NONEXISTENT 0000', semesters)).toBe(false);
   });
 
-  it('canOfferInSemester: missing offering-schedule entry + prereqGraph fallback → not permissive for fall/spring-only', () => {
-    // Verify the fix: when a course has fall/spring only in prereq-graph and is
-    // absent from offering-schedule, it is no longer summer-placeable.
+  it('canOfferInSemester: schedule is the single source — fall/spring entry prevents summer placement', () => {
+    // In the new model, offering-schedule.json is the only offering source. The former
+    // prereq-graph fallback was deleted; baseline rows from the graph were merged into
+    // the schedule. A course with fall/spring in the schedule is not summer-placeable.
     const summerSem: Semester = {
       id: 'Summer 2026', label: "Su '26", status: 'future', year: 2026, season: 'Summer',
     };
-
-    // Simulate a course absent from offering-schedule but fall/spring in prereq-graph
-    const emptySchedule: OfferingSchedule = {};
-    const mockGraphData: import('../types').PrereqGraphData = {
-      nodes: {
-        'ECE 999': {
-          title: 'Test Course',
-          category: 'ece_core',
-          offered: ['fall', 'spring'],
-          flags: [],
-        },
-      },
-      edges: [],
+    const fallSem: Semester = {
+      id: 'Fall 2026', label: "Fall '26", status: 'future', year: 2026, season: 'Fall',
     };
-    const mockGraph = new PrereqGraph(mockGraphData);
 
-    // Without prereqGraph (old behavior): returns true (permissive)
+    // Course with an explicit fall/spring entry in the schedule
+    const scheduleWithEntry: OfferingSchedule = {
+      'ECE 999': { title: 'Test Course', offerings: {}, offered_semesters: ['fall', 'spring'] },
+    };
+    expect(canOfferInSemester('ECE 999', summerSem, scheduleWithEntry)).toBe(false);
+    expect(canOfferInSemester('ECE 999', fallSem, scheduleWithEntry)).toBe(true);
+
+    // Course absent from the schedule → open-world → any season allowed (including summer)
+    const emptySchedule: OfferingSchedule = {};
     expect(canOfferInSemester('ECE 999', summerSem, emptySchedule)).toBe(true);
-
-    // With prereqGraph (new behavior): returns false (uses graph fallback)
-    expect(canOfferInSemester('ECE 999', summerSem, emptySchedule, mockGraph)).toBe(false);
   });
 });

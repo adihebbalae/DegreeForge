@@ -18,7 +18,7 @@ import type {
   CourseCatalog,
 } from '../types';
 import { PrereqGraph } from './graph-engine';
-import { getCourseCredits } from './course-utils';
+import { getCourseCredits, getOfferedSeasons } from './course-utils';
 import { expandVariants, isInSameOrPriorSemester, addWithVariants } from './variants';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
@@ -68,51 +68,26 @@ export interface SolverOutput {
 /**
  * Check if a course can be offered in a given semester season.
  *
- * Source-of-truth priority (TASK-064 H1 fix):
- *   1. offering-schedule.json  (`offered_semesters`) — explicit per-term offering data
- *   2. prerequisite-graph.json (`nodes[courseId].offered`) — authoritative fallback
- *      for the ~311 courses absent from offering-schedule (e.g. ECE 464K)
+ * offering-schedule.json is the ONLY offering source (E2 — the former
+ * prerequisite-graph fallback rows were migrated in as provenance:"baseline";
+ * the graph no longer carries an `offered` copy). Reads go through the
+ * canonical getOfferedSeasons accessor.
  *
  * Rules:
- * - Course in offering-schedule with non-empty offered_semesters → use that list.
- * - Course absent from offering-schedule (or has empty offered_semesters) →
- *     fall back to prereqGraph.getOffered(courseId) if a graph is supplied.
- * - If the fallback list is also empty → assume available (true) for all seasons.
+ * - Resolved season list → membership check.
+ * - Nothing known (null) → assume available for all seasons (open world).
  * - Summer requires "summer" to appear explicitly in the resolved list (opt-in only).
  *
- * Exported so auto-planner and diagnostics use the same offering source.
- *
- * @param courseId        - course to check
- * @param semester        - target semester
- * @param offeringSchedule - primary offering source
- * @param prereqGraph     - optional fallback source (pass the active PrereqGraph instance)
+ * Exported so auto-planner and diagnostics use the same offering predicate.
  */
 export function canOfferInSemester(
   courseId: string,
   semester: Semester,
-  offeringSchedule: OfferingSchedule,
-  prereqGraph?: PrereqGraph
+  offeringSchedule: OfferingSchedule
 ): boolean {
-  const entry = offeringSchedule[courseId];
-  const offeredSemesters = entry?.offered_semesters;
-
-  // Primary source has a non-empty list — use it authoritatively.
-  if (offeredSemesters && offeredSemesters.length > 0) {
-    const season = semester.season.toLowerCase();
-    return offeredSemesters.includes(season);
-  }
-
-  // Primary source is missing or has an empty list — fall back to prereq-graph.
-  if (prereqGraph) {
-    const graphOffered = prereqGraph.getOffered(courseId);
-    if (graphOffered.length > 0) {
-      const season = semester.season.toLowerCase();
-      return graphOffered.includes(season);
-    }
-  }
-
-  // No offering data in either source — assume available for all seasons.
-  return true;
+  const seasons = getOfferedSeasons(courseId, offeringSchedule);
+  if (seasons === null) return true;
+  return seasons.includes(semester.season.toLowerCase());
 }
 
 /**
@@ -262,8 +237,8 @@ export function generatePlan(input: SolverInput): SolverOutput {
       // Skip past and current semesters
       if (sem.status !== 'future') continue;
 
-      // Check offering pattern (prereqGraph supplies fallback for missing entries)
-      if (!canOfferInSemester(courseId, sem, offeringSchedule, prereqGraph)) continue;
+      // Check offering pattern
+      if (!canOfferInSemester(courseId, sem, offeringSchedule)) continue;
 
       // Check credit hour limit
       const credits = getCourseCredits(courseId, catalog);

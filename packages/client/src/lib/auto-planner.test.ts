@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { generateAutoPlan } from './auto-planner';
-import { getCourseCredits } from './course-utils';
+import { getCourseCredits, getOfferedSeasons } from './course-utils';
 import { PrereqGraph } from './graph-engine';
 import type {
   UserProfile,
@@ -10,6 +10,7 @@ import type {
   TechCores,
   MathRequirements,
   PrereqGraphData,
+  OfferingSchedule,
   Semester,
   Plan,
   CourseCatalog,
@@ -28,6 +29,7 @@ const techCores = loadJson<TechCores>('tech-cores.json');
 const mathReqs = loadJson<MathRequirements>('math-requirements.json');
 const prereqData = loadJson<PrereqGraphData>('prerequisite-graph.json');
 const prereqGraph = new PrereqGraph(prereqData);
+const offeringSchedule = loadJson<OfferingSchedule>('offering-schedule.json');
 
 // The REAL catalog — the canonical credit source the production solver uses.
 const catalog = loadJson<CourseCatalog>('course-catalog.json');
@@ -85,9 +87,10 @@ describe('generateAutoPlan', () => {
     expect(futureCount).toBeGreaterThan(10);
   });
 
-  it('respects offering pattern — fall-only courses never appear in spring', () => {
+  it('respects offering pattern — courses are only placed in seasons allowed by offering-schedule.json', () => {
     const result = generateAutoPlan({
       prereqGraph,
+      offeringSchedule,
       userProfile: profile,
       degreeReqs,
       techCore: techCores.computer_architecture,
@@ -98,12 +101,16 @@ describe('generateAutoPlan', () => {
       catalog,
     });
 
+    // offering-schedule.json is the single source of truth (E2 canonicalization).
+    // For every placed course that has a known season list, the placed semester's
+    // season must appear in that list. Courses absent from the schedule (null →
+    // open-world) are not constrained and are skipped.
     for (const sem of SEMESTERS.filter((s) => s.status === 'future')) {
       const seasonLower = sem.season.toLowerCase();
       for (const courseId of result.plan[sem.id]) {
-        const node = prereqData.nodes[courseId];
-        if (node?.offered && node.offered.length > 0) {
-          expect(node.offered).toContain(seasonLower);
+        const allowedSeasons = getOfferedSeasons(courseId, offeringSchedule);
+        if (allowedSeasons !== null) {
+          expect(allowedSeasons).toContain(seasonLower);
         }
       }
     }

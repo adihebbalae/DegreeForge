@@ -22,8 +22,8 @@
  * the user to fill in manually and surfaced in `warnings`.
  *
  * Behavior decisions (unified with solver.ts):
- *   A) Offering source: offering-schedule.json primary, prereq-graph.offered fallback
- *      (via canOfferInSemester from solver.ts — TASK-064 H1 fix).
+ *   A) Offering source: offering-schedule.json only (single canonical source, E2;
+ *      via canOfferInSemester → getOfferedSeasons).
  *   B) Load cap: credit-hours (17/18 per profile tolerance), not course count.
  */
 

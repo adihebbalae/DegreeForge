@@ -301,7 +301,11 @@
       "fall_26": false,
       "spring_27": false
     },
-    "offered_semesters": []
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
   },
   "ECE 362S": {
     "title": "Development of Solar-powered",
@@ -311,7 +315,11 @@
       "fall_26": false,
       "spring_27": false
     },
-    "offered_semesters": []
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
   },
   "ECE 363M": {
     "title": "Microwave and Radio Frequency Eng.",
@@ -369,7 +377,11 @@
       "fall_26": false,
       "spring_27": false
     },
-    "offered_semesters": []
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
   },
   "ECE 371Q": {
     "title": "Digital Image Processing",
@@ -379,7 +391,11 @@
       "fall_26": false,
       "spring_27": false
     },
-    "offered_semesters": []
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
   },
   "ECE 372N": {
     "title": "Telecommunication networks",
@@ -944,5 +960,2804 @@
       "fall",
       "spring"
     ]
+  },
+  "ECE 107H": {
+    "title": "Engineering Leadership: Honors",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 108S": {
+    "title": "Topics in Technical Skills",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 109K": {
+    "title": "Topics in Electrical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 111S": {
+    "title": "Tools to Enhance Academic Success",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 119S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 125S": {
+    "title": "Internship in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 129S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 155": {
+    "title": "Electrical and Computer Engineering Seminar",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 155L": {
+    "title": "Engineering Leadership Seminar",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 155R": {
+    "title": "Undergraduate Research Seminar",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 160": {
+    "title": "Special Problems in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 179K": {
+    "title": "Topics in Electrical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 197C": {
+    "title": "Research Problems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 197G": {
+    "title": "Research Problems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 197M": {
+    "title": "Graduate Research Internship",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 197S": {
+    "title": "Graduate Seminar in Electrical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 209K": {
+    "title": "Topics in Electrical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 209P": {
+    "title": "Introduction to Professional Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 219S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 229S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 260": {
+    "title": "Special Problems in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 279K": {
+    "title": "Topics in Electrical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 297C": {
+    "title": "Research Problems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 297G": {
+    "title": "Research Problems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 297M": {
+    "title": "Graduate Research Internship",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 297S": {
+    "title": "Graduate Seminar in Electrical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 302": {
+    "title": "Introduction to Electrical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 302H": {
+    "title": "Introduction to Electrical Engineering: Honors",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 306": {
+    "title": "Introduction to Computing",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 306H": {
+    "title": "Introduction to Computing: Honors",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 307E": {
+    "title": "Elements of Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 309K": {
+    "title": "Topics in Electrical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 309S": {
+    "title": "Development of a Solar-Powered Vehicle",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 312": {
+    "title": "Software Design and Implementation I",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 312H": {
+    "title": "Software Design and Implementation I: Honors",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 313H": {
+    "title": "Linear Systems and Signals: Honors",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 319H": {
+    "title": "Introduction to Embedded Systems: Honors",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 319K": {
+    "title": "Introduction to Embedded Systems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 319S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 321K": {
+    "title": "Mixed Signal and Circuits Laboratory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 329S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 331": {
+    "title": "Electrical Circuits, Electronics, and Machinery",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 338L": {
+    "title": "Analog Integrated Circuit Design",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 341": {
+    "title": "Electric Drives and Machines",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 351H": {
+    "title": "Probability and Random Processes: Honors",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 360": {
+    "title": "Special Problems in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 360F": {
+    "title": "Introduction to Software Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 360S": {
+    "title": "Digital Integrated Circuit Design",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 361D": {
+    "title": "System Design Metrics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 362G": {
+    "title": "Smart Grids",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 364E": {
+    "title": "Interdisciplinary Entrepreneurship",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 366": {
+    "title": "Engineering Economics I",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 366K": {
+    "title": "Engineering Economics II",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 366L": {
+    "title": "Statistics for Manufacturing",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 369L": {
+    "title": "Relay Protection of Power Systems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 370": {
+    "title": "Automatic Control II",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 370K": {
+    "title": "Computer Control Systems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 370L": {
+    "title": "Introduction to Manufacturing Systems Automation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 370N": {
+    "title": "Introduction to Robotics and Mechatronics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 371D": {
+    "title": "Introduction to Neural Networks",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 371M": {
+    "title": "Communication Systems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 372S": {
+    "title": "Cryptography and Network Security",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 374K": {
+    "title": "Biomedical Electronic Instrument Design",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 374L": {
+    "title": "Applications of Biomedical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 380C": {
+    "title": "Introduction to Optimization",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 380K": {
+    "title": "Introduction to System Theory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 380L": {
+    "title": "Topics in Computer Systems in Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 380N": {
+    "title": "Topics in System Theory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 381C": {
+    "title": "Verification and Validation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 381J": {
+    "title": "Probability and Stochastic Processes I",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 381K": {
+    "title": "Topics in Decision, Information, and Communications Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 381L": {
+    "title": "Digital Time Series Analysis and Applications",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 381M": {
+    "title": "Probability and Stochastic Processes II",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 381S": {
+    "title": "Space-Time Communication",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 381V": {
+    "title": "Topics in Communications, Networks, and Systems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 382C": {
+    "title": "Topics in Software Engineering and Systems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 382L": {
+    "title": "Topics in Theory of Digital Systems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 382M": {
+    "title": "Topics in Integrated Circuits and Systems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 382N": {
+    "title": "Topics in Architecture, Computer Systems, and Embedded Systems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 382V": {
+    "title": "Topics in Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 383L": {
+    "title": "Electromagnetic Field Theory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 383M": {
+    "title": "Microwave Field Theory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 383N": {
+    "title": "Theory of Electromagnetic Fields: Electrodynamics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 383P": {
+    "title": "Topics in Optical Processing and Laser Communications",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 383V": {
+    "title": "Topics in Electromagnetics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 384N": {
+    "title": "Topics in Acoustics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 385J": {
+    "title": "Topics in Biomedical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 386C": {
+    "title": "Software Architecture",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 390C": {
+    "title": "Statistical Methods in Engineering and Quality Assurance",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 390V": {
+    "title": "Topics in Manufacturing Systems Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 391C": {
+    "title": "Technical Entrepreneurship",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 392C": {
+    "title": "Software Testing",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 392K": {
+    "title": "Antenna Theory and Practice",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 392L": {
+    "title": "Computational Electromagnetics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 392N": {
+    "title": "Principles of Radar",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 393C": {
+    "title": "Topics in Plasma Dynamics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 394": {
+    "title": "Topics in Power System Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 394J": {
+    "title": "Topics in Energy Systems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 394L": {
+    "title": "Power Systems Apparatus and Laboratory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 396K": {
+    "title": "Topics in Solid-State Device Theory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 396M": {
+    "title": "Topics in Quantum Electronics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 396N": {
+    "title": "Topics in Nanotechnology",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 396V": {
+    "title": "Topics in Solid-State Electronics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 397C": {
+    "title": "Research Problems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 397G": {
+    "title": "Research Problems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 397K": {
+    "title": "Advanced Topics in Electrical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 397M": {
+    "title": "Graduate Research Internship",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 397N": {
+    "title": "Conference Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 397S": {
+    "title": "Graduate Seminar in Electrical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 398R": {
+    "title": "Master's Report",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 398T": {
+    "title": "Supervised Teaching in Electrical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 399W": {
+    "title": "Dissertation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 409K": {
+    "title": "Topics in Electrical Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 411H": {
+    "title": "Circuit Theory: Honors",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 419S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 429S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 445S": {
+    "title": "Real-Time Digital Signal Processing Laboratory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 460": {
+    "title": "Special Problems in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 464C": {
+    "title": "Corporate Senior Design Project",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 464G": {
+    "title": "Multidisciplinary Senior Design Project",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 464H": {
+    "title": "Honors Senior Design Project",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 464K": {
+    "title": "Senior Design Project",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 464R": {
+    "title": "Research Senior Design Project",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 464S": {
+    "title": "Start-Up Senior Design Project",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 468L": {
+    "title": "Power Systems Apparatus and Laboratory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 472L": {
+    "title": "Network Engineering Laboratory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 499W": {
+    "title": "Dissertation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 519S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 529S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 599W": {
+    "title": "Dissertation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 619S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 629S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 679H": {
+    "title": "Undergraduate Honors Thesis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 697C": {
+    "title": "Research Problems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 697G": {
+    "title": "Research Problems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 698": {
+    "title": "Thesis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 699W": {
+    "title": "Dissertation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 719S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 729S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 799W": {
+    "title": "Dissertation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 819S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 829S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 899W": {
+    "title": "Dissertation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 919S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 929S": {
+    "title": "Topics in Electrical and Computer Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 997C": {
+    "title": "Research Problems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 997G": {
+    "title": "Research Problems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "ECE 999W": {
+    "title": "Dissertation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 110C": {
+    "title": "Conference Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 110T": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 119S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 129S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 139S": {
+    "title": "Seminar on Actuarial Practice",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 175": {
+    "title": "Conference Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 175S": {
+    "title": "Seminar in Instruction of Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 175T": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 189S": {
+    "title": "Seminar on Actuarial Practice",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 197S": {
+    "title": "Topics in Mathematics: Seminar",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 210C": {
+    "title": "Conference Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 210E": {
+    "title": "Emerging Scholars Seminar",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 210T": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 219S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 229S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 275": {
+    "title": "Conference Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 275T": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 301": {
+    "title": "College Algebra",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 302": {
+    "title": "Introduction to Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 303D": {
+    "title": "Applicable Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 303F": {
+    "title": "Mathematics of Investment",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 305E": {
+    "title": "Analytic Geometry",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 305G": {
+    "title": "Preparation for Calculus",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 308L": {
+    "title": "Integral Calculus",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 308M": {
+    "title": "Multivariable Calculus",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 310C": {
+    "title": "Conference Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 310P": {
+    "title": "Modern Mathematics: Plan II",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 310T": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 315C": {
+    "title": "Foundations, Functions, and Regression Models",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 316K": {
+    "title": "Foundations of Arithmetic",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 316L": {
+    "title": "Foundations of Geometry, Statistics, and Probability",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 319S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 326K": {
+    "title": "Foundations of Number Systems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 328K": {
+    "title": "Introduction to Number Theory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 329F": {
+    "title": "Theory of Interest",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 329S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 329W": {
+    "title": "Cooperative Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 333L": {
+    "title": "Structure of Modern Geometry",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 339C": {
+    "title": "Actuarial Case Studies",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 339D": {
+    "title": "Introduction to Financial Mathematics for Actuaries",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 339G": {
+    "title": "Predictive Analytics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 339J": {
+    "title": "Probability Models with Actuarial Applications",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 339U": {
+    "title": "Actuarial Contingent Payments I",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 339V": {
+    "title": "Actuarial Contingent Payments II",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 341": {
+    "title": "Linear Algebra and Matrix Theory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 343K": {
+    "title": "Introduction to Algebraic Structures",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 343L": {
+    "title": "Applied Number Theory",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 343M": {
+    "title": "Error-Correcting Codes",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 344K": {
+    "title": "Intermediate Symbolic Logic",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 346": {
+    "title": "Applied Linear Algebra",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 348": {
+    "title": "Scientific Computation in Numerical Analysis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 349P": {
+    "title": "Actuarial Statistical Estimates",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 349R": {
+    "title": "Applied Regression and Time Series",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 349T": {
+    "title": "Time Series and Survival-Model Estimation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 358K": {
+    "title": "Applied Statistics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 360M": {
+    "title": "Mathematics as Problem Solving",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 361": {
+    "title": "Theory of Functions of a Complex Variable",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 361K": {
+    "title": "Introduction to Real Analysis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 362K": {
+    "title": "Probability I",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 362M": {
+    "title": "Introduction to Stochastic Processes",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 364K": {
+    "title": "Vector and Tensor Analysis I",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 364L": {
+    "title": "Vector and Tensor Analysis II",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 365C": {
+    "title": "Real Analysis I",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 365D": {
+    "title": "Real Analysis II",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 365G": {
+    "title": "Curves and Surfaces",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 367K": {
+    "title": "Topology I",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 367L": {
+    "title": "Topology II",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 368K": {
+    "title": "Numerical Methods for Applications",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 371E": {
+    "title": "Learning Assistant Experience in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 372": {
+    "title": "Fourier Series and Boundary Value Problems",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 372K": {
+    "title": "Partial Differential Equations and Applications",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 373K": {
+    "title": "Algebraic Structures I",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 373L": {
+    "title": "Algebraic Structures II",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 374": {
+    "title": "Fourier and Laplace Transforms",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 374G": {
+    "title": "Linear Regression Analysis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 374K": {
+    "title": "Fourier and Laplace Transforms",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 374M": {
+    "title": "Mathematical Modeling in Science and Engineering",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 375": {
+    "title": "Conference Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 375C": {
+    "title": "Topics in Conference Course: Computer-Assisted",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 375D": {
+    "title": "Discovery: An Introduction to Advanced Study in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 375T": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 376C": {
+    "title": "Topics in Methods of Applied Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 378K": {
+    "title": "Introduction to Mathematical Statistics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 378N": {
+    "title": "Generalized Linear Models",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 378P": {
+    "title": "Decision Analytics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 379H": {
+    "title": "Honors Tutorial Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 380C": {
+    "title": "Algebra",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 380D": {
+    "title": "Algebra",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 381C": {
+    "title": "Real Analysis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 381D": {
+    "title": "Complex Analysis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 381E": {
+    "title": "Functional Analysis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 382C": {
+    "title": "Algebraic Topology",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 382D": {
+    "title": "Differential Topology",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 382E": {
+    "title": "Advanced Algebraic Topology",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 382F": {
+    "title": "Algebraic Topology",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 382G": {
+    "title": "Differential Geometry",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 383C": {
+    "title": "Methods of Applied Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 383D": {
+    "title": "Methods of Applied Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 383E": {
+    "title": "Numerical Analysis: Linear Algebra",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 383F": {
+    "title": "Numerical Analysis: Interpolation, Approximation, Quadrature, and Differential Equations",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 384C": {
+    "title": "Mathematical Statistics I",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 384D": {
+    "title": "Mathematical Statistics II",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 384E": {
+    "title": "Design and Analysis of Experiments",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 384F": {
+    "title": "Design of Experiments",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 384G": {
+    "title": "Regression Analysis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 384H": {
+    "title": "Multivariate Statistical Analysis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 385C": {
+    "title": "Theory of Probability",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 385D": {
+    "title": "Theory of Probability",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 387C": {
+    "title": "Numerical Analysis: Algebra and Approximation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 387D": {
+    "title": "Numerical Analysis: Differential Equations",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 389C": {
+    "title": "Actuarial Case Studies",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 389D": {
+    "title": "Introduction to Financial Mathematics for Actuaries",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 389F": {
+    "title": "Theory of Interest",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 389G": {
+    "title": "Predictive Analytics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 389J": {
+    "title": "Probability Models with Actuarial Applications",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 389P": {
+    "title": "Actuarial Statistical Estimates",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 389T": {
+    "title": "Time Series and Survival-Model Estimation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 389U": {
+    "title": "Actuarial Contingent Payments I",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 389V": {
+    "title": "Actuarial Contingent Payments II",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 389W": {
+    "title": "Financial Mathematics for Actuarial Applications",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 390C": {
+    "title": "Topics in Algebra",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 391C": {
+    "title": "Topics in Analysis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 392C": {
+    "title": "Topics in Topology",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 393C": {
+    "title": "Topics in Applied Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 393N": {
+    "title": "Numerical Solution of Elliptic Partial Differential Equations",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 394C": {
+    "title": "Topics in Probability and Statistics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 395C": {
+    "title": "Topics in Logic and Foundations",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 396C": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 396D": {
+    "title": "Conference Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 397C": {
+    "title": "Topics in Numerical Analysis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 397S": {
+    "title": "Topics in Mathematics: Seminar",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 398R": {
+    "title": "Master's Report",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 398T": {
+    "title": "Supervised Teaching in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 399W": {
+    "title": "Dissertation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 403K": {
+    "title": "Calculus I for Business and Economics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 403L": {
+    "title": "Calculus II for Business and Economics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 408N": {
+    "title": "Differential Calculus for Science",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 408Q": {
+    "title": "Differential and Integral Calculus for Business",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 408R": {
+    "title": "Differential and Integral Calculus for the Sciences",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 408S": {
+    "title": "Integral Calculus for Science",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 410C": {
+    "title": "Conference Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 410T": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 419S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 429S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 475": {
+    "title": "Conference Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 475T": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 519S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 529S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 619S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 629S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 696C": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 696D": {
+    "title": "Conference Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 698": {
+    "title": "Thesis",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 699W": {
+    "title": "Dissertation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 719S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 729S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 819S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 829S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 919S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 929S": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 996C": {
+    "title": "Topics in Mathematics",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 996D": {
+    "title": "Conference Course",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
+  },
+  "M 999W": {
+    "title": "Dissertation",
+    "offerings": {},
+    "offered_semesters": [
+      "fall",
+      "spring"
+    ],
+    "provenance": "baseline"
   }
 }

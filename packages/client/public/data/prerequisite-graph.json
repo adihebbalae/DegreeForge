@@ -3,3403 +3,1891 @@
         "ECE 302": {
             "title": "Introduction to Electrical Engineering",
             "category": "ece_core",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 302H": {
             "title": "Introduction to Electrical Engineering: Honors",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 306": {
             "title": "Introduction to Computing",
             "category": "ece_core",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 306H": {
             "title": "Introduction to Computing: Honors",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 307E": {
             "title": "Elements of Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 107H": {
             "title": "Engineering Leadership: Honors",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 108S": {
             "title": "Topics in Technical Skills",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 109K": {
             "title": "Topics in Electrical Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 209K": {
             "title": "Topics in Electrical Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 309K": {
             "title": "Topics in Electrical Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 409K": {
             "title": "Topics in Electrical Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 209P": {
             "title": "Introduction to Professional Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 309S": {
             "title": "Development of a Solar-Powered Vehicle",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 411": {
             "title": "Circuit Theory",
             "category": "ece_core",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 411H": {
             "title": "Circuit Theory: Honors",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 111S": {
             "title": "Tools to Enhance Academic Success",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 312": {
             "title": "Software Design and Implementation I",
             "category": "ece_core",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 312H": {
             "title": "Software Design and Implementation I: Honors",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 313": {
             "title": "Linear Systems and Signals",
             "category": "ece_core",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 313H": {
             "title": "Linear Systems and Signals: Honors",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 316": {
             "title": "Digital Logic Design",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 319H": {
             "title": "Introduction to Embedded Systems: Honors",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 319K": {
             "title": "Introduction to Embedded Systems",
             "category": "ece_core",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 119S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 219S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 319S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 419S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 519S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 619S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 719S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 819S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 919S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 321K": {
             "title": "Mixed Signal and Circuits Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 422C": {
             "title": "Software Design and Implementation II",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 325": {
             "title": "Electromagnetic Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 325K": {
             "title": "Antennas and Wireless Propagation",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 125S": {
             "title": "Internship in Electrical and Computer Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 129S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 229S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 329S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 429S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 529S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 629S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 729S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 829S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 929S": {
             "title": "Topics in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 331": {
             "title": "Electrical Circuits, Electronics, and Machinery",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 333T": {
             "title": "Engineering Communication",
             "category": "ece_core",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 334K": {
             "title": "Quantum Theory of Electronic Materials",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 438": {
             "title": "Fundamentals of Electronic Circuits I Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 438K": {
             "title": "Analog Electronics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 338L": {
             "title": "Analog Integrated Circuit Design",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 339": {
             "title": "Solid-State Electronic Devices",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 339S": {
             "title": "Solar Energy Conversion Devices",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 440": {
             "title": "Integrated Circuit Nanomanufacturing Techniques",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 340P": {
             "title": "High-Throughput Nanopatterning",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 341": {
             "title": "Electric Drives and Machines",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 445L": {
             "title": "Embedded Systems Design Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 445M": {
             "title": "Embedded and Real-Time Systems Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 445S": {
             "title": "Real-Time Digital Signal Processing Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 347": {
             "title": "Modern Optics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 348": {
             "title": "Laser and Optical Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 351H": {
             "title": "Probability and Random Processes: Honors",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 351K": {
             "title": "Probability and Random Processes",
             "category": "ece_core",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 351M": {
             "title": "Digital Signal Processing",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 155": {
             "title": "Electrical and Computer Engineering Seminar",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 155L": {
             "title": "Engineering Leadership Seminar",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 155R": {
             "title": "Undergraduate Research Seminar",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 160": {
             "title": "Special Problems in Electrical and Computer Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 260": {
             "title": "Special Problems in Electrical and Computer Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 360": {
             "title": "Special Problems in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 460": {
             "title": "Special Problems in Electrical and Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 360C": {
             "title": "Algorithms",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 360F": {
             "title": "Introduction to Software Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 360G": {
             "title": "Programming Paradigms",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 460J": {
             "title": "Data Science Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 360K": {
             "title": "Introduction to Digital Communications",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 460M": {
             "title": "Digital Systems Design Using Hardware Description Languages",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 460N": {
             "title": "Computer Architecture",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 360P": {
             "title": "Concurrent and Distributed Systems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 460R": {
             "title": "Introduction to VLSI Design",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 360S": {
             "title": "Digital Integrated Circuit Design",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 360T": {
             "title": "Software Testing",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 361C": {
             "title": "Multicore Computing",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 361D": {
             "title": "System Design Metrics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 361E": {
             "title": "Machine Learning and Data Analytics for Edge Artificial Intelligence",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 361G": {
             "title": "Engineering Program Analysis",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 461L": {
             "title": "Software Engineering and Design Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 361M": {
             "title": "Software Architectures",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 361N": {
             "title": "Information Security and Privacy",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 461P": {
             "title": "Data Science Principles",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 361Q": {
             "title": "Requirements Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 361R": {
             "title": "Radio-Frequency Electronics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 461S": {
             "title": "Operating Systems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 362G": {
             "title": "Smart Grids",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 362K": {
             "title": "Introduction to Automatic Control",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 462L": {
             "title": "Power Electronics Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 362M": {
             "title": "Power Electronics II",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 362Q": {
             "title": "Power Quality and Harmonics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 362R": {
             "title": "Renewable Energy and Power Systems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 362S": {
             "title": "Development of a Solar-Powered Vehicle",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 363M": {
             "title": "Microwave and Radio Frequency Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 363N": {
             "title": "Engineering Acoustics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 464C": {
             "title": "Corporate Senior Design Project",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 364D": {
             "title": "Introduction to Engineering Design",
             "category": "ece_core",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 364E": {
             "title": "Interdisciplinary Entrepreneurship",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 464G": {
             "title": "Multidisciplinary Senior Design Project",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 464H": {
             "title": "Honors Senior Design Project",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 464K": {
             "title": "Senior Design Project",
             "category": "ece_core",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 464R": {
             "title": "Research Senior Design Project",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 464S": {
             "title": "Start-Up Senior Design Project",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 366": {
             "title": "Engineering Economics I",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 366K": {
             "title": "Engineering Economics II",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 366L": {
             "title": "Statistics for Manufacturing",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 368L": {
             "title": "Power Systems Apparatus and Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 468L": {
             "title": "Power Systems Apparatus and Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 369": {
             "title": "Power Systems Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 369L": {
             "title": "Relay Protection of Power Systems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 370": {
             "title": "Automatic Control II",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 370K": {
             "title": "Computer Control Systems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 370L": {
             "title": "Introduction to Manufacturing Systems Automation",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 370N": {
             "title": "Introduction to Robotics and Mechatronics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 471C": {
             "title": "Wireless Communications Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 371D": {
             "title": "Introduction to Neural Networks",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 371M": {
             "title": "Communication Systems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 371P": {
             "title": "Introduction to Computer Vision",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 371Q": {
             "title": "Digital Image Processing",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 472L": {
             "title": "Network Engineering Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 372N": {
             "title": "Telecommunication Networks",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 372S": {
             "title": "Cryptography and Network Security",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 374K": {
             "title": "Biomedical Electronic Instrument Design",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 374L": {
             "title": "Applications of Biomedical Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 374N": {
             "title": "Neural Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 679H": {
             "title": "Undergraduate Honors Thesis",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 179K": {
             "title": "Topics in Electrical Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 279K": {
             "title": "Topics in Electrical Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 379K": {
             "title": "Topics in Electrical Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 479K": {
             "title": "Topics in Electrical Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 380C": {
             "title": "Introduction to Optimization",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 380K": {
             "title": "Introduction to System Theory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 380L": {
             "title": "Topics in Computer Systems in Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 380N": {
             "title": "Topics in System Theory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 381C": {
             "title": "Verification and Validation",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 381J": {
             "title": "Probability and Stochastic Processes I",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 381K": {
             "title": "Topics in Decision, Information, and Communications Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 381L": {
             "title": "Digital Time Series Analysis and Applications",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 381M": {
             "title": "Probability and Stochastic Processes II",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 381S": {
             "title": "Space-Time Communication",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 381V": {
             "title": "Topics in Communications, Networks, and Systems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 382C": {
             "title": "Topics in Software Engineering and Systems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 382L": {
             "title": "Topics in Theory of Digital Systems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 382M": {
             "title": "Topics in Integrated Circuits and Systems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 382N": {
             "title": "Topics in Architecture, Computer Systems, and Embedded Systems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 382V": {
             "title": "Topics in Computer Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 383L": {
             "title": "Electromagnetic Field Theory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 383M": {
             "title": "Microwave Field Theory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 383N": {
             "title": "Theory of Electromagnetic Fields: Electrodynamics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 383P": {
             "title": "Topics in Optical Processing and Laser Communications",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 383V": {
             "title": "Topics in Electromagnetics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 384N": {
             "title": "Topics in Acoustics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 385J": {
             "title": "Topics in Biomedical Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 386C": {
             "title": "Software Architecture",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 390C": {
             "title": "Statistical Methods in Engineering and Quality Assurance",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 390V": {
             "title": "Topics in Manufacturing Systems Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 391C": {
             "title": "Technical Entrepreneurship",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 392C": {
             "title": "Software Testing",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 392K": {
             "title": "Antenna Theory and Practice",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 392L": {
             "title": "Computational Electromagnetics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 392N": {
             "title": "Principles of Radar",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 393C": {
             "title": "Topics in Plasma Dynamics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 394": {
             "title": "Topics in Power System Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 394J": {
             "title": "Topics in Energy Systems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 394L": {
             "title": "Power Systems Apparatus and Laboratory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 396K": {
             "title": "Topics in Solid-State Device Theory",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 396M": {
             "title": "Topics in Quantum Electronics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 396N": {
             "title": "Topics in Nanotechnology",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 396V": {
             "title": "Topics in Solid-State Electronics",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 197C": {
             "title": "Research Problems",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 297C": {
             "title": "Research Problems",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 397C": {
             "title": "Research Problems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 697C": {
             "title": "Research Problems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 997C": {
             "title": "Research Problems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 197G": {
             "title": "Research Problems",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 297G": {
             "title": "Research Problems",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 397G": {
             "title": "Research Problems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 697G": {
             "title": "Research Problems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 997G": {
             "title": "Research Problems",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 397K": {
             "title": "Advanced Topics in Electrical Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 197M": {
             "title": "Graduate Research Internship",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 297M": {
             "title": "Graduate Research Internship",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 397M": {
             "title": "Graduate Research Internship",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 397N": {
             "title": "Conference Course",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 197S": {
             "title": "Graduate Seminar in Electrical Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 297S": {
             "title": "Graduate Seminar in Electrical Engineering",
             "category": "ece_lower",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 397S": {
             "title": "Graduate Seminar in Electrical Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 698": {
             "title": "Thesis",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 398R": {
             "title": "Master's Report",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 398T": {
             "title": "Supervised Teaching in Electrical Engineering",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 399W": {
             "title": "Dissertation",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 499W": {
             "title": "Dissertation",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 599W": {
             "title": "Dissertation",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 699W": {
             "title": "Dissertation",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 799W": {
             "title": "Dissertation",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 899W": {
             "title": "Dissertation",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "ECE 999W": {
             "title": "Dissertation",
             "category": "ece_upper",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 301": {
             "title": "College Algebra",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 302": {
             "title": "Introduction to Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 303D": {
             "title": "Applicable Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 303F": {
             "title": "Mathematics of Investment",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 403K": {
             "title": "Calculus I for Business and Economics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 403L": {
             "title": "Calculus II for Business and Economics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 305E": {
             "title": "Analytic Geometry",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 305G": {
             "title": "Preparation for Calculus",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 408C": {
             "title": "Differential and Integral Calculus",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 408D": {
             "title": "Sequences, Series, and Multivariable Calculus",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 408K": {
             "title": "Differential Calculus",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 308L": {
             "title": "Integral Calculus",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 408L": {
             "title": "Integral Calculus",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 308M": {
             "title": "Multivariable Calculus",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 408M": {
             "title": "Multivariable Calculus",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 408N": {
             "title": "Differential Calculus for Science",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 408Q": {
             "title": "Differential and Integral Calculus for Business",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 408R": {
             "title": "Differential and Integral Calculus for the Sciences",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 408S": {
             "title": "Integral Calculus for Science",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 110C": {
             "title": "Conference Course",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 210C": {
             "title": "Conference Course",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 310C": {
             "title": "Conference Course",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 410C": {
             "title": "Conference Course",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 210E": {
             "title": "Emerging Scholars Seminar",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 310P": {
             "title": "Modern Mathematics: Plan II",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 110T": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 210T": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 310T": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 410T": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 315C": {
             "title": "Foundations, Functions, and Regression Models",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 316K": {
             "title": "Foundations of Arithmetic",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 316L": {
             "title": "Foundations of Geometry, Statistics, and Probability",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 119S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 219S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 319S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 419S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 519S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 619S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 719S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 819S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 919S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 325K": {
             "title": "Discrete Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 326K": {
             "title": "Foundations of Number Systems",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 427J": {
             "title": "Differential Equations with Linear Algebra",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 427K": {
             "title": "Advanced Calculus for Applications I",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 427L": {
             "title": "Advanced Calculus for Applications II",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 328K": {
             "title": "Introduction to Number Theory",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 329F": {
             "title": "Theory of Interest",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 129S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 229S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 329S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 429S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 529S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 629S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 729S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 829S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 929S": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 329W": {
             "title": "Cooperative Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 333L": {
             "title": "Structure of Modern Geometry",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 339C": {
             "title": "Actuarial Case Studies",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 339D": {
             "title": "Introduction to Financial Mathematics for Actuaries",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 339G": {
             "title": "Predictive Analytics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 339J": {
             "title": "Probability Models with Actuarial Applications",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 139S": {
             "title": "Seminar on Actuarial Practice",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 339U": {
             "title": "Actuarial Contingent Payments I",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 339V": {
             "title": "Actuarial Contingent Payments II",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 340L": {
             "title": "Matrices and Matrix Calculations",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 341": {
             "title": "Linear Algebra and Matrix Theory",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 343K": {
             "title": "Introduction to Algebraic Structures",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 343L": {
             "title": "Applied Number Theory",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 343M": {
             "title": "Error-Correcting Codes",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 344K": {
             "title": "Intermediate Symbolic Logic",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 346": {
             "title": "Applied Linear Algebra",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 348": {
             "title": "Scientific Computation in Numerical Analysis",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 349P": {
             "title": "Actuarial Statistical Estimates",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 349R": {
             "title": "Applied Regression and Time Series",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 349T": {
             "title": "Time Series and Survival-Model Estimation",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 358K": {
             "title": "Applied Statistics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 360M": {
             "title": "Mathematics as Problem Solving",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 361": {
             "title": "Theory of Functions of a Complex Variable",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 361K": {
             "title": "Introduction to Real Analysis",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 362K": {
             "title": "Probability I",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 362M": {
             "title": "Introduction to Stochastic Processes",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 364K": {
             "title": "Vector and Tensor Analysis I",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 364L": {
             "title": "Vector and Tensor Analysis II",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 365C": {
             "title": "Real Analysis I",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 365D": {
             "title": "Real Analysis II",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 365G": {
             "title": "Curves and Surfaces",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 367K": {
             "title": "Topology I",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 367L": {
             "title": "Topology II",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 368K": {
             "title": "Numerical Methods for Applications",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 371E": {
             "title": "Learning Assistant Experience in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 372": {
             "title": "Fourier Series and Boundary Value Problems",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 372K": {
             "title": "Partial Differential Equations and Applications",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 373K": {
             "title": "Algebraic Structures I",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 373L": {
             "title": "Algebraic Structures II",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 374": {
             "title": "Fourier and Laplace Transforms",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 374G": {
             "title": "Linear Regression Analysis",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 374K": {
             "title": "Fourier and Laplace Transforms",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 374M": {
             "title": "Mathematical Modeling in Science and Engineering",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 175": {
             "title": "Conference Course",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 275": {
             "title": "Conference Course",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 375": {
             "title": "Conference Course",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 475": {
             "title": "Conference Course",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 375C": {
             "title": "Topics in Conference Course: Computer-Assisted",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 375D": {
             "title": "Discovery: An Introduction to Advanced Study in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 175S": {
             "title": "Seminar in Instruction of Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 175T": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 275T": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 375T": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 475T": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 376C": {
             "title": "Topics in Methods of Applied Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 378K": {
             "title": "Introduction to Mathematical Statistics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 378N": {
             "title": "Generalized Linear Models",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 378P": {
             "title": "Decision Analytics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 379H": {
             "title": "Honors Tutorial Course",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 380C": {
             "title": "Algebra",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 380D": {
             "title": "Algebra",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 381C": {
             "title": "Real Analysis",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 381D": {
             "title": "Complex Analysis",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 381E": {
             "title": "Functional Analysis",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 382C": {
             "title": "Algebraic Topology",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 382D": {
             "title": "Differential Topology",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 382E": {
             "title": "Advanced Algebraic Topology",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 382F": {
             "title": "Algebraic Topology",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 382G": {
             "title": "Differential Geometry",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 383C": {
             "title": "Methods of Applied Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 383D": {
             "title": "Methods of Applied Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 383E": {
             "title": "Numerical Analysis: Linear Algebra",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 383F": {
             "title": "Numerical Analysis: Interpolation, Approximation, Quadrature, and Differential Equations",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 384C": {
             "title": "Mathematical Statistics I",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 384D": {
             "title": "Mathematical Statistics II",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 384E": {
             "title": "Design and Analysis of Experiments",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 384F": {
             "title": "Design of Experiments",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 384G": {
             "title": "Regression Analysis",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 384H": {
             "title": "Multivariate Statistical Analysis",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 385C": {
             "title": "Theory of Probability",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 385D": {
             "title": "Theory of Probability",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 387C": {
             "title": "Numerical Analysis: Algebra and Approximation",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 387D": {
             "title": "Numerical Analysis: Differential Equations",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 389C": {
             "title": "Actuarial Case Studies",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 389D": {
             "title": "Introduction to Financial Mathematics for Actuaries",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 389F": {
             "title": "Theory of Interest",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 389G": {
             "title": "Predictive Analytics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 389J": {
             "title": "Probability Models with Actuarial Applications",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 389P": {
             "title": "Actuarial Statistical Estimates",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 189S": {
             "title": "Seminar on Actuarial Practice",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 389T": {
             "title": "Time Series and Survival-Model Estimation",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 389U": {
             "title": "Actuarial Contingent Payments I",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 389V": {
             "title": "Actuarial Contingent Payments II",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 389W": {
             "title": "Financial Mathematics for Actuarial Applications",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 390C": {
             "title": "Topics in Algebra",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 391C": {
             "title": "Topics in Analysis",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 392C": {
             "title": "Topics in Topology",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 393C": {
             "title": "Topics in Applied Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 393N": {
             "title": "Numerical Solution of Elliptic Partial Differential Equations",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 394C": {
             "title": "Topics in Probability and Statistics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 395C": {
             "title": "Topics in Logic and Foundations",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 396C": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 696C": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 996C": {
             "title": "Topics in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 396D": {
             "title": "Conference Course",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 696D": {
             "title": "Conference Course",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 996D": {
             "title": "Conference Course",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 397C": {
             "title": "Topics in Numerical Analysis",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 197S": {
             "title": "Topics in Mathematics: Seminar",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 397S": {
             "title": "Topics in Mathematics: Seminar",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 698": {
             "title": "Thesis",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 398R": {
             "title": "Master's Report",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 398T": {
             "title": "Supervised Teaching in Mathematics",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 399W": {
             "title": "Dissertation",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 699W": {
             "title": "Dissertation",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         },
         "M 999W": {
             "title": "Dissertation",
             "category": "math",
-            "offered": [
-                "fall",
-                "spring"
-            ],
             "flags": []
         }
     },

@@ -17,7 +17,7 @@
 
 import type { Plan, Semester, OfferingSchedule, CourseCatalog } from '../types';
 import { PrereqGraph } from './graph-engine';
-import { getCourseCredits } from './course-utils';
+import { getCourseCredits, getOfferedSeasons } from './course-utils';
 import { canOfferInSemester } from './solver';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
@@ -300,7 +300,7 @@ export function computeBottlenecks(
   // ── Helper: compute offering slack for a course ──────────────────────────────
   function computeSlack(courseId: string): number {
     const validSemesters = futureSemesters.filter((s) =>
-      canOfferInSemester(courseId, s, offeringSchedule, prereqGraph)
+      canOfferInSemester(courseId, s, offeringSchedule)
     );
 
     const currentSemId = semesterOf(courseId, plan);
@@ -324,8 +324,7 @@ export function computeBottlenecks(
 
   // ── (A) Term-locked courses with downstream dependents ────────────────────────
   for (const courseId of remainingRequired) {
-    const entry = offeringSchedule[courseId];
-    const offeredSemesters = entry?.offered_semesters ?? [];
+    const offeredSemesters = getOfferedSeasons(courseId, offeringSchedule) ?? [];
 
     const isTermLocked =
       offeredSemesters.length === 1 &&
@@ -382,8 +381,7 @@ export function computeBottlenecks(
     if (isFutureSem) {
       const slack = computeSlack(criticalPathTail);
       if (slack !== Infinity) {
-        const entry = offeringSchedule[criticalPathTail];
-        const offeredSemesters = entry?.offered_semesters ?? [];
+        const offeredSemesters = getOfferedSeasons(criticalPathTail, offeringSchedule) ?? [];
         const isTermLocked =
           offeredSemesters.length === 1 &&
           (offeredSemesters[0] === 'fall' || offeredSemesters[0] === 'spring');

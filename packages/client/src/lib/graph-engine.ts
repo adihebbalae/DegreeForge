@@ -42,8 +42,6 @@ export class PrereqGraph {
   private readonly coreqsOf: Map<string, Set<string>> = new Map();
   /** course → set of courses that directly or transitively depend on it */
   private readonly directDependents: Map<string, Set<string>> = new Map();
-  /** course → offered seasons (e.g. ['fall', 'spring']). Empty = not declared. */
-  private readonly offeredOf: Map<string, string[]> = new Map();
   /**
    * CNF prereq override map. Defaults to the authored PREREQ_CNF (production).
    * Pass an empty object `{}` in tests to use pure flat-edge AND-semantics
@@ -54,10 +52,7 @@ export class PrereqGraph {
   constructor(graphData: PrereqGraphData, cnfOverride?: PrereqCNF) {
     this.cnf = cnfOverride !== undefined ? cnfOverride : PREREQ_CNF;
     // Initialize from nodes
-    for (const [courseId, node] of Object.entries(graphData.nodes)) {
-      if (node.offered && node.offered.length > 0) {
-        this.offeredOf.set(courseId, node.offered);
-      }
+    for (const courseId of Object.keys(graphData.nodes)) {
       this._ensureEntry(courseId);
     }
 
@@ -93,15 +88,6 @@ export class PrereqGraph {
   /** Direct corequisites of `courseId` (courses that must be taken same-or-earlier). */
   getCoreqs(courseId: string): string[] {
     return Array.from(this.coreqsOf.get(courseId) ?? []);
-  }
-
-  /**
-   * Offered seasons for a course from prerequisite-graph.json (e.g. ['fall', 'spring']).
-   * Returns an empty array for courses not in the graph or with no declared offering.
-   * Used as the authoritative fallback when offering-schedule.json has no entry.
-   */
-  getOffered(courseId: string): string[] {
-    return this.offeredOf.get(courseId) ?? [];
   }
 
   /**

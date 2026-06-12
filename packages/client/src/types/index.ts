@@ -18,7 +18,6 @@ export type CourseCatalog = Record<string, CatalogCourse>;
 export interface PrereqNode {
   title: string;
   category: string;
-  offered: string[];
   flags: string[];
 }
 
@@ -329,6 +328,11 @@ interface OfferingEntry {
   /** keys like "fall_25", "spring_26" → offered that semester? */
   offerings: Record<string, boolean>;
   offered_semesters: string[];
+  /**
+   * observed = derived from scraped term files; curated = hand-authored;
+   * baseline = migrated from the prereq graph's former `offered` copy (E2).
+   */
+  provenance?: 'observed' | 'curated' | 'baseline';
 }
 
 /** offering-schedule.json — keyed by course ID e.g. "ECE 325" */

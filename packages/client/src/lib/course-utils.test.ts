@@ -1,22 +1,26 @@
 /**
- * course-utils.test.ts — E1 (Brief 2, credits sub-PR)
+ * course-utils.test.ts — E1 + E2 (Brief 2, credits + offering sub-PRs)
  *
- * getCourseCredits is THE canonical credit accessor. These tests pin:
- *   1. the precedence chain (transcript → CREDIT_OVERRIDES → catalog → 3),
+ * getCourseCredits and getOfferedSeasons are THE canonical per-course-fact
+ * accessors. These tests pin:
+ *   1. the credit precedence chain (transcript → CREDIT_OVERRIDES → catalog → 3),
  *   2. the null-credits (variable-credit Topics) fallthrough,
  *   3. the real-data invariant that every prerequisite-graph node resolves its
  *      credits from the catalog/overrides (no silent default-3 for graph courses),
  *   4. that the SOLVER packs using the same accessor (override tier included) —
- *      the sanctioned E1 behavior change (.agents/data-diffs/e1-credits.md).
+ *      the sanctioned E1 behavior change (.agents/data-diffs/e1-credits.md),
+ *   5. offering resolution from the single offering-schedule.json (E2): every
+ *      graph course has a row (no course silently becomes any-season), and the
+ *      TASK-064 H1 guarantee (ECE 464K never summer) holds through the accessor.
  */
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { getCourseCredits, DEFAULT_CREDITS } from './course-utils';
-import { generatePlan } from './solver';
+import { getCourseCredits, getOfferedSeasons, DEFAULT_CREDITS } from './course-utils';
+import { generatePlan, canOfferInSemester } from './solver';
 import { PrereqGraph } from './graph-engine';
-import type { CourseCatalog, PrereqGraphData, Semester } from '../types';
+import type { CourseCatalog, PrereqGraphData, OfferingSchedule, Semester } from '../types';
 
 function loadJson<T>(filename: string): T {
   const path = join(__dirname, '../../public/data', filename);
@@ -95,7 +99,52 @@ describe('getCourseCredits — real-data invariants', () => {
   });
 });
 
-// ─── 3. Solver packs through the same accessor ────────────────────────────────
+// ─── 3. Offered seasons (E2) ──────────────────────────────────────────────────
+
+describe('getOfferedSeasons — canonical offering accessor', () => {
+  const SCHEDULE: OfferingSchedule = {
+    'ECE 325': { title: '', offerings: {}, offered_semesters: ['fall'] },
+    'ECE 999': { title: '', offerings: {}, offered_semesters: [] },
+  };
+
+  it('returns the row seasons when known', () => {
+    expect(getOfferedSeasons('ECE 325', SCHEDULE)).toEqual(['fall']);
+  });
+
+  it('returns null for a missing row and for an empty row (open world)', () => {
+    expect(getOfferedSeasons('XYZ 1', SCHEDULE)).toBeNull();
+    expect(getOfferedSeasons('ECE 999', SCHEDULE)).toBeNull();
+  });
+});
+
+describe('offering — real-data invariants (E2)', () => {
+  const schedule = loadJson<OfferingSchedule>('offering-schedule.json');
+  const prereqData = loadJson<PrereqGraphData>('prerequisite-graph.json');
+
+  it('prerequisite-graph nodes no longer carry an offered copy', () => {
+    const carriers = Object.values(prereqData.nodes).filter(
+      (n) => (n as { offered?: unknown }).offered !== undefined
+    );
+    expect(carriers).toEqual([]);
+  });
+
+  it('every graph course has a non-empty offering row (none silently becomes any-season)', () => {
+    const orphans = Object.keys(prereqData.nodes).filter(
+      (id) => getOfferedSeasons(id, schedule) === null
+    );
+    expect(orphans).toEqual([]);
+  });
+
+  it('H1 regression: ECE 464K resolves [fall, spring] and is never summer-placeable', () => {
+    expect(getOfferedSeasons('ECE 464K', schedule)).toEqual(['fall', 'spring']);
+    const summer: Semester = { id: 'Summer 2027', label: "Su '27", season: 'Summer', year: 2027, status: 'future' };
+    const fall: Semester = { id: 'Fall 2027', label: "Fall '27", season: 'Fall', year: 2027, status: 'future' };
+    expect(canOfferInSemester('ECE 464K', summer, schedule)).toBe(false);
+    expect(canOfferInSemester('ECE 464K', fall, schedule)).toBe(true);
+  });
+});
+
+// ─── 4. Solver packs through the same accessor ────────────────────────────────
 
 describe('generatePlan — credits come from the canonical accessor (E1)', () => {
   const semesters: Semester[] = [
@@ -106,8 +155,8 @@ describe('generatePlan — credits come from the canonical accessor (E1)', () =>
   const graph = new PrereqGraph(
     {
       nodes: {
-        'M 408C': { title: 'Calc I', category: 'math', offered: ['fall', 'spring'], flags: [] },
-        'ECE 302': { title: 'Intro EE', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+        'M 408C': { title: 'Calc I', category: 'math', flags: [] },
+        'ECE 302': { title: 'Intro EE', category: 'ece_core', flags: [] },
       },
       edges: [],
     },

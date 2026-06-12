@@ -5,11 +5,11 @@ import type { PrereqGraphData, Plan, PrereqCNF } from '../types';
 describe('PrereqGraph', () => {
   const mockData: PrereqGraphData = {
     nodes: {
-      'ECE 302': { title: 'Intro', category: 'ece_core', offered: ['fall'], flags: [] },
-      'ECE 306': { title: 'Computing', category: 'ece_core', offered: ['fall'], flags: [] },
-      'M 408C': { title: 'Calc I', category: 'math', offered: ['fall', 'spring'], flags: [] },
-      'ECE 312': { title: 'Software', category: 'ece_core', offered: ['spring'], flags: [] },
-      'ECE 319K': { title: 'Embedded', category: 'ece_core', offered: ['spring'], flags: [] },
+      'ECE 302': { title: 'Intro', category: 'ece_core', flags: [] },
+      'ECE 306': { title: 'Computing', category: 'ece_core', flags: [] },
+      'M 408C': { title: 'Calc I', category: 'math', flags: [] },
+      'ECE 312': { title: 'Software', category: 'ece_core', flags: [] },
+      'ECE 319K': { title: 'Embedded', category: 'ece_core', flags: [] },
     },
     edges: [
       { from: 'M 408C', to: 'ECE 302', type: 'prerequisite' },
@@ -83,10 +83,10 @@ describe('PrereqGraph', () => {
     // ECE 312 has prereq ECE 306; ECE 306H should satisfy that prereq
     const graphWithHonors: PrereqGraphData = {
       nodes: {
-        'ECE 306':  { title: 'Computing', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 306H': { title: 'Computing H', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 312':  { title: 'Software', category: 'ece_core', offered: ['spring'], flags: [] },
-        'ECE 319K': { title: 'Embedded', category: 'ece_core', offered: ['spring'], flags: [] },
+        'ECE 306':  { title: 'Computing', category: 'ece_core', flags: [] },
+        'ECE 306H': { title: 'Computing H', category: 'ece_core', flags: [] },
+        'ECE 312':  { title: 'Software', category: 'ece_core', flags: [] },
+        'ECE 319K': { title: 'Embedded', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'ECE 306', to: 'ECE 312',  type: 'prerequisite' },
@@ -123,11 +123,11 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
     // Build a graph matching the real ECE 312H edges: all four are OR-pool
     const data: PrereqGraphData = {
       nodes: {
-        'BME 306':  { title: 'Intro Computing', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 306':  { title: 'Intro Computing', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 306H': { title: 'Intro Computing H', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 319H': { title: 'Embedded H', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 312H': { title: 'Software H', category: 'ece_core', offered: ['spring'], flags: [] },
+        'BME 306':  { title: 'Intro Computing', category: 'ece_core', flags: [] },
+        'ECE 306':  { title: 'Intro Computing', category: 'ece_core', flags: [] },
+        'ECE 306H': { title: 'Intro Computing H', category: 'ece_core', flags: [] },
+        'ECE 319H': { title: 'Embedded H', category: 'ece_core', flags: [] },
+        'ECE 312H': { title: 'Software H', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'BME 306',  to: 'ECE 312H', type: 'prerequisite' },
@@ -158,10 +158,10 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
   it('AC1b: ECE 319H satisfied by ECE 306H alone (equivalence match)', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'BME 306':  { title: 'Intro Computing', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 306':  { title: 'Intro Computing', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 306H': { title: 'Intro Computing H', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 319H': { title: 'Embedded H', category: 'ece_core', offered: ['fall'], flags: [] },
+        'BME 306':  { title: 'Intro Computing', category: 'ece_core', flags: [] },
+        'ECE 306':  { title: 'Intro Computing', category: 'ece_core', flags: [] },
+        'ECE 306H': { title: 'Intro Computing H', category: 'ece_core', flags: [] },
+        'ECE 319H': { title: 'Embedded H', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'BME 306',  to: 'ECE 319H', type: 'prerequisite' },
@@ -185,11 +185,11 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
   it('AC2: ECE 411 AND-stack — PHY 303L alone does NOT satisfy it', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'ECE 302':  { title: 'Intro EE', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 302H': { title: 'Intro EE H', category: 'ece_core', offered: ['fall'], flags: [] },
-        'M 427J':   { title: 'Diff Eq', category: 'math',     offered: ['fall'], flags: [] },
-        'PHY 303L': { title: 'Physics II', category: 'math',     offered: ['fall'], flags: [] },
-        'ECE 411':  { title: 'EM Eng', category: 'ece_core', offered: ['fall'], flags: [] },
+        'ECE 302':  { title: 'Intro EE', category: 'ece_core', flags: [] },
+        'ECE 302H': { title: 'Intro EE H', category: 'ece_core', flags: [] },
+        'M 427J':   { title: 'Diff Eq', category: 'math',     flags: [] },
+        'PHY 303L': { title: 'Physics II', category: 'math',     flags: [] },
+        'ECE 411':  { title: 'EM Eng', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'ECE 302',  to: 'ECE 411', type: 'prerequisite' },
@@ -226,11 +226,11 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
   it('AC2b: ECE 411 AND-stack — all three groups satisfied → no violation', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'ECE 302':  { title: 'Intro EE', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 302H': { title: 'Intro EE H', category: 'ece_core', offered: ['fall'], flags: [] },
-        'M 427J':   { title: 'Diff Eq', category: 'math',     offered: ['fall'], flags: [] },
-        'PHY 303L': { title: 'Physics II', category: 'math',     offered: ['fall'], flags: [] },
-        'ECE 411':  { title: 'EM Eng', category: 'ece_core', offered: ['fall'], flags: [] },
+        'ECE 302':  { title: 'Intro EE', category: 'ece_core', flags: [] },
+        'ECE 302H': { title: 'Intro EE H', category: 'ece_core', flags: [] },
+        'M 427J':   { title: 'Diff Eq', category: 'math',     flags: [] },
+        'PHY 303L': { title: 'Physics II', category: 'math',     flags: [] },
+        'ECE 411':  { title: 'EM Eng', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'ECE 302',  to: 'ECE 411', type: 'prerequisite' },
@@ -260,8 +260,8 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
   it('AC3: self-edges are silently dropped (no self-prereq violation)', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'ECE 381K': { title: 'Some Grad Course', category: 'ece_upper', offered: ['fall'], flags: [] },
-        'ECE 302':  { title: 'Prereq', category: 'ece_core',  offered: ['fall'], flags: [] },
+        'ECE 381K': { title: 'Some Grad Course', category: 'ece_upper', flags: [] },
+        'ECE 302':  { title: 'Prereq', category: 'ece_core',  flags: [] },
       },
       edges: [
         // Self-edge — should be ignored
@@ -296,9 +296,9 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
   it('AC5: ECE 306H (honors) satisfies a group listing ECE 306', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'ECE 306':  { title: 'Intro Computing', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 306H': { title: 'Intro Computing H', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 312':  { title: 'Software', category: 'ece_core', offered: ['spring'], flags: [] },
+        'ECE 306':  { title: 'Intro Computing', category: 'ece_core', flags: [] },
+        'ECE 306H': { title: 'Intro Computing H', category: 'ece_core', flags: [] },
+        'ECE 312':  { title: 'Software', category: 'ece_core', flags: [] },
       },
       edges: [{ from: 'ECE 306', to: 'ECE 312', type: 'prerequisite' }],
     };
@@ -319,9 +319,9 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
   it('AC5b: BME 306 (cross-list) satisfies a group listing ECE 306', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'ECE 306':  { title: 'Intro Computing', category: 'ece_core', offered: ['fall'], flags: [] },
-        'BME 306':  { title: 'Intro Computing BME', category: 'ece_core', offered: ['fall'], flags: [] },
-        'ECE 319K': { title: 'Embedded', category: 'ece_core', offered: ['spring'], flags: [] },
+        'ECE 306':  { title: 'Intro Computing', category: 'ece_core', flags: [] },
+        'BME 306':  { title: 'Intro Computing BME', category: 'ece_core', flags: [] },
+        'ECE 319K': { title: 'Embedded', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'ECE 306', to: 'ECE 319K', type: 'prerequisite' },
@@ -345,10 +345,10 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
     // Course with 3 prereq edges but no explicit CNF → default single OR-group
     const data: PrereqGraphData = {
       nodes: {
-        'A': { title: 'Course A', category: 'ece_core', offered: ['fall'], flags: [] },
-        'B': { title: 'Course B', category: 'ece_core', offered: ['fall'], flags: [] },
-        'C': { title: 'Course C', category: 'ece_core', offered: ['fall'], flags: [] },
-        'TARGET': { title: 'Target', category: 'ece_core', offered: ['fall'], flags: [] },
+        'A': { title: 'Course A', category: 'ece_core', flags: [] },
+        'B': { title: 'Course B', category: 'ece_core', flags: [] },
+        'C': { title: 'Course C', category: 'ece_core', flags: [] },
+        'TARGET': { title: 'Target', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'A', to: 'TARGET', type: 'prerequisite' },
@@ -376,9 +376,9 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
   it('getPrereqGroups returns explicit CNF when present', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'A': { title: 'A', category: 'ece_core', offered: ['fall'], flags: [] },
-        'B': { title: 'B', category: 'ece_core', offered: ['fall'], flags: [] },
-        'TARGET': { title: 'T', category: 'ece_core', offered: ['fall'], flags: [] },
+        'A': { title: 'A', category: 'ece_core', flags: [] },
+        'B': { title: 'B', category: 'ece_core', flags: [] },
+        'TARGET': { title: 'T', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'A', to: 'TARGET', type: 'prerequisite' },
@@ -401,7 +401,7 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
   it('getPrereqGroups returns empty for course with no prereqs', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'ECE 302': { title: 'Intro', category: 'ece_core', offered: ['fall'], flags: [] },
+        'ECE 302': { title: 'Intro', category: 'ece_core', flags: [] },
       },
       edges: [],
     };
@@ -412,9 +412,9 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
   it('getPrereqGroups returns single OR-group for ungrouped multi-edge course', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'A': { title: 'A', category: 'ece_core', offered: ['fall'], flags: [] },
-        'B': { title: 'B', category: 'ece_core', offered: ['fall'], flags: [] },
-        'TARGET': { title: 'T', category: 'ece_core', offered: ['fall'], flags: [] },
+        'A': { title: 'A', category: 'ece_core', flags: [] },
+        'B': { title: 'B', category: 'ece_core', flags: [] },
+        'TARGET': { title: 'T', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'A', to: 'TARGET', type: 'prerequisite' },
@@ -436,10 +436,10 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
   it('Fix1-regression: ECE 313 with M 340L same-semester (coreq) produces no prereq violation', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'ECE 302': { title: 'Intro EE', category: 'ece_core', offered: ['fall'], flags: [] },
-        'M 427J':  { title: 'Diff Eq', category: 'math',     offered: ['fall'], flags: [] },
-        'M 340L':  { title: 'Lin Alg', category: 'math',     offered: ['fall', 'spring'], flags: [] },
-        'ECE 313': { title: 'Prob & Stats', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+        'ECE 302': { title: 'Intro EE', category: 'ece_core', flags: [] },
+        'M 427J':  { title: 'Diff Eq', category: 'math',     flags: [] },
+        'M 340L':  { title: 'Lin Alg', category: 'math',     flags: [] },
+        'ECE 313': { title: 'Prob & Stats', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'ECE 302', to: 'ECE 313', type: 'prerequisite' },
@@ -472,10 +472,10 @@ describe('PrereqGraph — TASK-057 OR-group / CNF / default-OR / self-edge', () 
   it('Fix1-regression: ECE 313H with M 340L same-semester (coreq) produces no prereq violation', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'ECE 302H': { title: 'Intro EE H', category: 'ece_core', offered: ['fall'], flags: [] },
-        'M 427J':   { title: 'Diff Eq', category: 'math',     offered: ['fall'], flags: [] },
-        'M 340L':   { title: 'Lin Alg', category: 'math',     offered: ['fall', 'spring'], flags: [] },
-        'ECE 313H': { title: 'Prob & Stats H', category: 'ece_core', offered: ['fall'], flags: [] },
+        'ECE 302H': { title: 'Intro EE H', category: 'ece_core', flags: [] },
+        'M 427J':   { title: 'Diff Eq', category: 'math',     flags: [] },
+        'M 340L':   { title: 'Lin Alg', category: 'math',     flags: [] },
+        'ECE 313H': { title: 'Prob & Stats H', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'ECE 302H', to: 'ECE 313H', type: 'prerequisite' },
@@ -508,11 +508,11 @@ describe('H2: ECE 313 with M 411 variant satisfying M 340L coreq', () => {
   it('no violation when M 411 is present (satisfies M 340L coreq)', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'M 427J':   { title: 'Diff Eq', category: 'math', offered: ['fall', 'spring'], flags: [] },
-        'ECE 411':  { title: 'Circuits', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
-        'M 340L':   { title: 'Linear Algebra', category: 'math', offered: ['fall', 'spring'], flags: [] },
-        'M 411':    { title: 'Linear Algebra (transfer)', category: 'math', offered: ['fall', 'spring'], flags: [] },
-        'ECE 313':  { title: 'Linear Systems', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+        'M 427J':   { title: 'Diff Eq', category: 'math', flags: [] },
+        'ECE 411':  { title: 'Circuits', category: 'ece_core', flags: [] },
+        'M 340L':   { title: 'Linear Algebra', category: 'math', flags: [] },
+        'M 411':    { title: 'Linear Algebra (transfer)', category: 'math', flags: [] },
+        'ECE 313':  { title: 'Linear Systems', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'M 427J',  to: 'ECE 313', type: 'prerequisite' },
@@ -538,10 +538,10 @@ describe('H2: ECE 313 with M 411 variant satisfying M 340L coreq', () => {
   it('violation when neither M 340L nor M 411 is present (coreq unmet)', () => {
     const data: PrereqGraphData = {
       nodes: {
-        'M 427J':  { title: 'Diff Eq', category: 'math', offered: ['fall', 'spring'], flags: [] },
-        'ECE 411': { title: 'Circuits', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
-        'M 340L':  { title: 'Linear Algebra', category: 'math', offered: ['fall', 'spring'], flags: [] },
-        'ECE 313': { title: 'Linear Systems', category: 'ece_core', offered: ['fall', 'spring'], flags: [] },
+        'M 427J':  { title: 'Diff Eq', category: 'math', flags: [] },
+        'ECE 411': { title: 'Circuits', category: 'ece_core', flags: [] },
+        'M 340L':  { title: 'Linear Algebra', category: 'math', flags: [] },
+        'ECE 313': { title: 'Linear Systems', category: 'ece_core', flags: [] },
       },
       edges: [
         { from: 'M 427J',  to: 'ECE 313', type: 'prerequisite' },
