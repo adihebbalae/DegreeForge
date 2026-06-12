@@ -18,61 +18,17 @@ import type {
   Plan,
 } from '../types';
 import { isTechCorePickOne } from '../types';
-import { TRANSFER_EQUIVALENTS, addWithVariants } from './variants';
-// ─── Unified equivalence map ─────────────────────────────────────────────────
-//
-// Three original sources merged into one:
-//   1. Honors variants (HONORS_EQUIVALENTS): ECE 306 ≡ ECE 306H
-//   2. Legacy catalog renames: ECE 302 ≡ ECE 402
-//   3. ECE/BME cross-lists: ECE 306 ≡ BME 306, ECE 333T ≡ BME 333T, etc.
-//
-// Structure: canonical (or representative) course → all equivalent course IDs
-// (including itself and any variant). Any course in the completed set that maps
-// to the same equivalence class satisfies the requirement.
-//
-// The map is intentionally bidirectional: if A→[B,C], then B→[A,C] and C→[A,B]
-// are generated at module load time so callers don't need to know the canonical form.
-
-const EQUIVALENCE_GROUPS: string[][] = [
-  // ECE 302 family (intro EE + 2026 rename)
-  ['ECE 302', 'ECE 302H', 'ECE 402'],
-  // ECE 306 / BME 306 family (intro computing + honors + cross-list)
-  ['ECE 306', 'ECE 306H', 'BME 306', 'ECE 406'],
-  // ECE 312 family (software design + honors + 2026 rename)
-  ['ECE 312', 'ECE 312H', 'ECE 412'],
-  // ECE 319K / ECE 319H family (embedded + 2026 rename)
-  ['ECE 319K', 'ECE 319H', 'ECE 419K'],
-  // ECE 333T / BME 333T family (technical communication cross-list)
-  ['ECE 333T', 'BME 333T'],
-  // BME 311 / ECE equivalent (circuits cross-list, used as 311 prereq in data)
-  ['BME 311', 'ECE 311'],
-];
-
-/**
- * Flat lookup: course ID → Set of all course IDs that are equivalent to it
- * (including itself). Built once at module load from EQUIVALENCE_GROUPS.
- */
-export const EQUIVALENCE_MAP: ReadonlyMap<string, ReadonlySet<string>> = (() => {
-  const map = new Map<string, Set<string>>();
-  for (const group of EQUIVALENCE_GROUPS) {
-    const groupSet = new Set(group);
-    for (const id of group) {
-      // Merge with any existing set (handles overlap between groups if any)
-      const existing = map.get(id);
-      if (existing) {
-        for (const g of groupSet) existing.add(g);
-      } else {
-        map.set(id, new Set(groupSet));
-      }
-    }
-  }
-  return map;
-})();
+import { addWithVariants } from './variants';
+import { getEquivalenceRegistry, satisfiesRequirement } from './equivalence';
 
 /**
  * Check if a requirement is satisfied by any course in the completed set,
- * accounting for honors variants, legacy catalog renames, and cross-listed
- * equivalences (ECE/BME cross-lists).
+ * accounting for honors variants, legacy catalog renames, cross-listed
+ * equivalences, and directional transfer credit (M 411 satisfies M 340L).
+ *
+ * E3: delegates to THE equivalence registry (lib/equivalence.ts) — the same
+ * membership the solver's expandVariants uses, so prereq-satisfaction and
+ * requirement-satisfaction can never disagree.
  *
  * Called by: graph-engine.ts validatePlacement (CNF OR-group semantics,
  *            TASK-057+), buildRemainingRequirements filter, auto-planner
@@ -82,21 +38,7 @@ export function isRequirementSatisfied(
   requiredCourse: string,
   completedSet: Set<string>
 ): boolean {
-  if (completedSet.has(requiredCourse)) return true;
-  // Check equivalence group: any equivalent course in completedSet satisfies the requirement
-  const equivalents = EQUIVALENCE_MAP.get(requiredCourse);
-  if (equivalents) {
-    for (const eq of equivalents) {
-      if (completedSet.has(eq)) return true;
-    }
-  }
-  // Check transfer equivalents (e.g. M 411 satisfies M 340L, M 508M satisfies M 408C/M 408D).
-  // Reverse-lookup: if requiredCourse appears in any TRANSFER_EQUIVALENTS value list,
-  // check whether the key (the transfer course) is in the completed set.
-  for (const [transferId, satisfies] of Object.entries(TRANSFER_EQUIVALENTS)) {
-    if (satisfies.includes(requiredCourse) && completedSet.has(transferId)) return true;
-  }
-  return false;
+  return satisfiesRequirement(requiredCourse, completedSet, getEquivalenceRegistry());
 }
 
 /**

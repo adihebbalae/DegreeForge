@@ -8,7 +8,7 @@ import type {
 import { getCourseCredits, buildTranscriptCredits } from './course-utils';
 import { parseCourseId } from './sanitize-course-list';
 import { isTechCorePickOne } from '../types';
-import { LEGACY_TO_CANONICAL } from './catalog-rename';
+import { getEquivalenceRegistry, satisfiesRequirement, expandSatisfied } from './equivalence';
 
 /**
  * Minimum course number that counts as an "advanced" ECE elective toward the free
@@ -76,6 +76,12 @@ export function computeProgress(
     ...Object.values(plan).flat(),
   ];
   const unique = [...new Set(allPlacedOrCompleted)].filter(Boolean) as string[];
+  const uniqueSet = new Set(unique);
+
+  // E3: requirement matching goes through THE equivalence registry — the same
+  // membership the solver and prereq checks use (honors / legacy renumber /
+  // cross-dept / transfer), so the bars can never disagree with them.
+  const registry = getEquivalenceRegistry(degreeReqs);
 
   // Transcript credit_hours win over catalog (e.g. ECE 302 catalog=5 but Adi got it for 3).
   const transcriptCredits = buildTranscriptCredits(profile);
@@ -85,20 +91,12 @@ export function computeProgress(
     return sum + getCourseCredits(courseId, catalog, transcriptCredits);
   }, 0);
 
-  // 3. ECE Core
+  // 3. ECE Core — count SLOTS satisfied (a slot is done when any equivalent
+  // form of its course is taken; taking two forms can no longer double-count).
   const eceCoreList = degreeReqs.ece_core.courses;
-  const honorsToCore = Object.fromEntries(
-    Object.entries(degreeReqs.ece_core.honors_variants).map(([core, honors]) => [honors, core])
-  );
-  
-  // D6: use shared LEGACY_TO_CANONICAL for pre-2026 renumber mapping
-  const legacyToCore = LEGACY_TO_CANONICAL;
-
-  const completedEceCore = unique.filter((courseId) => {
-    const normalizedId = honorsToCore[courseId] || legacyToCore[courseId] || courseId;
-    return eceCoreList.includes(normalizedId);
-  });
-  const eceCoreCompleted = completedEceCore.length;
+  const eceCoreCompleted = eceCoreList.filter((core) =>
+    satisfiesRequirement(core, uniqueSet, registry)
+  ).length;
   const eceCoreTotal = eceCoreList.length;
 
   // 4. Core Curriculum (Gen Ed)
@@ -118,7 +116,7 @@ export function computeProgress(
     if (slot.id === 'vapa') enhancedOptions.push('CTI 301G');
     if (slot.id === 'humanities') enhancedOptions.push('CTI 302');
 
-    if (enhancedOptions.some((opt) => unique.includes(opt))) {
+    if (enhancedOptions.some((opt) => satisfiesRequirement(opt, uniqueSet, registry))) {
       completedGenEdSlots.add(slot.id);
     }
   });
@@ -128,30 +126,35 @@ export function computeProgress(
   const genEdCompleted = Math.min(completedGenEdSlots.size, genEdTotal);
 
   // 5. Tech Core
-  // Count required slots + electives from pool
-  let techCoreUsed = new Set<string>();
+  // Count required slots + electives from pool. A matched requirement marks
+  // its whole equivalence class as used so a taken variant is never
+  // double-counted as a free elective below.
+  const techCoreUsed = new Set<string>();
+  const markUsed = (id: string) => {
+    for (const v of expandSatisfied(id, registry)) techCoreUsed.add(v);
+  };
   let techCoreCompletedCount = 0;
 
   const req = techCore.required_courses;
 
   // Advanced Math
-  if (req.advanced_math && unique.includes(req.advanced_math.id)) {
+  if (req.advanced_math && satisfiesRequirement(req.advanced_math.id, uniqueSet, registry)) {
     techCoreCompletedCount++;
-    techCoreUsed.add(req.advanced_math.id);
+    markUsed(req.advanced_math.id);
   }
 
   // Core courses
   req.core?.forEach((entry) => {
     if (isTechCorePickOne(entry)) {
-      const match = entry.options.find((opt) => unique.includes(opt.id));
+      const match = entry.options.find((opt) => satisfiesRequirement(opt.id, uniqueSet, registry));
       if (match) {
         techCoreCompletedCount++;
-        techCoreUsed.add(match.id);
+        markUsed(match.id);
       }
     } else {
-      if (unique.includes(entry.id)) {
+      if (satisfiesRequirement(entry.id, uniqueSet, registry)) {
         techCoreCompletedCount++;
-        techCoreUsed.add(entry.id);
+        markUsed(entry.id);
       }
     }
   });
@@ -159,34 +162,34 @@ export function computeProgress(
   // Core Lab
   if (req.core_lab) {
     if (isTechCorePickOne(req.core_lab)) {
-      const match = req.core_lab.options.find((opt) => unique.includes(opt.id));
+      const match = req.core_lab.options.find((opt) => satisfiesRequirement(opt.id, uniqueSet, registry));
       if (match) {
         techCoreCompletedCount++;
-        techCoreUsed.add(match.id);
+        markUsed(match.id);
       }
     } else {
-      if (unique.includes(req.core_lab.id)) {
+      if (satisfiesRequirement(req.core_lab.id, uniqueSet, registry)) {
         techCoreCompletedCount++;
-        techCoreUsed.add(req.core_lab.id);
+        markUsed(req.core_lab.id);
       }
     }
   }
 
   // Required Elective
-  if (req.required_elective && unique.includes(req.required_elective.id)) {
+  if (req.required_elective && satisfiesRequirement(req.required_elective.id, uniqueSet, registry)) {
     techCoreCompletedCount++;
-    techCoreUsed.add(req.required_elective.id);
+    markUsed(req.required_elective.id);
   }
 
   // Electives from pool (count remaining needed to reach the tech-core target)
   const remainingNeeded = TECH_CORE_TARGET - techCoreCompletedCount;
   if (remainingNeeded > 0) {
     const electivesFromPool = techCore.elective_pool.filter(
-      (courseId) => unique.includes(courseId) && !techCoreUsed.has(courseId)
+      (courseId) => satisfiesRequirement(courseId, uniqueSet, registry) && !techCoreUsed.has(courseId)
     );
     techCoreCompletedCount += Math.min(electivesFromPool.length, remainingNeeded);
     // Mark them as used
-    electivesFromPool.slice(0, remainingNeeded).forEach(id => techCoreUsed.add(id));
+    electivesFromPool.slice(0, remainingNeeded).forEach(markUsed);
   }
 
   const techCoreTotal = TECH_CORE_TARGET;
@@ -202,12 +205,12 @@ export function computeProgress(
   // 7. Free Electives
   // Handoff: "Advanced ECE electives in plan"
   // Target: 11 hrs
-  const eceCoreAllIds = new Set([
-    ...eceCoreList,
-    ...Object.keys(honorsToCore),
-    ...Object.keys(legacyToCore),
-  ]);
-  
+  // Every form of every core course is excluded (honors/legacy/cross-dept).
+  const eceCoreAllIds = new Set<string>();
+  for (const core of eceCoreList) {
+    for (const v of expandSatisfied(core, registry)) eceCoreAllIds.add(v);
+  }
+
   const electiveHours = unique
     .filter((courseId) => {
       // Single course-identity parser; null covers non-string / unparseable tokens.
