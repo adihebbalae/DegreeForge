@@ -488,24 +488,24 @@ describe('Edge cases', () => {
 
   // ─── Completed courses excluded from palette ───────────────────────────────
   it('course already placed in one semester cannot be added to another (duplicate guard)', () => {
-    // First, place ECE 302 in Fall 2025 explicitly
+    // Place ECE 302 in Fall 2026 (a future semester — past semesters now reject writes).
     const stateWithCourse = planReducer(INITIAL_STATE, {
       type: 'ADD_COURSE',
-      semesterId: 'Fall 2025',
+      semesterId: 'Fall 2026',
       courseId: 'ECE 302',
     });
-    expect(stateWithCourse.plan['Fall 2025']).toContain('ECE 302');
+    expect(stateWithCourse.plan['Fall 2026']).toContain('ECE 302');
 
-    // Now attempt to add the same course to Fall 2026 — should be a no-op
+    // Now attempt to add the same course to Spring 2027 — should be a no-op
     const state = planReducer(stateWithCourse, {
       type: 'ADD_COURSE',
-      semesterId: 'Fall 2026',
-      courseId: 'ECE 302', // already in Fall 2025
+      semesterId: 'Spring 2027',
+      courseId: 'ECE 302', // already in Fall 2026
     });
 
-    // ECE 302 should remain only in Fall 2025, not added to Fall 2026
-    expect(state.plan['Fall 2025']).toContain('ECE 302');
-    expect(state.plan['Fall 2026'] ?? []).not.toContain('ECE 302');
+    // ECE 302 should remain only in Fall 2026, not added to Spring 2027
+    expect(state.plan['Fall 2026']).toContain('ECE 302');
+    expect(state.plan['Spring 2027'] ?? []).not.toContain('ECE 302');
   });
 
   // ─── Empty plan — no crash ─────────────────────────────────────────────────

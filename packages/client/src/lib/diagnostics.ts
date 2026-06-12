@@ -297,7 +297,7 @@ export function computeBottlenecks(
   // ── Helper: compute offering slack for a course ──────────────────────────────
   function computeSlack(courseId: string): number {
     const validSemesters = futureSemesters.filter((s) =>
-      canOfferInSemester(courseId, s, offeringSchedule)
+      canOfferInSemester(courseId, s, offeringSchedule, prereqGraph)
     );
 
     const currentSemId = semesterOf(courseId, plan);

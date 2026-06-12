@@ -1,5 +1,5 @@
 import type { PlanState, Semester, WhatIfState } from '../types';
-import { sanitizePlan, isValidCourseId } from '../lib/sanitize-course-list';
+import { sanitizePlan, isValidCourseId, isPastSemester } from '../lib/sanitize-course-list';
 
 // ─── Action Types ─────────────────────────────────────────────────────────────
 
@@ -219,6 +219,8 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
     case 'ADD_COURSE': {
       // Reducer-level guard (layer B): silently drop invalid course tokens.
       if (!isValidCourseId(action.courseId)) return state;
+      // Invariant 2: no writes to past terms (single source of truth).
+      if (isPastSemester(action.semesterId, state.semesters)) return state;
       const alreadyPlaced = Object.values(state.plan).some((courses) =>
         courses.includes(action.courseId)
       );
@@ -250,6 +252,8 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
       const isInTarget = toExisting.includes(action.courseId);
       if (!fromExisting.includes(action.courseId)) return state;
       if (isInTarget) return state;
+      // Invariant 2: no writes to past terms (single source of truth).
+      if (isPastSemester(action.toSemesterId, state.semesters)) return state;
       return {
         ...state,
         plan: {
@@ -348,6 +352,8 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
 
     case 'ACCEPT_GHOST': {
       const { courseId, semesterId } = action;
+      // Invariant 2: no writes to past terms (single source of truth).
+      if (isPastSemester(semesterId, state.semesters)) return state;
       // Remove from ghosts
       const newGhosts = { ...state.ghostCourses };
       if (newGhosts[semesterId]) {

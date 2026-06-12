@@ -22,6 +22,7 @@ import { TOOL_REGISTRY, DEFAULT_ENABLED_TOOLS } from '@/lib/agent-tools/registry
 import { useSettings } from '@/context/SettingsContext';
 import { validateOp, validateOpCount } from '@/lib/plan-edit-validation';
 import { makeDefaultUserProfile, DEFAULT_DEGREE_REQUIREMENTS } from '@/lib/chat-defaults';
+import { isPastSemester } from '@/lib/sanitize-course-list';
 import ProposalCard from '@/components/chat/ProposalCard';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -136,7 +137,7 @@ export default function ChatPanel() {
     semesters.forEach(sem => {
       const courses = plan[sem.id] || [];
       totalCoursesPlanned += courses.length;
-      if (sem.status === 'past') {
+      if (isPastSemester(sem.id, semesters)) {
         completedCourses.push(...courses.map(toRef));
       } else if (sem.status === 'current') {
         inProgress.push(...courses.map(toRef));

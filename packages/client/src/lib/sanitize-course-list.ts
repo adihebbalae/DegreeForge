@@ -1,14 +1,18 @@
 /**
- * sanitize-course-list.ts — TASK-061 Workstream A
+ * sanitize-course-list.ts — TASK-061 Workstream A / TASK-064
  *
- * Single shared sanitizer for every path that writes courses into plan state.
+ * Single shared module for plan invariants enforced at the reducer chokepoint.
  *
- * Contract: plan state NEVER holds a null / undefined / non-course-code token.
+ * Invariant 1 — Valid course code (TASK-061A):
+ *   Plan state NEVER holds a null / undefined / non-course-code token.
+ *   A valid course-code token matches /^[A-Z]+ \d+\S*$/
  *
- * A valid course-code token matches the pattern:
- *   /^[A-Z]+ \d+\S*$/
- * Examples that pass: "ECE 302", "ECE 312H", "M 427J", "UGS 302", "RHE 306"
- * Examples that fail: null, undefined, "", "any 2 UD math courses", "HOLD"
+ * Invariant 2 — No writes to past terms (TASK-064):
+ *   isPastSemester(semesterId, semesters) is the single canonical predicate.
+ *   ADD_COURSE, MOVE_COURSE (target), and ACCEPT_GHOST reject a past-status
+ *   target in the reducer. UI layers rely on the reducer guard; they may add
+ *   their own affordances (e.g. feedback messages) but must NOT duplicate the
+ *   rule logic.
  *
  * Two layers are used together:
  *   A) Each source path calls sanitizeCourseList before dispatching so dropped
@@ -17,6 +21,8 @@
  *      for all plan-mutating actions so plan state is structurally incapable of
  *      holding an invalid entry even if a future path forgets to sanitize.
  */
+
+import type { Semester } from '../types';
 
 /** Pattern matching a valid UT course code (uppercase dept, space, number + optional suffix). */
 export const COURSE_CODE_RE = /^[A-Z]+ \d+\S*$/;
@@ -67,4 +73,22 @@ export function sanitizePlan(
     allDropped.push(...dropped);
   }
   return { safePlan, dropped: allDropped };
+}
+
+// ─── Invariant 2 — No writes to past terms ────────────────────────────────────
+
+/**
+ * Returns true iff the semester identified by `semesterId` has status 'past'.
+ *
+ * This is the SINGLE canonical definition of the past-term write guard.
+ * ADD_COURSE, MOVE_COURSE (target), and ACCEPT_GHOST all use this predicate
+ * in the reducer. UI components may surface feedback based on this predicate
+ * but must NOT duplicate the rule logic.
+ *
+ * @param semesterId - the semester to test
+ * @param semesters  - the full semester list from plan state (each has a `status` field)
+ */
+export function isPastSemester(semesterId: string, semesters: Semester[]): boolean {
+  const sem = semesters.find((s) => s.id === semesterId);
+  return sem?.status === 'past';
 }

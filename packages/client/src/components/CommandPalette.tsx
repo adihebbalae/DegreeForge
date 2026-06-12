@@ -31,6 +31,7 @@ import {
   useUserProfile,
 } from '@/context/DataContext';
 import { usePlan, useSemesters, usePlanDispatch } from '@/context/PlanContext';
+import { isPastSemester } from '@/lib/sanitize-course-list';
 import { useUi } from '@/context/UiContext';
 import { getCourseTitle, inferCategory } from '@/lib/course-utils';
 import { isCourseSatisfied } from '@/lib/palette-courses';
@@ -189,11 +190,18 @@ export default function CommandPalette() {
         setFeedbackMsg('No current or focused semester to add to.');
         return;
       }
+      // UI affordance: inform user when target is a past term.
+      // The reducer enforces the invariant (isPastSemester guard) and will silently
+      // reject the dispatch — this message just makes the rejection visible.
+      if (isPastSemester(targetSemesterId, semesters)) {
+        setFeedbackMsg(`Cannot add to ${targetLabel} — it's already past.`);
+        return;
+      }
       dispatch({ type: 'ADD_COURSE', semesterId: targetSemesterId, courseId });
       setFocusedSemesterId(targetSemesterId);
       setCommandPaletteOpen(false);
     },
-    [targetSemesterId, dispatch, setFocusedSemesterId, setCommandPaletteOpen]
+    [targetSemesterId, semesters, targetLabel, dispatch, setFocusedSemesterId, setCommandPaletteOpen]
   );
 
   // ── Keyboard handler inside the palette ───────────────────────────────────
