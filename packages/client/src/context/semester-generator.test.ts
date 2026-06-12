@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateSemesters, SEMESTERS } from './PlanContext.constants';
+import { generateSemesters, getCurrentTerm, SEMESTERS } from './PlanContext.constants';
 import { validateOp } from '@/lib/plan-edit-validation';
 
 // ─── generateSemesters unit tests ─────────────────────────────────────────────
@@ -30,17 +30,32 @@ describe('generateSemesters', () => {
     expect(last.season).toBe('Spring');
   });
 
-  it('assigns correct status: Fall 2025 is past, Spring 2026 is current, the rest are future', () => {
-    const sems = generateSemesters(2025, 2029);
-    const byId = Object.fromEntries(sems.map((s) => [s.id, s]));
+  // Status is now derived from an injected clock (not frozen literals), so these
+  // pin the classification at fixed dates rather than assuming "today".
+  it('classifies past/current/future relative to a Spring clock', () => {
+    const now = new Date(2026, 2, 15); // March 2026 → Spring 2026 is current
+    const byId = Object.fromEntries(generateSemesters(2025, 2029, now).map((s) => [s.id, s]));
     expect(byId['Fall 2025'].status).toBe('past');
     expect(byId['Spring 2026'].status).toBe('current');
+    expect(byId['Summer 2026'].status).toBe('future');
+    expect(byId['Fall 2026'].status).toBe('future');
+  });
 
-    const futureIds = sems.filter((s) => s.status === 'future').map((s) => s.id);
-    expect(futureIds).toContain('Summer 2026');
-    expect(futureIds).toContain('Fall 2026');
-    expect(futureIds).toContain('Spring 2027');
-    expect(futureIds).toContain('Summer 2027');
+  it('classifies relative to a Summer clock (the real-date case: Spring→past, Summer→current)', () => {
+    const now = new Date(2026, 5, 12); // June 2026 → Summer 2026 is current
+    const byId = Object.fromEntries(generateSemesters(2025, 2029, now).map((s) => [s.id, s]));
+    expect(byId['Fall 2025'].status).toBe('past');
+    expect(byId['Spring 2026'].status).toBe('past');
+    expect(byId['Summer 2026'].status).toBe('current');
+    expect(byId['Fall 2026'].status).toBe('future');
+  });
+
+  it('marks exactly one term current for any in-range clock', () => {
+    const now = new Date(2027, 9, 1); // Oct 2027 → Fall 2027
+    const sems = generateSemesters(2025, 2029, now);
+    const current = sems.filter((s) => s.status === 'current');
+    expect(current).toHaveLength(1);
+    expect(current[0].id).toBe('Fall 2027');
   });
 
   it('assigns correct season to each Summer term', () => {
@@ -65,6 +80,19 @@ describe('generateSemesters', () => {
     const summer2026 = sems.find((s) => s.id === 'Summer 2026');
     expect(summer2026).toBeDefined();
     expect(summer2026!.year).toBe(2026);
+  });
+});
+
+// ─── getCurrentTerm — injectable clock ─────────────────────────────────────────
+
+describe('getCurrentTerm', () => {
+  it('maps month to season (Jan–May Spring, Jun–Aug Summer, Sep–Dec Fall)', () => {
+    expect(getCurrentTerm(new Date(2026, 0, 10))).toEqual({ season: 'Spring', year: 2026 }); // Jan
+    expect(getCurrentTerm(new Date(2026, 4, 30))).toEqual({ season: 'Spring', year: 2026 }); // May
+    expect(getCurrentTerm(new Date(2026, 5, 1))).toEqual({ season: 'Summer', year: 2026 });  // Jun
+    expect(getCurrentTerm(new Date(2026, 7, 31))).toEqual({ season: 'Summer', year: 2026 }); // Aug
+    expect(getCurrentTerm(new Date(2026, 8, 1))).toEqual({ season: 'Fall', year: 2026 });    // Sep
+    expect(getCurrentTerm(new Date(2026, 11, 25))).toEqual({ season: 'Fall', year: 2026 });  // Dec
   });
 });
 

@@ -18,6 +18,19 @@ import { LEGACY_TO_CANONICAL } from './catalog-rename';
  */
 const ADVANCED_ELECTIVE_MIN_NUMBER = 320;
 
+/**
+ * Gen-ed slot target (denominator of the gen-ed progress bar). The degree JSON
+ * authors 9 core_curriculum slots (ugs, rhe, humanities, vapa, his1, his2, gov1,
+ * gov2, sbs) but the shipped bar tracks a target of 8, so the numerator (which can
+ * reach 9) is clamped to this value. Kept as a named constant rather than derived
+ * from slots.length to preserve the shipped /8 denominator — the 8-vs-9 mismatch is
+ * a domain/requirements question deferred to Brief 2, not changed here.
+ */
+const GEN_ED_SLOT_TARGET = 8;
+
+/** Tech-core target: 8 upper-division courses in a declared track (ECB dual = 7). */
+const TECH_CORE_TARGET = 8;
+
 export interface ProgressSummary {
   totalHours: number;
   totalHoursTarget: number;
@@ -112,7 +125,8 @@ export function computeProgress(
     }
   });
 
-  const genEdTotal = 8;
+  // Numerator can reach the authored 9 slots; clamp to the tracked target of 8.
+  const genEdTotal = GEN_ED_SLOT_TARGET;
   const genEdCompleted = Math.min(completedGenEdSlots.size, genEdTotal);
 
   // 5. Tech Core
@@ -166,8 +180,8 @@ export function computeProgress(
     techCoreUsed.add(req.required_elective.id);
   }
 
-  // Electives from pool (count remaining needed to reach target 8)
-  const remainingNeeded = 8 - techCoreCompletedCount;
+  // Electives from pool (count remaining needed to reach the tech-core target)
+  const remainingNeeded = TECH_CORE_TARGET - techCoreCompletedCount;
   if (remainingNeeded > 0) {
     const electivesFromPool = techCore.elective_pool.filter(
       (courseId) => unique.includes(courseId) && !techCoreUsed.has(courseId)
@@ -177,7 +191,7 @@ export function computeProgress(
     electivesFromPool.slice(0, remainingNeeded).forEach(id => techCoreUsed.add(id));
   }
 
-  const techCoreTotal = 8;
+  const techCoreTotal = TECH_CORE_TARGET;
 
   // 6. Math BA (What-If)
   let mathBACompleted = 0;

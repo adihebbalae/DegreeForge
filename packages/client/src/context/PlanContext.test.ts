@@ -73,12 +73,15 @@ describe('reconcileSemesters', () => {
     expect(result.map((s) => s.id)).toEqual(SEMESTERS.map((s) => s.id));
   });
 
-  it('AC1: added Summer semesters use canonical status (future)', () => {
+  it('AC1: added Summer semesters use the canonical SEMESTERS status', () => {
     const result = reconcileSemesters(PRE_051_SEMESTERS);
     const byId = Object.fromEntries(result.map((s) => [s.id, s]));
-    expect(byId['Summer 2026'].status).toBe('future');
-    expect(byId['Summer 2027'].status).toBe('future');
-    expect(byId['Summer 2028'].status).toBe('future');
+    // Reconcile pulls missing terms from the canonical SEMESTERS, whose status is
+    // now clock-derived (Theme D) — so compare against SEMESTERS, not a fixed value.
+    const canonicalById = Object.fromEntries(SEMESTERS.map((s) => [s.id, s]));
+    expect(byId['Summer 2026'].status).toBe(canonicalById['Summer 2026'].status);
+    expect(byId['Summer 2027'].status).toBe(canonicalById['Summer 2027'].status);
+    expect(byId['Summer 2028'].status).toBe(canonicalById['Summer 2028'].status);
   });
 
   it('AC1: idempotent — calling twice yields the same ids', () => {
@@ -217,5 +220,15 @@ describe('parseStoredPlan', () => {
     expect(ids).toContain('Summer 2026');
     expect(ids).toContain('Summer 2027');
     expect(ids).toContain('Summer 2028');
+  });
+
+  // Theme D: stale persisted statuses (frozen at last save) are refreshed from the
+  // clock on load, so the planner doesn't keep showing an old term as "now".
+  it('refreshes stale persisted semester statuses from the clock', () => {
+    const stale = SEMESTERS.map((s) => ({ ...s, status: 'current' as const }));
+    const raw = JSON.stringify({ present: { semesters: stale, plan: {} } });
+    const result = parseStoredPlan(raw)!;
+    const currentCount = result.present.semesters.filter((s) => s.status === 'current').length;
+    expect(currentCount).toBe(1); // exactly one current after refresh, not all 11
   });
 });

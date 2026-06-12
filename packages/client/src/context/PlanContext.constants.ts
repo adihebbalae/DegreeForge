@@ -58,16 +58,42 @@ export interface PlanContextValue {
 //   Fall 2028, Spring 2029
 // (No Summer after the final Spring because the plan ends at Spring 2029.)
 //
-// Status rules (fixed reference point: Spring 2026 is current):
-//   Fall 2025        → past
-//   Spring 2026      → current
-//   everything else  → future
+// Status rules are derived from an injectable clock (getCurrentTerm) rather than
+// frozen literals. The old code hardcoded `year === 2025 → past`, `2026 → current`,
+// which silently mis-classified terms once the real date passed Spring 2026.
 
 type SemesterStatus = 'past' | 'current' | 'future';
+type Season = 'Fall' | 'Spring' | 'Summer';
 
-function semesterStatus(season: 'Fall' | 'Spring' | 'Summer', year: number): SemesterStatus {
-  if (season === 'Fall' && year === 2025) return 'past';
-  if (season === 'Spring' && year === 2026) return 'current';
+/**
+ * Chronological ordinal for a term. Within a calendar year the order is
+ * Spring < Summer < Fall, so `year * 3 + rank` sorts every term across years.
+ */
+function termOrdinal(season: Season, year: number): number {
+  const rank = season === 'Spring' ? 0 : season === 'Summer' ? 1 : 2;
+  return year * 3 + rank;
+}
+
+/**
+ * The academic term that contains `now`. Injectable clock — tests pass a fixed
+ * Date. Month → season uses the UT calendar: Jan–May → Spring, Jun–Aug → Summer,
+ * Sep–Dec → Fall.
+ */
+export function getCurrentTerm(now: Date = new Date()): { season: Season; year: number } {
+  const month = now.getMonth(); // 0 = January
+  const year = now.getFullYear();
+  if (month <= 4) return { season: 'Spring', year };
+  if (month <= 7) return { season: 'Summer', year };
+  return { season: 'Fall', year };
+}
+
+/** Classify a term as past / current / future relative to `now`. */
+function semesterStatus(season: Season, year: number, now: Date = new Date()): SemesterStatus {
+  const current = getCurrentTerm(now);
+  const ord = termOrdinal(season, year);
+  const currentOrd = termOrdinal(current.season, current.year);
+  if (ord < currentOrd) return 'past';
+  if (ord === currentOrd) return 'current';
   return 'future';
 }
 
@@ -90,7 +116,8 @@ function semesterLabel(season: 'Fall' | 'Spring' | 'Summer', year: number): stri
  */
 export function generateSemesters(
   startFallYear: number,
-  endSpringYear: number
+  endSpringYear: number,
+  now: Date = new Date()
 ): Semester[] {
   const semesters: Semester[] = [];
   for (let ay = startFallYear; ay < endSpringYear; ay++) {
@@ -98,7 +125,7 @@ export function generateSemesters(
     semesters.push({
       id: `Fall ${ay}`,
       label: semesterLabel('Fall', ay),
-      status: semesterStatus('Fall', ay),
+      status: semesterStatus('Fall', ay, now),
       year: ay,
       season: 'Fall',
     });
@@ -107,7 +134,7 @@ export function generateSemesters(
     semesters.push({
       id: `Spring ${springYear}`,
       label: semesterLabel('Spring', springYear),
-      status: semesterStatus('Spring', springYear),
+      status: semesterStatus('Spring', springYear, now),
       year: springYear,
       season: 'Spring',
     });
@@ -116,7 +143,7 @@ export function generateSemesters(
       semesters.push({
         id: `Summer ${springYear}`,
         label: semesterLabel('Summer', springYear),
-        status: semesterStatus('Summer', springYear),
+        status: semesterStatus('Summer', springYear, now),
         year: springYear,
         season: 'Summer',
       });
@@ -126,8 +153,11 @@ export function generateSemesters(
 }
 
 // ─── Static Semester Sequence ─────────────────────────────────────────────────
-// Reference point: Spring 2026 is current (user profile baseline).
-// AY 2025-26 → AY 2028-29 (4 academic years; terminal Spring = 2029).
+// AY 2025-26 → AY 2028-29 (4 academic years; terminal Spring = 2029). The window
+// span is intentionally fixed for the alpha (so persisted plan keys stay valid);
+// only the past/current/future status is derived from the real clock at load.
+// (The fixed 2025–2029 horizon is a deferred follow-up — it only goes stale well
+// past alpha.)
 
 export const SEMESTERS: Semester[] = generateSemesters(2025, 2029);
 
@@ -468,9 +498,22 @@ export interface HistoryState {
 // tell "corrupt" apart from "absent": it backs the raw blob up and warns the user
 // instead of irreversibly wiping their only saved plan.
 
-/** Merge canonical semesters + backfill empty plan entries for new terms. */
+/**
+ * Re-derive every semester's past/current/future status from the clock. Persisted
+ * state froze its statuses at save time (and reconcileSemesters preserves them), so
+ * without this the clock fix would be inert for any returning user — the planner
+ * would keep showing whatever term was "current" when they last saved.
+ */
+function refreshSemesterStatuses(semesters: Semester[], now: Date = new Date()): Semester[] {
+  return semesters.map((s) => {
+    const status = semesterStatus(s.season, s.year, now);
+    return status === s.status ? s : { ...s, status };
+  });
+}
+
+/** Merge canonical semesters + refresh statuses + backfill empty plan entries. */
 function reconcilePlanState(validated: PlanState): PlanState {
-  const reconciledSemesters = reconcileSemesters(validated.semesters);
+  const reconciledSemesters = refreshSemesterStatuses(reconcileSemesters(validated.semesters));
   const reconciledPlan = { ...validated.plan };
   for (const sem of reconciledSemesters) {
     if (!(sem.id in reconciledPlan)) reconciledPlan[sem.id] = [];

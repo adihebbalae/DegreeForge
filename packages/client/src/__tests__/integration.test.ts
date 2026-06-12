@@ -149,7 +149,9 @@ describe('Full planner flow', () => {
     expect(INITIAL_STATE.semesters).toHaveLength(11);
     expect(INITIAL_STATE.semesters[0].id).toBe('Fall 2025');
     expect(INITIAL_STATE.semesters[1].id).toBe('Spring 2026');
-    expect(INITIAL_STATE.semesters[1].status).toBe('current');
+    // Which term is 'current' now depends on the real clock (Theme D), so assert the
+    // invariant — exactly one current term — rather than a hardcoded date.
+    expect(INITIAL_STATE.semesters.filter((s) => s.status === 'current')).toHaveLength(1);
 
     // Plan should be keyed by semester IDs from SEMESTERS list
     const planKeys = Object.keys(INITIAL_STATE.plan);

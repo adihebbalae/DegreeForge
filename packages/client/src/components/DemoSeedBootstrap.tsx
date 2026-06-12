@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { fetchAndLoadDemo, useProfileDispatch } from '@/context/ProfileContext';
-import { usePlanDispatch, SEMESTERS } from '@/context/PlanContext';
+import { fetchAndLoadDemo, useProfileDispatch, useOwnedProfile } from '@/context/ProfileContext';
+import { usePlanDispatch, usePlan, SEMESTERS } from '@/context/PlanContext';
 import { deriveTimelinePlanFromProfile } from '@/lib/derive-timeline';
 
 interface DemoSeedBootstrapProps {
@@ -22,13 +22,25 @@ interface DemoSeedBootstrapProps {
 export function DemoSeedBootstrap({ isFirstRun }: DemoSeedBootstrapProps) {
   const profileDispatch = useProfileDispatch();
   const planDispatch = usePlanDispatch();
+  const profile = useOwnedProfile();
+  const plan = usePlan();
   const firedRef = useRef(false);
 
   useEffect(() => {
+    // seedDemo(): can NEVER run against a non-empty store. isFirstRun is computed at
+    // bootstrap (profile key absent before providers mount); this additionally checks
+    // the live profile + plan are empty, so a returning user's real data can never be
+    // overwritten even if first-run detection were wrong.
+    const storeIsEmpty =
+      profile.completed_courses.length === 0 &&
+      profile.in_progress_courses.length === 0 &&
+      Object.values(plan).every((courses) => courses.length === 0);
+
     const shouldSeed =
       isFirstRun &&
       import.meta.env.VITE_SEED_DEMO_PROFILE === 'true' &&
-      !firedRef.current;
+      !firedRef.current &&
+      storeIsEmpty;
 
     if (!shouldSeed) return;
 
