@@ -1,23 +1,25 @@
 /**
- * HomeRoute — TASK-073
+ * HomeRoute — TASK-073 / TASK-078
  *
  * Renders the home screen ("/") for whichever variant useHomeVariant() resolves.
- * The four distinct designs are a follow-up task; until then every variant maps
- * to the existing PlannerPage. Swapping in a real variant later is a one-line
- * change: point its key in VARIANT_COMPONENTS at the new component.
+ * Each variant key maps to its real design; `cleaned-planner` is the control and
+ * stays the existing PlannerPage. The `minimalist-shell` variant supplies its own
+ * chrome (thin top bar), so Layout suppresses the global Header for it on "/".
  */
 
 import type { ComponentType } from 'react';
 import PlannerPage from '../pages/PlannerPage';
+import HomeMinimalist from './home/HomeMinimalist';
+import HomeLandingDashboard from './home/HomeLandingDashboard';
+import HomeWizardHub from './home/HomeWizardHub';
 import { useHomeVariant, type HomeVariant } from '../hooks/useHomeVariant';
 
-// variant → component map. Every key currently renders the planner; replace the
-// value for a key when its real design lands.
-const VARIANT_COMPONENTS: Record<HomeVariant, ComponentType> = {
-  'landing-dashboard': PlannerPage,
+// variant → component map. `cleaned-planner` is the control (PlannerPage).
+export const VARIANT_COMPONENTS: Record<HomeVariant, ComponentType> = {
+  'landing-dashboard': HomeLandingDashboard,
   'cleaned-planner': PlannerPage,
-  'minimalist-shell': PlannerPage,
-  'wizard-hub': PlannerPage,
+  'minimalist-shell': HomeMinimalist,
+  'wizard-hub': HomeWizardHub,
 };
 
 export default function HomeRoute() {
