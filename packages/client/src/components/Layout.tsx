@@ -7,10 +7,14 @@ import SettingsPage from '../pages/SettingsPage'
 import CareerPage from '../pages/CareerPage'
 import { RecoverableErrorBoundary } from './PlannerErrorBoundary'
 import { useHomeVariant } from '../hooks/useHomeVariant'
+import { useStuckPointerEventsGuard } from '../hooks/useStuckPointerEventsGuard'
 
 export default function Layout() {
   const location = useLocation()
   const variant = useHomeVariant()
+  // BUG 1 safeguard: recover from any orphaned Radix `pointer-events: none` lock
+  // that would otherwise freeze the whole page (TASK-080).
+  useStuckPointerEventsGuard()
   // The minimalist-shell variant renders its own thin top bar, so on the home
   // route ("/") it must not stack under the global Header + OptimizeStrip. Every
   // other route and every other variant keep the global chrome.
