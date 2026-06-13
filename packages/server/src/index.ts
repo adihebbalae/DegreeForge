@@ -98,10 +98,19 @@ const questionnaireOutputSchema = z.object({
 
 // ─── /api/agent-turn ──────────────────────────────────────────────────────────
 //
-// Tool-capable non-streaming endpoint for the client agent loop.
-// Accepts { messages, tools, system } and runs ONE Anthropic tool-use turn.
-// Returns { text, toolCall } where toolCall is null or { name, args }.
-// The client createClaudeProvider calls this; the API key never reaches the browser.
+// Tool-capable STREAMING endpoint for the client agent loop.
+// Accepts { messages, tools, system } and runs ONE Anthropic tool-use turn,
+// streaming the assistant's text as Server-Sent Events so tokens render
+// incrementally in the browser.
+//
+// Wire protocol (text/event-stream):
+//   event: delta  data: { "text": "<chunk>" }   — one per text delta
+//   event: done   data: { "text": "<full>", "toolCall": null | { name, args } }
+//   event: error  data: { "error": "<generic message>" }
+//
+// The terminal `done` event carries the fully assembled assistant text and the
+// first tool_use block (if any), preserving the { text, toolCall } semantics the
+// client-orchestrated tool loop relies on. The API key never reaches the browser.
 
 interface AgentTurnMessage {
   role: 'user' | 'assistant' | 'tool_result';
@@ -194,8 +203,22 @@ app.post('/api/agent-turn', requireAccessCode, chatLimiter, tokenCapMiddleware, 
 
   const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6';
 
+  // Open the SSE stream. Once headers are flushed we can no longer send an HTTP
+  // status, so any error after this point is reported as an `error` SSE event.
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache, no-transform',
+    Connection: 'keep-alive',
+    // Disable proxy buffering (nginx/Render) so deltas flush immediately.
+    'X-Accel-Buffering': 'no',
+  });
+
+  const send = (event: string, data: unknown) => {
+    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+  };
+
   try {
-    const response = await anthropic.messages.create({
+    const stream = anthropic.messages.stream({
       model,
       max_tokens: 1024,
       system: system ?? '',
@@ -203,11 +226,20 @@ app.post('/api/agent-turn', requireAccessCode, chatLimiter, tokenCapMiddleware, 
       tools: anthropicTools.length > 0 ? anthropicTools : undefined,
     });
 
-    // Extract text and the first tool_use block (1-tool-call cap matches client loop)
+    // Stream text deltas to the client as they arrive.
+    stream.on('text', (textDelta: string) => {
+      send('delta', { text: textDelta });
+    });
+
+    // Block until the model finishes; finalMessage() resolves with the fully
+    // assembled Message (text + tool_use blocks).
+    const finalMessage = await stream.finalMessage();
+
+    // Extract text and the first tool_use block (1-tool-call cap matches client loop).
     let text = '';
     let toolCall: { name: string; args: Record<string, unknown> } | null = null;
 
-    for (const block of response.content) {
+    for (const block of finalMessage.content) {
       if (block.type === 'text') {
         text += block.text;
       } else if (block.type === 'tool_use' && toolCall === null) {
@@ -218,11 +250,15 @@ app.post('/api/agent-turn', requireAccessCode, chatLimiter, tokenCapMiddleware, 
       }
     }
 
-    return res.json({ text, toolCall });
+    // Terminal event carries the full assembled message + any tool call so the
+    // client can execute the tool and continue its orchestrated loop.
+    send('done', { text, toolCall });
+    res.end();
   } catch (error: unknown) {
     // Log full detail server-side only — never leak SDK internals to the client.
     console.error('agent-turn error:', error instanceof Error ? error.message : error);
-    return res.status(500).json({ error: 'The AI service returned an error.' });
+    send('error', { error: 'The AI service returned an error.' });
+    res.end();
   }
 });
 

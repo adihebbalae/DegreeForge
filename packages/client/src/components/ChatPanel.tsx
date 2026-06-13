@@ -253,9 +253,30 @@ export default function ChatPanel() {
       const ctxProfile = profile ?? makeDefaultUserProfile(techCoreId);
       const ctxDegreeReqs = degreeRequirements ?? DEFAULT_DEGREE_REQUIREMENTS;
 
+      // Live-stream the in-progress assistant message. streamedRef holds the
+      // text accumulated for the CURRENT provider turn; onStreamReset clears it
+      // when a new turn begins (an intermediate tool-deciding turn's text is not
+      // the final answer). The final authoritative write happens below.
+      const streamedRef = { current: '' };
+      const appendStreamedDelta = (delta: string) => {
+        streamedRef.current += delta;
+        const live = streamedRef.current;
+        setMessages(prev => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last && last.role === 'assistant') {
+            updated[updated.length - 1] = { ...last, content: live };
+          }
+          return updated;
+        });
+      };
+      const resetStreamed = () => { streamedRef.current = ''; };
+
       const result = await runAgentTurn(historyWindow, userText, {
         provider,
         tools: resolvedTools,
+        onTextDelta: appendStreamedDelta,
+        onStreamReset: resetStreamed,
         toolContext: {
           catalog: catalog ?? {},
           prereqGraph,

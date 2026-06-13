@@ -33,14 +33,23 @@ export interface AgentTurnResult {
 }
 
 /**
+ * Called with each incremental text chunk as it streams from the provider.
+ * Providers that don't stream (e.g. Ollama here) simply never invoke it; the
+ * caller still gets the full text via the resolved AgentTurnResult.
+ */
+export type TextDeltaHandler = (delta: string) => void;
+
+/**
  * A provider wraps one LLM backend. It receives the conversation history +
  * tool schemas, and returns either a text response or a single tool call.
+ * An optional onTextDelta callback receives incremental text as it streams.
  */
 export interface AgentProvider {
   complete(
     messages: AgentMessage[],
     tools: ToolDefinition[],
-    systemPrompt: string
+    systemPrompt: string,
+    onTextDelta?: TextDeltaHandler
   ): Promise<AgentTurnResult>;
 }
 
@@ -64,6 +73,7 @@ export function createOllamaProvider(opts: OllamaAdapterOptions = {}): AgentProv
   const model = opts.model ?? 'llama3';
 
   return {
+    // Ollama path is non-streaming here; onTextDelta is intentionally unused.
     async complete(messages, tools, systemPrompt): Promise<AgentTurnResult> {
       const ollamaMessages = [
         { role: 'system', content: systemPrompt },
@@ -147,10 +157,70 @@ export function serverBaseUrl(): string {
 
 // ─── Claude adapter ───────────────────────────────────────────────────────────
 
+/** One parsed Server-Sent Event: an event name + its JSON-decoded data. */
+interface SseEvent {
+  event: string;
+  data: unknown;
+}
+
 /**
- * Claude adapter — POSTs to the Express server's /api/agent-turn endpoint.
- * The server holds the Anthropic API key; the browser never sees it.
- * The endpoint runs one non-streaming tool-use turn and returns { text, toolCall }.
+ * Parse an SSE wire stream (ReadableStream of bytes) into discrete events.
+ * Events are delimited by a blank line; we split on the buffered "\n\n" and
+ * read the `event:` and `data:` fields from each block. `data:` payloads are
+ * JSON-decoded (the server always sends JSON), falling back to the raw string.
+ */
+async function* parseSseStream(
+  body: ReadableStream<Uint8Array>
+): AsyncGenerator<SseEvent> {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      let sep: number;
+      // SSE events are separated by a blank line ("\n\n").
+      while ((sep = buffer.indexOf('\n\n')) !== -1) {
+        const rawEvent = buffer.slice(0, sep);
+        buffer = buffer.slice(sep + 2);
+
+        let eventName = 'message';
+        const dataLines: string[] = [];
+        for (const line of rawEvent.split('\n')) {
+          if (line.startsWith('event:')) {
+            eventName = line.slice('event:'.length).trim();
+          } else if (line.startsWith('data:')) {
+            dataLines.push(line.slice('data:'.length).trim());
+          }
+        }
+
+        const rawData = dataLines.join('\n');
+        let data: unknown = rawData;
+        try {
+          data = JSON.parse(rawData);
+        } catch { /* keep raw string if not JSON */ }
+
+        yield { event: eventName, data };
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+/**
+ * Claude adapter — POSTs to the Express server's /api/agent-turn endpoint and
+ * consumes the streamed (Server-Sent Events) response. The server holds the
+ * Anthropic API key; the browser never sees it.
+ *
+ * The endpoint runs one tool-use turn and streams text deltas as `delta` events,
+ * then ends with a `done` event carrying { text, toolCall }. Each `delta` is
+ * forwarded to onTextDelta so the UI can render tokens incrementally; the
+ * resolved AgentTurnResult is built from the terminal `done` event.
  *
  * accessCode is sent as `x-access-code` for the invite-beta gate.
  * An empty string is safe — the server ignores it when BETA_ACCESS_SECRET is unset.
@@ -159,13 +229,14 @@ export function createClaudeProvider(baseUrl?: string, accessCode = ''): AgentPr
   const resolvedBaseUrl = baseUrl ?? serverBaseUrl();
 
   return {
-    async complete(messages, tools, systemPrompt): Promise<AgentTurnResult> {
+    async complete(messages, tools, systemPrompt, onTextDelta): Promise<AgentTurnResult> {
       let response: Response;
       try {
         response = await fetch(`${resolvedBaseUrl}/api/agent-turn`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Accept: 'text/event-stream',
             'x-access-code': accessCode,
           },
           body: JSON.stringify({
@@ -182,6 +253,8 @@ export function createClaudeProvider(baseUrl?: string, accessCode = ''): AgentPr
         throw err;
       }
 
+      // A non-2xx status (validation / rate-limit / access-code) is sent BEFORE
+      // the stream opens, as a JSON error body — handle it the same as before.
       if (!response.ok) {
         let errMsg = `Server error ${response.status}`;
         try {
@@ -191,15 +264,42 @@ export function createClaudeProvider(baseUrl?: string, accessCode = ''): AgentPr
         throw new Error(errMsg);
       }
 
-      const data = await response.json() as {
-        text?: string;
-        toolCall?: { name: string; args: Record<string, unknown> } | null;
-      };
+      if (!response.body) {
+        throw new Error('The AI service returned an empty response.');
+      }
 
-      return {
-        text: data.text ?? '',
-        toolCall: data.toolCall ?? null,
-      };
+      let accumulated = '';
+      let result: AgentTurnResult | null = null;
+
+      for await (const evt of parseSseStream(response.body)) {
+        if (evt.event === 'delta') {
+          const delta = (evt.data as { text?: string }).text ?? '';
+          accumulated += delta;
+          if (delta) onTextDelta?.(delta);
+        } else if (evt.event === 'done') {
+          const payload = evt.data as {
+            text?: string;
+            toolCall?: { name: string; args: Record<string, unknown> } | null;
+          };
+          result = {
+            // Prefer the server's assembled text; fall back to accumulated deltas.
+            text: payload.text ?? accumulated,
+            toolCall: payload.toolCall ?? null,
+          };
+        } else if (evt.event === 'error') {
+          const errMsg = (evt.data as { error?: string }).error
+            ?? 'The AI service returned an error.';
+          throw new Error(errMsg);
+        }
+      }
+
+      if (!result) {
+        // Stream closed without a terminal `done` event — surface accumulated
+        // text (if any) rather than silently dropping the turn.
+        throw new Error('The AI service stream ended unexpectedly.');
+      }
+
+      return result;
     },
   };
 }
@@ -211,6 +311,15 @@ export interface AgentLoopOptions {
   tools: ToolDefinition[];
   toolContext: ToolContext;
   systemPrompt: string;
+  /**
+   * Fired with each incremental text chunk as a provider turn streams. The loop
+   * resets the displayed text at the start of every provider call (via
+   * onStreamReset) because an intermediate tool-deciding turn's text is NOT the
+   * final answer — only the text from the turn that ends the loop is.
+   */
+  onTextDelta?: TextDeltaHandler;
+  /** Fired before each provider call so the consumer can clear in-progress text. */
+  onStreamReset?: () => void;
 }
 
 export interface AgentLoopResult {
@@ -286,7 +395,13 @@ export async function runAgentTurn(
   let lastToolResult: unknown | null = null;
 
   while (true) {
-    const turn = await opts.provider.complete(messages, opts.tools, opts.systemPrompt);
+    opts.onStreamReset?.();
+    const turn = await opts.provider.complete(
+      messages,
+      opts.tools,
+      opts.systemPrompt,
+      opts.onTextDelta
+    );
 
     if (!turn.toolCall) {
       // Model answered directly — this is the final answer regardless of how
@@ -358,10 +473,13 @@ export async function runAgentTurn(
 
   // Final tool-less synthesis call: empty tools array so the model cannot
   // request another tool; augmented system prompt reinforces direct answering.
+  // This call's text IS the final answer, so it streams to the consumer too.
+  opts.onStreamReset?.();
   const synthesis = await opts.provider.complete(
     messages,
     [],
-    synthesisSystemPrompt
+    synthesisSystemPrompt,
+    opts.onTextDelta
   );
 
   const finalText = synthesis.text.trim()
