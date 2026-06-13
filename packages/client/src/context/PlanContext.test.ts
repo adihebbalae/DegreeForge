@@ -165,6 +165,70 @@ describe('historyReducer — no Adi data injection on heavy past semester', () =
 // (lib/persist.ts) can tell "corrupt" (back up + warn) apart from "absent"
 // (default silently) — a single bad field must never silently wipe the saved plan.
 
+// ─── RETREAT_SEMESTER — inverse of ADVANCE_SEMESTER (TASK-073) ────────────────
+//
+// Reverse Semester shifts the timeline back one term: the most recent past term
+// becomes current again and the current term reverts to future. The defining
+// property is that RETREAT undoes the status changes ADVANCE makes — running
+// ADVANCE then RETREAT returns the semester statuses to their starting values.
+
+describe('RETREAT_SEMESTER — inverse of ADVANCE_SEMESTER', () => {
+  // A small chronological semester list with a defined past/current/future split.
+  const SEMS: Semester[] = [
+    { id: 'Fall 2025',   label: "Fall '25", status: 'past',    year: 2025, season: 'Fall'   },
+    { id: 'Spring 2026', label: "Sp '26",   status: 'current', year: 2026, season: 'Spring' },
+    { id: 'Summer 2026', label: "Su '26",   status: 'future',  year: 2026, season: 'Summer' },
+    { id: 'Fall 2026',   label: "Fall '26", status: 'future',  year: 2026, season: 'Fall'   },
+  ];
+
+  const baseHistory = (semesters: Semester[]): HistoryState => ({
+    past: [],
+    present: { ...INITIAL_STATE, semesters },
+    future: [],
+  });
+
+  const statusOf = (s: { semesters: Semester[] }) =>
+    Object.fromEntries(s.semesters.map((x) => [x.id, x.status]));
+
+  it('shifts current back: current → future and most-recent past → current', () => {
+    const next = historyReducer(baseHistory(SEMS), { type: 'RETREAT_SEMESTER' });
+    expect(statusOf(next.present)).toEqual({
+      'Fall 2025': 'current',
+      'Spring 2026': 'future',
+      'Summer 2026': 'future',
+      'Fall 2026': 'future',
+    });
+  });
+
+  it('is the exact inverse of ADVANCE: ADVANCE then RETREAT restores all statuses', () => {
+    const before = statusOf(baseHistory(SEMS).present);
+    const advanced = historyReducer(baseHistory(SEMS), { type: 'ADVANCE_SEMESTER', grades: {} });
+    // ADVANCE must have moved the timeline forward (current is now on the next term).
+    expect(statusOf(advanced.present)).not.toEqual(before);
+    const retreated = historyReducer(advanced, { type: 'RETREAT_SEMESTER' });
+    expect(statusOf(retreated.present)).toEqual(before);
+  });
+
+  it('is a no-op when there is no past term to retreat into (earliest term is current)', () => {
+    const earliestCurrent: Semester[] = SEMS.map((s, i) =>
+      i === 0 ? { ...s, status: 'current' as const } : { ...s, status: 'future' as const },
+    );
+    const history = baseHistory(earliestCurrent);
+    const next = historyReducer(history, { type: 'RETREAT_SEMESTER' });
+    // historyReducer returns the same reference on a no-op present change.
+    expect(next).toBe(history);
+  });
+
+  it('is a no-op when there is no current term', () => {
+    const noCurrent: Semester[] = SEMS.map((s) =>
+      s.status === 'current' ? { ...s, status: 'past' as const } : s,
+    );
+    const history = baseHistory(noCurrent);
+    const next = historyReducer(history, { type: 'RETREAT_SEMESTER' });
+    expect(next).toBe(history);
+  });
+});
+
 describe('parseStoredPlan', () => {
   it('returns null for an empty string (not valid JSON)', () => {
     expect(parseStoredPlan('')).toBeNull();
