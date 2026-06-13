@@ -5,8 +5,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // vi.mock factories are hoisted above imports, so anything they reference must be
 // created inside vi.hoisted() — a plain const/class would be in the temporal dead
 // zone when the hoisted factory runs.
-const { mockCreate, MockAuthenticationError } = vi.hoisted(() => {
-  const mockCreate = vi.fn();
+const { mockStream, MockAuthenticationError, makeFakeStream } = vi.hoisted(() => {
+  const mockStream = vi.fn();
   // Minimal AuthenticationError stub matching the shape the SDK emits for 401.
   class MockAuthenticationError extends Error {
     status: number;
@@ -16,12 +16,39 @@ const { mockCreate, MockAuthenticationError } = vi.hoisted(() => {
       this.status = 401;
     }
   }
-  return { mockCreate, MockAuthenticationError };
+
+  // Build a fake MessageStream: emits each textDelta to 'text' listeners, then
+  // resolves finalMessage() with the given content blocks. If finalError is set,
+  // finalMessage() rejects (and no deltas are emitted) to mirror an SDK failure.
+  function makeFakeStream(opts: {
+    textDeltas?: string[];
+    content?: Array<Record<string, unknown>>;
+    finalError?: Error;
+  }) {
+    const textListeners: Array<(delta: string, snapshot: string) => void> = [];
+    return {
+      on(event: string, listener: (delta: string, snapshot: string) => void) {
+        if (event === 'text') textListeners.push(listener);
+        return this;
+      },
+      async finalMessage() {
+        if (opts.finalError) throw opts.finalError;
+        let snapshot = '';
+        for (const delta of opts.textDeltas ?? []) {
+          snapshot += delta;
+          for (const l of textListeners) l(delta, snapshot);
+        }
+        return { content: opts.content ?? [] };
+      },
+    };
+  }
+
+  return { mockStream, MockAuthenticationError, makeFakeStream };
 });
 
 vi.mock('@anthropic-ai/sdk', () => ({
   default: vi.fn().mockImplementation(() => ({
-    messages: { create: mockCreate },
+    messages: { stream: mockStream },
   })),
   AuthenticationError: MockAuthenticationError,
 }));
@@ -121,8 +148,21 @@ function buildTestApp() {
 
     const model = 'claude-sonnet-4-6';
 
+    // Open the SSE stream. Once headers are flushed we can no longer send an HTTP
+    // status, so any error after this point is reported as an `error` SSE event.
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    });
+
+    const send = (event: string, data: unknown) => {
+      res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    };
+
     try {
-      const response = await anthropic.messages.create({
+      const stream = anthropic.messages.stream({
         model,
         max_tokens: 1024,
         system: system ?? '',
@@ -130,10 +170,16 @@ function buildTestApp() {
         tools: anthropicTools.length > 0 ? anthropicTools : undefined,
       });
 
+      stream.on('text', (textDelta: string) => {
+        send('delta', { text: textDelta });
+      });
+
+      const finalMessage = await stream.finalMessage();
+
       let text = '';
       let toolCall: { name: string; args: Record<string, unknown> } | null = null;
 
-      for (const block of response.content) {
+      for (const block of finalMessage.content) {
         if (block.type === 'text') {
           text += (block as { type: 'text'; text: string }).text;
         } else if (block.type === 'tool_use' && toolCall === null) {
@@ -142,23 +188,62 @@ function buildTestApp() {
         }
       }
 
-      return res.json({ text, toolCall });
+      send('done', { text, toolCall });
+      res.end();
     } catch (error: unknown) {
       // Log full detail server-side only — never leak SDK internals to the client.
       console.error('agent-turn error:', error instanceof Error ? error.message : error);
-      return res.status(500).json({ error: 'The AI service returned an error.' });
+      send('error', { error: 'The AI service returned an error.' });
+      res.end();
     }
   });
 
   return app;
 }
 
-// ─── Supertest-style request helper ───────────────────────────────────────────
-// We avoid importing supertest (not in deps) and use Node's built-in http instead.
+// ─── Request helper ────────────────────────────────────────────────────────────
+// We avoid importing supertest (not in deps) and use Node's built-in http.
+//
+// For streamed (SSE) responses we collect the raw body, then parse it into
+// discrete events. JSON (validation-error) responses are detected by status and
+// returned as a parsed object so the 4xx tests keep working unchanged.
 
 import http from 'http';
 
-function request(app: express.Express, method: string, path: string, body: unknown): Promise<{ status: number; body: unknown }> {
+interface ParsedSseEvent {
+  event: string;
+  data: unknown;
+}
+
+function parseSse(raw: string): ParsedSseEvent[] {
+  const events: ParsedSseEvent[] = [];
+  for (const block of raw.split('\n\n')) {
+    if (!block.trim()) continue;
+    let eventName = 'message';
+    const dataLines: string[] = [];
+    for (const line of block.split('\n')) {
+      if (line.startsWith('event:')) eventName = line.slice('event:'.length).trim();
+      else if (line.startsWith('data:')) dataLines.push(line.slice('data:'.length).trim());
+    }
+    let data: unknown = dataLines.join('\n');
+    try { data = JSON.parse(dataLines.join('\n')); } catch { /* keep raw */ }
+    events.push({ event: eventName, data });
+  }
+  return events;
+}
+
+interface RequestResult {
+  status: number;
+  contentType: string;
+  /** Parsed JSON body for non-stream (4xx) responses; undefined for SSE. */
+  body?: unknown;
+  /** Parsed SSE events for streamed (200) responses; undefined for JSON. */
+  events?: ParsedSseEvent[];
+  /** Raw response text. */
+  raw: string;
+}
+
+function request(app: express.Express, method: string, path: string, body: unknown): Promise<RequestResult> {
   return new Promise((resolve, reject) => {
     const server = app.listen(0, () => {
       const port = (server.address() as { port: number }).port;
@@ -178,10 +263,14 @@ function request(app: express.Express, method: string, path: string, body: unkno
         res.on('data', (chunk) => { data += chunk; });
         res.on('end', () => {
           server.close();
-          try {
-            resolve({ status: res.statusCode ?? 0, body: JSON.parse(data) });
-          } catch {
-            resolve({ status: res.statusCode ?? 0, body: data });
+          const status = res.statusCode ?? 0;
+          const contentType = String(res.headers['content-type'] ?? '');
+          if (contentType.includes('text/event-stream')) {
+            resolve({ status, contentType, events: parseSse(data), raw: data });
+          } else {
+            let parsed: unknown = data;
+            try { parsed = JSON.parse(data); } catch { /* keep raw */ }
+            resolve({ status, contentType, body: parsed, raw: data });
           }
         });
       });
@@ -194,15 +283,18 @@ function request(app: express.Express, method: string, path: string, body: unkno
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe('/api/agent-turn', () => {
+describe('/api/agent-turn (streaming)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('returns a text turn when the model responds with text content', async () => {
-    mockCreate.mockResolvedValueOnce({
-      content: [{ type: 'text', text: 'Hello from Claude!' }],
-    });
+  it('emits incremental text/event-stream deltas and a terminal done event', async () => {
+    mockStream.mockReturnValueOnce(
+      makeFakeStream({
+        textDeltas: ['Hello', ' from', ' Claude!'],
+        content: [{ type: 'text', text: 'Hello from Claude!' }],
+      })
+    );
 
     const app = buildTestApp();
     const res = await request(app, 'POST', '/api/agent-turn', {
@@ -212,16 +304,30 @@ describe('/api/agent-turn', () => {
     });
 
     expect(res.status).toBe(200);
-    expect((res.body as { text: string; toolCall: null }).text).toBe('Hello from Claude!');
-    expect((res.body as { text: string; toolCall: null }).toolCall).toBeNull();
+    expect(res.contentType).toContain('text/event-stream');
+
+    // Incremental deltas arrived as separate SSE events, in order.
+    const deltas = res.events!.filter((e) => e.event === 'delta');
+    expect(deltas).toHaveLength(3);
+    expect((deltas[0].data as { text: string }).text).toBe('Hello');
+    expect((deltas[1].data as { text: string }).text).toBe(' from');
+    expect((deltas[2].data as { text: string }).text).toBe(' Claude!');
+
+    // A single terminal `done` event carries the fully assembled message.
+    const done = res.events!.filter((e) => e.event === 'done');
+    expect(done).toHaveLength(1);
+    const donePayload = done[0].data as { text: string; toolCall: null };
+    expect(donePayload.text).toBe('Hello from Claude!');
+    expect(donePayload.toolCall).toBeNull();
   });
 
-  it('returns a tool_use turn when the model calls a tool', async () => {
-    mockCreate.mockResolvedValueOnce({
-      content: [
-        { type: 'tool_use', name: 'get_course_info', input: { courseId: 'ECE 302' } },
-      ],
-    });
+  it('surfaces a tool_use call on the terminal done event', async () => {
+    mockStream.mockReturnValueOnce(
+      makeFakeStream({
+        textDeltas: [],
+        content: [{ type: 'tool_use', name: 'get_course_info', input: { courseId: 'ECE 302' } }],
+      })
+    );
 
     const app = buildTestApp();
     const res = await request(app, 'POST', '/api/agent-turn', {
@@ -231,16 +337,23 @@ describe('/api/agent-turn', () => {
     });
 
     expect(res.status).toBe(200);
-    const body = res.body as { text: string; toolCall: { name: string; args: Record<string, unknown> } };
-    expect(body.toolCall).not.toBeNull();
-    expect(body.toolCall.name).toBe('get_course_info');
-    expect(body.toolCall.args).toEqual({ courseId: 'ECE 302' });
+    expect(res.contentType).toContain('text/event-stream');
+
+    const done = res.events!.find((e) => e.event === 'done');
+    expect(done).toBeDefined();
+    const payload = done!.data as { text: string; toolCall: { name: string; args: Record<string, unknown> } };
+    expect(payload.toolCall).not.toBeNull();
+    expect(payload.toolCall.name).toBe('get_course_info');
+    expect(payload.toolCall.args).toEqual({ courseId: 'ECE 302' });
   });
 
-  it('succeeds (200) when ANTHROPIC_API_KEY is absent but the mocked SDK returns a valid response (simulates OAuth/token auth)', async () => {
-    mockCreate.mockResolvedValueOnce({
-      content: [{ type: 'text', text: 'OAuth path works!' }],
-    });
+  it('succeeds when ANTHROPIC_API_KEY is absent but the mocked SDK streams a valid response (simulates OAuth/token auth)', async () => {
+    mockStream.mockReturnValueOnce(
+      makeFakeStream({
+        textDeltas: ['OAuth path works!'],
+        content: [{ type: 'text', text: 'OAuth path works!' }],
+      })
+    );
 
     // Temporarily remove the key to confirm the endpoint no longer 503s.
     const savedKey = process.env.ANTHROPIC_API_KEY;
@@ -254,12 +367,15 @@ describe('/api/agent-turn', () => {
     if (savedKey !== undefined) process.env.ANTHROPIC_API_KEY = savedKey;
 
     expect(res.status).toBe(200);
-    expect((res.body as { text: string }).text).toBe('OAuth path works!');
+    const done = res.events!.find((e) => e.event === 'done');
+    expect((done!.data as { text: string }).text).toBe('OAuth path works!');
   });
 
-  it('returns generic 500 when SDK throws AuthenticationError (401) and does NOT leak auth detail to the client', async () => {
-    mockCreate.mockRejectedValueOnce(
-      new MockAuthenticationError('authentication_error: invalid x-api-key (secret-key-detail-abc123)')
+  it('emits a generic error event when the SDK throws AuthenticationError (401) and does NOT leak auth detail', async () => {
+    mockStream.mockReturnValueOnce(
+      makeFakeStream({
+        finalError: new MockAuthenticationError('authentication_error: invalid x-api-key (secret-key-detail-abc123)'),
+      })
     );
 
     const app = buildTestApp();
@@ -267,13 +383,15 @@ describe('/api/agent-turn', () => {
       messages: [{ role: 'user', content: 'hi' }],
     });
 
-    expect(res.status).toBe(500);
-    const body = res.body as { error: string };
-    expect(body.error).toBe('The AI service returned an error.');
-    // Auth detail must not be present in the client response.
-    expect(body.error).not.toContain('authentication_error');
-    expect(body.error).not.toContain('secret-key-detail-abc123');
-    expect(body.error).not.toContain('x-api-key');
+    // The stream opens with 200, then ends with a generic `error` event.
+    const errEvent = res.events!.find((e) => e.event === 'error');
+    expect(errEvent).toBeDefined();
+    const errData = errEvent!.data as { error: string };
+    expect(errData.error).toBe('The AI service returned an error.');
+    // Auth detail must not be present anywhere in the wire output.
+    expect(res.raw).not.toContain('authentication_error');
+    expect(res.raw).not.toContain('secret-key-detail-abc123');
+    expect(res.raw).not.toContain('x-api-key');
   });
 
   it('returns 400 when messages is missing', async () => {
@@ -284,8 +402,10 @@ describe('/api/agent-turn', () => {
     expect((res.body as { error: string }).error).toContain('messages');
   });
 
-  it('returns 500 with a generic message when the Anthropic SDK throws (raw error must not be leaked)', async () => {
-    mockCreate.mockRejectedValueOnce(new Error('SDK network failure: secret internal detail'));
+  it('emits a generic error event when the SDK throws (raw error must not be leaked)', async () => {
+    mockStream.mockReturnValueOnce(
+      makeFakeStream({ finalError: new Error('SDK network failure: secret internal detail') })
+    );
 
     const app = buildTestApp();
     const res = await request(app, 'POST', '/api/agent-turn', {
@@ -293,13 +413,12 @@ describe('/api/agent-turn', () => {
       tools: [],
     });
 
-    expect(res.status).toBe(500);
-    const body = res.body as { error: string };
-    // Must return the generic message
-    expect(body.error).toBe('The AI service returned an error.');
-    // Must NOT leak the raw SDK error string
-    expect(body.error).not.toContain('SDK network failure');
-    expect(body.error).not.toContain('secret internal detail');
+    const errEvent = res.events!.find((e) => e.event === 'error');
+    expect(errEvent).toBeDefined();
+    expect((errEvent!.data as { error: string }).error).toBe('The AI service returned an error.');
+    // Must NOT leak the raw SDK error string anywhere on the wire.
+    expect(res.raw).not.toContain('SDK network failure');
+    expect(res.raw).not.toContain('secret internal detail');
   });
 
   it('returns 400 when tools array exceeds 32 entries', async () => {
@@ -349,13 +468,16 @@ describe('/api/agent-turn', () => {
     expect((res.body as { error: string }).error).toContain('Message content exceeds 16000');
   });
 
-  it('only returns the first tool_use block when the response contains multiple', async () => {
-    mockCreate.mockResolvedValueOnce({
-      content: [
-        { type: 'tool_use', name: 'first_tool', input: { a: 1 } },
-        { type: 'tool_use', name: 'second_tool', input: { b: 2 } },
-      ],
-    });
+  it('only surfaces the first tool_use block when the response contains multiple', async () => {
+    mockStream.mockReturnValueOnce(
+      makeFakeStream({
+        textDeltas: [],
+        content: [
+          { type: 'tool_use', name: 'first_tool', input: { a: 1 } },
+          { type: 'tool_use', name: 'second_tool', input: { b: 2 } },
+        ],
+      })
+    );
 
     const app = buildTestApp();
     const res = await request(app, 'POST', '/api/agent-turn', {
@@ -364,7 +486,8 @@ describe('/api/agent-turn', () => {
     });
 
     expect(res.status).toBe(200);
-    const body = res.body as { toolCall: { name: string } };
-    expect(body.toolCall.name).toBe('first_tool');
+    const done = res.events!.find((e) => e.event === 'done');
+    const payload = done!.data as { toolCall: { name: string } };
+    expect(payload.toolCall.name).toBe('first_tool');
   });
 });
