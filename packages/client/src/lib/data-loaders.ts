@@ -1,3 +1,4 @@
+import type { z } from 'zod';
 import type {
   CourseCatalog,
   PrereqGraphData,
@@ -9,6 +10,17 @@ import type {
   FallSections,
   SectionsIndex,
 } from '../types';
+import {
+  courseCatalogSchema,
+  prereqGraphSchema,
+  gradeDistributionsSchema,
+  degreeRequirementsSchema,
+  techCoresSchema,
+  offeringScheduleSchema,
+  mathRequirementsSchema,
+  sectionsIndexSchema,
+  fallSectionsSchema,
+} from './data-schemas';
 
 /** Raw shape of grade-distributions.json before normalization */
 export interface RawGradeDistributionsFile {
@@ -18,29 +30,50 @@ export interface RawGradeDistributionsFile {
 /**
  * Generic JSON fetcher with typed return and meaningful error messages.
  * Throws on non-2xx responses.
+ *
+ * When a `schema` is supplied, the parsed body is validated against it and a
+ * shape mismatch throws an error that NAMES the offending file. This makes a
+ * malformed / scraper-regressed data file fail loudly at load instead of
+ * surfacing later as a confusing solver or progress bug.
  */
-export async function fetchJson<T>(url: string): Promise<T> {
+export async function fetchJson<T>(url: string, schema?: z.ZodType<T>): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(
       `Failed to load ${url}: HTTP ${response.status} ${response.statusText}`
     );
   }
-  return response.json() as Promise<T>;
+  const body: unknown = await response.json();
+  if (!schema) {
+    return body as T;
+  }
+  const result = schema.safeParse(body);
+  if (!result.success) {
+    throw new Error(
+      `Data file ${url} is malformed: ${result.error.issues
+        .map((i) => `${i.path.join('.') || '(root)'}: ${i.message}`)
+        .slice(0, 5)
+        .join('; ')}`
+    );
+  }
+  return result.data;
 }
 
 // ─── Per-file loaders ────────────────────────────────────────────────────────
 
 export function loadCourseCatalog(): Promise<CourseCatalog> {
-  return fetchJson<CourseCatalog>('/data/course-catalog.json');
+  return fetchJson<CourseCatalog>('/data/course-catalog.json', courseCatalogSchema);
 }
 
 export function loadPrereqGraph(): Promise<PrereqGraphData> {
-  return fetchJson<PrereqGraphData>('/data/prerequisite-graph.json');
+  return fetchJson<PrereqGraphData>('/data/prerequisite-graph.json', prereqGraphSchema);
 }
 
 export function loadRawGradeDistributions(): Promise<RawGradeDistributionsFile> {
-  return fetchJson<RawGradeDistributionsFile>('/data/grade-distributions.json');
+  return fetchJson<RawGradeDistributionsFile>(
+    '/data/grade-distributions.json',
+    gradeDistributionsSchema
+  );
 }
 
 /**
@@ -53,19 +86,22 @@ export function loadDemoProfile(): Promise<UserProfile> {
 }
 
 export function loadDegreeRequirements(): Promise<DegreeRequirements> {
-  return fetchJson<DegreeRequirements>('/data/degree-requirements.json');
+  return fetchJson<DegreeRequirements>(
+    '/data/degree-requirements.json',
+    degreeRequirementsSchema
+  );
 }
 
 export function loadTechCores(): Promise<TechCores> {
-  return fetchJson<TechCores>('/data/tech-cores.json');
+  return fetchJson<TechCores>('/data/tech-cores.json', techCoresSchema);
 }
 
 export function loadOfferingSchedule(): Promise<OfferingSchedule> {
-  return fetchJson<OfferingSchedule>('/data/offering-schedule.json');
+  return fetchJson<OfferingSchedule>('/data/offering-schedule.json', offeringScheduleSchema);
 }
 
 export function loadMathRequirements(): Promise<MathRequirements> {
-  return fetchJson<MathRequirements>('/data/math-requirements.json');
+  return fetchJson<MathRequirements>('/data/math-requirements.json', mathRequirementsSchema);
 }
 
 /**
@@ -74,7 +110,7 @@ export function loadMathRequirements(): Promise<MathRequirements> {
  * is committed alongside the per-term files.
  */
 export function loadSectionsIndex(): Promise<SectionsIndex> {
-  return fetchJson<SectionsIndex>('/data/sections-index.json');
+  return fetchJson<SectionsIndex>('/data/sections-index.json', sectionsIndexSchema);
 }
 
 /**
@@ -97,7 +133,7 @@ export async function loadTermSections(
         `Run \`npm run fetch:sections -- ${slug}\` to generate it.`
     );
   }
-  return fetchJson<FallSections>(`/data/${entry.file}`);
+  return fetchJson<FallSections>(`/data/${entry.file}`, fallSectionsSchema);
 }
 
 /**
