@@ -171,13 +171,21 @@ export function parseRegistrarHtml(html: string, term: ParsedTerm, sourceLabel: 
     if (headerCell.length > 0) {
       const raw = headerCell.text().replace(/\s+/g, ' ').trim();
       // Format: "ECE  422C SOFTWR DESIGN/IMPLEMENTATN II" (after space-collapse: "ECE 422C TITLE")
-      // Also handles legacy "E E 302 TITLE" format (two-token dept code).
+      // Also handles multi-token spaced dept codes: "E E 302 TITLE", "C S 314 TITLE",
+      // "T D 301 TITLE", "F A 320K TITLE" — the dept may be one OR several
+      // whitespace-separated alpha tokens.
       // Summer format: "ECE w422C TITLE (Whole term)" — lowercase session letter
       // prefixes the number; strip it before storing the course id.
-      // Pattern: (dept) (optional-session-letter)(num) TITLE
-      const m = /^((?:E\s+E|[A-Z]+))\s+([a-z]?\d+\w*)\s+(.+)$/.exec(raw);
+      //
+      // The course NUMBER token is the reliable anchor: optional lowercase
+      // summer-session letter, then digits, then an UPPERCASE suffix
+      // (e.g. "422C", "408C", "w422C"). Everything BEFORE that number token is
+      // the department code; collapse its internal whitespace into single
+      // spaces. This avoids special-casing each spaced dept code.
+      // Pattern: (dept = one-or-more alpha tokens) (session-letter? num) TITLE
+      const m = /^([A-Za-z]+(?:\s+[A-Za-z]+)*)\s+([a-z]?\d+[A-Z]*)\s+(.+)$/.exec(raw);
       if (m) {
-        const dept = m[1];
+        const dept = m[1].replace(/\s+/g, ' ').trim();
         const numToken = stripSessionPrefix(m[2]);
         const courseId = normalizeCourseId(`${dept} ${numToken}`);
         // Strip session suffix from title (e.g. " (Whole term)", " (Nine week term)")
