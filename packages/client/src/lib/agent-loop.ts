@@ -109,7 +109,7 @@ export function createOllamaProvider(opts: OllamaAdapterOptions = {}): AgentProv
         const first = rawToolCalls[0];
         let parsedArgs: Record<string, unknown> = {};
         if (typeof first.function.arguments === 'string') {
-          try { parsedArgs = JSON.parse(first.function.arguments); } catch { parsedArgs = {}; }
+          try { parsedArgs = Object.assign(Object.create(null) as Record<string, unknown>, JSON.parse(first.function.arguments) as Record<string, unknown>); } catch { parsedArgs = {}; }
         } else {
           parsedArgs = first.function.arguments;
         }

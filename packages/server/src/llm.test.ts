@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type Anthropic from '@anthropic-ai/sdk';
-import { extractText } from './llm';
+import { extractText, parseModelJson, ModelOutputError } from './llm';
+import { z } from 'zod';
 
 const msg = (content: unknown[]): Anthropic.Messages.Message =>
   ({ content } as unknown as Anthropic.Messages.Message);
@@ -28,5 +29,32 @@ describe('extractText', () => {
 
   it('concatenates multiple text blocks in order', () => {
     expect(extractText(msg([{ type: 'text', text: 'a' }, { type: 'text', text: 'b' }]))).toBe('ab');
+  });
+});
+
+describe('parseModelJson — ReDoS fix', () => {
+  const schema = z.object({ a: z.number() });
+
+  it('extracts JSON from normal prose wrapping', () => {
+    const result = parseModelJson('Here is the answer: {"a":1} done.', schema);
+    expect(result).toEqual({ a: 1 });
+  });
+
+  it('pathological input (5000 open braces) completes quickly without hanging', () => {
+    const pathological = '{'.repeat(5000);
+    const start = Date.now();
+    expect(() => parseModelJson(pathological, schema)).toThrow(ModelOutputError);
+    const elapsed = Date.now() - start;
+    // Must complete in under 500ms — catastrophic backtracking with the old regex
+    // would take many seconds on this input.
+    expect(elapsed).toBeLessThan(500);
+  });
+
+  it('returns ModelOutputError when no valid JSON object is present', () => {
+    expect(() => parseModelJson('no braces here', schema)).toThrow(ModelOutputError);
+  });
+
+  it('returns ModelOutputError when JSON does not match schema', () => {
+    expect(() => parseModelJson('{"b": "wrong"}', schema)).toThrow(ModelOutputError);
   });
 });
