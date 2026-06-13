@@ -22,7 +22,7 @@ export async function getCachedResponse(prompt: string): Promise<any | null> {
     const data = await fs.readFile(CACHE_FILE, 'utf-8');
     let cache: Record<string, unknown>;
     try {
-      cache = JSON.parse(data);
+      cache = Object.assign(Object.create(null) as Record<string, unknown>, JSON.parse(data) as Record<string, unknown>);
     } catch (parseErr) {
       console.error('[Cache] Corrupt cache file — resetting to {}', parseErr);
       await fs.writeFile(CACHE_FILE, '{}');

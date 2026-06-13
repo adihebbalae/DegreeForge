@@ -116,8 +116,11 @@ export async function callLLM(
  * ModelOutputError carrying the raw text for server-side logging.
  */
 export function parseModelJson<T>(text: string, schema: z.ZodType<T>): T {
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  const candidate = jsonMatch ? jsonMatch[0] : text;
+  const first = text.indexOf('{');
+  const last = text.lastIndexOf('}');
+  const candidate = first !== -1 && last !== -1 && last > first
+    ? text.slice(first, last + 1)
+    : text;
 
   let parsed: unknown;
   try {
