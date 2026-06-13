@@ -194,13 +194,26 @@ export default function HomeMinimalist() {
               className="text-base font-bold text-foreground rounded-sm hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
               aria-label="DegreeForge home"
             >
-              DegreeForge
+              {/* Narrow (<sm): compact two-letter mark to save horizontal space. */}
+              <span className="sm:hidden" aria-hidden="true">DF</span>
+              {/* Wide (sm+): full wordmark. */}
+              <span className="hidden sm:inline">DegreeForge</span>
             </NavLink>
 
-            {/* Fastest/Easiest control. The full readout shows on wider screens;
-                the toggle itself stays usable at 375px. */}
-            <div className="flex-1 min-w-0 flex justify-center overflow-hidden">
-              <PlanOptimizeControl />
+            {/* Fastest/Easiest toggle + readout.
+                At <sm (375px): readout is hidden; only the Fastest/Easiest pills
+                are shown — they fit in the remaining bar space with no overlap.
+                At sm+ (640px+): the full readout (difficulty · GPA · grad term)
+                is visible, matching the original desktop design. */}
+            <div className="flex-1 min-w-0 flex justify-center">
+              {/* Mobile: pills only — no readout */}
+              <div className="sm:hidden">
+                <PlanOptimizeControl hideReadout />
+              </div>
+              {/* Desktop: full control with readout */}
+              <div className="hidden sm:flex overflow-hidden">
+                <PlanOptimizeControl />
+              </div>
             </div>
 
             <MinimalistMenu

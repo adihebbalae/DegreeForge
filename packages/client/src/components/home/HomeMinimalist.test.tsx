@@ -113,7 +113,9 @@ vi.mock('@/components/WhatIfPanel', () => ({ default: () => <div /> }));
 vi.mock('@/components/CoursePalette', () => ({ default: () => <div /> }));
 vi.mock('@/components/PlanComparison', () => ({ PlanComparisonPanel: () => null }));
 vi.mock('@/components/PlanOptimizeControl', () => ({
-  default: () => <div data-testid="optimize-control" />,
+  default: ({ hideReadout }: { hideReadout?: boolean }) => (
+    <div data-testid="optimize-control" data-hide-readout={hideReadout ? 'true' : 'false'} />
+  ),
 }));
 
 import HomeMinimalist from './HomeMinimalist';
@@ -135,8 +137,19 @@ describe('HomeMinimalist', () => {
     renderShell();
     expect(screen.getByTestId('minimalist-topbar')).toBeDefined();
     expect(screen.getByLabelText('DegreeForge home')).toBeDefined();
-    expect(screen.getByTestId('optimize-control')).toBeDefined();
+    // Two instances: one compact (mobile, hideReadout=true) + one full (desktop).
+    const controls = screen.getAllByTestId('optimize-control');
+    expect(controls).toHaveLength(2);
     expect(screen.getByTestId('minimalist-menu-trigger')).toBeDefined();
+  });
+
+  it('renders compact (hideReadout) control for mobile and full control for desktop', () => {
+    renderShell();
+    const controls = screen.getAllByTestId('optimize-control');
+    const compact = controls.find((el) => el.getAttribute('data-hide-readout') === 'true');
+    const full = controls.find((el) => el.getAttribute('data-hide-readout') === 'false');
+    expect(compact).toBeDefined();
+    expect(full).toBeDefined();
   });
 
   it('renders the plan as semester cards in the mobile list', () => {

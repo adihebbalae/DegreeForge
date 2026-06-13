@@ -24,7 +24,13 @@ function semesterLabel(semesterId: string | null, labels: Map<string, string>): 
   return labels.get(semesterId) ?? semesterId;
 }
 
-export default function PlanOptimizeControl() {
+interface PlanOptimizeControlProps {
+  /** When true, hides the GPA/difficulty/grad-term readout text.
+   *  Use in narrow viewports where there is no room for the readout. */
+  hideReadout?: boolean;
+}
+
+export default function PlanOptimizeControl({ hideReadout = false }: PlanOptimizeControlProps) {
   const { optimizeMode, setOptimizeMode } = useUi();
   const semesters = useSemesters();
   const summaries = usePlanOptimizeSummary();
@@ -62,7 +68,7 @@ export default function PlanOptimizeControl() {
         <Pill mode="easiest">Easiest</Pill>
       </div>
 
-      {summary && (
+      {summary && !hideReadout && (
         <div
           className="flex items-center gap-2 text-xs text-muted-foreground"
           data-testid="plan-optimize-readout"
