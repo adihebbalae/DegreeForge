@@ -12,6 +12,7 @@ import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 import { usePlanDispatch, useTechCoreId, useMathBAToggle, useSemesters, usePlan, usePinnedCourses } from '@/context/PlanContext';
 import { generateAutoPlan } from '@/lib/auto-planner';
 import { sanitizePlan } from '@/lib/sanitize-course-list';
+import { track } from '@/lib/analytics';
 import { useUi } from '@/context/UiContext';
 import type { NoticeProps } from '@/components/ui/notice';
 import type { ConfirmDialogProps } from '@/components/ui/confirm-dialog';
@@ -56,6 +57,8 @@ export function useRecommendPlan(): RecommendPlanResult {
   }, [semesters, plan, pinnedCourses]);
 
   const runPlan = () => {
+    track('plan_recommended', { mode: optimizeMode });
+
     const techCore = techCores?.[techCoreId];
     if (!techCore) {
       setNoticeProps({

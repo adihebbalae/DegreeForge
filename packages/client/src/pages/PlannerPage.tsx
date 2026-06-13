@@ -30,6 +30,7 @@ import {
 } from '@/context/DataContext';
 import { usePlanDispatch, usePlan } from '@/context/PlanContext';
 import { useUi } from '@/context/UiContext';
+import { track } from '@/lib/analytics';
 import type { PrereqNode } from '@/types';
 
 // ─── Active card shape ────────────────────────────────────────────────────────
@@ -174,6 +175,7 @@ export default function PlannerPage() {
       const allPlaced = Object.values(plan).flat();
       if (allPlaced.includes(courseId)) return;
       dispatch({ type: 'ADD_COURSE', semesterId: toSemester, courseId });
+      track('course_added', { via: 'drag' });
       // Auto-open the focus editor for the target semester when adding from palette
       setFocusedSemesterId(toSemester);
       return;

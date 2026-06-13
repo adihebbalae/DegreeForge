@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { AlertTriangle, CheckCircle2, Wand2, Loader2 } from 'lucide-react';
 import { useValidation } from '@/hooks/useValidation';
+import { track } from '@/lib/analytics';
 import { usePlanContext, useSemesters, usePlan } from '@/context/PlanContext';
 import { runSolver } from '@/lib/run-solver';
 import { useDegreeRequirements, useTechCoresRecord, useMathRequirements, useUserProfile, useOfferingSchedule, useCatalogRecord } from '@/context/DataContext';
@@ -40,6 +41,19 @@ export default function ValidationBanner() {
   }, [semesters, plan]);
 
   const firstViolationId = hardViolations.length > 0 ? hardViolations[0].courseId : null;
+
+  // Fire once per transition into a ≥1-hard-violation state (edge-triggered, not
+  // on every re-render) so the event reflects when the banner first surfaces a
+  // hard violation rather than every render while it stays shown.
+  const hadHardViolations = useRef(false);
+  useEffect(() => {
+    if (hardViolations.length > 0 && !hadHardViolations.current) {
+      hadHardViolations.current = true;
+      track('prereq_violations_shown', { count: hardViolations.length });
+    } else if (hardViolations.length === 0) {
+      hadHardViolations.current = false;
+    }
+  }, [hardViolations.length]);
 
   const handleAutoFillConfirmed = () => {
     if (!degreeReqs || !techCores || !profile) return;

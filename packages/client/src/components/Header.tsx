@@ -12,6 +12,7 @@ import { parsePlanState } from '@/lib/plan-schema'
 import { parseProfileState } from '@/lib/profile-schema'
 import { sanitizePlan } from '@/lib/sanitize-course-list'
 import { safeGetRaw, safeSetItem } from '@/lib/persist'
+import { track } from '@/lib/analytics'
 import { useOwnedProfile, useProfileDispatch } from '@/context/ProfileContext'
 import type { UserProfile } from '@/types'
 import SemesterTransitionDialog from './SemesterTransitionDialog'
@@ -79,6 +80,8 @@ export default function Header() {
     linkElement.setAttribute('href', dataUri)
     linkElement.setAttribute('download', exportFileDefaultName)
     linkElement.click()
+
+    track('plan_exported')
   }
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,8 +147,14 @@ export default function Header() {
   return (
     <>
       <header className="h-14 border-b border-border flex items-center px-4 gap-2 bg-background">
-        {/* Logo / wordmark */}
-        <span className="text-lg font-bold text-foreground select-none mr-2">DegreeForge</span>
+        {/* Logo / wordmark — navigates home (planner) from any route */}
+        <NavLink
+          to="/"
+          className="text-lg font-bold text-foreground mr-2 rounded-sm hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="DegreeForge home"
+        >
+          DegreeForge
+        </NavLink>
 
         {/* Nav links (centered) */}
         <nav className="flex gap-1 flex-1 justify-center">

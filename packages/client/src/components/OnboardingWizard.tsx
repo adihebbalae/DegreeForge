@@ -12,6 +12,7 @@ import { parseTranscript, type ParsedCourse } from '@/lib/agent-tools/parse-tran
 import { parseIdaAudit } from '@/lib/parse-ida';
 import { deriveTimelinePlanFromProfile } from '@/lib/derive-timeline';
 import { sanitizePlan, sanitizeCourseList, isValidCourseId } from '@/lib/sanitize-course-list';
+import { track } from '@/lib/analytics';
 import type { UserProfile } from '@/types';
 
 type ImportSource = 'transcript' | 'ida';
@@ -139,6 +140,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
     // Keep PlanState.major/catalogYear in sync for any consumers that read those fields.
     planDispatch({ type: 'SET_PROFILE_META', major, catalogYear });
+
+    track('onboarding_completed');
 
     onComplete();
   };

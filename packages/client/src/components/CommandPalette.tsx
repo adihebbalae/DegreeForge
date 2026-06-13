@@ -33,6 +33,7 @@ import {
 import { usePlan, useSemesters, usePlanDispatch } from '@/context/PlanContext';
 import { isPastSemester } from '@/lib/sanitize-course-list';
 import { useUi } from '@/context/UiContext';
+import { track } from '@/lib/analytics';
 import { getCourseTitle, inferCategory } from '@/lib/course-utils';
 import { isCourseSatisfied } from '@/lib/palette-courses';
 import type { CourseCategory } from '@/types';
@@ -198,6 +199,7 @@ export default function CommandPalette() {
         return;
       }
       dispatch({ type: 'ADD_COURSE', semesterId: targetSemesterId, courseId });
+      track('course_added', { via: 'palette' });
       setFocusedSemesterId(targetSemesterId);
       setCommandPaletteOpen(false);
     },
