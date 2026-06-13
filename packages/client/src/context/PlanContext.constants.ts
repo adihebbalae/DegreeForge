@@ -27,6 +27,7 @@ export type PlanAction =
   | { type: 'RESET_PLAN' }
   | { type: 'SET_FULL_STATE'; state: PlanState }
   | { type: 'ADVANCE_SEMESTER'; grades: Record<string, string> }
+  | { type: 'RETREAT_SEMESTER' }
   | { type: 'SET_GHOST_COURSES'; ghostCourses: Record<string, string[]> }
   | { type: 'ACCEPT_GHOST'; courseId: string; semesterId: string }
   | { type: 'DISMISS_GHOSTS' }
@@ -470,6 +471,36 @@ export function planReducer(state: PlanState, action: PlanAction): PlanState {
           ...state.gradeEntries,
           [currentSemId]: action.grades,
         },
+      };
+    }
+
+    case 'RETREAT_SEMESTER': {
+      // Inverse of ADVANCE_SEMESTER: shift the timeline back one term so the most
+      // recent past term becomes current again and the current term reverts to
+      // future. Mirrors ADVANCE's guards: bail if there's no current term, and
+      // bail if there's no past term to retreat into (already at the earliest).
+      const currentIdx = state.semesters.findIndex((s) => s.status === 'current');
+      if (currentIdx === -1) return state;
+      // The past term immediately before current is the last 'past' entry that
+      // precedes currentIdx (semesters are stored in chronological order).
+      let prevPastIdx = -1;
+      for (let i = currentIdx - 1; i >= 0; i--) {
+        if (state.semesters[i].status === 'past') {
+          prevPastIdx = i;
+          break;
+        }
+      }
+      if (prevPastIdx === -1) return state;
+
+      const newSemesters = state.semesters.map((sem, idx) => {
+        if (idx === currentIdx) return { ...sem, status: 'future' as const };
+        if (idx === prevPastIdx) return { ...sem, status: 'current' as const };
+        return sem;
+      });
+
+      return {
+        ...state,
+        semesters: newSemesters,
       };
     }
 

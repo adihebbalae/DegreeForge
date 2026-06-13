@@ -23,3 +23,18 @@ export function track(event: string, props?: Record<string, unknown>): void {
   if (!initialized) return
   posthog.capture(event, props)
 }
+
+/**
+ * Read a PostHog feature flag value. Returns `undefined` when PostHog was never
+ * initialized (local dev / no key) or the flag isn't set, so call sites can treat
+ * "PostHog absent" and "flag unset" identically and fall through to their default.
+ * Never throws.
+ */
+export function getFeatureFlag(key: string): string | boolean | undefined {
+  if (!initialized) return undefined
+  try {
+    return posthog.getFeatureFlag(key)
+  } catch {
+    return undefined
+  }
+}

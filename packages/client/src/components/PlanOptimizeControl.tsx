@@ -64,7 +64,7 @@ export default function PlanOptimizeControl() {
 
       {summary && (
         <div
-          className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground"
+          className="flex items-center gap-2 text-xs text-muted-foreground"
           data-testid="plan-optimize-readout"
         >
           <span className="flex items-center gap-1" title="Hardest term's difficulty (0–100, peak per-semester Stress Score). Easiest lowers it by spreading hard courses.">

@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import Header from './Header'
+import HomeRoute from './HomeRoute'
 import PlannerPage from '../pages/PlannerPage'
 import SchedulerPage from '../pages/SchedulerPage'
 import SettingsPage from '../pages/SettingsPage'
@@ -10,9 +11,10 @@ export default function Layout() {
   return (
     <div className="h-[100dvh] overflow-hidden bg-background text-foreground flex flex-col">
       <Header />
-      <main className="flex-1 min-h-0 overflow-hidden" style={{ height: 'calc(100dvh - 56px)' }}>
+      <main className="flex-1 min-h-0 overflow-hidden">
         <Routes>
-          <Route path="/" element={<PlannerPage />} />
+          <Route path="/" element={<HomeRoute />} />
+          <Route path="/plan" element={<PlannerPage />} />
           <Route path="/schedule" element={
             <RecoverableErrorBoundary label="scheduler page">
               <SchedulerPage />

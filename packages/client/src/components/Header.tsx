@@ -1,7 +1,28 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { Moon, Sun, Download, Upload, RotateCcw, Undo2, Redo2, MessageSquare, Zap, Wand2 } from 'lucide-react'
+import {
+  Moon,
+  Sun,
+  Download,
+  Upload,
+  RotateCcw,
+  Undo2,
+  Redo2,
+  MessageSquare,
+  Zap,
+  Wand2,
+  MoreHorizontal,
+  ChevronRight,
+  ChevronLeft,
+} from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Notice } from '@/components/ui/notice'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { cn } from '@/lib/utils'
@@ -16,7 +37,7 @@ import { track } from '@/lib/analytics'
 import { useOwnedProfile, useProfileDispatch } from '@/context/ProfileContext'
 import type { UserProfile } from '@/types'
 import SemesterTransitionDialog from './SemesterTransitionDialog'
-import PlanOptimizeControl from './PlanOptimizeControl'
+import OptimizeStrip from './OptimizeStrip'
 
 // ─── Export bundle versioning ─────────────────────────────────────────────────
 // v1: plan-only (legacy, no version field)
@@ -41,7 +62,9 @@ export default function Header() {
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
 
   const location = useLocation()
-  const isPlannerRoute = location.pathname === '/'
+  // Both the home route ("/") and the explicit "/plan" route render the planner,
+  // so planner-only actions (optimize strip, what-if, chat, recommend) apply to both.
+  const isPlannerRoute = location.pathname === '/' || location.pathname === '/plan'
   const { chatOpen, setChatOpen, whatIfOpen, setWhatIfOpen } = useUi()
   const { handleRecommendPlan, noticeProps, confirmProps } = useRecommendPlan()
 
@@ -67,6 +90,17 @@ export default function Header() {
       .filter(s => s.status !== 'past')
       .reduce((sum, s) => sum + (state.plan[s.id]?.length ?? 0), 0)
   }, [state.semesters, state.plan])
+
+  // Reverse Semester is the inverse of Advance: it can only run when there's a
+  // current term with a past term immediately before it to retreat into.
+  const canReverse = useMemo(() => {
+    const currentIdx = state.semesters.findIndex(s => s.status === 'current')
+    if (currentIdx === -1) return false
+    for (let i = currentIdx - 1; i >= 0; i--) {
+      if (state.semesters[i].status === 'past') return true
+    }
+    return false
+  }, [state.semesters])
 
   const handleExport = () => {
     // v2 bundle: wraps plan + profile together with a version discriminant.
@@ -205,12 +239,11 @@ export default function Header() {
           </NavLink>
         </nav>
 
-        {/* Actions */}
+        {/* Actions: high-frequency planner actions stay in the header; everything
+            else moves into the ⋯ More menu so the header can't overflow/clip. */}
         <div className="flex items-center gap-1">
           {isPlannerRoute && (
             <>
-              <PlanOptimizeControl />
-              <div className="w-[1px] h-4 bg-border mx-1" />
               <Button
                 variant="ghost"
                 size="icon"
@@ -240,46 +273,74 @@ export default function Header() {
               <div className="w-[1px] h-4 bg-border mx-1" />
             </>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => dispatch({ type: 'UNDO' })}
-            disabled={!canUndo}
-            title="Undo"
-            aria-label="Undo"
-          >
-            <Undo2 className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => dispatch({ type: 'REDO' })}
-            disabled={!canRedo}
-            title="Redo"
-            aria-label="Redo"
-          >
-            <Redo2 className="h-4 w-4" />
-          </Button>
-          <div className="w-[1px] h-4 bg-border mx-1" />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleExport}
-            title="Export Plan (JSON)"
-            aria-label="Export Plan"
-          >
-            <Download className="h-4 w-4" />
-          </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => fileInputRef.current?.click()}
-            title="Import Plan (JSON)"
-            aria-label="Import Plan"
-          >
-            <Upload className="h-4 w-4" />
-          </Button>
+          {/* ⋯ More overflow menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" title="More actions" aria-label="More actions">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuItem
+                onSelect={() => dispatch({ type: 'UNDO' })}
+                disabled={!canUndo}
+              >
+                <Undo2 className="h-4 w-4" />
+                Undo
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => dispatch({ type: 'REDO' })}
+                disabled={!canRedo}
+              >
+                <Redo2 className="h-4 w-4" />
+                Redo
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem onSelect={handleExport}>
+                <Download className="h-4 w-4" />
+                Export Plan
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => fileInputRef.current?.click()}>
+                <Upload className="h-4 w-4" />
+                Import Plan
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem onSelect={() => setTransitionOpen(true)}>
+                <ChevronRight className="h-4 w-4" />
+                Advance Semester
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => dispatch({ type: 'RETREAT_SEMESTER' })}
+                disabled={!canReverse}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Reverse Semester
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem onSelect={() => setDark((d) => !d)}>
+                {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {dark ? 'Light mode' : 'Dark mode'}
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onSelect={handleReset}
+                className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Reset Plan
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <input
             type="file"
             ref={fileInputRef}
@@ -287,42 +348,14 @@ export default function Header() {
             accept=".json"
             onChange={handleImport}
           />
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleReset}
-            title="Reset Plan"
-            aria-label="Reset Plan"
-            className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
-          >
-            <RotateCcw className="h-4 w-4" />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-xs font-medium mr-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/30 dark:hover:bg-blue-900/50"
-            onClick={() => setTransitionOpen(true)}
-          >
-            Advance Semester ▶
-          </Button>
-
-          <div className="w-px h-6 bg-border mx-1" />
-
-          {/* Dark mode toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setDark((d) => !d)}
-            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
         </div>
 
         <SemesterTransitionDialog open={transitionOpen} onOpenChange={setTransitionOpen} />
       </header>
+
+      {/* Slim strip: Fastest/Easiest toggle + difficulty/GPA/grad-term readout.
+          Always visible (no longer hidden under 1024px) and can't clip the header. */}
+      {isPlannerRoute && <OptimizeStrip />}
 
       {importError && (
         <div className="px-4 py-2 border-b">
