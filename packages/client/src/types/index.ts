@@ -383,7 +383,7 @@ export interface MathRequirements {
 // ─── Fall 2026 Sections ──────────────────────────────────────────────────────
 export interface SectionMeeting {
   days?: string;
-  time: string;
+  time?: string;
   room?: string;
 }
 

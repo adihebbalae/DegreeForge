@@ -125,6 +125,19 @@ describe('parseInterval', () => {
   it('returns null for invalid interval', () => {
     expect(parseInterval('TBA')).toBeNull();
   });
+
+  // TASK-072: guard for undefined/null/empty — real data has meetings with days but no time
+  it('returns null for undefined (TBA/no-time meeting shape)', () => {
+    expect(parseInterval(undefined)).toBeNull();
+  });
+
+  it('returns null for null', () => {
+    expect(parseInterval(null)).toBeNull();
+  });
+
+  it('returns null for empty string', () => {
+    expect(parseInterval('')).toBeNull();
+  });
 });
 
 // ─── extractBuilding ──────────────────────────────────────────────────────────

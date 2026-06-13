@@ -177,3 +177,135 @@ describe('SEARCH_NODE_BUDGET constant', () => {
     expect(SEARCH_NODE_BUDGET).toBeLessThanOrEqual(500_000);
   });
 });
+
+// ─── TASK-072: no-time meeting crash guard ────────────────────────────────────
+//
+// Real fall-2026.json data has meetings with `days` set but `time` undefined
+// (e.g. ECE 333T unique 18725 "MWF"/no-time, M 325K unique 58905 "TTh"/no-time).
+// Before the fix, these reached parseInterval(undefined) → crash.
+// After the fix they must be treated as non-conflicting on the time axis.
+
+describe('generateSchedules — no-time meeting crash guard (TASK-072)', () => {
+  it('does NOT throw when a meeting has days but no time (ECE 333T / M 325K shape)', () => {
+    const courses: CourseSections[] = [
+      {
+        course: 'ECE 333T',
+        title: 'Writing for Engineers',
+        sections: [
+          {
+            unique: 18725,
+            // TBA-time meeting: days present, time undefined (exact production shape)
+            meetings: [{ days: 'MWF' }],
+            instruction_mode: 'Face-to-face',
+            instructor: 'Staff',
+            status: 'open',
+            core: '',
+          },
+        ],
+      },
+    ];
+
+    // Must not throw; must return a result with the section included
+    let result: ReturnType<typeof generateSchedules> | undefined;
+    expect(() => {
+      result = generateSchedules(courses, {});
+    }).not.toThrow();
+
+    expect(result).toBeDefined();
+    expect(result!.candidates.length).toBeGreaterThan(0);
+  });
+
+  it('does NOT throw for a plan mixing no-time and timed sections', () => {
+    const courses: CourseSections[] = [
+      {
+        course: 'ECE 333T',
+        title: 'Writing for Engineers',
+        sections: [
+          {
+            unique: 18725,
+            meetings: [{ days: 'MWF' }], // no time
+            instruction_mode: 'Face-to-face',
+            instructor: 'Staff',
+            status: 'open',
+            core: '',
+          },
+        ],
+      },
+      {
+        course: 'ECE 302',
+        title: 'Probability',
+        sections: [
+          {
+            unique: 10001,
+            meetings: [{ days: 'MWF', time: '9:00 a.m.-9:50 a.m.' }],
+            instruction_mode: 'Face-to-face',
+            instructor: 'Prof A',
+            status: 'open',
+            core: '',
+          },
+        ],
+      },
+    ];
+
+    let result: ReturnType<typeof generateSchedules> | undefined;
+    expect(() => {
+      result = generateSchedules(courses, {});
+    }).not.toThrow();
+
+    expect(result).toBeDefined();
+    expect(result!.candidates.length).toBeGreaterThan(0);
+  });
+
+  it('still detects conflicts between two timed sections that genuinely overlap', () => {
+    // Two sections with overlapping MWF 9-10 AM times: only one combination is valid
+    const courses: CourseSections[] = [
+      {
+        course: 'ECE 302',
+        title: 'Probability',
+        sections: [
+          {
+            unique: 10001,
+            meetings: [{ days: 'MWF', time: '9:00 a.m.-9:50 a.m.' }],
+            instruction_mode: 'Face-to-face',
+            instructor: 'Prof A',
+            status: 'open',
+            core: '',
+          },
+        ],
+      },
+      {
+        course: 'ECE 306',
+        title: 'Microcontrollers',
+        sections: [
+          {
+            // Overlapping with ECE 302 section above — should be detected as conflict
+            unique: 20001,
+            meetings: [{ days: 'MWF', time: '9:00 a.m.-9:50 a.m.' }],
+            instruction_mode: 'Face-to-face',
+            instructor: 'Prof B',
+            status: 'open',
+            core: '',
+          },
+          {
+            // Non-overlapping alternative — should NOT conflict
+            unique: 20002,
+            meetings: [{ days: 'TTh', time: '11:00 a.m.-12:30 p.m.' }],
+            instruction_mode: 'Face-to-face',
+            instructor: 'Prof C',
+            status: 'open',
+            core: '',
+          },
+        ],
+      },
+    ];
+
+    const { candidates } = generateSchedules(courses, {});
+
+    // Only 1 valid combination: ECE 302 (10001) + ECE 306 TTh (20002)
+    // The MWF+MWF 9AM combo must be pruned as conflicting
+    expect(candidates.length).toBe(1);
+    expect(candidates[0].sections.some(s => s.unique === 10001)).toBe(true);
+    expect(candidates[0].sections.some(s => s.unique === 20002)).toBe(true);
+    expect(candidates[0].sections.some(s => s.unique === 20001)).toBe(false);
+  });
+});

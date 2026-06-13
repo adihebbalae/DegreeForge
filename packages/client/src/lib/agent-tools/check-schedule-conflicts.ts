@@ -63,7 +63,7 @@ export function checkScheduleConflicts(ctx: ToolContext, args: Record<string, un
     if (!sectionData) continue;
     for (const section of sectionData.sections) {
       for (const meeting of section.meetings) {
-        if (!meeting.days || meeting.time === 'Arranged') continue;
+        if (!meeting.days || !meeting.time || meeting.time === 'Arranged') continue;
         const parsed = parseTimeRange(meeting.time);
         if (!parsed) continue;
         courseSections.push({

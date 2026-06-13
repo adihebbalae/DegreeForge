@@ -75,9 +75,10 @@ export function parseTimeToMinutes(timeStr: string): number {
 
 /**
  * Parses "9:00 a.m.-10:30 a.m." → [startMin, endMin].
- * Returns null if unparseable.
+ * Returns null if unparseable, undefined, or empty (e.g. TBA meetings).
  */
-export function parseInterval(intervalStr: string): [number, number] | null {
+export function parseInterval(intervalStr: string | undefined | null): [number, number] | null {
+  if (!intervalStr) return null;
   const dashIdx = intervalStr.lastIndexOf('-');
   if (dashIdx === -1) return null;
   const startStr = intervalStr.slice(0, dashIdx).trim();

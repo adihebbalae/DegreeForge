@@ -85,7 +85,9 @@ export default function WeeklyCalendar({ schedule }: WeeklyCalendarProps) {
               {days.map(d => (
                 <div key={d} className="flex-1 relative">
                   {schedule.sections.map((s, idx) => {
-                    const meetings = s.meetings.filter(m => m.days?.includes(d));
+                    const meetings = s.meetings.filter(
+                      (m): m is typeof m & { time: string } => !!(m.days?.includes(d) && m.time)
+                    );
                     return meetings.map((m, midx) => (
                       <div
                         key={`${s.unique}-${midx}`}

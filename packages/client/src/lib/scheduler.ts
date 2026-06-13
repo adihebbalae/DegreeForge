@@ -38,6 +38,9 @@ function meetingsOverlap(m1: SectionMeeting, m2: SectionMeeting): boolean {
   const sharedDay = days1.some(d => days2.includes(d));
   if (!sharedDay) return false;
 
+  // A meeting with no time (TBA) has no fixed interval — cannot conflict on time axis
+  if (!m1.time || !m2.time) return false;
+
   const i1 = parseInterval(m1.time);
   const i2 = parseInterval(m2.time);
   if (!i1 || !i2) return false;
