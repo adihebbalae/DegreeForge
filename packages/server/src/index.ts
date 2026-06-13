@@ -4,8 +4,9 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
+import { z } from 'zod';
 import { getCachedResponse, setCachedResponse } from './cache';
-import { extractText } from './llm';
+import { callLLM, parseModelJson, ModelOutputError } from './llm';
 import { tokenCapMiddleware } from './middleware/tokenCap';
 import { requireAccessCode } from './middleware/accessCode';
 
@@ -65,6 +66,35 @@ const chatLimiter = rateLimit({
 // `ant auth login` OAuth profile (~/.config/anthropic/).  Passing undefined
 // explicitly would override that chain, so we omit the arg entirely.
 const anthropic = new Anthropic();
+
+// ─── Per-endpoint Zod schemas ──────────────────────────────────────────────────
+//
+// Request schemas validate the inbound body; output schemas validate the model's
+// JSON before it reaches the client. Both replace the previous ad-hoc `!profile ||
+// !gradeEntries` checks and unchecked JSON.parse results.
+
+const recommendRequestSchema = z.object({
+  profile: z.object({ preferences: z.unknown() }).passthrough(),
+  gradeEntries: z.unknown().refine((v) => v != null, 'gradeEntries is required'),
+  techCores: z.record(z.string(), z.object({ name: z.string() }).passthrough()),
+  customInput: z.string().optional(),
+});
+
+const recommendOutputSchema = z.object({
+  techCoreId: z.string(),
+  mathBA: z.boolean(),
+  reasoning: z.string(),
+});
+
+const questionnaireRequestSchema = z.object({
+  profile: z.unknown().refine((v) => v != null, 'profile is required'),
+  gradeEntries: z.unknown().refine((v) => v != null, 'gradeEntries is required'),
+  techCores: z.unknown().refine((v) => v != null, 'techCores is required'),
+});
+
+const questionnaireOutputSchema = z.object({
+  questions: z.array(z.string()),
+});
 
 // ─── /api/agent-turn ──────────────────────────────────────────────────────────
 //
@@ -197,12 +227,11 @@ app.post('/api/agent-turn', requireAccessCode, chatLimiter, tokenCapMiddleware, 
 });
 
 app.post('/api/recommend', requireAccessCode, chatLimiter, async (req, res) => {
-  const { profile, gradeEntries, techCores, customInput: rawCustomInput } = req.body;
-  const useAnthropic = !!process.env.ANTHROPIC_API_KEY;
-
-  if (!profile || !gradeEntries || !techCores) {
+  const parsedBody = recommendRequestSchema.safeParse(req.body);
+  if (!parsedBody.success) {
     return res.status(400).json({ error: 'Missing required profile data' });
   }
+  const { profile, gradeEntries, techCores, customInput: rawCustomInput } = parsedBody.data;
 
   // Cap customInput to 200 chars to limit prompt injection surface.
   // It is treated as a student preference note only — not a system instruction.
@@ -230,84 +259,39 @@ You MUST respond with ONLY a valid JSON object in this exact format, with no mar
     JSON.stringify(gradeEntries, null, 2),
     '',
     'Available Tech Cores:',
-    Object.keys(techCores).map((k: string) => `- ${k}: ${(techCores[k] as { name: string }).name}`).join('\n'),
+    Object.keys(techCores).map((k) => `- ${k}: ${techCores[k].name}`).join('\n'),
     customInput ? `\nStudent preference note: ${customInput}` : '',
   ].join('\n');
 
-  const prompt = systemPrompt + '\n\n' + userContent;
-
-  const cached = await getCachedResponse(prompt);
+  // Cache key stays prompt-equivalent to the prior implementation
+  // (systemPrompt + '\n\n' + userContent) so existing cache entries still hit.
+  const cacheKey = systemPrompt + '\n\n' + userContent;
+  const cached = await getCachedResponse(cacheKey);
   if (cached) return res.json(cached);
 
   try {
-    if (useAnthropic) {
-      const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 500,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userContent }],
-      });
-
-      const text = extractText(response);
-      try {
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text);
-        await setCachedResponse(prompt, parsed, 'json');
-        return res.json(parsed);
-      } catch (e) {
-        throw new Error('Failed to parse Anthropic JSON output');
-      }
-    } else {
-      const ollamaUrl = (process.env.OLLAMA_URL || 'http://127.0.0.1:11434').trim();
-      const model = (process.env.OLLAMA_MODEL || 'llama3').trim();
-
-      const response = await fetch(`${ollamaUrl}/api/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model,
-          prompt,
-          stream: false,
-          format: 'json',
-          system: "You are an academic advisor. Output strictly raw JSON only."
-        }),
-      });
-
-      if (!response.ok) {
-        let errMsg = response.statusText;
-        try {
-          const errData: any = await response.json();
-          if (errData.error) errMsg = errData.error;
-        } catch (e) {}
-        throw new Error(`Ollama API error: ${errMsg}`);
-      }
-
-      const data: any = await response.json();
-      const text = data.response;
-      try {
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text);
-        await setCachedResponse(prompt, parsed, 'json');
-        return res.json(parsed);
-      } catch (e) {
-        throw new Error('Failed to parse Ollama JSON output');
-      }
-    }
-  } catch (error: any) {
-    console.error('Recommend API Error:', error?.message || error);
+    const text = await callLLM(anthropic, systemPrompt, userContent, { maxTokens: 500 });
+    const parsed = parseModelJson(text, recommendOutputSchema);
+    await setCachedResponse(cacheKey, parsed, 'json');
+    return res.json(parsed);
+  } catch (error: unknown) {
+    const detail = error instanceof Error ? error.message : String(error);
+    console.error('Recommend API Error:', detail);
+    if (error instanceof ModelOutputError) console.error('Recommend raw output:', error.rawText);
     res.status(500).json({ error: 'Failed to generate recommendation' });
   }
 });
 
 app.post('/api/generate-questionnaire', requireAccessCode, chatLimiter, async (req, res) => {
-  const { profile, gradeEntries, techCores } = req.body;
-  const useAnthropic = !!process.env.ANTHROPIC_API_KEY;
-
-  if (!profile || !gradeEntries || !techCores) {
+  const parsedBody = questionnaireRequestSchema.safeParse(req.body);
+  if (!parsedBody.success) {
     return res.status(400).json({ error: 'Missing required profile data' });
   }
+  const { gradeEntries } = parsedBody.data;
 
-  const prompt = `You are an expert academic advisor.
+  const systemPrompt = 'You are an academic advisor. Output raw JSON only. Do not wrap in ```json or any markdown.';
+
+  const userContent = `You are an expert academic advisor.
 Analyze this student's grades and current profile.
 Grades: ${JSON.stringify(gradeEntries)}
 
@@ -323,44 +307,21 @@ Respond with ONLY a valid JSON object in this exact format:
   ]
 }`;
 
-  const cached = await getCachedResponse(prompt);
+  // Cache key stays the analytic prompt (verbatim prior behavior) so existing
+  // cache entries keep hitting.
+  const cacheKey = userContent;
+  const cached = await getCachedResponse(cacheKey);
   if (cached) return res.json(cached);
 
   try {
-    if (useAnthropic) {
-      const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 300,
-        system: "You are an academic advisor. Output raw JSON only. Do not wrap in ```json or any markdown.",
-        messages: [{ role: 'user', content: prompt }],
-      });
-      const text = extractText(response);
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text);
-      await setCachedResponse(prompt, parsed, 'json');
-      return res.json(parsed);
-    } else {
-      const ollamaUrl = (process.env.OLLAMA_URL || 'http://127.0.0.1:11434').trim();
-      const model = (process.env.OLLAMA_MODEL || 'llama3').trim();
-      const response = await fetch(`${ollamaUrl}/api/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model,
-          prompt,
-          stream: false,
-          format: 'json',
-          system: "Output strictly raw JSON only."
-        }),
-      });
-      if (!response.ok) throw new Error(response.statusText);
-      const data: any = await response.json();
-      const parsed = JSON.parse(data.response);
-      await setCachedResponse(prompt, parsed, 'json');
-      return res.json(parsed);
-    }
-  } catch (error: any) {
-    console.error('Questionnaire API Error:', error?.message || error);
+    const text = await callLLM(anthropic, systemPrompt, userContent, { maxTokens: 300 });
+    const parsed = parseModelJson(text, questionnaireOutputSchema);
+    await setCachedResponse(cacheKey, parsed, 'json');
+    return res.json(parsed);
+  } catch (error: unknown) {
+    const detail = error instanceof Error ? error.message : String(error);
+    console.error('Questionnaire API Error:', detail);
+    if (error instanceof ModelOutputError) console.error('Questionnaire raw output:', error.rawText);
     res.status(500).json({ error: 'Failed to generate questionnaire questions' });
   }
 });
