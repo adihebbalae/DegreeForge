@@ -10,7 +10,7 @@
  * Currently ships an Ollama adapter and a Claude adapter.
  */
 
-import type { ToolContext, ToolDefinition } from './agent-tools/types';
+import type { ToolContext, ToolDefinition, ToolResult } from './agent-tools/types';
 
 // ─── Provider-agnostic types ──────────────────────────────────────────────────
 
@@ -307,8 +307,20 @@ export async function runAgentTurn(
       };
     }
 
-    const result = toolDef.fn(opts.toolContext, turn.toolCall.args);
     const toolCall = turn.toolCall;
+
+    // Run the tool defensively: a throwing tool must degrade into an error
+    // tool_result the model can recover from, not abort the whole chat turn.
+    let result: ToolResult;
+    try {
+      result = toolDef.fn(opts.toolContext, toolCall.args);
+    } catch (err: unknown) {
+      const detail = err instanceof Error ? err.message : String(err);
+      result = {
+        content: `The "${toolCall.name}" tool failed: ${detail}`,
+        isError: true,
+      };
+    }
 
     // Passthrough tools: return raw result so ChatPanel can render the UI widget.
     // Terminal — do not loop.
@@ -326,10 +338,14 @@ export async function runAgentTurn(
     toolCallsMade++;
 
     // Append the tool result to the conversation so the model has context on
-    // the next iteration.
+    // the next iteration. On error, serialize the full { content, isError }
+    // envelope so the model can see the failure and recover; on success keep the
+    // bare content shape (unchanged behavior).
     messages.push({
       role: 'tool_result',
-      content: JSON.stringify(result.content),
+      content: result.isError
+        ? JSON.stringify({ content: result.content, isError: true })
+        : JSON.stringify(result.content),
       tool_name: toolCall.name,
     });
 

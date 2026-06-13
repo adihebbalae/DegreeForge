@@ -43,7 +43,7 @@ import { computeWhatIfDiff } from '@/lib/what-if';
 import { runSolver } from '@/lib/run-solver';
 import { getCreditHourCap } from '@/lib/auto-planner';
 import { sanitizePlan } from '@/lib/sanitize-course-list';
-import { serverBaseUrl } from '@/lib/agent-loop';
+import { postAiJson } from '@/lib/ai-api';
 import { TechCoreTrack } from '@/types';
 import { useDegreeRequirements, useOfferingSchedule } from '@/context/DataContext';
 import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
@@ -192,26 +192,11 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
     const finalInput = typeof overrideInput === 'string' ? overrideInput : customInput;
     
     try {
-      const response = await fetch(`${serverBaseUrl()}/api/recommend`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-code': settings.accessCode,
-        },
-        body: JSON.stringify({
-          profile,
-          gradeEntries,
-          techCores,
-          customInput: finalInput,
-        }),
-      });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error || response.statusText);
-      }
-
-      const data = await response.json();
+      const data = await postAiJson<{ techCoreId: string; mathBA: boolean; reasoning: string }>(
+        '/api/recommend',
+        { profile, gradeEntries, techCores, customInput: finalInput },
+        settings.accessCode
+      );
 
       if (autoAccept) {
         // Questionnaire flow: skip the confirmation dialog and apply immediately.
