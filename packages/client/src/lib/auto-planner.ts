@@ -28,7 +28,7 @@
  */
 
 import { PrereqGraph } from './graph-engine';
-import { generatePlan } from './solver';
+import { generatePlan, type OptimizeMode } from './solver';
 import { computeRemainingRequired, buildSatisfiedSet } from './requirements';
 import type {
   UserProfile,
@@ -66,6 +66,11 @@ export interface AutoPlannerInput {
    * the cap is in credit hours, not a course count.)
    */
   maxHoursPerSemesterOverride?: number;
+  /**
+   * Optimization objective (default 'fastest'). 'easiest' minimizes aggregate
+   * Stress Score / balances difficulty across terms (may defer graduation).
+   */
+  optimize?: OptimizeMode;
 }
 
 export interface AutoPlannerResult {
@@ -141,6 +146,7 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
     currentPlan,
     pinnedCourses = {},
     maxHoursPerSemesterOverride,
+    optimize = 'fastest',
   } = input;
 
   // ── 1. Build the variant-expanded satisfied set (completed + in-progress +
@@ -180,6 +186,7 @@ export function generateAutoPlan(input: AutoPlannerInput): AutoPlannerResult {
     semesters,
     existingPlan: currentPlan,
     degreeReqs,
+    optimize,
   });
 
   // ── 6. Map SolverOutput → AutoPlannerResult ───────────────────────────────

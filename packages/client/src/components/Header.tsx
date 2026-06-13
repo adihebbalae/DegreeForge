@@ -15,6 +15,7 @@ import { safeGetRaw, safeSetItem } from '@/lib/persist'
 import { useOwnedProfile, useProfileDispatch } from '@/context/ProfileContext'
 import type { UserProfile } from '@/types'
 import SemesterTransitionDialog from './SemesterTransitionDialog'
+import PlanOptimizeControl from './PlanOptimizeControl'
 
 // ─── Export bundle versioning ─────────────────────────────────────────────────
 // v1: plan-only (legacy, no version field)
@@ -199,6 +200,8 @@ export default function Header() {
         <div className="flex items-center gap-1">
           {isPlannerRoute && (
             <>
+              <PlanOptimizeControl />
+              <div className="w-[1px] h-4 bg-border mx-1" />
               <Button
                 variant="ghost"
                 size="icon"

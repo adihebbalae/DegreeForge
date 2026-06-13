@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import type { OptimizeMode } from '@/lib/solver';
 
 interface UiContextValue {
   chatOpen: boolean;
@@ -11,6 +12,9 @@ interface UiContextValue {
   setCommandPaletteOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
   focusedSemesterId: string | null;
   setFocusedSemesterId: (id: string | null) => void;
+  /** Planner optimization objective for "Recommend Plan" ('fastest' default). */
+  optimizeMode: OptimizeMode;
+  setOptimizeMode: (v: OptimizeMode | ((prev: OptimizeMode) => OptimizeMode)) => void;
 }
 
 const UiContext = createContext<UiContextValue | null>(null);
@@ -21,6 +25,7 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [focusedSemesterId, setFocusedSemesterId] = useState<string | null>(null);
+  const [optimizeMode, setOptimizeMode] = useState<OptimizeMode>('fastest');
 
   return (
     <UiContext.Provider value={{
@@ -29,6 +34,7 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
       paletteOpen, setPaletteOpen,
       commandPaletteOpen, setCommandPaletteOpen,
       focusedSemesterId, setFocusedSemesterId,
+      optimizeMode, setOptimizeMode,
     }}>
       {children}
     </UiContext.Provider>
