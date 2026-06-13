@@ -23,6 +23,12 @@ vi.mock('@/lib/parse-ida', () => ({
   parseIdaAudit: vi.fn().mockReturnValue([]),
 }));
 
+// Spy on the analytics wrapper so we can assert the onboarding_completed event
+const mockTrack = vi.fn();
+vi.mock('@/lib/analytics', () => ({
+  track: (...args: unknown[]) => mockTrack(...args),
+}));
+
 // Mock derive-timeline so we can assert what profile it was called with
 vi.mock('@/lib/derive-timeline', () => ({
   deriveTimelinePlanFromProfile: vi.fn().mockReturnValue({}),
@@ -169,6 +175,22 @@ describe('OnboardingWizard', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Start Planning' }));
     expect(handleComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it('fires the onboarding_completed event on finish', () => {
+    mockTrack.mockClear();
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+
+    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 6->7
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start Planning' }));
+
+    expect(mockTrack).toHaveBeenCalledWith('onboarding_completed');
   });
 
   it('dispatches SET_PROFILE_META with default major and catalogYear on commit', () => {

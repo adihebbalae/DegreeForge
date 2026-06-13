@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, useNavigate } from 'react-router-dom'
 import App from './App.tsx'
 import { DataProvider } from './context/DataContext.tsx'
 import { ProfileProvider, PROFILE_STORAGE_KEY } from './context/ProfileContext.tsx'
@@ -26,6 +26,9 @@ const ONBOARDED_KEY = 'degreeforge:onboarded'
 const IS_FIRST_RUN = safeGetRaw(PROFILE_STORAGE_KEY) === null
 
 function OnboardingGate({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate()
+  // Entry gate: an un-onboarded visitor always starts in onboarding on app entry
+  // (including a hard refresh on any URL), because this is evaluated above routing.
   const [isOnboarded, setIsOnboarded] = React.useState(
     () => safeGetRaw(ONBOARDED_KEY) === 'true'
   )
@@ -36,6 +39,9 @@ function OnboardingGate({ children }: { children: React.ReactNode }) {
         onComplete={() => {
           safeSetItem(ONBOARDED_KEY, 'true')
           setIsOnboarded(true)
+          // Land on home (planner) after finishing — don't leave the user on the
+          // URL they happened to refresh onto (e.g. /settings).
+          navigate('/', { replace: true })
         }}
       />
     )

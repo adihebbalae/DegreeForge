@@ -9,8 +9,9 @@
  */
 
 import { useMemo, useCallback } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useUi } from '@/context/UiContext';
 import {
   useSemesters,
   usePlan,
@@ -45,6 +46,7 @@ interface FocusEditorProps {
 
 export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorProps) {
   const semesters = useSemesters();
+  const { setFocusedSemesterId } = useUi();
   const plan = usePlan();
   const userProfile = useUserProfile();
   const effectiveProfile = useEffectiveProfile();
@@ -122,6 +124,13 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
   const focusedIdx = semesters.findIndex((s) => s.id === focusedSemesterId);
   const focusedSem = semesters[focusedIdx];
 
+  // Adjacent semesters for the prev/next popup navigation. Null at the ends so
+  // the controls disable rather than wrap.
+  const prevSem = focusedIdx > 0 ? semesters[focusedIdx - 1] : null;
+  const nextSem = focusedIdx >= 0 && focusedIdx < semesters.length - 1
+    ? semesters[focusedIdx + 1]
+    : null;
+
   // Neighbor: next if possible, else previous
   const neighborSem = focusedIdx < semesters.length - 1
     ? semesters[focusedIdx + 1]
@@ -153,7 +162,33 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
             <span className="text-muted-foreground font-normal"> + {neighborSem.label}</span>
           )}
         </span>
-        <span className="text-xs text-muted-foreground ml-auto">Press Esc to close</span>
+        {/* Prev/next semester nav — move the popup to an adjacent semester
+            without closing it. */}
+        <div className="flex items-center gap-0.5 ml-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={() => prevSem && setFocusedSemesterId(prevSem.id)}
+            disabled={!prevSem}
+            title={prevSem ? `Previous: ${prevSem.label}` : 'No earlier semester'}
+            aria-label="Previous semester"
+          >
+            <ChevronLeft className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={() => nextSem && setFocusedSemesterId(nextSem.id)}
+            disabled={!nextSem}
+            title={nextSem ? `Next: ${nextSem.label}` : 'No later semester'}
+            aria-label="Next semester"
+          >
+            <ChevronRight className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+        <span className="text-xs text-muted-foreground">Press Esc to close</span>
       </div>
 
       {/* Semester columns */}
