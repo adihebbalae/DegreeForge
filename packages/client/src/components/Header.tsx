@@ -172,8 +172,17 @@ export default function Header() {
     event.target.value = ''
   }
 
+  // BUG 1 (TASK-080): opening a Radix Dialog from a DropdownMenuItem's onSelect
+  // races the menu's unmount cleanup, which can leave `body { pointer-events: none }`
+  // orphaned and freeze the page. Defer the open to the next frame so the menu has
+  // fully unmounted (and released its scroll-lock) before the dialog mounts. Callers
+  // must e.preventDefault() so Radix does not auto-close-then-reopen mid-frame.
+  const openDialogAfterMenuClose = (open: () => void) => {
+    requestAnimationFrame(open)
+  }
+
   const handleReset = () => {
-    setResetConfirmOpen(true)
+    openDialogAfterMenuClose(() => setResetConfirmOpen(true))
   }
 
   const nonPastSemCount = state.semesters.filter(s => s.status !== 'past').length
@@ -310,7 +319,12 @@ export default function Header() {
 
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem onSelect={() => setTransitionOpen(true)}>
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault()
+                  openDialogAfterMenuClose(() => setTransitionOpen(true))
+                }}
+              >
                 <ChevronRight className="h-4 w-4" />
                 Advance Semester
               </DropdownMenuItem>
@@ -332,7 +346,10 @@ export default function Header() {
               <DropdownMenuSeparator />
 
               <DropdownMenuItem
-                onSelect={handleReset}
+                onSelect={(e) => {
+                  e.preventDefault()
+                  handleReset()
+                }}
                 className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
               >
                 <RotateCcw className="h-4 w-4" />

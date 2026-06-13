@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useDroppable, useDndMonitor } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import { getCourseCredits } from '@/lib/course-utils';
+import { usePlanDispatch } from '@/context/PlanContext';
 import CourseCard from './CourseCard';
 import type { Semester, CourseCatalog, PrereqNode, PrereqViolation, GradeDistributions } from '@/types';
 // TASK-024: workload heat stripe
@@ -44,6 +45,7 @@ function SortableCourseCard({
   isPinned,
   onTogglePin,
 }: SortableCourseCardProps) {
+  const dispatch = usePlanDispatch();
   const {
     attributes,
     listeners,
@@ -60,6 +62,13 @@ function SortableCourseCard({
       semesterId,
     },
   });
+
+  // Explicit remove affordance (TASK-080 BUG 2) — same action the drag-to-palette
+  // path dispatches, so totals/validation update identically.
+  const handleRemove = useCallback(
+    (id: string) => dispatch({ type: 'REMOVE_COURSE', semesterId, courseId: id }),
+    [dispatch, semesterId],
+  );
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform) ?? undefined,
@@ -81,6 +90,7 @@ function SortableCourseCard({
         isUpstreamHighlight={isUpstreamHighlight}
         isPinned={isPinned}
         onTogglePin={onTogglePin}
+        onRemove={handleRemove}
       />
     </div>
   );

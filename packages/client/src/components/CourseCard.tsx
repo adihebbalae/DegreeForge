@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Pin, PinOff } from 'lucide-react';
+import { Pin, PinOff, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { inferCategory, CATEGORY_BORDER, getCourseCredits, getCourseTitle, gpaColorClass, buildTranscriptCredits } from '@/lib/course-utils';
 import type { CourseCatalog, CourseCategory, PrereqNode, PrereqViolation, GradeDistributions } from '@/types';
@@ -42,6 +42,11 @@ interface CourseCardProps {
   isPinned?: boolean;
   /** Called when the pin button is clicked */
   onTogglePin?: (courseId: string) => void;
+  /**
+   * Called when the remove (X) button is clicked — timeline cards only.
+   * When provided, an explicit remove affordance is shown on hover (TASK-080 BUG 2).
+   */
+  onRemove?: (courseId: string) => void;
   /** Ghost card: solver-proposed, not yet in real plan */
   isGhost?: boolean;
   /** Called when ghost is accepted (click) */
@@ -69,6 +74,7 @@ export default function CourseCard({
   isUpstreamHighlight = false,
   isPinned = false,
   onTogglePin,
+  onRemove,
   isGhost = false,
   onAcceptGhost,
   onRejectGhost,
@@ -274,21 +280,36 @@ export default function CourseCard({
         </span>
       )}
 
-      {/* Pin button — visible on hover or when pinned (timeline only, non-past) */}
-      {!isPalette && !isPast && onTogglePin && (
-        <button
-          onClick={(e) => { e.stopPropagation(); onTogglePin(courseId); }}
-          className={cn(
-            'absolute top-0.5 right-0.5 p-0.5 rounded transition-opacity',
-            isPinned
-              ? 'opacity-100 text-blue-500 dark:text-blue-400'
-              : 'opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-blue-500'
+      {/* Controls — Pin + Remove, visible on hover (timeline only, non-past).
+          Remove (X) gives an explicit, discoverable alternative to drag-to-palette. */}
+      {!isPalette && !isPast && (onTogglePin || onRemove) && (
+        <div className="absolute top-0.5 right-0.5 flex items-center gap-0.5">
+          {onTogglePin && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onTogglePin(courseId); }}
+              className={cn(
+                'p-0.5 rounded transition-opacity',
+                isPinned
+                  ? 'opacity-100 text-blue-500 dark:text-blue-400'
+                  : 'opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-blue-500'
+              )}
+              title={isPinned ? 'Unpin course' : 'Pin course (hold position in auto-plan)'}
+              aria-label={isPinned ? 'Unpin' : 'Pin'}
+            >
+              {isPinned ? <Pin className="h-3 w-3 fill-current" /> : <PinOff className="h-3 w-3" />}
+            </button>
           )}
-          title={isPinned ? 'Unpin course' : 'Pin course (hold position in auto-plan)'}
-          aria-label={isPinned ? 'Unpin' : 'Pin'}
-        >
-          {isPinned ? <Pin className="h-3 w-3 fill-current" /> : <PinOff className="h-3 w-3" />}
-        </button>
+          {onRemove && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onRemove(courseId); }}
+              className="p-0.5 rounded transition-opacity opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-red-500"
+              title="Remove course from plan"
+              aria-label={`Remove ${courseId}`}
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
       )}
 
       {/* Prereq warning / soft info icon — TASK-057 past-term fade */}
