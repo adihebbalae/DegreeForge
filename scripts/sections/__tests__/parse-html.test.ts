@@ -88,6 +88,56 @@ const TWO_COURSE_HTML = `
 </body></html>
 `;
 
+// Spaced two-token dept codes — the TASK-067 regression. A header like
+// "C S 314 DATA STRUCTURES" must parse to course id "C S 314", not silently
+// yield 0 courses (which happened when the regex captured dept="C" then failed
+// the number match on "S 314").
+const SPACED_DEPT_HTML = `
+<html><body>
+<table class="rwd-table results">
+  <thead><tr><th>Unique</th><th>Day</th><th>Hour</th><th>Room</th><th>Instruction Mode</th><th>Instructor</th><th>Status</th><th></th><th>Core</th></tr></thead>
+  <tbody>
+    <tr><td class="course_header" colspan="8"><h2>C S 314 DATA STRUCTURES</h2></td></tr>
+    <tr>
+      <td data-th="Unique"><a href="/apps/registrar/course_schedule/20269/50000/" title="Unique number">50000</a></td>
+      <td data-th="Days"> <span>MWF</span><br> </td>
+      <td data-th="Hour"> <span>10:00 a.m.-11:00 a.m.</span><br> </td>
+      <td data-th="Room"> <span>GDC 2.216</span><br> </td>
+      <td data-th="Instruction Mode">Face-to-face</td>
+      <td data-th="Instructor"> <span>Alison Norman</span><br> </td>
+      <td data-th="Status">open</td>
+      <td data-th="Add"></td>
+      <td data-th="Core"><div class="core_block"><ul class="core"><li class="" title=""></li></ul></div></td>
+    </tr>
+    <tr><td class="course_header" colspan="8"><h2>T D 301 INTRO TO THEATRE</h2></td></tr>
+    <tr>
+      <td data-th="Unique"><a href="/apps/registrar/course_schedule/20269/61000/" title="Unique number">61000</a></td>
+      <td data-th="Days"> <span>TTH</span><br> </td>
+      <td data-th="Hour"> <span>1:00 p.m.-2:30 p.m.</span><br> </td>
+      <td data-th="Room"> <span>WIN 1.134</span><br> </td>
+      <td data-th="Instruction Mode">Face-to-face</td>
+      <td data-th="Instructor"> <span>Jane Roe</span><br> </td>
+      <td data-th="Status">open</td>
+      <td data-th="Add"></td>
+      <td data-th="Core"><div class="core_block"><ul class="core"><li class="C2" title="">Visual and Performing Arts</li></ul></div></td>
+    </tr>
+    <tr><td class="course_header" colspan="8"><h2>F A 320K ART AND SOCIETY</h2></td></tr>
+    <tr>
+      <td data-th="Unique"><a href="/apps/registrar/course_schedule/20269/62000/" title="Unique number">62000</a></td>
+      <td data-th="Days"> <span>MW</span><br> </td>
+      <td data-th="Hour"> <span>3:00 p.m.-4:30 p.m.</span><br> </td>
+      <td data-th="Room"> <span>DFA 2.204</span><br> </td>
+      <td data-th="Instruction Mode">Face-to-face</td>
+      <td data-th="Instructor"> <span>John Doe</span><br> </td>
+      <td data-th="Status">open</td>
+      <td data-th="Add"></td>
+      <td data-th="Core"><div class="core_block"><ul class="core"><li class="" title=""></li></ul></div></td>
+    </tr>
+  </tbody>
+</table>
+</body></html>
+`;
+
 const LOGIN_REDIRECT_HTML = `
 <html><head><title>UT EID Login</title></head><body>Please log in...</body></html>
 `;
@@ -190,6 +240,42 @@ describe('parseRegistrarHtml', () => {
       </body></html>`;
     const out = parseRegistrarHtml(html, FALL_2026, 'fixture');
     expect(out.courses['ECE 302']).toBeDefined();
+  });
+
+  // ─── Spaced multi-token dept codes (TASK-067 regression) ──────────────────
+
+  it('parses spaced two-token dept codes (C S, T D, F A) — not 0 courses', () => {
+    const out = parseRegistrarHtml(SPACED_DEPT_HTML, FALL_2026, 'fixture');
+    // Before the fix this returned {} (regex captured dept="C", failed on "S 314").
+    expect(Object.keys(out.courses).sort()).toEqual(['C S 314', 'F A 320K', 'T D 301']);
+  });
+
+  it('parses C S 314 with correct id, title, and section', () => {
+    const out = parseRegistrarHtml(SPACED_DEPT_HTML, FALL_2026, 'fixture');
+    const cs = out.courses['C S 314'];
+    expect(cs).toBeDefined();
+    expect(cs.course).toBe('C S 314');
+    expect(cs.title).toBe('DATA STRUCTURES');
+    expect(cs.sections).toHaveLength(1);
+    expect(cs.sections[0].unique).toBe(50000);
+    expect(cs.sections[0].instructor).toBe('Alison Norman');
+  });
+
+  it('parses T D 301 with core credit preserved', () => {
+    const out = parseRegistrarHtml(SPACED_DEPT_HTML, FALL_2026, 'fixture');
+    const td = out.courses['T D 301'];
+    expect(td).toBeDefined();
+    expect(td.course).toBe('T D 301');
+    expect(td.title).toBe('INTRO TO THEATRE');
+    expect(td.sections[0].unique).toBe(61000);
+    expect(td.sections[0].core).toBe('Visual and Performing Arts');
+  });
+
+  it('does not confuse a spaced dept code with a single-token one', () => {
+    const out = parseRegistrarHtml(SPACED_DEPT_HTML, FALL_2026, 'fixture');
+    // F A 320K — the "K" suffix must stay on the number, dept stays "F A"
+    expect(out.courses['F A 320K']).toBeDefined();
+    expect(out.courses['F A 320K'].course).toBe('F A 320K');
   });
 
   // ─── Real fixture tests ───────────────────────────────────────────────────

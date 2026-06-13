@@ -11,6 +11,7 @@
     "test": "npm test --workspaces --if-present",
     "fetch:sections": "tsx scripts/sections/fetch-term.ts",
     "aggregate:offerings": "tsx scripts/sections/aggregate-offerings.ts",
+    "scrape:audit": "tsx scripts/sections/scrape-audit.ts",
     "privacy:paths": "node scripts/security/check-protected-paths.mjs --tracked",
     "privacy:secrets": "node scripts/security/check-secrets.mjs --tracked",
     "privacy:check": "npm run privacy:paths && npm run privacy:secrets",

@@ -11,8 +11,11 @@
  *   --from-legacy       Copy fall-2026-sections.json into the per-term layout
  *                       without doing any network or HTML work. Used once
  *                       during the TASK-027 migration.
- *   --department <id>   Department filter for the authenticated/public probe
- *                       (default: "E E" — UT's pre-normalization ECE code)
+ *   --department <id>   Department filter for the authenticated/public probe.
+ *                       Repeatable: pass it multiple times to fetch+merge
+ *                       several departments into one per-term file in a single
+ *                       invocation (default: "ECE"). Multi-token spaced codes
+ *                       like "C S", "T D", "F A" are supported — quote them.
  *   --level <code>      Division filter for the registrar URL (e.g. "L" for
  *                       lower-division, "U" for upper, "G" for graduate).
  *                       Default: omitted — UT returns ALL divisions when the
@@ -82,22 +85,28 @@ const INDEX_FILE = path.join(PUBLIC_DATA, 'sections-index.json');
 
 // ─── CLI argv parsing ────────────────────────────────────────────────────────
 
+/** Default department for the authenticated/public probe. UT renamed the
+ *  ECE fos_fl code from "E E" to "ECE" (2026); the old code is now dead. */
+export const DEFAULT_DEPARTMENT = 'ECE';
+
 interface CliArgs {
   termSlug: string | null;
   sources: string[];
   fromLegacy: boolean;
-  department: string;
+  /** One or more departments to fetch + merge in a single invocation.
+   *  Empty means "use DEFAULT_DEPARTMENT". */
+  departments: string[];
   level: string;
   dryRun: boolean;
   help: boolean;
 }
 
-function parseArgs(argv: string[]): CliArgs {
+export function parseArgs(argv: string[]): CliArgs {
   const out: CliArgs = {
     termSlug: null,
     sources: [],
     fromLegacy: false,
-    department: 'E E',
+    departments: [],
     level: '',
     dryRun: false,
     help: false,
@@ -109,14 +118,22 @@ function parseArgs(argv: string[]): CliArgs {
     else if (a === '--from-legacy') out.fromLegacy = true;
     else if (a === '--dry-run') out.dryRun = true;
     else if (a === '--source') out.sources.push(argv[++i] ?? '');
-    else if (a === '--department') out.department = argv[++i] ?? out.department;
-    else if (a === '--level') out.level = argv[++i] ?? '';
+    else if (a === '--department') {
+      const dept = argv[++i];
+      if (dept) out.departments.push(dept);
+    } else if (a === '--level') out.level = argv[++i] ?? '';
     else if (a.startsWith('--')) throw new Error(`Unknown flag: ${a}`);
     else if (!out.termSlug) out.termSlug = a;
     else throw new Error(`Unexpected positional argument: ${a} (term slug already set to "${out.termSlug}")`);
   }
 
   return out;
+}
+
+/** Resolve the departments to fetch — falls back to the single default when
+ *  no --department flag was passed. Exported for arg-parse tests. */
+export function resolveDepartments(args: CliArgs): string[] {
+  return args.departments.length > 0 ? args.departments : [DEFAULT_DEPARTMENT];
 }
 
 function printHelp(): void {
@@ -132,7 +149,9 @@ Term slug:
 Options:
   --source <path>     Locally-saved registrar HTML file (repeatable)
   --from-legacy       Use existing fall-2026-sections.json (migration helper)
-  --department <id>   Department filter for authenticated/public probe (default "E E")
+  --department <id>   Department for authenticated/public probe (default "ECE").
+                      Repeatable — fetches and merges multiple depts into one
+                      per-term file. Quote spaced codes: --department "C S"
   --level <code>      Division filter: omit for ALL divisions (default), or pass
                       "L" (lower), "U" (upper), "G" (graduate), etc.
   --dry-run           Print preview, write nothing
@@ -196,7 +215,7 @@ function loadFromHtmlFiles(sources: string[], term: ParsedTerm): FallSections {
   return merged;
 }
 
-function mergeCourses(
+export function mergeCourses(
   into: Record<string, CourseSections>,
   add: Record<string, CourseSections>
 ): void {
@@ -447,15 +466,58 @@ function summarize(data: FallSections): string {
   return `${courseCount} courses, ${sectionCount} sections`;
 }
 
-function writeOutput(term: ParsedTerm, data: FallSections): { outFile: string; indexFile: string } {
+/**
+ * Merge a freshly-fetched FallSections into whatever already lives in the
+ * existing per-term file. A multi-department scrape calls fetch-term once per
+ * department; without this merge the second department's write would clobber
+ * the first (the TASK-067 data-loss bug). Course-level dedup is by id, and
+ * section-level dedup is by unique number (via mergeCourses).
+ *
+ * `existing` is the parsed contents of <term>.json if present, else null.
+ * Returns the FallSections object that should be written to disk.
+ */
+export function mergeIntoExisting(existing: FallSections | null, fresh: FallSections): FallSections {
+  if (!existing || Object.keys(existing.courses).length === 0) {
+    return fresh;
+  }
+  const merged: FallSections = {
+    semester: fresh.semester,
+    semester_code: fresh.semester_code,
+    // Provenance: record that this file is an accumulation of multiple runs.
+    source: existing.source === fresh.source
+      ? fresh.source
+      : `${existing.source} + ${fresh.source}`,
+    courses: {},
+  };
+  mergeCourses(merged.courses, existing.courses);
+  mergeCourses(merged.courses, fresh.courses);
+  return merged;
+}
+
+function readExistingTerm(outFile: string): FallSections | null {
+  if (!fs.existsSync(outFile)) return null;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(outFile, 'utf-8')) as FallSections;
+    if (parsed && typeof parsed === 'object' && parsed.courses) return parsed;
+    return null;
+  } catch {
+    // Corrupt/partial file — treat as absent rather than crashing the run.
+    return null;
+  }
+}
+
+function writeOutput(term: ParsedTerm, data: FallSections): { outFile: string; indexFile: string; merged: FallSections } {
   const fileName = `${term.slug}.json`;
   const outFile = path.join(PUBLIC_DATA, fileName);
 
+  const existing = readExistingTerm(outFile);
+  const merged = mergeIntoExisting(existing, data);
+
   fs.mkdirSync(PUBLIC_DATA, { recursive: true });
-  fs.writeFileSync(outFile, JSON.stringify(data, null, 2), 'utf-8');
+  fs.writeFileSync(outFile, JSON.stringify(merged, null, 2), 'utf-8');
   upsertIndex(INDEX_FILE, term, fileName);
 
-  return { outFile, indexFile: INDEX_FILE };
+  return { outFile, indexFile: INDEX_FILE, merged };
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
@@ -486,15 +548,33 @@ async function main(): Promise<void> {
     console.log(`Mode: --source (parsing ${args.sources.length} HTML file(s))`);
     data = loadFromHtmlFiles(args.sources, term);
   } else {
+    const departments = resolveDepartments(args);
     const cookie = readSessionCookie();
-    if (cookie) {
-      console.log(`Mode: authenticated fetch (UT session cookie present, ${maskCookie(cookie)})`);
-      data = await fetchWithCookie(term, args.department, cookie, fetch, args.level);
-    } else {
-      console.log(`Mode: public-HTML probe (no session cookie — department="${args.department}")`);
-      console.log(`Tip: set UT_SESSION_COOKIE or write to scripts/sections/.ut-session for authenticated fetch.`);
-      data = await probePublicHtml(term, args.department, args.level);
+    // Accumulate every requested department into one in-memory FallSections,
+    // so a multi-department invocation fetches+merges before a single write.
+    const accumulated: FallSections = {
+      semester: term.label,
+      semester_code: term.code,
+      source: '',
+      courses: {},
+    };
+    const sources: string[] = [];
+    for (const department of departments) {
+      let deptData: FallSections;
+      if (cookie) {
+        console.log(`Mode: authenticated fetch (UT session cookie present, ${maskCookie(cookie)}) — department="${department}"`);
+        deptData = await fetchWithCookie(term, department, cookie, fetch, args.level);
+      } else {
+        console.log(`Mode: public-HTML probe (no session cookie — department="${department}")`);
+        console.log(`Tip: set UT_SESSION_COOKIE or write to scripts/sections/.ut-session for authenticated fetch.`);
+        deptData = await probePublicHtml(term, department, args.level);
+      }
+      console.log(`  ${department}: ${summarize(deptData)}`);
+      mergeCourses(accumulated.courses, deptData.courses);
+      sources.push(deptData.source);
     }
+    accumulated.source = sources.join(' + ');
+    data = accumulated;
   }
 
   console.log(`Parsed: ${summarize(data)}`);
