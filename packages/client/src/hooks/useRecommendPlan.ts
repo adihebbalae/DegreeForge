@@ -12,6 +12,7 @@ import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
 import { usePlanDispatch, useTechCoreId, useMathBAToggle, useSemesters, usePlan, usePinnedCourses } from '@/context/PlanContext';
 import { generateAutoPlan } from '@/lib/auto-planner';
 import { sanitizePlan } from '@/lib/sanitize-course-list';
+import { useUi } from '@/context/UiContext';
 import type { NoticeProps } from '@/components/ui/notice';
 import type { ConfirmDialogProps } from '@/components/ui/confirm-dialog';
 
@@ -36,6 +37,7 @@ export function useRecommendPlan(): RecommendPlanResult {
   const offeringSchedule = useOfferingSchedule();
   const dispatch = usePlanDispatch();
   const navigate = useNavigate();
+  const { optimizeMode } = useUi();
 
   const [noticeProps, setNoticeProps] = useState<NoticeProps | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -85,6 +87,7 @@ export function useRecommendPlan(): RecommendPlanResult {
       mathBAToggle,
       semesters,
       currentPlan: plan,
+      optimize: optimizeMode,
     });
 
     // Layer A: sanitize solver output before dispatching so invalid tokens

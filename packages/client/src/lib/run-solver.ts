@@ -6,7 +6,7 @@
  * ~40 lines of duplicated setup in both components.
  */
 
-import { generatePlan, type SolverOutput } from './solver';
+import { generatePlan, type SolverOutput, type OptimizeMode } from './solver';
 import { buildRemainingRequirements } from './requirements';
 import { getCreditHourCap } from './auto-planner';
 import { PrereqGraph } from './graph-engine';
@@ -46,6 +46,11 @@ export interface RunSolverParams {
    * here so the pure lib stays free of React context.
    */
   maxHoursOverride?: number;
+  /**
+   * Optimization objective (default 'fastest'). 'easiest' minimizes aggregate
+   * Stress Score / balances difficulty across terms (may defer graduation).
+   */
+  optimize?: OptimizeMode;
 }
 
 /**
@@ -69,6 +74,7 @@ export function runSolver(params: RunSolverParams): SolverOutput {
     plan,
     semesters,
     maxHoursOverride,
+    optimize = 'fastest',
   } = params;
 
   const remaining = buildRemainingRequirements(
@@ -110,5 +116,6 @@ export function runSolver(params: RunSolverParams): SolverOutput {
     semesters,
     existingPlan: plan,
     degreeReqs,
+    optimize,
   });
 }

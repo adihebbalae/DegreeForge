@@ -20,6 +20,19 @@ import type {
 import { PrereqGraph } from './graph-engine';
 import { getCourseCredits, getOfferedSeasons } from './course-utils';
 import { expandVariants, isInSameOrPriorSemester, addWithVariants } from './variants';
+import { getCourseGradeStats } from './grade-distributions';
+import { computeCourseDifficulty, NEUTRAL_DIFFICULTY } from './stress-score';
+
+/**
+ * Planner optimization objective.
+ *   'fastest' — original behavior: place each course in the EARLIEST valid term
+ *               (minimize time-to-graduation).
+ *   'easiest' — among valid terms, place each course to minimize aggregate
+ *               difficulty / balance hard courses across terms using the real
+ *               grade-distribution Stress Score. May defer graduation in exchange
+ *               for a lower-stress / higher-expected-GPA arrangement.
+ */
+export type OptimizeMode = 'fastest' | 'easiest';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -48,6 +61,11 @@ export interface SolverInput {
    * When omitted the solver falls back to exact-ID matching (original behavior).
    */
   degreeReqs?: DegreeRequirements;
+  /**
+   * Optimization objective (default 'fastest'). 'easiest' arranges valid plans
+   * to minimize aggregate Stress Score and balance difficulty across terms.
+   */
+  optimize?: OptimizeMode;
 }
 
 export interface SolverOutput {
@@ -91,6 +109,35 @@ export function canOfferInSemester(
 }
 
 /**
+ * Offering predicate with past-term relaxation (TASK-068).
+ *
+ * Offering constraints apply ONLY to FUTURE planned placements. A course sitting
+ * in a past or current(-completed) term was, by definition, offered then — the
+ * student already took it — so it is accepted regardless of offering-schedule.json.
+ *
+ * Use this (not the bare canOfferInSemester) anywhere a placement is validated
+ * against the offering schedule, so past/profile entries never raise an offering
+ * warning/violation. Future placements still respect the real offering schedule.
+ */
+export function isOfferingAllowed(
+  courseId: string,
+  semester: Semester,
+  offeringSchedule: OfferingSchedule
+): boolean {
+  if (semester.status !== 'future') return true;
+  return canOfferInSemester(courseId, semester, offeringSchedule);
+}
+
+/**
+ * Per-course difficulty (0–100) from the real grade-distribution Stress Score.
+ * Missing-data courses get NEUTRAL_DIFFICULTY. Used by the 'easiest' objective.
+ */
+function courseDifficulty(courseId: string): number {
+  const stats = getCourseGradeStats(courseId);
+  return stats === undefined ? NEUTRAL_DIFFICULTY : computeCourseDifficulty(stats);
+}
+
+/**
  * Get future semesters only (status !== 'past' and status !== 'current').
  * Past and current semesters are pre-populated from transcript.
  */
@@ -117,7 +164,7 @@ function getFutureSemesters(semesters: Semester[]): Semester[] {
  * 5. Validate the final plan
  * 6. Return SolverOutput
  */
-export function generatePlan(input: SolverInput): SolverOutput {
+export function generatePlan(input: SolverInput, horizonIndex?: number): SolverOutput {
   const {
     completedCourses,
     remainingRequirements,
@@ -129,7 +176,42 @@ export function generatePlan(input: SolverInput): SolverOutput {
     semesters,
     existingPlan,
     degreeReqs,
+    optimize = 'fastest',
   } = input;
+
+  // 'easiest' is a two-phase strategy. First run 'fastest' to confirm every
+  // course is placeable and to discover the term horizon. Then balance difficulty
+  // across terms to minimize the WORST (peak) term's stress.
+  //
+  // Phase 2 is allowed to defer graduation past fastest's horizon (the honest
+  // GPA-not-speed tradeoff) but is capped at fastest's term count + DEFER_SLACK
+  // extra terms. The cap keeps the spread bounded so a topo-late course always
+  // has room — easiest never DROPS a course that fastest placed.
+  if (optimize === 'easiest' && horizonIndex === undefined) {
+    const fastest = generatePlan({ ...input, optimize: 'fastest' });
+    let lastUsed = -1;
+    let usedTermCount = 0;
+    for (let i = 0; i < semesters.length; i++) {
+      const sem = semesters[i];
+      if (sem.status === 'future' && (fastest.plan[sem.id] ?? []).length > 0) {
+        lastUsed = i;
+        usedTermCount++;
+      }
+    }
+    // If fastest used no future terms (nothing to place), just return it.
+    if (lastUsed < 0) return fastest;
+
+    // Allow easiest to use a few extra future terms beyond fastest's last term,
+    // so it can spread hard courses out (lower peak) without running off the end.
+    const DEFER_SLACK = 3;
+    const futureIdx = semesters
+      .map((s, i) => ({ s, i }))
+      .filter((x) => x.s.status === 'future')
+      .map((x) => x.i);
+    const lastUsedPos = futureIdx.indexOf(lastUsed);
+    const horizonPos = Math.min(futureIdx.length - 1, lastUsedPos + DEFER_SLACK);
+    return generatePlan(input, futureIdx[horizonPos]);
+  }
 
   // When degreeReqs is provided, build a variant-expanded satisfied set so that
   // ECE 312H satisfies any prereq edge that names ECE 312, ECE 412, etc.
@@ -161,8 +243,24 @@ export function generatePlan(input: SolverInput): SolverOutput {
 
   // Track credit hours per semester (only track for future semesters)
   const semesterHours: Record<string, number> = {};
+  // Track accumulated credit-weighted difficulty per semester (for 'easiest'
+  // load-balancing — placing into the lowest-weighted-difficulty valid term
+  // spreads hard courses instead of front-loading them).
+  const semesterWeightedDifficulty: Record<string, number> = {};
   for (const sem of semesters) {
     semesterHours[sem.id] = 0;
+    semesterWeightedDifficulty[sem.id] = 0;
+  }
+
+  // Seed both trackers from any pre-existing future placements (so balancing and
+  // caps account for courses already sitting in future terms before this run).
+  for (const sem of semesters) {
+    if (sem.status !== 'future') continue;
+    for (const c of plan[sem.id] ?? []) {
+      const cr = getCourseCredits(c, catalog);
+      semesterHours[sem.id] += cr;
+      semesterWeightedDifficulty[sem.id] += courseDifficulty(c) * cr;
+    }
   }
 
   // 1. Topological sort the remaining courses
@@ -179,6 +277,8 @@ export function generatePlan(input: SolverInput): SolverOutput {
     plan[semesterId] = plan[semesterId] ?? [];
     plan[semesterId].push(courseId);
     semesterHours[semesterId] = (semesterHours[semesterId] ?? 0) + credits;
+    semesterWeightedDifficulty[semesterId] =
+      (semesterWeightedDifficulty[semesterId] ?? 0) + courseDifficulty(courseId) * credits;
   }
 
   // 4. Greedy placement for unpinned courses
@@ -229,37 +329,79 @@ export function generatePlan(input: SolverInput): SolverOutput {
   }
 
   for (const courseId of unpinnedSorted) {
-    let placed = false;
+    const credits = getCourseCredits(courseId, catalog);
 
-    for (let i = 0; i < semesters.length; i++) {
+    // Collect every VALID future semester this course can go in. Validity is
+    // identical in both modes (prereqs + coreqs + caps + future offerings) — the
+    // mode only changes WHICH valid term we pick, never whether a placement is
+    // legal. This keeps 'easiest' plans provably as valid as 'fastest' plans.
+    const validIndices: number[] = [];
+    // In 'easiest' mode, restrict to the fastest-derived horizon so balancing
+    // never pushes a course past fastest's graduation term.
+    const upperBound = optimize === 'easiest' && horizonIndex !== undefined
+      ? horizonIndex
+      : semesters.length - 1;
+    for (let i = 0; i <= upperBound; i++) {
       const sem = semesters[i];
-
-      // Skip past and current semesters
       if (sem.status !== 'future') continue;
-
-      // Check offering pattern
       if (!canOfferInSemester(courseId, sem, offeringSchedule)) continue;
-
-      // Check credit hour limit
-      const credits = getCourseCredits(courseId, catalog);
       if (semesterHours[sem.id] + credits > maxHoursPerSemester) continue;
-
-      // Check prerequisites satisfied
       if (!prereqsSatisfied(courseId, i)) continue;
-
-      // Check corequisites satisfied
       if (!coreqsSatisfied(courseId, i)) continue;
-
-      // Place the course
-      plan[sem.id].push(courseId);
-      semesterHours[sem.id] += credits;
-      placed = true;
-      break;
+      validIndices.push(i);
     }
 
-    if (!placed) {
+    // Safety net: if balancing-within-horizon found no slot (e.g. caps tightened
+    // by redistribution), fall back to the full horizon so easiest never DROPS a
+    // course that fastest could place.
+    if (validIndices.length === 0 && optimize === 'easiest' && horizonIndex !== undefined) {
+      for (let i = 0; i < semesters.length; i++) {
+        const sem = semesters[i];
+        if (sem.status !== 'future') continue;
+        if (!canOfferInSemester(courseId, sem, offeringSchedule)) continue;
+        if (semesterHours[sem.id] + credits > maxHoursPerSemester) continue;
+        if (!prereqsSatisfied(courseId, i)) continue;
+        if (!coreqsSatisfied(courseId, i)) continue;
+        validIndices.push(i);
+      }
+    }
+
+    if (validIndices.length === 0) {
       unplacedCourses.push(courseId);
+      continue;
     }
+
+    let chosen: number;
+    if (optimize === 'easiest') {
+      // Choose the valid term that minimizes that term's resulting stress
+      // (credit-weighted mean difficulty) — this spreads hard courses so the
+      // WORST term is as mild as possible. Ties broken by earliest term so the
+      // result stays deterministic and never needlessly defers graduation.
+      const diff = courseDifficulty(courseId) * credits;
+      const termStressAfter = (idx: number): number => {
+        const id = semesters[idx].id;
+        const hours = semesterHours[id] + credits;
+        return hours > 0 ? (semesterWeightedDifficulty[id] + diff) / hours : 0;
+      };
+      chosen = validIndices[0];
+      let best = termStressAfter(chosen);
+      for (let k = 1; k < validIndices.length; k++) {
+        const idx = validIndices[k];
+        const s = termStressAfter(idx);
+        if (s < best) {
+          best = s;
+          chosen = idx;
+        }
+      }
+    } else {
+      // 'fastest' — earliest valid term (original behavior).
+      chosen = validIndices[0];
+    }
+
+    const sem = semesters[chosen];
+    plan[sem.id].push(courseId);
+    semesterHours[sem.id] += credits;
+    semesterWeightedDifficulty[sem.id] += courseDifficulty(courseId) * credits;
   }
 
   // 5. Validate the final plan (only future semesters, since past are transcript)
