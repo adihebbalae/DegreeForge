@@ -48,32 +48,28 @@ export default function FocusInsightsPanel({ semester, creditHourCap }: FocusIns
   const stressResult = stressMap?.get(semester.id) ?? null;
 
   // ── Critical-path slice ───────────────────────────────────────────────────────
-  // Flag courses in this term that appear in criticalPath.chain or bottlenecks.
-  const criticalPathCourseIds = useMemo(() => {
-    if (!diagnostics) return new Set<string>();
-    const s = new Set<string>();
+  // Single pass over diagnostics data to derive all three per-semester values.
+  const { criticalPathCourseIds, bottleneckCourseIds, bottleneckById } = useMemo(() => {
+    if (!diagnostics) {
+      return {
+        criticalPathCourseIds: new Set<string>(),
+        bottleneckCourseIds: new Set<string>(),
+        bottleneckById: new Map<string, string>(),
+      };
+    }
+    const criticalPathCourseIds = new Set<string>();
+    const bottleneckCourseIds = new Set<string>();
+    const bottleneckById = new Map<string, string>();
     for (const link of diagnostics.criticalPath.chain) {
-      if (link.semesterId === semester.id) s.add(link.courseId);
+      if (link.semesterId === semester.id) criticalPathCourseIds.add(link.courseId);
     }
-    return s;
-  }, [diagnostics, semester.id]);
-
-  const bottleneckCourseIds = useMemo(() => {
-    if (!diagnostics) return new Set<string>();
-    const s = new Set<string>();
     for (const b of diagnostics.bottlenecks) {
-      if (b.semesterId === semester.id) s.add(b.courseId);
+      if (b.semesterId === semester.id) {
+        bottleneckCourseIds.add(b.courseId);
+        bottleneckById.set(b.courseId, b.whyItMatters);
+      }
     }
-    return s;
-  }, [diagnostics, semester.id]);
-
-  const bottleneckByid = useMemo(() => {
-    if (!diagnostics) return new Map<string, string>();
-    const m = new Map<string, string>();
-    for (const b of diagnostics.bottlenecks) {
-      if (b.semesterId === semester.id) m.set(b.courseId, b.whyItMatters);
-    }
-    return m;
+    return { criticalPathCourseIds, bottleneckCourseIds, bottleneckById };
   }, [diagnostics, semester.id]);
 
   // ── Unlocks next ─────────────────────────────────────────────────────────────
@@ -186,7 +182,7 @@ export default function FocusInsightsPanel({ semester, creditHourCap }: FocusIns
             {courseIds.filter((id) => criticalPathCourseIds.has(id) || bottleneckCourseIds.has(id)).map((id) => {
               const isCrit = criticalPathCourseIds.has(id);
               const isBottleneck = bottleneckCourseIds.has(id);
-              const why = bottleneckByid.get(id);
+              const why = bottleneckById.get(id);
               return (
                 <li key={id} className="flex flex-col gap-0.5">
                   <div className="flex items-center gap-1.5">
@@ -201,7 +197,7 @@ export default function FocusInsightsPanel({ semester, creditHourCap }: FocusIns
                     )}
                   </div>
                   {why && (
-                    <p className="text-[10px] text-muted-foreground pl-4.5 leading-tight">{why}</p>
+                    <p className="text-[10px] text-muted-foreground pl-5 leading-tight">{why}</p>
                   )}
                 </li>
               );

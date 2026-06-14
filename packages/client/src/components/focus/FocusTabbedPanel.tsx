@@ -4,13 +4,13 @@
  * Right-panel "Tabbed" layout for the FocusEditor.
  * Three tabs: Insights | Add | Best Path
  *   - Insights and Add reuse FocusInsightsPanel and FocusAddPanel.
- *   - Best Path renders the full critical path + bottlenecks (markup from BestPathPopover).
+ *   - Best Path renders the full critical path + bottlenecks via BestPathContent.
  */
 
 import { useState } from 'react';
-import { AlertTriangle, GitBranch, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDiagnostics } from '@/hooks/useDiagnostics';
+import BestPathContent from '@/components/BestPathContent';
 import FocusInsightsPanel from './FocusInsightsPanel';
 import FocusAddPanel from './FocusAddPanel';
 import type { Semester } from '@/types';
@@ -34,12 +34,13 @@ export default function FocusTabbedPanel({ semester, creditHourCap }: FocusTabbe
 
   return (
     <div className="h-full flex flex-col min-h-0">
-      {/* Tab bar */}
+      {/* Tab bar — role="button" + aria-pressed matches the outer layout switcher in FocusEditor */}
       <div className="flex shrink-0 border-b border-border px-2 pt-1 gap-0.5">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             type="button"
+            role="button"
             onClick={() => setActiveTab(tab.id)}
             className={cn(
               'px-3 py-1.5 text-xs font-medium rounded-t transition-colors',
@@ -48,8 +49,7 @@ export default function FocusTabbedPanel({ semester, creditHourCap }: FocusTabbe
                 ? 'bg-background border border-border border-b-background text-foreground -mb-px'
                 : 'text-muted-foreground hover:text-foreground',
             )}
-            aria-selected={activeTab === tab.id}
-            role="tab"
+            aria-pressed={activeTab === tab.id}
           >
             {tab.label}
           </button>
@@ -73,7 +73,6 @@ export default function FocusTabbedPanel({ semester, creditHourCap }: FocusTabbe
 }
 
 // ── Best Path tab content ──────────────────────────────────────────────────────
-// Renders the full critical path + bottleneck list (same data as BestPathPopover).
 
 function BestPathTab({ diagnostics }: { diagnostics: ReturnType<typeof useDiagnostics> }) {
   if (!diagnostics) {
@@ -97,66 +96,8 @@ function BestPathTab({ diagnostics }: { diagnostics: ReturnType<typeof useDiagno
   }
 
   return (
-    <div className="h-full overflow-y-auto p-3 flex flex-col gap-4">
-      {/* Critical path chain */}
-      {hasCriticalPath && (
-        <section>
-          <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
-            <GitBranch className="h-3 w-3" aria-hidden="true" />
-            Critical Path
-          </h3>
-          <div className="flex flex-wrap items-center gap-1">
-            {criticalPath.chain.map((c, i) => (
-              <span key={c.courseId} className="flex items-center gap-1">
-                {i > 0 && (
-                  <span className="text-muted-foreground/50 text-[11px]" aria-hidden="true">
-                    →
-                  </span>
-                )}
-                <span
-                  className={cn(
-                    'text-[11px] font-mono px-1.5 py-0.5 rounded',
-                    c.semesterId
-                      ? 'bg-primary/10 text-primary'
-                      : 'bg-muted text-muted-foreground',
-                  )}
-                >
-                  {c.courseId}
-                </span>
-              </span>
-            ))}
-          </div>
-          {criticalPath.bottleneckSemesterId && (
-            <p className="text-[10px] text-primary mt-1.5">
-              Earliest graduation: {criticalPath.bottleneckSemesterId}
-            </p>
-          )}
-        </section>
-      )}
-
-      {/* Bottleneck flags */}
-      {hasBottlenecks && (
-        <section>
-          <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-            Bottlenecks
-          </h3>
-          <ul className="flex flex-col gap-2">
-            {bottlenecks.map((b) => (
-              <li key={b.courseId} className="flex items-start gap-2">
-                {b.slack === 0 ? (
-                  <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0 text-red-500" aria-hidden="true" />
-                ) : (
-                  <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-                )}
-                <div className="flex flex-col min-w-0">
-                  <span className="text-xs text-foreground/80 leading-snug">{b.delayCost}</span>
-                  <span className="text-[10px] text-muted-foreground leading-snug">{b.whyItMatters}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+    <div className="h-full overflow-y-auto p-3">
+      <BestPathContent criticalPath={criticalPath} bottlenecks={bottlenecks} />
     </div>
   );
 }

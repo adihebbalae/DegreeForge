@@ -248,8 +248,12 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
           size="sm"
           className="h-6 px-2 gap-1 text-xs shrink-0 ml-auto"
           onClick={handleAddCourse}
-          aria-label={pickerOpen ? 'Close course search' : 'Add course to semester'}
-          aria-expanded={pickerOpen}
+          aria-label={
+            focusLayout === 'insights'
+              ? pickerOpen ? 'Close course search' : 'Add course to semester'
+              : 'Open Add panel'
+          }
+          {...(focusLayout === 'insights' ? { 'aria-expanded': pickerOpen } : {})}
           data-testid="focus-editor-add-course-btn"
         >
           <Plus className="h-3 w-3" />

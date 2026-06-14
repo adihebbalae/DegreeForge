@@ -7,7 +7,7 @@
  * Hidden entirely when there is no critical path and no bottlenecks.
  */
 
-import { AlertTriangle, ChevronDown, GitBranch, Info } from 'lucide-react';
+import { AlertTriangle, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDiagnostics } from '@/hooks/useDiagnostics';
 import {
@@ -15,6 +15,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import BestPathContent from '@/components/BestPathContent';
 
 export default function BestPathPopover() {
   const diagnostics = useDiagnostics();
@@ -57,83 +58,7 @@ export default function BestPathPopover() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 p-3" onCloseAutoFocus={(e) => e.preventDefault()}>
-        <div className="flex flex-col gap-2">
-          {/* Critical path */}
-          {hasCriticalPath && (
-            <div className="flex items-start gap-1.5">
-              <GitBranch className="h-3 w-3 mt-0.5 text-primary shrink-0" aria-hidden="true" />
-              <div className="min-w-0">
-                <span className="text-[9px] font-semibold text-primary uppercase tracking-wider mr-1">
-                  Critical Path
-                </span>
-                <span
-                  className="text-[10px] text-foreground/80 font-mono"
-                  aria-label={`Critical path: ${criticalPath.chain.map((c) => c.courseId).join(' → ')}`}
-                >
-                  {criticalPath.chain.map((c, i) => (
-                    <span key={c.courseId}>
-                      {i > 0 && (
-                        <span className="text-muted-foreground/50 mx-0.5" aria-hidden="true">
-                          →
-                        </span>
-                      )}
-                      <span
-                        className={cn(
-                          'inline-block',
-                          c.semesterId ? 'text-foreground' : 'text-muted-foreground',
-                        )}
-                      >
-                        {c.courseId}
-                      </span>
-                    </span>
-                  ))}
-                </span>
-                {criticalPath.bottleneckSemesterId && (
-                  <span className="ml-1.5 text-[9px] text-primary">
-                    → earliest by prerequisites: {criticalPath.bottleneckSemesterId}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Bottleneck flags */}
-          {hasBottlenecks && (
-            <div className="flex flex-col gap-0.5">
-              {bottlenecks.slice(0, 4).map((b) => (
-                <div key={b.courseId} className="flex items-start gap-1.5">
-                  {b.slack === 0 ? (
-                    <AlertTriangle
-                      className="h-3 w-3 mt-0.5 shrink-0 text-red-500"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <Info
-                      className="h-3 w-3 mt-0.5 shrink-0 text-muted-foreground"
-                      aria-hidden="true"
-                    />
-                  )}
-                  <div className="flex flex-col min-w-0">
-                    <span
-                      className="text-[10px] text-foreground/80 leading-tight"
-                      aria-label={b.delayCost}
-                    >
-                      {b.delayCost}
-                    </span>
-                    <span className="text-[9px] text-muted-foreground leading-tight">
-                      {b.whyItMatters}
-                    </span>
-                  </div>
-                </div>
-              ))}
-              {bottlenecks.length > 4 && (
-                <span className="text-[9px] text-muted-foreground pl-4">
-                  +{bottlenecks.length - 4} more
-                </span>
-              )}
-            </div>
-          )}
-        </div>
+        <BestPathContent criticalPath={criticalPath} bottlenecks={bottlenecks} />
       </DropdownMenuContent>
     </DropdownMenu>
   );
