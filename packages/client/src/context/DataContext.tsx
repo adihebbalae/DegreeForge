@@ -13,6 +13,7 @@ import type {
   FallSections,
   CourseSections,
   SectionsIndex,
+  Syllabi,
 } from '../types';
 import { normalizeGradeDistributions } from '../lib/normalize';
 import {
@@ -25,6 +26,7 @@ import {
   loadMathRequirements,
   loadSectionsIndex,
   loadTermSections,
+  loadSyllabi,
 } from '../lib/data-loaders';
 // useUserProfile is now sourced from ProfileContext (tester-owned profile).
 // Re-exported here for backward compatibility so all 21 call sites keep working.
@@ -44,6 +46,9 @@ interface DataContextValue {
   mathRequirements: MathRequirements | null;
   fallSections: FallSections | null;
   sectionsIndex: SectionsIndex | null;
+  /** Scraped past-syllabus data. Null if the file failed to load or hasn't
+   *  loaded yet. Never causes a fatal error — degrade gracefully. */
+  syllabi: Syllabi | null;
 }
 
 const INITIAL_STATE: DataContextValue = {
@@ -58,6 +63,7 @@ const INITIAL_STATE: DataContextValue = {
   mathRequirements: null,
   fallSections: null,
   sectionsIndex: null,
+  syllabi: null,
 };
 
 // ─── Context + Provider ──────────────────────────────────────────────────────
@@ -103,6 +109,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         // All downstream code can assume "ECE" prefix only.
         const gradeDistributions = normalizeGradeDistributions(rawGradeDist);
 
+        // Syllabi is non-core enrichment: load OUTSIDE the fatal Promise.all.
+        // A missing or malformed syllabi.json degrades to null — never white-screens.
+        const syllabiFile = await loadSyllabi().catch(() => null);
+        const syllabi = syllabiFile ? syllabiFile.syllabi : null;
+
+        if (cancelled) return;
+
         setState({
           loading: false,
           error: null,
@@ -115,6 +128,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           mathRequirements,
           fallSections,
           sectionsIndex,
+          syllabi,
         });
       } catch (err) {
         if (cancelled) return;
@@ -267,4 +281,12 @@ export function useDataLoading(): boolean {
 /** Non-null string if any data file failed to load. */
 export function useDataError(): string | null {
   return useDataContext().error;
+}
+
+/**
+ * Returns the scraped past-syllabus data keyed by course ID (e.g. "ECE 306").
+ * Null while loading or if syllabi.json failed to load (non-fatal degradation).
+ */
+export function useSyllabi(): Syllabi | null {
+  return useDataContext().syllabi;
 }

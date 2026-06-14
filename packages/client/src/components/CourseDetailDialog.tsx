@@ -8,12 +8,13 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ExternalLink, Book, Users, Link as LinkIcon, TrendingUp, Calendar, Sparkles } from 'lucide-react';
+import { ExternalLink, Book, Users, Link as LinkIcon, TrendingUp, Calendar, Sparkles, FileText, BookOpen } from 'lucide-react';
 import { getCourseTitle, getCourseCredits, gpaColorClass, inferCategory, buildTranscriptCredits } from '@/lib/course-utils';
 import { getRelatedCourses } from '@/lib/related-courses';
+import { isGradingPlausible, dedupeTextbooks } from '@/lib/syllabus-display';
 import type { CourseCatalog, PrereqNode, GradeDistributions, FallSections, CourseSection } from '@/types';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
-import { useFallSections, useUserProfile, useTechCoresRecord } from '@/context/DataContext';
+import { useFallSections, useUserProfile, useTechCoresRecord, useSyllabi } from '@/context/DataContext';
 
 interface CourseDetailDialogProps {
   courseId: string | null;
@@ -36,6 +37,7 @@ export default function CourseDetailDialog({
   const profile = useUserProfile();
   const techCores = useTechCoresRecord();
   const transcriptCredits = useMemo(() => buildTranscriptCredits(profile), [profile]);
+  const syllabiMap = useSyllabi();
 
   const fallSectionsList = useFallSections();
 
@@ -92,6 +94,10 @@ export default function CourseDetailDialog({
       primaryInstructor,
     };
   }, [activeCourseId, catalog, gradeDistributions, prereqNodes, prereqGraph, fallSectionsList, transcriptCredits]);
+
+  // Look up the scraped past-syllabus entry for the active course.
+  // May be null if syllabi.json didn't load or has no entry for this course.
+  const syllabusEntry = syllabiMap ? (syllabiMap[activeCourseId ?? ''] ?? null) : null;
 
   if (!details) return null;
 
@@ -273,6 +279,101 @@ export default function CourseDetailDialog({
                     </p>
                   )}
                 </div>
+              </div>
+            </>
+          )}
+
+          {/* Past syllabus enrichment — displayed when scraped data exists */}
+          {syllabusEntry && (
+            <>
+              <Separator />
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-semibold flex items-center gap-2">
+                    <FileText className="w-4 h-4" /> From a past syllabus
+                  </h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {syllabusEntry.term} · taught by {syllabusEntry.instructor}
+                  </p>
+                </div>
+
+                {/* 1. PDF link — only when pdfUrl is a safe http/https URL */}
+                {syllabusEntry.pdfUrl.startsWith('http') && (
+                  <a
+                    href={syllabusEntry.pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs font-medium transition-colors hover:bg-accent"
+                  >
+                    <BookOpen className="w-4 h-4 text-muted-foreground" />
+                    View full syllabus (PDF)
+                    <ExternalLink className="w-3 h-3 text-muted-foreground" />
+                  </a>
+                )}
+
+                {/* 2. Grading breakdown — only if plausible [95–105%] */}
+                {isGradingPlausible(syllabusEntry.grading) && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Grading breakdown
+                    </p>
+                    <div className="space-y-1.5 bg-muted/30 rounded-lg p-3">
+                      {syllabusEntry.grading.map((item) => (
+                        <div key={item.component} className="flex items-center gap-2">
+                          <span className="w-28 shrink-0 text-[11px] text-muted-foreground capitalize">
+                            {item.component}
+                          </span>
+                          <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-primary/60"
+                              style={{ width: `${item.pct}%` }}
+                            />
+                          </div>
+                          <span className="w-8 shrink-0 text-right text-[11px] font-medium">
+                            {item.pct}%
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. Topics — if any */}
+                {syllabusEntry.topics.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Topics covered
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {syllabusEntry.topics.slice(0, 8).map((topic) => (
+                        <Badge key={topic} variant="secondary" className="text-[10px] font-normal">
+                          {topic}
+                        </Badge>
+                      ))}
+                      {syllabusEntry.topics.length > 8 && (
+                        <span className="text-[10px] text-muted-foreground self-center">
+                          +{syllabusEntry.topics.length - 8} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. Textbooks — deduped, capped at 3 */}
+                {dedupeTextbooks(syllabusEntry.textbooks).length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Textbook{dedupeTextbooks(syllabusEntry.textbooks).length > 1 ? 's' : ''}
+                    </p>
+                    <ul className="space-y-1">
+                      {dedupeTextbooks(syllabusEntry.textbooks).map((book) => (
+                        <li key={book} className="text-xs text-muted-foreground leading-snug">
+                          {book}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </>
           )}

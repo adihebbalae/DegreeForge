@@ -8,6 +8,7 @@ import type {
   MathRequirements,
   FallSections,
   SectionsIndex,
+  SyllabiFile,
 } from '../types';
 import type { RawGradeDistributionsFile } from './data-loaders';
 
@@ -122,3 +123,37 @@ export const fallSectionsSchema: z.ZodType<FallSections> = z
     courses: z.record(z.string(), z.object({}).passthrough()),
   })
   .passthrough() as unknown as z.ZodType<FallSections>;
+
+// ─── Syllabi (past-syllabus enrichment) ──────────────────────────────────────
+
+const gradingComponentSchema = z.object({
+  component: z.string().default(''),
+  pct: z.number().min(0).max(200).default(0),
+});
+
+const syllabusEntrySchema = z
+  .object({
+    course: z.string().default(''),
+    title: z.string().default(''),
+    term: z.string().default(''),
+    instructor: z.string().default(''),
+    docId: z.string().default(''),
+    pdfUrl: z
+      .string()
+      .transform((val) => (val.startsWith('http://') || val.startsWith('https://') || val === '' ? val : ''))
+      .default(''),
+    textChars: z.number().default(0),
+    grading: z.array(gradingComponentSchema).default([]),
+    topics: z.array(z.string()).default([]),
+    textbooks: z.array(z.string()).default([]),
+    descriptionExcerpt: z.string().default(''),
+  })
+  .passthrough();
+
+export const syllabiSchema: z.ZodType<SyllabiFile> = z
+  .object({
+    source: z.string().default(''),
+    generated_at: z.string().default(''),
+    syllabi: z.record(z.string(), syllabusEntrySchema).default({}),
+  })
+  .passthrough() as unknown as z.ZodType<SyllabiFile>;

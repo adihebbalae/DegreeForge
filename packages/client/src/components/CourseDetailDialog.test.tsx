@@ -27,6 +27,7 @@ vi.mock('@/context/DataContext', () => ({
   useFallSections: () => [],
   useUserProfile: () => null,
   useTechCoresRecord: () => TECH_CORES_FIXTURE,
+  useSyllabi: () => null,
 }));
 
 vi.mock('@/hooks/usePrereqGraph', () => ({

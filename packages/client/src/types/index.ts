@@ -498,6 +498,46 @@ export interface PlanState {
 /** Display category for color-coding course cards */
 export type CourseCategory = 'ece_core' | 'tech_core' | 'gen_ed' | 'elective' | 'math';
 
+// ─── Syllabi (past-syllabus enrichment) ──────────────────────────────────────
+
+/** One parsed component in a grading breakdown, e.g. { component: "Exams", pct: 40 } */
+export interface GradingComponent {
+  component: string;
+  pct: number;
+}
+
+/**
+ * A single scraped past-syllabus entry for one course.
+ * Fields like `grading`, `topics`, and `textbooks` may be empty arrays;
+ * `descriptionExcerpt` may be "". Always check before rendering.
+ *
+ * `term` and `instructor` are HISTORICAL — the term when the posted syllabus
+ * was from, which may be years old. Never present these as current information.
+ */
+export interface SyllabusEntry {
+  course: string;
+  title: string;
+  term: string;
+  instructor: string;
+  docId: string;
+  pdfUrl: string;
+  textChars: number;
+  grading: GradingComponent[];
+  topics: string[];
+  textbooks: string[];
+  descriptionExcerpt: string;
+}
+
+/** syllabi.json top-level document */
+export interface SyllabiFile {
+  source: string;
+  generated_at: string;
+  syllabi: Record<string, SyllabusEntry>;
+}
+
+/** Convenience alias: course ID → SyllabusEntry */
+export type Syllabi = Record<string, SyllabusEntry>;
+
 export interface ChatCourseRef {
   course: string;
   title: string;

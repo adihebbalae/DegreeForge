@@ -9,6 +9,7 @@ import type {
   MathRequirements,
   FallSections,
   SectionsIndex,
+  SyllabiFile,
 } from '../types';
 import {
   courseCatalogSchema,
@@ -20,6 +21,7 @@ import {
   mathRequirementsSchema,
   sectionsIndexSchema,
   fallSectionsSchema,
+  syllabiSchema,
 } from './data-schemas';
 
 /** Raw shape of grade-distributions.json before normalization */
@@ -142,4 +144,13 @@ export async function loadTermSections(
  */
 export function loadFallSections(): Promise<FallSections> {
   return loadTermSections();
+}
+
+/**
+ * Load the scraped past-syllabus enrichment data.
+ * This is non-core enrichment: callers should catch errors gracefully
+ * rather than letting a syllabi failure surface as an app error.
+ */
+export function loadSyllabi(): Promise<SyllabiFile> {
+  return fetchJson<SyllabiFile>('/data/syllabi.json', syllabiSchema);
 }
