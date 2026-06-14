@@ -1,0 +1,17 @@
+EE 411 Circuit Theory — Spring 2024
+
+Catalogue Data: EE 411. Circuit Theory. Capacitance and inductance; first- and second-order
+transient circuit response; sinusoidal steady-state analysis using phasors.
+
+Textbook: C. K. Alexander and M. N. O. Sadiku, Fundamentals of Electric Circuits, 7th
+edition, New York: McGraw-Hill, 2021.
+
+Grade Weights: Examination 1: 20%, Examination 2: 25%, Final Examination: 35%,
+Homework: 10%, and Labs: 10%. The numerical course grade is computed by weighting
+the raw scores as indicated above.
+
+Lecture Schedule
+January 18   Introduction   Review of Chapters 1-4
+January 26   Chapter 5   Operational Amplifiers
+February 7   Chapter 6   Capacitors and Inductors
+February 9   Chapter 7   First-Order Circuits
