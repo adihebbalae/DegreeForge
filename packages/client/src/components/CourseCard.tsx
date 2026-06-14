@@ -37,6 +37,13 @@ interface CourseCardProps {
   isDownstreamHighlight?: boolean;
   /** Highlight as an upstream prerequisite of the hovered course (TASK-024) */
   isUpstreamHighlight?: boolean;
+  /**
+   * TASK-081 — true when this course sits in a FUTURE term whose offerings we
+   * could not verify (not in sections-index.json) AND its season-offering would
+   * otherwise not permit it there. Renders a subtle muted "(unverified offered)"
+   * note rather than a hard error, since we can't confirm the offering either way.
+   */
+  isUnverifiedOffering?: boolean;
   // TASK-019: pin + ghost
   /** Whether this course is currently pinned by the user */
   isPinned?: boolean;
@@ -72,6 +79,7 @@ export default function CourseCard({
   violation,
   isDownstreamHighlight = false,
   isUpstreamHighlight = false,
+  isUnverifiedOffering = false,
   isPinned = false,
   onTogglePin,
   onRemove,
@@ -268,6 +276,18 @@ export default function CourseCard({
         >
           {title}
         </p>
+
+        {/* TASK-081 — unverified-offering note. Subtle + muted (not an error
+            color): we couldn't confirm this term's offerings, so the placement
+            is allowed but flagged. */}
+        {!isPalette && !isPast && isUnverifiedOffering && (
+          <p
+            className="text-[9px] leading-tight mt-0.5 italic text-muted-foreground/70"
+            title="We don't have verified section data for this term, so we can't confirm this course is offered. Placement is allowed but unverified."
+          >
+            (unverified offered)
+          </p>
+        )}
       </div>
 
       {/* Past: checkmark overlay */}

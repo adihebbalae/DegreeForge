@@ -26,9 +26,15 @@ import {
   useCatalogRecord,
   usePrereqGraph as useRawPrereqGraph,
   useGradeDistributions,
+  useOfferingSchedule,
+  useSectionsIndex,
 } from '@/context/DataContext';
 import SemesterColumn from './SemesterColumn';
 import { buildTermLoadCredits } from '@/lib/course-utils';
+import {
+  buildVerifiedTermSet,
+  isUnverifiedOfferingPlacement,
+} from '@/lib/offering-verification';
 import { getCreditHourCap } from '@/lib/auto-planner';
 import { useValidation } from '@/hooks/useValidation';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
@@ -53,7 +59,17 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
   const catalog = useCatalogRecord();
   const rawPrereqGraph = useRawPrereqGraph();
   const gradeDistributions = useGradeDistributions();
+  const offeringSchedule = useOfferingSchedule();
+  const sectionsIndex = useSectionsIndex();
   const dispatch = usePlanDispatch();
+
+  // TASK-081 — terms we have observed section data for. Everything else is an
+  // "unverified" future term; a course placed there whose season-offering would
+  // block it carries a subtle "(unverified offered)" note instead of an error.
+  const verifiedTerms = useMemo(
+    () => buildVerifiedTermSet(sectionsIndex),
+    [sectionsIndex]
+  );
 
   // Derive credit-hour cap from the effective profile (respects Settings tolerance override).
   // Falls back to 17 (normal load) while profile is loading.
@@ -204,6 +220,13 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
               gradeDistributions={gradeDistributions}
               transcriptCredits={transcriptCredits}
               violationsByCourse={violationsByCourse}
+              unverifiedOfferingCourses={
+                new Set(
+                  (plan[sem.id] ?? []).filter((courseId) =>
+                    isUnverifiedOfferingPlacement(courseId, sem, offeringSchedule, verifiedTerms)
+                  )
+                )
+              }
               downstreamCourses={downstreamCourses}
               upstreamCourses={upstreamCourses}
               pinnedCourses={pinnedCourses}
