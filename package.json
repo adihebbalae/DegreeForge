@@ -10,6 +10,7 @@
     "build": "npm run build --workspace=packages/client",
     "test": "npm test --workspaces --if-present",
     "fetch:sections": "tsx scripts/sections/fetch-term.ts",
+    "fetch:syllabi": "tsx scripts/syllabi/fetch-syllabi.ts",
     "aggregate:offerings": "tsx scripts/sections/aggregate-offerings.ts",
     "scrape:audit": "tsx scripts/sections/scrape-audit.ts",
     "privacy:paths": "node scripts/security/check-protected-paths.mjs --tracked",
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@types/node": "25.9.0",
     "cheerio": "1.2.0",
-    "concurrently": "^9.0.0"
+    "concurrently": "^9.0.0",
+    "pdf-parse": "1.1.1"
   }
 }

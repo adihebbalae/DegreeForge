@@ -1,0 +1,30 @@
+Unique: 17075 EE 302: Introduction to Electrical Engineering          Spring 2024
+
+Instructor: Jane Q. Professor                  Office hours: M W 10:15-11:45am
+            jprof@utexas.edu
+
+This course introduces the fundamental concepts of electrical engineering, including
+circuit analysis, signals, and basic electronics. Students will design and build simple
+circuits in the laboratory and analyze them using the techniques developed in lecture.
+
+Required Text and Equipment:
+F. T. Ulaby and M. M. Maharbiz, Circuit Analysis and Design, 1st edition (Michigan Publishing, 2018).
+Supplementary Reference:
+C. K. Alexander and M. N. O. Sadiku, Fundamentals of Electric Circuits, 7th edition (McGraw-Hill, 2021).
+
+Note: discussion of homework problems is encouraged, but every student must work independently.
+
+Grading:
+Homework    20%
+Quizzes     10%
+Two Midterm Exams   40%
+Final Exam   30%
+
+Course Outline
+Week 1   Introduction and basic concepts
+Week 2   Kirchhoff's laws and circuit topology
+Week 3   Nodal and mesh analysis
+Week 4   Thevenin and Norton equivalents
+Office Hours: by appointment only.
+
+Academic Integrity: all work must be your own.

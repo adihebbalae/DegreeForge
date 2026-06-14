@@ -1,0 +1,165 @@
+{
+  "source": "coursedocs-public:E E; engine=pdftotext",
+  "generated_at": "2026-06-14T02:37:05.630Z",
+  "syllabi": {
+    "ECE 302": {
+      "course": "ECE 302",
+      "title": "Introduction to Electrical Engineering.",
+      "term": "2022 Spring",
+      "instructor": "Jack Lee",
+      "docId": "11811905",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/11811905/",
+      "textChars": 6930,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 10
+        },
+        {
+          "component": "Quizzes",
+          "pct": 15
+        },
+        {
+          "component": "Laboratory",
+          "pct": 5
+        },
+        {
+          "component": "Projects",
+          "pct": 15
+        }
+      ],
+      "topics": [
+        "Topic/Event  Reading  HW 1",
+        "(Ulaby &  HW 2",
+        "Introduction and overview  Maharbiz)  HW 3",
+        "Basic concepts  Chapter 1",
+        "Circuit terminology and concepts  HW 4",
+        "Circuit topology, Kirchoff’s Laws  Chapter 2  HW 5",
+        "Simple equivalent circuits and  HW 6",
+        "transformations  Chapter 3  HW 7",
+        "Circuit analysis examples  HW 8",
+        "Semester Exam 1 – Wed. 3/23/22 (tentative)  Chapter 4  HW 9",
+        "Nodal analysis  HW 10",
+        "Mesh analysis",
+        "Superposition",
+        "Additional techniques and examples",
+        "Thevenin and Norton equivalent circuits",
+        "Semester Exam 2 – Wed. 4/6/22 (tentative)",
+        "Power transfer",
+        "Operational amplifiers and op amp circuits",
+        "Operational amplifier circuits; additional",
+        "topics",
+        "Final Exam: Tue. 5/17/22 9:00-11:00am",
+        "Spring break: 3/14/22 – 3/19/22"
+      ],
+      "textbooks": [
+        "and Equipment: F. T. Ulaby, M. M. Maharbiz & C.M. Furse, Circuit Analysis and Design (Michigan Publishing,",
+        "F. T. Ulaby, M. M. Maharbiz & C.M. Furse, Circuit Analysis and Design (Michigan Publishing,",
+        "2018) [same as Circuits (National Technology & Science Press, Third Edition, 2016) by the same"
+      ],
+      "descriptionExcerpt": "This course provides an introduction to some of the central elements of electric circuits, their application, and related issues. Topics covered will include the following: the scientific method, and general tools and approaches for problem-solving and analysis; fundamental physical phenomena and their connection to electrical systems; analysis and applications of analog resistive circuits, including Kirchhoff’s Laws, nodal and mesh analysis, Thévenin and Norton equivalents, and operational amplifiers. The course will help students to build and understand the intellectual foundations that…"
+    },
+    "ECE 302H": {
+      "course": "ECE 302H",
+      "title": "Introduction to Electrical Engineering: Honors.",
+      "term": "2020 Fall",
+      "instructor": "Seth Bank",
+      "docId": "10514238",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/10514238/",
+      "textChars": 25394,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 12
+        },
+        {
+          "component": "Laboratory",
+          "pct": 3
+        },
+        {
+          "component": "Project",
+          "pct": 50
+        },
+        {
+          "component": "Semester Exams",
+          "pct": 30
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "and Equipment: F. T. Ulaby, M. M. Maharbiz, & C. M. Furse, Circuit Analysis and Design (Michigan Publishing, 2018) [same as",
+        "F. T. Ulaby, M. M. Maharbiz, & C. M. Furse, Circuit Analysis and Design (Michigan Publishing, 2018) [same as",
+        "Circuits (National Technology & Science Press, Third Edition, 2016) by the same authors]."
+      ],
+      "descriptionExcerpt": "nominal time slot allows some time for you to log on, set up, upload your completed exams, etc. Our regular lectures scheduled on 09/30/2020, 10/28/2020, and 11/23/2020 will not meet."
+    },
+    "ECE 411": {
+      "course": "ECE 411",
+      "title": "Circuit Theory.",
+      "term": "2022 Spring",
+      "instructor": "Earl Swartzlander",
+      "docId": "11811365",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/11811365/",
+      "textChars": 11895,
+      "grading": [
+        {
+          "component": "Examination 1",
+          "pct": 20
+        },
+        {
+          "component": "Examination 2",
+          "pct": 25
+        },
+        {
+          "component": "Final Examination",
+          "pct": 35
+        },
+        {
+          "component": "Homework",
+          "pct": 10
+        },
+        {
+          "component": "and Labs",
+          "pct": 10
+        }
+      ],
+      "topics": [
+        "DATE:  TEXT STUDY ASSIGNMENT:",
+        "January 18 (Tue)  No Recitation",
+        "January 19 (W)",
+        "January 24 (M)  Introduction  Review of Chapters 1-4",
+        "January 25 (Tue)",
+        "January 26 (W)  Chapter 5  Operational Amplifiers",
+        "January 31 (M)",
+        "February 1 (Tue)  Lab 1  Op-Amps",
+        "February 2 (W)",
+        "February 7 (M)  Chapter 6  Capacitors and Inductors",
+        "February 8 (Tue)",
+        "February 9 (W)  Chapter 7  First-Order Circuits",
+        "February 14 (M)",
+        "February 15 (Tue)  Lab 2  RC Circuits",
+        "February 16 (W)",
+        "February 21 (M)  Chapter 7  First-Order Circuits",
+        "February 22 (Tue)",
+        "February 23 (W)  Chapter 8  RLC Circuits",
+        "February 28 (M)",
+        "March 1 (Tue)  Lab 3  RL Circuits",
+        "March 2 (W)",
+        "March 7 (M)  Chapter 8  RLC Circuits",
+        "March 8 (Tue)",
+        "March 9 (W)  Chapter 8  RLC Circuits",
+        "March 14-19",
+        "March 21 (M)  Lab 4  RLC Circuits",
+        "March 22 (Tue)",
+        "Review",
+        "Exam 1  Covers Chapters 5-8.",
+        "Recitation"
+      ],
+      "textbooks": [
+        "C. K. Alexander and M. N. O. Sadiku, Fundamentals of Electric Circuits, 7th edition, New York: McGraw-Hill, 2021.",
+        "edition, New York: McGraw-Hill, 2021."
+      ],
+      "descriptionExcerpt": "Catalogue Data: EE 411. Circuit Theory. Capacitance and inductance; first- and second- order transient circuit response; sinusoidal steady state analysis; complex power in single- phase and balanced three-phase systems; transformers; Bode plots; two-port networks (Z- parameters); and computer-aided analysis and design."
+    }
+  }
+}
