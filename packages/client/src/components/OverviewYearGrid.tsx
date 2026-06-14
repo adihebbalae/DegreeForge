@@ -1,11 +1,11 @@
 /**
- * OverviewYearGrid — year-grid overview (rows = academic years, columns = Fall/Spring/Summer).
+ * OverviewYearGrid — year-grid overview (columns = academic years, rows = Fall/Spring/Summer).
  *
  * Academic-year grouping: academic year N = Fall(N) + Spring(N+1) + Summer(N+1).
  * For example: Fall 2025 + Spring 2026 + Summer 2026 = AY 2025–26.
  *
- * Rows are derived dynamically from semesters data. Each cell is a SemesterTile.
- * Empty cells (semester not in data) render nothing.
+ * Columns are derived dynamically from semesters data. Each cell is a SemesterTile.
+ * Empty cells (semester not in data) render the faint dashed placeholder.
  */
 
 import { useMemo } from 'react';
@@ -18,7 +18,6 @@ import {
   useDataLoading,
 } from '@/context/DataContext';
 import SemesterTile from './SemesterTile';
-import DiagnosticsPanel from './DiagnosticsPanel';
 import { useDiagnostics } from '@/hooks/useDiagnostics';
 import { useStressScore } from '@/hooks/useStressScore';
 import { buildTermLoadCredits } from '@/lib/course-utils';
@@ -34,10 +33,6 @@ function academicYearOf(semester: Semester): number {
   // Spring and Summer belong to the academic year that started the previous Fall
   return semester.year - 1;
 }
-
-// ─── Column order ─────────────────────────────────────────────────────────────
-
-const SEASON_ORDER: Record<string, number> = { Fall: 0, Spring: 1, Summer: 2 };
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -106,12 +101,11 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
     [yearGroups]
   );
 
-  // Which season columns actually appear across all semesters
+  // Which season rows actually appear across all semesters, in canonical order
   const seasonsPresent = useMemo(() => {
     const set = new Set<string>();
     for (const sem of semesters) set.add(sem.season);
-    const all = ['Fall', 'Spring', 'Summer'];
-    return all.filter((s) => set.has(s));
+    return ['Fall', 'Spring', 'Summer'].filter((s) => set.has(s));
   }, [semesters]);
 
   if (loading) {
@@ -122,82 +116,78 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
     );
   }
 
-  // Fixed-width columns: 60px year label + up to 3 × 210px season columns.
-  // Using a fixed pixel width (instead of 1fr) prevents tiles from stretching
-  // to fill the full container width when only Fall+Spring are present.
-  const TILE_COL_WIDTH = 210;
-  const gridCols = `60px repeat(${seasonsPresent.length}, ${TILE_COL_WIDTH}px)`;
+  // Transposed layout: columns = academic years, rows = seasons.
+  // Season-label gutter is 44px; year columns grow to fill width (minmax 200px, 1fr).
+  const gridCols = `44px repeat(${sortedYears.length}, minmax(200px, 1fr))`;
 
   return (
     <div className="h-full flex flex-col gap-0 overflow-x-auto overflow-y-hidden">
-      {/* Diagnostics panel — critical path + bottleneck flags */}
-      <DiagnosticsPanel diagnostics={diagnostics} />
 
-      {/* Column headers */}
+      {/* Column headers: left corner gutter + one header per academic year */}
       <div
         className="grid shrink-0 gap-1.5 px-2 pb-0.5"
         style={{ gridTemplateColumns: gridCols }}
       >
-        <div /> {/* year label column */}
-        {seasonsPresent.map((season) => (
-          <div key={season} className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider text-center">
-            {season}
+        <div /> {/* season-label gutter corner */}
+        {sortedYears.map((ay) => (
+          <div key={ay} className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider text-center">
+            {ay}–{String(ay + 1).slice(2)}
           </div>
         ))}
       </div>
 
-      {/* Year rows */}
+      {/* Season rows: one row per season, each flex-1 to fill height equally */}
       <div className="flex-1 min-h-0 flex flex-col gap-1.5 overflow-hidden px-2 pb-1">
-        {sortedYears.map((ay) => {
-          const seasonMap = yearGroups.get(ay)!;
-          // Row height: flex-1 divided equally — each row gets exactly 1 fraction
-          return (
-            <div
-              key={ay}
-              className="flex-1 min-h-0 grid gap-1.5 items-stretch"
-              style={{ gridTemplateColumns: gridCols }}
-            >
-              {/* Academic year label */}
-              <div className="flex items-center justify-center text-[10px] font-medium text-muted-foreground leading-tight text-center">
-                <span>{ay}–{String(ay + 1).slice(2)}</span>
-              </div>
+        {seasonsPresent.map((season) => (
+          <div
+            key={season}
+            className="flex-1 min-h-0 grid gap-1.5 items-stretch"
+            style={{ gridTemplateColumns: gridCols }}
+          >
+            {/* Season label cell — slim left gutter */}
+            <div className="flex items-center justify-center">
+              <span
+                className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider select-none"
+                style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)' }}
+              >
+                {season}
+              </span>
+            </div>
 
-              {/* Season cells */}
-              {seasonsPresent.map((season) => {
-                const sem = seasonMap.get(season);
-                if (!sem) {
-                  // Placeholder for a season slot that doesn't exist in this academic year
-                  // (e.g. Summer 2029 when the horizon ends at Spring 2029).
-                  // Renders as a faint, clearly-inert surface so the grid reads as
-                  // intentionally 3-wide rather than leaving a jarring void.
-                  return (
-                    <div
-                      key={season}
-                      aria-hidden="true"
-                      className="rounded-lg bg-muted/30 border border-dashed border-border/25 min-h-[96px]"
-                    />
-                  );
-                }
+            {/* One tile per academic year */}
+            {sortedYears.map((ay) => {
+              const seasonMap = yearGroups.get(ay);
+              const sem = seasonMap?.get(season);
+              if (!sem) {
+                // Placeholder for a season slot absent in this academic year
+                // (e.g. Summer 2029 when the plan ends at Spring 2029).
                 return (
-                  <SemesterTile
-                    key={sem.id}
-                    semester={sem}
-                    courseIds={plan[sem.id] ?? []}
-                    catalog={catalog}
-                    prereqNodes={prereqNodes}
-                    gradeDistributions={gradeDistributions}
-                    transcriptCredits={transcriptCredits}
-                    isFocused={focusedSemesterId === sem.id}
-                    slackLabel={slackBySemester.get(sem.id) ?? null}
-                    creditHourCap={creditHourCap}
-                    stressResult={stressScores?.get(sem.id) ?? null}
-                    onClick={() => onTileClick(sem.id)}
+                  <div
+                    key={ay}
+                    aria-hidden="true"
+                    className="rounded-lg bg-muted/30 border border-dashed border-border/25 min-h-[96px]"
                   />
                 );
-              })}
-            </div>
-          );
-        })}
+              }
+              return (
+                <SemesterTile
+                  key={sem.id}
+                  semester={sem}
+                  courseIds={plan[sem.id] ?? []}
+                  catalog={catalog}
+                  prereqNodes={prereqNodes}
+                  gradeDistributions={gradeDistributions}
+                  transcriptCredits={transcriptCredits}
+                  isFocused={focusedSemesterId === sem.id}
+                  slackLabel={slackBySemester.get(sem.id) ?? null}
+                  creditHourCap={creditHourCap}
+                  stressResult={stressScores?.get(sem.id) ?? null}
+                  onClick={() => onTileClick(sem.id)}
+                />
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -147,7 +147,7 @@ function StressBadge({ stressResult }: { stressResult: SemesterStressResult }) {
 
 // ─── Course chip ──────────────────────────────────────────────────────────────
 
-const MAX_CHIPS = 5;
+const MAX_CHIPS = 8;
 
 function CourseChip({
   courseId,
@@ -278,8 +278,8 @@ export default function SemesterTile({
           )}
         </div>
 
-        {/* Credit count + slack */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        {/* Meta line: hours · slack · stress badge — all on one row */}
+        <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
           <span className={cn(
             'text-[10px] leading-none',
             // Past tiles: never show over-cap-red — historical load is not constrainable.
@@ -302,12 +302,10 @@ export default function SemesterTile({
               {slackLabel === 'full' ? '● full' : `+${slackLabel.replace(/ hrs? spare$/, '')} spare`}
             </span>
           )}
+          {stressResult !== null && courseIds.length > 0 && (
+            <StressBadge stressResult={stressResult} />
+          )}
         </div>
-
-        {/* Stress Score badge (TASK-059) */}
-        {stressResult !== null && courseIds.length > 0 && (
-          <StressBadge stressResult={stressResult} />
-        )}
 
         {/* Course chips */}
         {courseIds.length === 0 ? (
@@ -319,12 +317,12 @@ export default function SemesterTile({
             {isDroppable ? 'empty' : '—'}
           </div>
         ) : (
-          <div className="flex flex-col gap-0.5 flex-1 min-h-0 overflow-hidden">
+          <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 flex-1 min-h-0 overflow-hidden">
             {visibleCourses.map((cId) => (
               <CourseChip key={cId} courseId={cId} prereqNodes={prereqNodes} />
             ))}
             {overflowCount > 0 && (
-              <span className="text-[10px] text-muted-foreground/70 pl-2">
+              <span className="col-span-2 text-[10px] text-muted-foreground/70 pl-2">
                 +{overflowCount} more
               </span>
             )}

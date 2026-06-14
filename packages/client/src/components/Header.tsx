@@ -272,12 +272,14 @@ export default function Header() {
                 <MessageSquare className="h-4 w-4" />
               </Button>
               <Button
-                variant="ghost"
-                size="icon"
+                variant="default"
+                size="sm"
+                className="gap-1.5"
                 onClick={handleRecommendPlan}
                 title="Recommend 4-Year Plan"
               >
                 <Wand2 className="h-4 w-4" />
+                Recommend
               </Button>
               <div className="w-[1px] h-4 bg-border mx-1" />
             </>

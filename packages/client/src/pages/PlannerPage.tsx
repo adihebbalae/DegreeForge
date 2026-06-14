@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { X, BookOpen } from 'lucide-react';
+import { X } from 'lucide-react';
 import { PlannerErrorBoundary, RecoverableErrorBoundary } from '@/components/PlannerErrorBoundary';
 import {
   DndContext,
@@ -14,7 +14,7 @@ import {
 import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import { Button } from '@/components/ui/button';
 import { ProgressBars } from '@/components/ProgressBars';
-import { ComparisonToggle, PlanComparisonPanel } from '../components/PlanComparison';
+import { PlanComparisonPanel } from '../components/PlanComparison';
 import CoursePalette from '@/components/CoursePalette';
 import CourseCard from '@/components/CourseCard';
 import ValidationBanner from '@/components/ValidationBanner';
@@ -237,23 +237,6 @@ export default function PlannerPage() {
               ? 'w-[260px] shrink-0 border-r border-border'  // slim strip when focused
               : 'flex-1',                                      // full width in overview
           ].join(' ')}>
-
-            {/* Overview toolbar: Compare toggle + Courses button */}
-            <div className="flex items-center gap-2 px-2 py-1 border-b border-border shrink-0">
-              <ComparisonToggle />
-              <div className="flex-1" />
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-6 px-2 gap-1 text-xs"
-                onClick={() => setPaletteOpen((v) => !v)}
-                aria-label="Toggle course palette"
-                aria-expanded={paletteOpen}
-              >
-                <BookOpen className="h-3 w-3" />
-                Courses
-              </Button>
-            </div>
 
             <div className="flex-1 min-h-0 overflow-hidden">
               <OverviewYearGrid
