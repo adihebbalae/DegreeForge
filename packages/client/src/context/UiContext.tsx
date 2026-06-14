@@ -1,5 +1,19 @@
 import React, { createContext, useContext, useState } from 'react';
 import type { OptimizeMode } from '@/lib/solver';
+import { safeGetRaw, safeSetItem } from '@/lib/persist';
+
+export type FocusLayout = 'insights' | 'add' | 'tabbed';
+
+const FOCUS_LAYOUT_KEY = 'df:focusLayout';
+const VALID_FOCUS_LAYOUTS: FocusLayout[] = ['insights', 'add', 'tabbed'];
+
+function loadFocusLayout(): FocusLayout {
+  const raw = safeGetRaw(FOCUS_LAYOUT_KEY);
+  if (raw && (VALID_FOCUS_LAYOUTS as string[]).includes(raw)) {
+    return raw as FocusLayout;
+  }
+  return 'insights';
+}
 
 interface UiContextValue {
   chatOpen: boolean;
@@ -15,6 +29,9 @@ interface UiContextValue {
   /** Planner optimization objective for "Recommend Plan" ('fastest' default). */
   optimizeMode: OptimizeMode;
   setOptimizeMode: (v: OptimizeMode | ((prev: OptimizeMode) => OptimizeMode)) => void;
+  /** Which panel layout to show in the FocusEditor right panel. Persisted. */
+  focusLayout: FocusLayout;
+  setFocusLayout: (v: FocusLayout) => void;
 }
 
 const UiContext = createContext<UiContextValue | null>(null);
@@ -26,6 +43,12 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [focusedSemesterId, setFocusedSemesterId] = useState<string | null>(null);
   const [optimizeMode, setOptimizeMode] = useState<OptimizeMode>('fastest');
+  const [focusLayout, setFocusLayoutRaw] = useState<FocusLayout>(loadFocusLayout);
+
+  const setFocusLayout = (v: FocusLayout) => {
+    setFocusLayoutRaw(v);
+    safeSetItem(FOCUS_LAYOUT_KEY, v);
+  };
 
   return (
     <UiContext.Provider value={{
@@ -35,6 +58,7 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
       commandPaletteOpen, setCommandPaletteOpen,
       focusedSemesterId, setFocusedSemesterId,
       optimizeMode, setOptimizeMode,
+      focusLayout, setFocusLayout,
     }}>
       {children}
     </UiContext.Provider>
