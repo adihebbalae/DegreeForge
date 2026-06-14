@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
+import React from 'react';
 import { render, screen, fireEvent, cleanup, within } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import CourseDetailDialog from './CourseDetailDialog';
+import { UiProvider } from '@/context/UiContext';
 import type { TechCores } from '@/types';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
@@ -48,9 +50,13 @@ const baseProps = {
 
 afterEach(cleanup);
 
+function renderWithUi(ui: React.ReactElement) {
+  return render(<UiProvider>{ui}</UiProvider>);
+}
+
 describe('CourseDetailDialog — "You may also like" (FR6)', () => {
   it('renders the related-courses section with co-members of the same tech core', () => {
-    render(<CourseDetailDialog {...baseProps} courseId="ECE 438" />);
+    renderWithUi(<CourseDetailDialog {...baseProps} courseId="ECE 438" />);
 
     const heading = screen.getByText('You may also like');
     expect(heading).toBeTruthy();
@@ -65,12 +71,12 @@ describe('CourseDetailDialog — "You may also like" (FR6)', () => {
   it('omits the section entirely when there are no recommendations', () => {
     // BIO 101 shares no prefix with anything in the fixture, so neither the
     // core-membership pass nor the same-prefix fallback finds anything → [].
-    render(<CourseDetailDialog {...baseProps} courseId="BIO 101" />);
+    renderWithUi(<CourseDetailDialog {...baseProps} courseId="BIO 101" />);
     expect(screen.queryByText('You may also like')).toBeNull();
   });
 
   it('clicking a recommendation re-targets the dialog at that course', () => {
-    render(<CourseDetailDialog {...baseProps} courseId="ECE 438" />);
+    renderWithUi(<CourseDetailDialog {...baseProps} courseId="ECE 438" />);
 
     // The header id badge reflects the active course.
     const dialog = screen.getByRole('dialog');

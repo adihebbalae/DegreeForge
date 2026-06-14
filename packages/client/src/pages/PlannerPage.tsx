@@ -51,6 +51,7 @@ export default function PlannerPage() {
     paletteOpen, setPaletteOpen,
     commandPaletteOpen, setCommandPaletteOpen,
     focusedSemesterId, setFocusedSemesterId,
+    detailDialogOpen,
   } = useUi();
 
   const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
@@ -213,7 +214,7 @@ export default function PlannerPage() {
 
   return (
     <PlannerErrorBoundary>
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext sensors={detailDialogOpen ? [] : sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="h-full flex flex-col relative overflow-hidden">
 
         {/* ── Chrome strip: Compare + Progress + Validation (target ~30px total but

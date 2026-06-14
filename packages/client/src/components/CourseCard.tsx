@@ -301,9 +301,10 @@ export default function CourseCard({
       )}
 
       {/* Controls — Pin + Remove, visible on hover (timeline only, non-past).
-          Remove (X) gives an explicit, discoverable alternative to drag-to-palette. */}
+          Remove (X) gives an explicit, discoverable alternative to drag-to-palette.
+          Positioned bottom-right to avoid overlapping the GPA badge in the top-right. */}
       {!isPalette && !isPast && (onTogglePin || onRemove) && (
-        <div className="absolute top-0.5 right-0.5 flex items-center gap-0.5">
+        <div className="absolute bottom-0.5 right-0.5 flex items-center gap-0.5">
           {onTogglePin && (
             <button
               onClick={(e) => { e.stopPropagation(); onTogglePin(courseId); }}
@@ -322,7 +323,7 @@ export default function CourseCard({
           {onRemove && (
             <button
               onClick={(e) => { e.stopPropagation(); onRemove(courseId); }}
-              className="p-0.5 rounded transition-opacity opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-red-500"
+              className="p-0.5 rounded transition-opacity opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500"
               title="Remove course from plan"
               aria-label={`Remove ${courseId}`}
             >
@@ -332,10 +333,12 @@ export default function CourseCard({
         </div>
       )}
 
-      {/* Prereq warning / soft info icon — TASK-057 past-term fade */}
+      {/* Prereq warning / soft info icon — bottom-left to avoid colliding with
+          the bottom-right controls cluster (TASK-096). Palette-only prereq lock
+          also sits bottom-left but is only rendered in palette variant. */}
       {violation && (
         <span className={cn(
-          "absolute bottom-1 right-1 text-[10px] font-bold",
+          "absolute bottom-1 left-1 text-[10px] font-bold",
           isSoftWarning ? "text-primary/70" : isPrereqViolation ? "text-red-500" : "text-amber-500"
         )}>
           {isSoftWarning ? 'ℹ' : '⚠'}

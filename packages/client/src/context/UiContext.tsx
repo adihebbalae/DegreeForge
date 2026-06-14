@@ -32,6 +32,10 @@ interface UiContextValue {
   /** Which panel layout to show in the FocusEditor right panel. Persisted. */
   focusLayout: FocusLayout;
   setFocusLayout: (v: FocusLayout) => void;
+  /** True while a CourseDetailDialog is open — disables dnd-kit sensors to prevent
+   *  background dragging while the user reads / selects text in the dialog. Ephemeral. */
+  detailDialogOpen: boolean;
+  setDetailDialogOpen: (v: boolean) => void;
 }
 
 const UiContext = createContext<UiContextValue | null>(null);
@@ -44,6 +48,7 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
   const [focusedSemesterId, setFocusedSemesterId] = useState<string | null>(null);
   const [optimizeMode, setOptimizeMode] = useState<OptimizeMode>('fastest');
   const [focusLayout, setFocusLayoutRaw] = useState<FocusLayout>(loadFocusLayout);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
   const setFocusLayout = (v: FocusLayout) => {
     setFocusLayoutRaw(v);
@@ -59,6 +64,7 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
       focusedSemesterId, setFocusedSemesterId,
       optimizeMode, setOptimizeMode,
       focusLayout, setFocusLayout,
+      detailDialogOpen, setDetailDialogOpen,
     }}>
       {children}
     </UiContext.Provider>

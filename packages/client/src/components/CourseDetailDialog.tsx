@@ -15,6 +15,7 @@ import { isGradingPlausible, dedupeTextbooks } from '@/lib/syllabus-display';
 import type { CourseCatalog, PrereqNode, GradeDistributions, FallSections, CourseSection } from '@/types';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { useFallSections, useUserProfile, useTechCoresRecord, useSyllabi } from '@/context/DataContext';
+import { useUi } from '@/context/UiContext';
 
 interface CourseDetailDialogProps {
   courseId: string | null;
@@ -38,6 +39,15 @@ export default function CourseDetailDialog({
   const techCores = useTechCoresRecord();
   const transcriptCredits = useMemo(() => buildTranscriptCredits(profile), [profile]);
   const syllabiMap = useSyllabi();
+  const { setDetailDialogOpen } = useUi();
+
+  // Sync open state into UiContext so PlannerPage can disable dnd sensors
+  // while the dialog is visible. The cleanup always resets to false so dnd
+  // is never left disabled if the component unmounts unexpectedly.
+  useEffect(() => {
+    setDetailDialogOpen(open);
+    return () => setDetailDialogOpen(false);
+  }, [open, setDetailDialogOpen]);
 
   const fallSectionsList = useFallSections();
 
@@ -122,9 +132,19 @@ export default function CourseDetailDialog({
     {
       label: 'Past Syllabi',
       icon: Book,
-      url: (syllabusEntry?.pdfUrl && syllabusEntry.pdfUrl.startsWith('http'))
-        ? syllabusEntry.pdfUrl
-        : 'https://utdirect.utexas.edu/apps/student/coursedocs/',
+      url: (() => {
+        // Deep-link to the coursedocs search for this specific course.
+        // Pattern: course_number = everything after the first space in the course ID
+        // (e.g. "ECE 460N" → "460N", "M 325K" → "325K").
+        const spaceIdx = details.id.indexOf(' ');
+        const courseNumber = spaceIdx >= 0 ? details.id.slice(spaceIdx + 1) : details.id;
+        return (
+          `https://utdirect.utexas.edu/apps/student/coursedocs/?` +
+          `course_number=${encodeURIComponent(courseNumber)}` +
+          `&course_title=${encodeURIComponent(details.title)}` +
+          `&course_type=In+Residence&search=`
+        );
+      })(),
     },
     {
       label: 'CIS Surveys',
