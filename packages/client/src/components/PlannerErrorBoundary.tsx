@@ -14,6 +14,7 @@
  */
 
 import React from 'react';
+import { captureException } from '@/lib/analytics';
 
 interface State {
   hasError: boolean;
@@ -44,6 +45,8 @@ export class RecoverableErrorBoundary extends React.Component<RecoverableErrorBo
   componentDidCatch(error: unknown, info: React.ErrorInfo): void {
     const label = (this.props as RecoverableErrorBoundaryProps).label ?? 'panel';
     console.error(`[RecoverableErrorBoundary:${label}] caught render error:`, error, info.componentStack);
+    // PRIVACY: only error message/stack + componentStack sent — no plan, profile, grade, or course data.
+    captureException(error, { componentStack: info.componentStack ?? undefined, boundary: `RecoverableErrorBoundary:${label}` });
   }
 
   handleReset = (): void => {
@@ -91,6 +94,8 @@ export class PlannerErrorBoundary extends React.Component<React.PropsWithChildre
   componentDidCatch(error: unknown, info: React.ErrorInfo): void {
     // Log for developer visibility without crashing the app.
     console.error('[PlannerErrorBoundary] caught render error:', error, info.componentStack);
+    // PRIVACY: only error message/stack + componentStack sent — no plan, profile, grade, or course data.
+    captureException(error, { componentStack: info.componentStack ?? undefined, boundary: 'PlannerErrorBoundary' });
   }
 
   handleReset = (): void => {

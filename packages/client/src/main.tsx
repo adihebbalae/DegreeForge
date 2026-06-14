@@ -8,6 +8,7 @@ import { PlanProvider, SnapshotProvider } from './context/PlanContext.tsx'
 import { SettingsProvider } from './context/SettingsContext.tsx'
 import { TooltipProvider } from './components/ui/tooltip'
 import { OnboardingWizard } from './components/OnboardingWizard.tsx'
+import { RecoverableErrorBoundary } from './components/PlannerErrorBoundary.tsx'
 import { UiProvider } from './context/UiContext.tsx'
 import { DemoSeedBootstrap } from './components/DemoSeedBootstrap.tsx'
 import { PersistBanner } from './components/PersistBanner.tsx'
@@ -52,26 +53,28 @@ function OnboardingGate({ children }: { children: React.ReactNode }) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <DataProvider>
-        <ProfileProvider>
-          <SettingsProvider>
-            <PlanProvider>
-              <DemoSeedBootstrap isFirstRun={IS_FIRST_RUN} />
-              <SnapshotProvider>
-                <TooltipProvider>
-                  <UiProvider>
-                    <OnboardingGate>
-                      <App />
-                    </OnboardingGate>
-                    <PersistBanner />
-                  </UiProvider>
-                </TooltipProvider>
-              </SnapshotProvider>
-            </PlanProvider>
-          </SettingsProvider>
-        </ProfileProvider>
-      </DataProvider>
-    </BrowserRouter>
+    <RecoverableErrorBoundary label="app">
+      <BrowserRouter>
+        <DataProvider>
+          <ProfileProvider>
+            <SettingsProvider>
+              <PlanProvider>
+                <DemoSeedBootstrap isFirstRun={IS_FIRST_RUN} />
+                <SnapshotProvider>
+                  <TooltipProvider>
+                    <UiProvider>
+                      <OnboardingGate>
+                        <App />
+                      </OnboardingGate>
+                      <PersistBanner />
+                    </UiProvider>
+                  </TooltipProvider>
+                </SnapshotProvider>
+              </PlanProvider>
+            </SettingsProvider>
+          </ProfileProvider>
+        </DataProvider>
+      </BrowserRouter>
+    </RecoverableErrorBoundary>
   </React.StrictMode>,
 )
