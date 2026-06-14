@@ -17,6 +17,7 @@ import {
   useTechCoresRecord,
 } from '@/context/DataContext';
 import { computeProgress } from '@/lib/progress';
+import { CATEGORY_BG } from '@/lib/course-utils';
 import { cn } from '@/lib/utils';
 
 interface BarSpec {
@@ -60,10 +61,10 @@ export function RequirementProgress() {
   }
 
   const bars: BarSpec[] = [
-    { label: 'ECE Core', completed: progress.eceCoreCompleted, total: progress.eceCoreTotal, unit: 'courses', color: 'bg-[hsl(16_70%_50%)]' },
-    { label: 'Gen Ed', completed: progress.genEdCompleted, total: progress.genEdTotal, unit: 'courses', color: 'bg-emerald-500' },
-    { label: 'Tech Core', completed: progress.techCoreCompleted, total: progress.techCoreTotal, unit: 'courses', color: 'bg-violet-500' },
-    { label: 'Electives', completed: progress.electiveHours, total: progress.electiveTotalHours, unit: 'hrs', color: 'bg-amber-500' },
+    { label: 'ECE Core', completed: progress.eceCoreCompleted, total: progress.eceCoreTotal, unit: 'courses', color: CATEGORY_BG.ece_core },
+    { label: 'Gen Ed', completed: progress.genEdCompleted, total: progress.genEdTotal, unit: 'courses', color: CATEGORY_BG.gen_ed },
+    { label: 'Tech Core', completed: progress.techCoreCompleted, total: progress.techCoreTotal, unit: 'courses', color: CATEGORY_BG.tech_core },
+    { label: 'Electives', completed: progress.electiveHours, total: progress.electiveTotalHours, unit: 'hrs', color: CATEGORY_BG.elective },
   ];
 
   if (mathBAToggle && progress.mathBATotal) {
@@ -72,7 +73,7 @@ export function RequirementProgress() {
       completed: progress.mathBACompleted ?? 0,
       total: progress.mathBATotal,
       unit: 'courses',
-      color: 'bg-rose-500',
+      color: CATEGORY_BG.math,
     });
   }
 

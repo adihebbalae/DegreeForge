@@ -7,6 +7,7 @@ import {
   useTechCoresRecord
 } from '@/context/DataContext';
 import { computeProgress } from '@/lib/progress';
+import { CATEGORY_BG } from '@/lib/course-utils';
 import { Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -49,7 +50,7 @@ export function ProgressBars() {
       completed: progress.eceCoreCompleted,
       total: progress.eceCoreTotal,
       unit: 'courses',
-      color: 'bg-[hsl(16_70%_50%)]',
+      color: CATEGORY_BG.ece_core,
       weight: 63
     },
     {
@@ -57,7 +58,7 @@ export function ProgressBars() {
       completed: progress.genEdCompleted,
       total: progress.genEdTotal,
       unit: 'courses',
-      color: 'bg-green-500',
+      color: CATEGORY_BG.gen_ed,
       weight: 24
     },
     {
@@ -65,7 +66,7 @@ export function ProgressBars() {
       completed: progress.techCoreCompleted,
       total: progress.techCoreTotal,
       unit: 'courses',
-      color: 'bg-purple-500',
+      color: CATEGORY_BG.tech_core,
       weight: 24
     },
     {
@@ -73,7 +74,7 @@ export function ProgressBars() {
       completed: progress.electiveHours,
       total: progress.electiveTotalHours,
       unit: 'hrs',
-      color: 'bg-yellow-500',
+      color: CATEGORY_BG.elective,
       weight: 11
     },
   ];
@@ -84,7 +85,7 @@ export function ProgressBars() {
       completed: progress.mathBACompleted || 0,
       total: progress.mathBATotal,
       unit: 'courses',
-      color: 'bg-red-500',
+      color: CATEGORY_BG.math,
       weight: 18
     });
   }

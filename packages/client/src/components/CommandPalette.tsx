@@ -34,7 +34,7 @@ import { usePlan, useSemesters, usePlanDispatch } from '@/context/PlanContext';
 import { isPastSemester } from '@/lib/sanitize-course-list';
 import { useUi } from '@/context/UiContext';
 import { track } from '@/lib/analytics';
-import { getCourseTitle, inferCategory } from '@/lib/course-utils';
+import { getCourseTitle, inferCategory, CATEGORY_TEXT, CATEGORY_BORDER_COLOR } from '@/lib/course-utils';
 import { isCourseSatisfied } from '@/lib/palette-courses';
 import type { CourseCategory } from '@/types';
 
@@ -57,23 +57,6 @@ const CATEGORY_LABEL: Record<CourseCategory, string> = {
   math: 'Math',
 };
 
-/** Tailwind text-color classes that complement the border accent per category */
-const CATEGORY_TEXT: Record<CourseCategory, string> = {
-  ece_core: 'text-[hsl(16_70%_45%)] dark:text-[hsl(16_70%_60%)]',
-  tech_core: 'text-[hsl(85_50%_36%)] dark:text-[hsl(85_50%_55%)]',
-  gen_ed: 'text-[hsl(40_72%_40%)] dark:text-[hsl(40_72%_58%)]',
-  elective: 'text-muted-foreground',
-  math: 'text-[hsl(255_38%_52%)] dark:text-[hsl(255_38%_68%)]',
-};
-
-/** Left-border accent per category (standalone Tailwind class, no prefix duplication) */
-const CATEGORY_BORDER_COLOR: Record<CourseCategory, string> = {
-  ece_core: 'border-[hsl(16_70%_50%)]',
-  tech_core: 'border-[hsl(85_50%_42%)]',
-  gen_ed: 'border-[hsl(40_72%_47%)]',
-  elective: 'border-[hsl(220_8%_55%)]',
-  math: 'border-[hsl(255_38%_58%)]',
-};
 
 // ─── Component ────────────────────────────────────────────────────────────────
 

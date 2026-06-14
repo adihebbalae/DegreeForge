@@ -22,7 +22,7 @@ import {
 } from '@/context/DataContext';
 import { usePlan, useSemesters, usePlanDispatch } from '@/context/PlanContext';
 import { isPastSemester } from '@/lib/sanitize-course-list';
-import { getCourseTitle, inferCategory } from '@/lib/course-utils';
+import { getCourseTitle, inferCategory, CATEGORY_TEXT, CATEGORY_BORDER } from '@/lib/course-utils';
 import { isCourseSatisfied } from '@/lib/palette-courses';
 import { track } from '@/lib/analytics';
 import type { CourseCategory } from '@/types';
@@ -43,22 +43,6 @@ const CATEGORY_LABEL: Record<CourseCategory, string> = {
   gen_ed: 'Gen Ed',
   elective: 'Elective',
   math: 'Math',
-};
-
-const CATEGORY_TEXT: Record<CourseCategory, string> = {
-  ece_core: 'text-blue-600 dark:text-blue-400',
-  tech_core: 'text-green-600 dark:text-green-400',
-  gen_ed: 'text-amber-600 dark:text-amber-400',
-  elective: 'text-muted-foreground',
-  math: 'text-purple-600 dark:text-purple-400',
-};
-
-const CATEGORY_BORDER: Record<CourseCategory, string> = {
-  ece_core: 'border-l-4 border-blue-500',
-  tech_core: 'border-l-4 border-green-500',
-  gen_ed: 'border-l-4 border-amber-500',
-  elective: 'border-l-4 border-border',
-  math: 'border-l-4 border-purple-500',
 };
 
 const MAX_RESULTS = 30;
@@ -185,7 +169,7 @@ export default function CoursePickerSheet({ semesterId, onClose }: CoursePickerS
 
       {/* Feedback message (past-term guard) */}
       {feedbackMsg && (
-        <div className="px-3 py-1.5 text-xs text-amber-600 dark:text-amber-400 border-b border-border bg-amber-50 dark:bg-amber-900/20">
+        <div className="px-3 py-1.5 text-xs text-amber-800 dark:text-amber-300 border-b border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30">
           {feedbackMsg}
         </div>
       )}
