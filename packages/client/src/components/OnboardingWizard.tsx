@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Notice } from '@/components/ui/notice';
+import { Lock } from 'lucide-react';
 import { useTechCoresRecord } from '@/context/DataContext';
 import { useSettings, useSettingsDispatch, type LoadTolerance } from '@/context/SettingsContext';
 import { usePlanDispatch, SEMESTERS } from '@/context/PlanContext';
@@ -328,6 +329,10 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 value={transcriptText}
                 onChange={e => { setTranscriptText(e.target.value); setTranscriptError(false); }}
               />
+              <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Lock className="w-3 h-3 shrink-0" aria-hidden="true" />
+                Parsed on your device — your grades are never sent to our servers.
+              </p>
               {transcriptError && (
                 <Notice
                   variant="error"

@@ -117,12 +117,14 @@ export default function CourseDetailDialog({
     {
       label: 'UTGradesPlus',
       icon: TrendingUp,
-      url: `https://utgradesplus.com/?course=${details.id.replace(' ', '+')}`,
+      url: `https://www.utgradesplus.com/?query=${details.id.replace(' ', '+').toLowerCase()}&disp=frequency&agg=false&multi=false`,
     },
     {
       label: 'Past Syllabi',
       icon: Book,
-      url: `https://utdirect.utexas.edu/apps/student/coursesyallabi/`,
+      url: (syllabusEntry?.pdfUrl && syllabusEntry.pdfUrl.startsWith('http'))
+        ? syllabusEntry.pdfUrl
+        : 'https://utdirect.utexas.edu/apps/student/coursedocs/',
     },
     {
       label: 'CIS Surveys',
