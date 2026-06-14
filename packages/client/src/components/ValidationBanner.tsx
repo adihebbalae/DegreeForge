@@ -143,7 +143,7 @@ export default function ValidationBanner() {
             <span className="opacity-70">
               All prerequisites satisfied
               {softViolations.length > 0 && (
-                <span className="text-blue-500 dark:text-blue-400 ml-1.5 opacity-80">
+                <span className="text-primary ml-1.5 opacity-80">
                   ({softViolations.length} past-term info badge{softViolations.length === 1 ? '' : 's'})
                 </span>
               )}

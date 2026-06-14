@@ -64,7 +64,7 @@ export default function DiagnosticsPanel({ diagnostics }: DiagnosticsPanelProps)
               {bottlenecks.length}
             </span>
           ) : (
-            <span className="ml-1 inline-flex items-center gap-0.5 text-blue-400">
+            <span className="ml-1 inline-flex items-center gap-0.5 text-muted-foreground">
               <Info className="h-2.5 w-2.5" aria-hidden="true" />
               {bottlenecks.length}
             </span>
@@ -77,9 +77,9 @@ export default function DiagnosticsPanel({ diagnostics }: DiagnosticsPanelProps)
           {/* Critical path */}
           {hasCriticalPath && (
             <div className="flex items-start gap-1.5">
-              <GitBranch className="h-3 w-3 mt-0.5 text-blue-500 shrink-0" aria-hidden="true" />
+              <GitBranch className="h-3 w-3 mt-0.5 text-primary shrink-0" aria-hidden="true" />
               <div className="min-w-0">
-                <span className="text-[9px] font-semibold text-blue-500 uppercase tracking-wider mr-1">
+                <span className="text-[9px] font-semibold text-primary uppercase tracking-wider mr-1">
                   Critical Path
                 </span>
                 <span
@@ -105,7 +105,7 @@ export default function DiagnosticsPanel({ diagnostics }: DiagnosticsPanelProps)
                   ))}
                 </span>
                 {criticalPath.bottleneckSemesterId && (
-                  <span className="ml-1.5 text-[9px] text-blue-500">
+                  <span className="ml-1.5 text-[9px] text-primary">
                     → earliest by prerequisites: {criticalPath.bottleneckSemesterId}
                   </span>
                 )}
@@ -125,7 +125,7 @@ export default function DiagnosticsPanel({ diagnostics }: DiagnosticsPanelProps)
                     />
                   ) : (
                     <Info
-                      className="h-3 w-3 mt-0.5 shrink-0 text-blue-400"
+                      className="h-3 w-3 mt-0.5 shrink-0 text-muted-foreground"
                       aria-hidden="true"
                     />
                   )}

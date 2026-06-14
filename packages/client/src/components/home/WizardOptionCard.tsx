@@ -39,8 +39,8 @@ export function WizardOptionCard({
     <label
       className={cn(
         'flex cursor-pointer items-center gap-3 rounded-lg border p-4 text-left transition-colors',
-        'focus-within:ring-2 focus-within:ring-blue-500',
-        selected ? 'border-blue-500 bg-blue-500/10' : 'hover:bg-secondary'
+        'focus-within:ring-2 focus-within:ring-ring',
+        selected ? 'border-primary bg-primary/10' : 'hover:bg-secondary'
       )}
     >
       <input
@@ -55,7 +55,7 @@ export function WizardOptionCard({
         <span
           className={cn(
             'flex h-9 w-9 shrink-0 items-center justify-center rounded-md',
-            selected ? 'bg-blue-500/20 text-blue-600 dark:text-blue-300' : 'bg-secondary text-muted-foreground'
+            selected ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'
           )}
           aria-hidden="true"
         >

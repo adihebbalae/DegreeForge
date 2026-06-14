@@ -60,7 +60,7 @@ export function RequirementProgress() {
   }
 
   const bars: BarSpec[] = [
-    { label: 'ECE Core', completed: progress.eceCoreCompleted, total: progress.eceCoreTotal, unit: 'courses', color: 'bg-blue-500' },
+    { label: 'ECE Core', completed: progress.eceCoreCompleted, total: progress.eceCoreTotal, unit: 'courses', color: 'bg-[hsl(16_70%_50%)]' },
     { label: 'Gen Ed', completed: progress.genEdCompleted, total: progress.genEdTotal, unit: 'courses', color: 'bg-emerald-500' },
     { label: 'Tech Core', completed: progress.techCoreCompleted, total: progress.techCoreTotal, unit: 'courses', color: 'bg-violet-500' },
     { label: 'Electives', completed: progress.electiveHours, total: progress.electiveTotalHours, unit: 'hrs', color: 'bg-amber-500' },

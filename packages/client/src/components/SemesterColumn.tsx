@@ -252,7 +252,7 @@ export default function SemesterColumn({
         'flex flex-col gap-2 min-w-[180px] w-[180px] shrink-0 rounded-lg overflow-hidden',
         // Background tint by status
         isPast && 'bg-gray-50 dark:bg-gray-900/50',
-        isCurrent && 'bg-background ring-2 ring-blue-500 dark:ring-blue-400',
+        isCurrent && 'bg-background ring-2 ring-primary',
         !isPast && !isCurrent && 'bg-background'
       )}
     >
@@ -283,7 +283,7 @@ export default function SemesterColumn({
               </span>
             )}
             {isCurrent && (
-              <span className="text-[10px] bg-blue-500 text-white px-1 rounded font-medium">
+              <span className="text-[10px] bg-primary text-primary-foreground px-1 rounded font-medium">
                 NOW
               </span>
             )}
@@ -328,7 +328,7 @@ export default function SemesterColumn({
             className={cn(
               'flex flex-col gap-1.5 min-h-[64px] rounded-md p-1 transition-colors duration-150',
               showHighlight
-                ? 'bg-blue-50 dark:bg-blue-950/30 border border-blue-300 dark:border-blue-700'
+                ? 'bg-accent/30 dark:bg-accent/10 border border-primary/40'
                 : 'border border-transparent'
             )}
           >
@@ -382,8 +382,8 @@ export default function SemesterColumn({
                   'flex items-center justify-center',
                   'text-sm transition-colors duration-150',
                   showHighlight
-                    ? 'border-blue-400 text-blue-500 dark:border-blue-500 dark:text-blue-400'
-                    : 'border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'
+                    ? 'border-primary/60 text-primary'
+                    : 'border-border text-muted-foreground'
                 )}
               >
                 Drop course here

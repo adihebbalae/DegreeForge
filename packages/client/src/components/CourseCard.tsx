@@ -114,7 +114,7 @@ export default function CourseCard({
   const isCoreqViolation = !isSoftWarning && violation?.violationType === 'coreq';
 
   const violationBorder = isSoftWarning
-    ? 'border-l-4 border-l-blue-400 ring-1 ring-blue-300'
+    ? 'border-l-4 border-l-primary/60 ring-1 ring-primary/30'
     : isPrereqViolation
       ? 'border-l-4 border-l-red-500 ring-1 ring-red-400'
       : isCoreqViolation
@@ -221,7 +221,7 @@ export default function CourseCard({
         violationBorder,
         highlightClass,
         // Pinned: subtle ring
-        isPinned && 'ring-2 ring-blue-400/50 dark:ring-blue-500/40',
+        isPinned && 'ring-2 ring-primary/40',
         // Past cards are visually muted
         isPast && 'opacity-70',
         // Palette: dim cards with unmet prereqs
@@ -310,8 +310,8 @@ export default function CourseCard({
               className={cn(
                 'p-0.5 rounded transition-opacity',
                 isPinned
-                  ? 'opacity-100 text-blue-500 dark:text-blue-400'
-                  : 'opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-blue-500'
+                  ? 'opacity-100 text-primary'
+                  : 'opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-primary'
               )}
               title={isPinned ? 'Unpin course' : 'Pin course (hold position in auto-plan)'}
               aria-label={isPinned ? 'Unpin' : 'Pin'}
@@ -336,7 +336,7 @@ export default function CourseCard({
       {violation && (
         <span className={cn(
           "absolute bottom-1 right-1 text-[10px] font-bold",
-          isSoftWarning ? "text-blue-400" : isPrereqViolation ? "text-red-500" : "text-amber-500"
+          isSoftWarning ? "text-primary/70" : isPrereqViolation ? "text-red-500" : "text-amber-500"
         )}>
           {isSoftWarning ? 'ℹ' : '⚠'}
         </span>
@@ -376,7 +376,7 @@ export default function CourseCard({
               {/* Prereq / coreq violations — TASK-057 past-term fade */}
               {violation && isSoftWarning && (
                 <div className="space-y-1">
-                  <p className="font-semibold text-[11px] text-blue-500 uppercase tracking-wider">
+                  <p className="font-semibold text-[11px] text-primary uppercase tracking-wider">
                     Prereq not on record (past semester)
                   </p>
                   {violation.missingPrereqs.length > 0 && (

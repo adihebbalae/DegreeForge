@@ -34,11 +34,11 @@ const HEAT_COLOR: Record<HeatBucket, string> = {
 // ─── Category dot colors ──────────────────────────────────────────────────────
 
 const CATEGORY_DOT: Record<string, string> = {
-  ece_core:  'bg-blue-500',
-  tech_core: 'bg-green-500',
-  gen_ed:    'bg-amber-500',
-  elective:  'bg-gray-400',
-  math:      'bg-purple-500',
+  ece_core:  'bg-[hsl(16_70%_50%)]',
+  tech_core: 'bg-[hsl(85_50%_42%)]',
+  gen_ed:    'bg-[hsl(40_72%_47%)]',
+  elective:  'bg-[hsl(220_8%_55%)]',
+  math:      'bg-[hsl(255_38%_58%)]',
 };
 
 // ─── Season emoji ─────────────────────────────────────────────────────────────
@@ -242,12 +242,12 @@ export default function SemesterTile({
         'transition-shadow duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         // Background/border by status
         isPast && 'bg-gray-50 dark:bg-gray-900/50',
-        isCurrent && 'bg-background ring-2 ring-blue-500 dark:ring-blue-400',
+        isCurrent && 'bg-background ring-2 ring-primary',
         !isPast && !isCurrent && 'bg-background border border-border',
         // Focused state (zoomed tile)
         isFocused && 'ring-2 ring-primary shadow-md',
         // Drop highlight
-        showDropHighlight && 'ring-2 ring-blue-400 bg-blue-50 dark:bg-blue-950/20',
+        showDropHighlight && 'ring-2 ring-primary/60 bg-accent/30 dark:bg-accent/10',
         // Hover (non-focused, non-drop)
         !isFocused && !showDropHighlight && 'hover:shadow-sm hover:border-border/80',
       )}
@@ -272,7 +272,7 @@ export default function SemesterTile({
             </span>
           )}
           {isCurrent && (
-            <span className="text-[9px] bg-blue-500 text-white px-1 rounded font-medium shrink-0">
+            <span className="text-[9px] bg-primary text-primary-foreground px-1 rounded font-medium shrink-0">
               NOW
             </span>
           )}
@@ -314,7 +314,7 @@ export default function SemesterTile({
           <div className={cn(
             'flex-1 flex items-center justify-center',
             'border border-dashed rounded text-[10px] text-muted-foreground/50',
-            showDropHighlight ? 'border-blue-400' : 'border-border/40',
+            showDropHighlight ? 'border-primary/60' : 'border-border/40',
           )}>
             {isDroppable ? 'empty' : '—'}
           </div>

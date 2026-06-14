@@ -119,7 +119,7 @@ export default function HomeWizardHub() {
         <CardHeader className="space-y-4">
           <div className="flex items-center justify-between gap-2">
             <CardTitle className="flex items-center gap-2 text-xl">
-              <GraduationCap className="h-6 w-6 text-blue-500" aria-hidden="true" />
+              <GraduationCap className="h-6 w-6 text-primary" aria-hidden="true" />
               Let&apos;s build your plan
             </CardTitle>
             <Button variant="ghost" size="sm" onClick={skipToPlanner}>
@@ -133,7 +133,7 @@ export default function HomeWizardHub() {
           {step === 1 && (
             <section className="space-y-4 animate-in fade-in slide-in-from-right-4" aria-labelledby="wizard-step-standing">
               <div className="flex items-center gap-2">
-                <Layers className="h-5 w-5 text-blue-500" aria-hidden="true" />
+                <Layers className="h-5 w-5 text-primary" aria-hidden="true" />
                 <h2 id="wizard-step-standing" className="text-lg font-medium">Where are you in your degree?</h2>
               </div>
               <p className="text-sm text-muted-foreground">
@@ -158,7 +158,7 @@ export default function HomeWizardHub() {
           {step === 2 && (
             <section className="space-y-4 animate-in fade-in slide-in-from-right-4" aria-labelledby="wizard-step-goal">
               <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-blue-500" aria-hidden="true" />
+                <Calendar className="h-5 w-5 text-primary" aria-hidden="true" />
                 <h2 id="wizard-step-goal" className="text-lg font-medium">When do you want to graduate?</h2>
               </div>
               <p className="text-sm text-muted-foreground">
@@ -177,7 +177,7 @@ export default function HomeWizardHub() {
                 ))}
               </div>
               <div className="flex items-center gap-2 pt-2">
-                <Gauge className="h-5 w-5 text-blue-500" aria-hidden="true" />
+                <Gauge className="h-5 w-5 text-primary" aria-hidden="true" />
                 <h3 className="font-medium">How should we get you there?</h3>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -199,7 +199,7 @@ export default function HomeWizardHub() {
           {step === 3 && (
             <section className="space-y-4 animate-in fade-in slide-in-from-right-4" aria-labelledby="wizard-step-track">
               <div className="flex items-center gap-2">
-                <Layers className="h-5 w-5 text-blue-500" aria-hidden="true" />
+                <Layers className="h-5 w-5 text-primary" aria-hidden="true" />
                 <h2 id="wizard-step-track" className="text-lg font-medium">Pick a tech core track</h2>
               </div>
               <p className="text-sm text-muted-foreground">
@@ -222,7 +222,7 @@ export default function HomeWizardHub() {
           {step === 4 && (
             <section className="space-y-4 animate-in fade-in slide-in-from-right-4" aria-labelledby="wizard-step-review">
               <div className="flex items-center gap-2">
-                <Rocket className="h-5 w-5 text-blue-500" aria-hidden="true" />
+                <Rocket className="h-5 w-5 text-primary" aria-hidden="true" />
                 <h2 id="wizard-step-review" className="text-lg font-medium">Ready to launch</h2>
               </div>
               <p className="text-sm text-muted-foreground">

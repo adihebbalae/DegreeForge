@@ -49,7 +49,7 @@ export default function ProposalCard({ proposal, actedOps, opErrors, onAccept, o
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-6 px-2 text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+                  className="h-6 px-2 text-xs text-primary hover:bg-primary/10"
                   disabled={acted || op.op !== 'add'}
                   onClick={() => onPin(idx, op)}
                   title="Accept and Pin"

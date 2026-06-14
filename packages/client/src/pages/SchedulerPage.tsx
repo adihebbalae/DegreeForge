@@ -107,7 +107,7 @@ export default function SchedulerPage() {
       <div className="flex-[35] border-r border-border flex flex-col overflow-hidden">
         <div className="p-4 border-b border-border bg-muted/20">
           <h2 className="text-lg font-bold flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-blue-500" />
+            <CalendarIcon className="w-5 h-5 text-primary" />
             Fall 2026 Optimizer
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
@@ -154,12 +154,12 @@ export default function SchedulerPage() {
                       step={0.05}
                       value={weights[factor]}
                       onChange={e => handleWeightChange(factor, parseFloat(e.target.value))}
-                      className="w-full h-1.5 accent-blue-500 cursor-pointer"
+                      className="w-full h-1.5 cursor-pointer"
                     />
                   </div>
                 ))}
                 <button
-                  className="text-[10px] text-blue-500 hover:underline"
+                  className="text-[10px] text-primary hover:underline"
                   onClick={() => settingsDispatch({
                     type: 'SET_SCHEDULER_WEIGHTS',
                     weights: { gpa: 0.35, timeFit: 0.20, buildingPenalty: 0.10, instructionMode: 0.15, professorPreference: 0.15, daySpread: 0.05 },
@@ -188,14 +188,14 @@ export default function SchedulerPage() {
                     className={cn(
                       "flex items-center justify-between p-2 rounded-md border cursor-pointer transition-colors",
                       selectedCourseIds.includes(id)
-                        ? "bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800"
+                        ? "bg-accent/40 border-primary/20"
                         : "hover:bg-accent border-transparent"
                     )}
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn(
                         "w-4 h-4 rounded border flex items-center justify-center",
-                        selectedCourseIds.includes(id) ? "bg-blue-500 border-blue-500 text-white" : "border-input bg-background"
+                        selectedCourseIds.includes(id) ? "bg-primary border-primary text-primary-foreground" : "border-input bg-background"
                       )}>
                         {selectedCourseIds.includes(id) && <Check className="w-3 h-3" />}
                       </div>

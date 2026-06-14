@@ -59,20 +59,20 @@ const CATEGORY_LABEL: Record<CourseCategory, string> = {
 
 /** Tailwind text-color classes that complement the border accent per category */
 const CATEGORY_TEXT: Record<CourseCategory, string> = {
-  ece_core: 'text-blue-600 dark:text-blue-400',
-  tech_core: 'text-green-600 dark:text-green-400',
-  gen_ed: 'text-amber-600 dark:text-amber-400',
-  elective: 'text-gray-500 dark:text-gray-400',
-  math: 'text-purple-600 dark:text-purple-400',
+  ece_core: 'text-[hsl(16_70%_45%)] dark:text-[hsl(16_70%_60%)]',
+  tech_core: 'text-[hsl(85_50%_36%)] dark:text-[hsl(85_50%_55%)]',
+  gen_ed: 'text-[hsl(40_72%_40%)] dark:text-[hsl(40_72%_58%)]',
+  elective: 'text-muted-foreground',
+  math: 'text-[hsl(255_38%_52%)] dark:text-[hsl(255_38%_68%)]',
 };
 
 /** Left-border accent per category (standalone Tailwind class, no prefix duplication) */
 const CATEGORY_BORDER_COLOR: Record<CourseCategory, string> = {
-  ece_core: 'border-blue-500',
-  tech_core: 'border-green-500',
-  gen_ed: 'border-amber-500',
-  elective: 'border-gray-400',
-  math: 'border-purple-500',
+  ece_core: 'border-[hsl(16_70%_50%)]',
+  tech_core: 'border-[hsl(85_50%_42%)]',
+  gen_ed: 'border-[hsl(40_72%_47%)]',
+  elective: 'border-[hsl(220_8%_55%)]',
+  math: 'border-[hsl(255_38%_58%)]',
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
