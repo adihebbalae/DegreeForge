@@ -214,8 +214,8 @@ export default function PlannerPage() {
 
   return (
     <PlannerErrorBoundary>
-    <DndContext sensors={detailDialogOpen ? [] : sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="h-full flex flex-col relative overflow-hidden">
+    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <div className={['h-full flex flex-col relative overflow-hidden', detailDialogOpen && 'pointer-events-none'].filter(Boolean).join(' ')}>
 
         {/* ── Chrome strip: Compare + Progress + Validation (target ~30px total but
              each is 28px with border; actual total depends on how many render).
