@@ -66,6 +66,15 @@ export interface SolverInput {
    * to minimize aggregate Stress Score and balance difficulty across terms.
    */
   optimize?: OptimizeMode;
+  /**
+   * TASK-081 — MANUAL-placement relaxation. When provided, the offering gate is
+   * relaxed for FUTURE terms NOT in this set of verified term slugs (built from
+   * sections-index.json via buildVerifiedTermSet): unverified future terms accept
+   * any course regardless of its season-offering. Verified terms keep strict
+   * enforcement. OMIT this on the auto-planner / Recommend path so recommended
+   * plans stay within real (verified-season) offerings.
+   */
+  verifiedTerms?: Set<string>;
 }
 
 export interface SolverOutput {
@@ -177,7 +186,17 @@ export function generatePlan(input: SolverInput, horizonIndex?: number): SolverO
     existingPlan,
     degreeReqs,
     optimize = 'fastest',
+    verifiedTerms,
   } = input;
+
+  // TASK-081 — manual-placement offering gate. When `verifiedTerms` is provided
+  // (manual path only), placement into an UNVERIFIED future term is allowed
+  // regardless of season-offering; verified terms stay strict. When omitted
+  // (auto-planner / Recommend), this is exactly the strict canOfferInSemester.
+  const offeringGate = (courseId: string, sem: Semester): boolean =>
+    verifiedTerms !== undefined && !verifiedTerms.has(`${sem.season.toLowerCase()}-${sem.year}`)
+      ? true
+      : canOfferInSemester(courseId, sem, offeringSchedule);
 
   // 'easiest' is a two-phase strategy. First run 'fastest' to confirm every
   // course is placeable and to discover the term horizon. Then balance difficulty
@@ -344,7 +363,7 @@ export function generatePlan(input: SolverInput, horizonIndex?: number): SolverO
     for (let i = 0; i <= upperBound; i++) {
       const sem = semesters[i];
       if (sem.status !== 'future') continue;
-      if (!canOfferInSemester(courseId, sem, offeringSchedule)) continue;
+      if (!offeringGate(courseId, sem)) continue;
       if (semesterHours[sem.id] + credits > maxHoursPerSemester) continue;
       if (!prereqsSatisfied(courseId, i)) continue;
       if (!coreqsSatisfied(courseId, i)) continue;
@@ -358,7 +377,7 @@ export function generatePlan(input: SolverInput, horizonIndex?: number): SolverO
       for (let i = 0; i < semesters.length; i++) {
         const sem = semesters[i];
         if (sem.status !== 'future') continue;
-        if (!canOfferInSemester(courseId, sem, offeringSchedule)) continue;
+        if (!offeringGate(courseId, sem)) continue;
         if (semesterHours[sem.id] + credits > maxHoursPerSemester) continue;
         if (!prereqsSatisfied(courseId, i)) continue;
         if (!coreqsSatisfied(courseId, i)) continue;

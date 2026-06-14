@@ -26,6 +26,7 @@ interface SortableCourseCardProps {
   violation?: PrereqViolation;
   isDownstreamHighlight?: boolean;
   isUpstreamHighlight?: boolean;
+  isUnverifiedOffering?: boolean;
   isPinned?: boolean;
   onTogglePin?: (courseId: string) => void;
 }
@@ -42,6 +43,7 @@ function SortableCourseCard({
   violation,
   isDownstreamHighlight,
   isUpstreamHighlight,
+  isUnverifiedOffering,
   isPinned,
   onTogglePin,
 }: SortableCourseCardProps) {
@@ -88,6 +90,7 @@ function SortableCourseCard({
         violation={violation}
         isDownstreamHighlight={isDownstreamHighlight}
         isUpstreamHighlight={isUpstreamHighlight}
+        isUnverifiedOffering={isUnverifiedOffering}
         isPinned={isPinned}
         onTogglePin={onTogglePin}
         onRemove={handleRemove}
@@ -136,6 +139,12 @@ interface SemesterColumnProps {
   transcriptCredits: Record<string, number>;
   /** Violation data from useValidation (TASK-010) */
   violationsByCourse: Record<string, PrereqViolation>;
+  /**
+   * TASK-081 — course IDs in THIS semester that sit in an unverified future term
+   * (no sections data) where their season-offering would otherwise block them.
+   * Renders a subtle "(unverified offered)" note. Empty set = none flagged.
+   */
+  unverifiedOfferingCourses?: Set<string>;
   /** Set of courses to highlight as downstream dependents (TASK-010) */
   downstreamCourses: Set<string>;
   /** Set of courses to highlight as upstream prerequisites (TASK-024) */
@@ -162,6 +171,7 @@ export default function SemesterColumn({
   gradeDistributions,
   transcriptCredits,
   violationsByCourse,
+  unverifiedOfferingCourses = new Set(),
   downstreamCourses,
   upstreamCourses = new Set(),
   pinnedCourses = [],
@@ -337,6 +347,7 @@ export default function SemesterColumn({
                   violation={violationsByCourse[courseId]}
                   isDownstreamHighlight={downstreamCourses.has(courseId)}
                   isUpstreamHighlight={upstreamCourses.has(courseId)}
+                  isUnverifiedOffering={unverifiedOfferingCourses.has(courseId)}
                   isPinned={pinnedCourses.includes(courseId)}
                   onTogglePin={onTogglePin}
                 />
