@@ -21,7 +21,7 @@ import {
   useUserProfile,
 } from '@/context/DataContext';
 import { usePlan, useSemesters, usePlanDispatch } from '@/context/PlanContext';
-import { isPastSemester } from '@/lib/sanitize-course-list';
+import { isPastSemester, isValidCourseId } from '@/lib/sanitize-course-list';
 import { getCourseTitle, inferCategory, CATEGORY_TEXT, CATEGORY_BORDER } from '@/lib/course-utils';
 import { isCourseSatisfied } from '@/lib/palette-courses';
 import { track } from '@/lib/analytics';
@@ -123,6 +123,7 @@ export default function CoursePickerSheet({ semesterId, onClose }: CoursePickerS
       // UI-layer guard: surface a human-readable message for the past-term case.
       // The reducer enforces the same invariant and will silently reject if the
       // message is somehow bypassed.
+      if (!isValidCourseId(courseId)) return;
       if (isPastSemester(semesterId, semesters)) {
         setFeedbackMsg(`Cannot add to ${semesterLabel} — it's already past.`);
         return;
