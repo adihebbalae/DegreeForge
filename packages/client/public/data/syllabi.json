@@ -1,165 +1,2761 @@
 {
   "source": "coursedocs-public:E E; engine=pdftotext",
-  "generated_at": "2026-06-14T02:37:05.630Z",
+  "generated_at": "2026-06-14T03:17:51.645Z",
   "syllabi": {
+    "ECE 306": {
+      "course": "ECE 306",
+      "title": "Introduction to Computing.",
+      "term": "2013 Fall",
+      "instructor": "Yale Patt",
+      "docId": "3435004",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/3435004/",
+      "textChars": 27372,
+      "grading": [
+        {
+          "component": "assignments",
+          "pct": 2
+        },
+        {
+          "component": "exams",
+          "pct": 17
+        },
+        {
+          "component": "Final",
+          "pct": 25
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "Introduction to Computing Systems: from bits and gates to C and beyond; Yale N. Patt and Sanjay J. Patel; Mc-Graw Hill, 2004, 2nd edition. You will need the 2nd edition.",
+        "and Sanjay J. Patel; Mc-Graw Hill, 2004, 2nd edition. You will need the 2nd edition.",
+        "There have been many substantial changes since the first edition. The ISBN for the 2nd",
+        "edition is: 0-07-246750-9",
+        "Textbook: \"From Bits and Gates to C and Beyond, 2nd edition,\" by Yale N. Patt and Sanjay J. Patel."
+      ],
+      "descriptionExcerpt": "Important information about EE 306 is also contained in a handout titled: Additional introductory comments about EE 306. Please be sure to read it. It expands on a number of items in this Course Descriptor. Also, the handout titled: Course Outline (aka, Syllabus) contains a lecture by lecture schedule of topics for the entire semester, the major emphasis of each discussion session, the due dates of problem sets and programming assignments, and the dates of all examinations."
+    },
     "ECE 302": {
       "course": "ECE 302",
       "title": "Introduction to Electrical Engineering.",
-      "term": "2022 Spring",
-      "instructor": "Jack Lee",
-      "docId": "11811905",
-      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/11811905/",
-      "textChars": 6930,
+      "term": "2013 Fall",
+      "instructor": "Julian Cheng",
+      "docId": "3435051",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/3435051/",
+      "textChars": 17998,
       "grading": [
         {
           "component": "Homework",
           "pct": 10
         },
         {
-          "component": "Quizzes",
-          "pct": 15
-        },
-        {
           "component": "Laboratory",
-          "pct": 5
-        },
-        {
-          "component": "Projects",
           "pct": 15
-        }
-      ],
-      "topics": [
-        "Topic/Event  Reading  HW 1",
-        "(Ulaby &  HW 2",
-        "Introduction and overview  Maharbiz)  HW 3",
-        "Basic concepts  Chapter 1",
-        "Circuit terminology and concepts  HW 4",
-        "Circuit topology, Kirchoff’s Laws  Chapter 2  HW 5",
-        "Simple equivalent circuits and  HW 6",
-        "transformations  Chapter 3  HW 7",
-        "Circuit analysis examples  HW 8",
-        "Semester Exam 1 – Wed. 3/23/22 (tentative)  Chapter 4  HW 9",
-        "Nodal analysis  HW 10",
-        "Mesh analysis",
-        "Superposition",
-        "Additional techniques and examples",
-        "Thevenin and Norton equivalent circuits",
-        "Semester Exam 2 – Wed. 4/6/22 (tentative)",
-        "Power transfer",
-        "Operational amplifiers and op amp circuits",
-        "Operational amplifier circuits; additional",
-        "topics",
-        "Final Exam: Tue. 5/17/22 9:00-11:00am",
-        "Spring break: 3/14/22 – 3/19/22"
-      ],
-      "textbooks": [
-        "and Equipment: F. T. Ulaby, M. M. Maharbiz & C.M. Furse, Circuit Analysis and Design (Michigan Publishing,",
-        "F. T. Ulaby, M. M. Maharbiz & C.M. Furse, Circuit Analysis and Design (Michigan Publishing,",
-        "2018) [same as Circuits (National Technology & Science Press, Third Edition, 2016) by the same"
-      ],
-      "descriptionExcerpt": "This course provides an introduction to some of the central elements of electric circuits, their application, and related issues. Topics covered will include the following: the scientific method, and general tools and approaches for problem-solving and analysis; fundamental physical phenomena and their connection to electrical systems; analysis and applications of analog resistive circuits, including Kirchhoff’s Laws, nodal and mesh analysis, Thévenin and Norton equivalents, and operational amplifiers. The course will help students to build and understand the intellectual foundations that…"
-    },
-    "ECE 302H": {
-      "course": "ECE 302H",
-      "title": "Introduction to Electrical Engineering: Honors.",
-      "term": "2020 Fall",
-      "instructor": "Seth Bank",
-      "docId": "10514238",
-      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/10514238/",
-      "textChars": 25394,
-      "grading": [
-        {
-          "component": "Homework",
-          "pct": 12
-        },
-        {
-          "component": "Laboratory",
-          "pct": 3
-        },
-        {
-          "component": "Project",
-          "pct": 50
         },
         {
           "component": "Semester Exams",
+          "pct": 40
+        },
+        {
+          "component": "Final Exam",
+          "pct": 30
+        },
+        {
+          "component": "Project",
+          "pct": 5
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "and Equipment: 1. F. T. Ulaby & M. M. Maharbiz, Circuits (National Technology & Science Press, Second Edition, 2013)",
+        "1. F. T. Ulaby & M. M. Maharbiz, Circuits (National Technology & Science Press, Second Edition, 2013)",
+        "C. K. Alexander and M. N. O. Sadiku, Fundamentals of Electric Circuits, 4th Edition (McGraw Hill, 2009)."
+      ],
+      "descriptionExcerpt": "Three semester exams, 75 minutes each, will be given on the dates/times below, at a location to be announced later. The 2- hour time slot allows some time for seating, directions, collecting exams, etc. Our regular lectures scheduled on 10/02/2013, 10/30/2013, and 11/27/2013 will not meet."
+    },
+    "ECE 362K": {
+      "course": "ECE 362K",
+      "title": "Introduction to Automatic Control.",
+      "term": "2013 Summer",
+      "instructor": "Mitchell Pryor",
+      "docId": "3227906",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/3227906/",
+      "textChars": 5860,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 15
+        },
+        {
+          "component": "Midterm Exams",
+          "pct": 45
+        },
+        {
+          "component": "Final Exam",
+          "pct": 35
+        },
+        {
+          "component": "Class participation",
+          "pct": 5
+        }
+      ],
+      "topics": [
+        "• What is a dynamical system, control, and feedback?",
+        "• Concepts from state space design.",
+        "• Linear algebra review and some new concepts.",
+        "• State-space solution to linear systems.",
+        "• Controllability. Observability.",
+        "• Review of basics in Laplace transforms.",
+        "• System diagrams. Significance of pole and zero locations. System stability test.",
+        "• Basic equations of feedback. Performance measures, such as stability, disturbance",
+        "rejection, noise attenuation, and tracking.",
+        "• Proportional-Integral-Derivative (PID) controller.",
+        "• Frequency response design. Bode and Nyquist plots, and the Nyquist criterion.",
+        "• Stability, and stability margins. Robustness.",
+        "• Time permitting: nonlinear systems, digital control.",
+        "There will be a big effort to draw interesting examples illustrating the basic concepts from a wide",
+        "area, in order to give an idea of the applicability and impact ideas from Systems Theory have",
+        "had, and are currently continuing to have.",
+        "Course Prerequisites",
+        "The prerequisites for this class are: Electrical Engineering 438, as well as Mathematics 340L,",
+        "with a grade of at least C in each. Much of what we cover in this class is cumulative. Thus these",
+        "prerequisites are strict. Indeed, this class draws heavily on previous work in: linear algebra,",
+        "transforms, and differential equations. In addition to these, part of the assignments will require",
+        "use of MATLAB. You do not need to have prior exposure to MATLAB, but knowledge of basic",
+        "programming will be helpful. General Note: If you are concerned about the prerequisites or",
+        "your background, or what the course will cover, please don't hesitate to contact me by e-mail, or",
+        "Homework and Exams",
+        "In this class there will be roughly weekly homework; there will be three mid-term exams in",
+        "class, and a final exam. The weighting will be as follows:",
+        "• Homework: 15%",
+        "• Midterm Exams: 45%",
+        "• Final Exam: 35%"
+      ],
+      "textbooks": [],
+      "descriptionExcerpt": "The concept of feedback is central in the study of systems and control. Feedback loops naturally appear in the most basic biological phenomena, including macroscopic scale (population evolution, extinction, etc.) but also physiological function, for example, regulation of glucose level in the blood. In Engineering, feedback has long played an important role in mechanical, electronic, and even digital systems. More generally, systems theory and feedback are central to understanding, analyzing, and designing systems with interconnected components. It is important to understand not only if a…"
+    },
+    "ECE 360C": {
+      "course": "ECE 360C",
+      "title": "Algorithms.",
+      "term": "2013 Summer",
+      "instructor": "Vijay Garg",
+      "docId": "3225464",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/3225464/",
+      "textChars": 7148,
+      "grading": [
+        {
+          "component": "e 8 homework assignments will account for",
+          "pct": 24
+        },
+        {
+          "component": "nal exam will account for",
+          "pct": 20
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "and Cliﬀord Stein. The MIT Press; third edition."
+      ],
+      "descriptionExcerpt": "Advanced problem solving methods; algorithm design principles; complexity analysis; study of the nature, impact, and handling of intractability; study of common algorithmic classes and their applications."
+    },
+    "ECE 351K": {
+      "course": "ECE 351K",
+      "title": "Probability and Random Processes.",
+      "term": "2013 Summer",
+      "instructor": "William Bard",
+      "docId": "3209794",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/3209794/",
+      "textChars": 3390,
+      "grading": [],
+      "topics": [
+        "Probability, random variables, statistics, and random processes,",
+        "including counting, independence, conditioning, expectation,",
+        "density functions, distributions, law of large numbers, central",
+        "limit theorem, confidence intervals, hypothesis testing,",
+        "statistical estimation, stationary processes, and ergodicity.",
+        "PREREQUISITES:",
+        "EE 313 with a grade of at least C.",
+        "ASSIGNMENTS:",
+        "Homework - there will be weekly homework assignments consisting",
+        "of either problems from the text or exercises developed from",
+        "class discussion.",
+        "Scheduled Tests - there will be two tests, scheduled in-class,",
+        "during the semester. Each will consist of problems derived from",
+        "material discussed in class or covered in homework. The tests",
+        "will be closed book/notes with limited supplemental student-",
+        "generated reference material. The second test will not include",
+        "material covered on the first test.",
+        "Unscheduled Tests – there will be several short (~15 minute)",
+        "unscheduled tests at the beginning of selected class periods.",
+        "Each unscheduled test will be a re-statement of a recent homework",
+        "problem or an application of material presented in a previous",
+        "class.",
+        "Final - there will be a comprehensive final scheduled during the",
+        "final examination period."
+      ],
+      "textbooks": [],
+      "descriptionExcerpt": "TEXT: Introduction To Probability, 2nd ed., D. P. Bertsekas, J. N. Tsisiklis; Athena Scientific, 2008, ISBN 978-1-886529-23-6"
+    },
+    "ECE 339": {
+      "course": "ECE 339",
+      "title": "Solid-State Electronic Devices.",
+      "term": "2013 Summer",
+      "instructor": "Nina Telang",
+      "docId": "3222349",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/3222349/",
+      "textChars": 3420,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 10
+        },
+        {
+          "component": "Pop-quizzes/Classwork",
+          "pct": 10
+        },
+        {
+          "component": "Exam 1",
+          "pct": 25
+        },
+        {
+          "component": "Exam 2",
+          "pct": 25
+        },
+        {
+          "component": "Final Exam",
+          "pct": 30
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "The purpose of this course is to teach device physics of electronic devices such as p-n junctions, mosfets, bipolar junction transistors. In general the course will expose you to:"
+    },
+    "ECE 312": {
+      "course": "ECE 312",
+      "title": "Software Design and Implementation I.",
+      "term": "2013 Summer",
+      "instructor": "Craig Chase",
+      "docId": "3207206",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/3207206/",
+      "textChars": 17432,
+      "grading": [],
+      "topics": [
+        "Module 1: C Programming review and Memory Management",
+        "Week 1: (6/10) Review: Pointers, arrays, functions, loops. Program 0: Tool/skill check",
+        "Week2: (6/17) The Heap (implementation of malloc/free). Program 1: Spell Check.",
+        "Week 3: (6/24) Structs in C. Program 2: TBD",
+        "Week 4: (7/1) Parameter passing, the stack Stack and Pointer use. Program 3: TBD",
+        "Thursday July 4th and Friday July 5th is a holiday",
+        "Module 2: Higher-Level Programming: ADTs and Big-Oh",
+        "Week 5: (7/8) Concluding thoughts on C, Transition to C++. Program 4: TBD",
+        "MIDTERM 1 (July 10)",
+        "Week 6: (7/15) Sorting and Intro to Big-Oh. Program 5: TBD",
+        "Week 7: (7/22) An aside on recursion. Program 6: TBD",
+        "Module 3: Proficiency in Design and Implementation of Software",
+        "Week 8: (7/29) Vector (ArrayList) and String. Program 7: TBD",
+        "Week 9: (8/5) Binary Search Trees. Program 8: TBD",
+        "MIDTERM 2 (August 7)",
+        "Week 10: (8/12) Hash Tables. Program 9: TBD"
+      ],
+      "textbooks": [
+        "TEXT: The required is Thinking in C++ (2nd Edition) Volume 1, by B. Eckel, ISBN 0-13- 979089-9. Note that the Eckel book can be downloaded from http://www.mindviewinc.com."
+      ],
+      "descriptionExcerpt": "FINAL EXAMINATION: The date, time and location of the exam will be announced by The University registrar. Final examinations are three hours long and are comprehensive."
+    },
+    "ECE 464S": {
+      "course": "ECE 464S",
+      "title": "Honors Senior Design Project.",
+      "term": "2013 Spring",
+      "instructor": "Gary Hallock",
+      "docId": "2851807",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2851807/",
+      "textChars": 45152,
+      "grading": [],
+      "topics": [
+        "Week Dates  Week’s Activities",
+        "1 14–16 Jan  - Meet Faculty Mentor and establish a regular meeting time",
+        "- Mon, 3:00 Course Orientation: Fast-Start in ECJ 1.202",
+        "- Wed, 3:00 Project Communication, in ENJ 1.202",
+        "2 21–23 Jan  - Mon: MLK HOLIDAY",
+        "- Attend Design Review Meeting with Faculty Mentor",
+        "3 28–30 Jan DUE: Design Implementation Plan at ENS 330 by 12:30 p.m. Wed., Jan. 30*",
+        "4  4–6 Feb  - Submit Weekly Project Status Report",
+        "5 11–13 Feb  - Submit Weekly Project Status Report",
+        "6 18–20 Feb  - Submit Weekly Project Status Report",
+        "7 25–27 Feb  - Submit Weekly Project Status Report",
+        "- Pre-Demo Performance Milestone with Mentor",
+        "8  4–6 Mar  - End of Project Performance Period 1",
+        "- Submit Peer Evaluations",
+        "DUE: Testing and Evaluation Plan at ENS 330 by 12:30 p.m. Wed., Mar. 6*",
+        "11–13 Mar: SPRING BREAK",
+        "9 18–20 Mar  - Submit Weekly Project Status Report",
+        "- Wed, 3:00 Town Meeting",
+        "10 25–27 Mar  - Present Oral Progress Report",
+        "11 1–3 Apr  - Submit Weekly Project Status Report",
+        "- Final Project Demo Milestone with Mentor",
+        "- End of Project Performance Period 2",
+        "12 8–10 Apr  - Submit Weekly Project Status Report",
+        "13 15–17 Apr  - Wed, 3:00 Town Meeting",
+        "- Submit Weekly Project Status Report",
+        "14 22–24 Apr  OPEN HOUSE: Wednesday, April 24",
+        "(Submit Poster (pdf) to Writing TA by 12:30 p.m.)",
+        "- Submit Weekly Project Status Report",
+        "- End of Project Performance Period 3",
+        "15  29 Apr–  - Submit Peer Evaluations"
+      ],
+      "textbooks": [
+        "and Practice. McGraw-Hill: New York, 2007."
+      ],
+      "descriptionExcerpt": "Use of E-Mail for Official Correspondence with Students ..............................................8 Use of Blackboard in Class ..............................................................................................8"
+    },
+    "ECE 464R": {
+      "course": "ECE 464R",
+      "title": "Honors Senior Design Project.",
+      "term": "2013 Spring",
+      "instructor": "Gary Hallock",
+      "docId": "2851807",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2851807/",
+      "textChars": 45152,
+      "grading": [],
+      "topics": [
+        "Week Dates  Week’s Activities",
+        "1 14–16 Jan  - Meet Faculty Mentor and establish a regular meeting time",
+        "- Mon, 3:00 Course Orientation: Fast-Start in ECJ 1.202",
+        "- Wed, 3:00 Project Communication, in ENJ 1.202",
+        "2 21–23 Jan  - Mon: MLK HOLIDAY",
+        "- Attend Design Review Meeting with Faculty Mentor",
+        "3 28–30 Jan DUE: Design Implementation Plan at ENS 330 by 12:30 p.m. Wed., Jan. 30*",
+        "4  4–6 Feb  - Submit Weekly Project Status Report",
+        "5 11–13 Feb  - Submit Weekly Project Status Report",
+        "6 18–20 Feb  - Submit Weekly Project Status Report",
+        "7 25–27 Feb  - Submit Weekly Project Status Report",
+        "- Pre-Demo Performance Milestone with Mentor",
+        "8  4–6 Mar  - End of Project Performance Period 1",
+        "- Submit Peer Evaluations",
+        "DUE: Testing and Evaluation Plan at ENS 330 by 12:30 p.m. Wed., Mar. 6*",
+        "11–13 Mar: SPRING BREAK",
+        "9 18–20 Mar  - Submit Weekly Project Status Report",
+        "- Wed, 3:00 Town Meeting",
+        "10 25–27 Mar  - Present Oral Progress Report",
+        "11 1–3 Apr  - Submit Weekly Project Status Report",
+        "- Final Project Demo Milestone with Mentor",
+        "- End of Project Performance Period 2",
+        "12 8–10 Apr  - Submit Weekly Project Status Report",
+        "13 15–17 Apr  - Wed, 3:00 Town Meeting",
+        "- Submit Weekly Project Status Report",
+        "14 22–24 Apr  OPEN HOUSE: Wednesday, April 24",
+        "(Submit Poster (pdf) to Writing TA by 12:30 p.m.)",
+        "- Submit Weekly Project Status Report",
+        "- End of Project Performance Period 3",
+        "15  29 Apr–  - Submit Peer Evaluations"
+      ],
+      "textbooks": [
+        "and Practice. McGraw-Hill: New York, 2007."
+      ],
+      "descriptionExcerpt": "Use of E-Mail for Official Correspondence with Students ..............................................8 Use of Blackboard in Class ..............................................................................................8"
+    },
+    "ECE 464K": {
+      "course": "ECE 464K",
+      "title": "Honors Senior Design Project.",
+      "term": "2013 Spring",
+      "instructor": "Gary Hallock",
+      "docId": "2851807",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2851807/",
+      "textChars": 45152,
+      "grading": [],
+      "topics": [
+        "Week Dates  Week’s Activities",
+        "1 14–16 Jan  - Meet Faculty Mentor and establish a regular meeting time",
+        "- Mon, 3:00 Course Orientation: Fast-Start in ECJ 1.202",
+        "- Wed, 3:00 Project Communication, in ENJ 1.202",
+        "2 21–23 Jan  - Mon: MLK HOLIDAY",
+        "- Attend Design Review Meeting with Faculty Mentor",
+        "3 28–30 Jan DUE: Design Implementation Plan at ENS 330 by 12:30 p.m. Wed., Jan. 30*",
+        "4  4–6 Feb  - Submit Weekly Project Status Report",
+        "5 11–13 Feb  - Submit Weekly Project Status Report",
+        "6 18–20 Feb  - Submit Weekly Project Status Report",
+        "7 25–27 Feb  - Submit Weekly Project Status Report",
+        "- Pre-Demo Performance Milestone with Mentor",
+        "8  4–6 Mar  - End of Project Performance Period 1",
+        "- Submit Peer Evaluations",
+        "DUE: Testing and Evaluation Plan at ENS 330 by 12:30 p.m. Wed., Mar. 6*",
+        "11–13 Mar: SPRING BREAK",
+        "9 18–20 Mar  - Submit Weekly Project Status Report",
+        "- Wed, 3:00 Town Meeting",
+        "10 25–27 Mar  - Present Oral Progress Report",
+        "11 1–3 Apr  - Submit Weekly Project Status Report",
+        "- Final Project Demo Milestone with Mentor",
+        "- End of Project Performance Period 2",
+        "12 8–10 Apr  - Submit Weekly Project Status Report",
+        "13 15–17 Apr  - Wed, 3:00 Town Meeting",
+        "- Submit Weekly Project Status Report",
+        "14 22–24 Apr  OPEN HOUSE: Wednesday, April 24",
+        "(Submit Poster (pdf) to Writing TA by 12:30 p.m.)",
+        "- Submit Weekly Project Status Report",
+        "- End of Project Performance Period 3",
+        "15  29 Apr–  - Submit Peer Evaluations"
+      ],
+      "textbooks": [
+        "and Practice. McGraw-Hill: New York, 2007."
+      ],
+      "descriptionExcerpt": "Use of E-Mail for Official Correspondence with Students ..............................................8 Use of Blackboard in Class ..............................................................................................8"
+    },
+    "ECE 464H": {
+      "course": "ECE 464H",
+      "title": "Honors Senior Design Project.",
+      "term": "2013 Spring",
+      "instructor": "Gary Hallock",
+      "docId": "2851807",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2851807/",
+      "textChars": 45152,
+      "grading": [],
+      "topics": [
+        "Week Dates  Week’s Activities",
+        "1 14–16 Jan  - Meet Faculty Mentor and establish a regular meeting time",
+        "- Mon, 3:00 Course Orientation: Fast-Start in ECJ 1.202",
+        "- Wed, 3:00 Project Communication, in ENJ 1.202",
+        "2 21–23 Jan  - Mon: MLK HOLIDAY",
+        "- Attend Design Review Meeting with Faculty Mentor",
+        "3 28–30 Jan DUE: Design Implementation Plan at ENS 330 by 12:30 p.m. Wed., Jan. 30*",
+        "4  4–6 Feb  - Submit Weekly Project Status Report",
+        "5 11–13 Feb  - Submit Weekly Project Status Report",
+        "6 18–20 Feb  - Submit Weekly Project Status Report",
+        "7 25–27 Feb  - Submit Weekly Project Status Report",
+        "- Pre-Demo Performance Milestone with Mentor",
+        "8  4–6 Mar  - End of Project Performance Period 1",
+        "- Submit Peer Evaluations",
+        "DUE: Testing and Evaluation Plan at ENS 330 by 12:30 p.m. Wed., Mar. 6*",
+        "11–13 Mar: SPRING BREAK",
+        "9 18–20 Mar  - Submit Weekly Project Status Report",
+        "- Wed, 3:00 Town Meeting",
+        "10 25–27 Mar  - Present Oral Progress Report",
+        "11 1–3 Apr  - Submit Weekly Project Status Report",
+        "- Final Project Demo Milestone with Mentor",
+        "- End of Project Performance Period 2",
+        "12 8–10 Apr  - Submit Weekly Project Status Report",
+        "13 15–17 Apr  - Wed, 3:00 Town Meeting",
+        "- Submit Weekly Project Status Report",
+        "14 22–24 Apr  OPEN HOUSE: Wednesday, April 24",
+        "(Submit Poster (pdf) to Writing TA by 12:30 p.m.)",
+        "- Submit Weekly Project Status Report",
+        "- End of Project Performance Period 3",
+        "15  29 Apr–  - Submit Peer Evaluations"
+      ],
+      "textbooks": [
+        "and Practice. McGraw-Hill: New York, 2007."
+      ],
+      "descriptionExcerpt": "Use of E-Mail for Official Correspondence with Students ..............................................8 Use of Blackboard in Class ..............................................................................................8"
+    },
+    "ECE 464G": {
+      "course": "ECE 464G",
+      "title": "Honors Senior Design Project.",
+      "term": "2013 Spring",
+      "instructor": "Gary Hallock",
+      "docId": "2851807",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2851807/",
+      "textChars": 45152,
+      "grading": [],
+      "topics": [
+        "Week Dates  Week’s Activities",
+        "1 14–16 Jan  - Meet Faculty Mentor and establish a regular meeting time",
+        "- Mon, 3:00 Course Orientation: Fast-Start in ECJ 1.202",
+        "- Wed, 3:00 Project Communication, in ENJ 1.202",
+        "2 21–23 Jan  - Mon: MLK HOLIDAY",
+        "- Attend Design Review Meeting with Faculty Mentor",
+        "3 28–30 Jan DUE: Design Implementation Plan at ENS 330 by 12:30 p.m. Wed., Jan. 30*",
+        "4  4–6 Feb  - Submit Weekly Project Status Report",
+        "5 11–13 Feb  - Submit Weekly Project Status Report",
+        "6 18–20 Feb  - Submit Weekly Project Status Report",
+        "7 25–27 Feb  - Submit Weekly Project Status Report",
+        "- Pre-Demo Performance Milestone with Mentor",
+        "8  4–6 Mar  - End of Project Performance Period 1",
+        "- Submit Peer Evaluations",
+        "DUE: Testing and Evaluation Plan at ENS 330 by 12:30 p.m. Wed., Mar. 6*",
+        "11–13 Mar: SPRING BREAK",
+        "9 18–20 Mar  - Submit Weekly Project Status Report",
+        "- Wed, 3:00 Town Meeting",
+        "10 25–27 Mar  - Present Oral Progress Report",
+        "11 1–3 Apr  - Submit Weekly Project Status Report",
+        "- Final Project Demo Milestone with Mentor",
+        "- End of Project Performance Period 2",
+        "12 8–10 Apr  - Submit Weekly Project Status Report",
+        "13 15–17 Apr  - Wed, 3:00 Town Meeting",
+        "- Submit Weekly Project Status Report",
+        "14 22–24 Apr  OPEN HOUSE: Wednesday, April 24",
+        "(Submit Poster (pdf) to Writing TA by 12:30 p.m.)",
+        "- Submit Weekly Project Status Report",
+        "- End of Project Performance Period 3",
+        "15  29 Apr–  - Submit Peer Evaluations"
+      ],
+      "textbooks": [
+        "and Practice. McGraw-Hill: New York, 2007."
+      ],
+      "descriptionExcerpt": "Use of E-Mail for Official Correspondence with Students ..............................................8 Use of Blackboard in Class ..............................................................................................8"
+    },
+    "ECE 462L": {
+      "course": "ECE 462L",
+      "title": "Power Electronics Laboratory.",
+      "term": "2013 Spring",
+      "instructor": "Alexis Kwasinski",
+      "docId": "2853504",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2853504/",
+      "textChars": 13119,
+      "grading": [
+        {
+          "component": "Lab",
+          "pct": 50
+        },
+        {
+          "component": "final",
+          "pct": 10
+        },
+        {
+          "component": "Attendance",
+          "pct": 10
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "12 to 1 pm. He is often in the power lab during the scheduled lab sessions."
+    },
+    "ECE 461L": {
+      "course": "ECE 461L",
+      "title": "Software Engineering and Design Laboratory.",
+      "term": "2013 Spring",
+      "instructor": "Adnan Aziz",
+      "docId": "2856489",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2856489/",
+      "textChars": 5325,
+      "grading": [
+        {
+          "component": "Laboratory",
+          "pct": 45
+        },
+        {
+          "component": "projects",
+          "pct": 5
+        },
+        {
+          "component": "HW",
+          "pct": 10
+        },
+        {
+          "component": "Midterm",
+          "pct": 15
+        },
+        {
+          "component": "Quizzes",
+          "pct": 5
+        },
+        {
+          "component": "Final",
+          "pct": 25
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "This course focuses on providing hands-on experience in designing and developing large-scale software systems. Specifically, the course studies tools and techniques that enable large-scale software development. Specific topics include version control systems, the UNIX shell, design and modeling tools, build automation, testing tools, tools for debugging and finding bugs, object-oriented design and analysis, design patterns, and refactoring. Pre-requisite: EE422C (or EE322C) or Computer Science 336 with a grade of at least C-; credit with a grade of at least C- or registration for EE 360C or…"
+    },
+    "ECE 460R": {
+      "course": "ECE 460R",
+      "title": "Introduction to VLSI Design.",
+      "term": "2013 Spring",
+      "instructor": "Zhigang Pan",
+      "docId": "2754813",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2754813/",
+      "textChars": 3730,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 10
+        },
+        {
+          "component": "Exams I and II",
+          "pct": 25
+        },
+        {
+          "component": "Laboratory Exercises",
+          "pct": 45
+        },
+        {
+          "component": "Final Exam",
+          "pct": 20
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "(4th Edition), 2010. Addison-Wesley."
+      ],
+      "descriptionExcerpt": "We aim to study the process of implementing a digital system as a CMOS integrated circuit. The course will begin with a review of the basics of CMOS transistor operation and the manufacturing process for CMOS VLSI chips. We will then study in detail the problem of implementing logic gates in CMOS. Specifically, we will cover layout, design rules, and circuit families. Afterwards, we will examine techniques for timing and power analysis and clocking. We will also examine ways to optimize timing and power. This will be followed by an overview of datapath design, specifically adders and…"
+    },
+    "ECE 460N": {
+      "course": "ECE 460N",
+      "title": "Computer Architecture.",
+      "term": "2013 Spring",
+      "instructor": "Yale Patt",
+      "docId": "2754536",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2754536/",
+      "textChars": 17478,
+      "grading": [],
+      "topics": [
+        "January 14, 2013",
+        "January 14: Lecture 1: Intro to the course. Levels of Transformations. Basic",
+        "architectural choices. Science of Tradeoffs.",
+        "January 16: Lecture 2: Intro to Instruction Set Architecture, with examples",
+        "taken from many diverse ISAs. Detailed discussion of LC-3b, with Assembly",
+        "language constructs.",
+        "January 17 or 18: First Discussion Session. Bookkeeping, overview, expectations.",
+        "January 21, no class. Martin Luther King Day.",
+        "January 23: Lecture 3: Translation from Assembly Language to ISA",
+        "January 24 or 25: Discussion Session. (Emphasis on ISA, LC-3b, the Assembly",
+        "Process, Programming Lab 1)",
+        "Problem set 1 due before class, January 28. (Emphasis: ISA, LC-3b,",
+        "the Assembly Process))",
+        "January 28: Lecture 4: Intro to Microarchitecture: Detailed discussion of an",
+        "LC-3b implementation.",
+        "January 30: Lecture 5: LC-3b microarchitecture, continued. Pipelining.",
+        "January 31, February 1: Discussion Session. Emphasis on Programming Lab 1.",
+        "Programming Lab 1 is due, Sunday night, February 3, 11:59pm.",
+        "(Write a program in LC-3b Assembly Language. Write an Assembler.",
+        "Assemble the program you have written)",
+        "February 4: Lecture 6: Performance enhancement: Branch Prediction, out-of-order",
+        "execution.",
+        "February 6: Lecture 7: Out-of-order execution, continued.",
+        "February 7 or 8: Discussion Session. Emphasis on Programming Lab 2.",
+        "Programming Lab 2 is due, Sunday night February 10, 11:59pm.",
+        "(Write a program in C that simulates at the instruction cycle level",
+        "the baseline LC-3b ISA. Test your simulator with the output of",
+        "1 of 4",
+        "the assembler for the application program written in Programming Lab 1.)",
+        "February 11: Lecture 8: Physical memory, unaligned access, interleaving, SRAM,"
+      ],
+      "textbooks": [
+        "Cambridge University Press, 2000, ISBN 0521651689, 0521657059"
+      ],
+      "descriptionExcerpt": "January 14: Lecture 1: Intro to the course. Levels of Transformations. Basic architectural choices. Science of Tradeoffs. January 16: Lecture 2: Intro to Instruction Set Architecture, with examples taken from many diverse ISAs. Detailed discussion of LC-3b, with Assembly language constructs. January 17 or 18: First Discussion Session. Bookkeeping, overview, expectations. January 21, no class. Martin Luther King Day. January 23: Lecture 3: Translation from Assembly Language to ISA January 24 or 25: Discussion Session. (Emphasis on ISA, LC-3b, the Assembly Process, Programming Lab 1) Problem…"
+    },
+    "ECE 460M": {
+      "course": "ECE 460M",
+      "title": "Digital Systems Design Using HDL.",
+      "term": "2013 Spring",
+      "instructor": "Lizy John",
+      "docId": "2858643",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2858643/",
+      "textChars": 13545,
+      "grading": [
+        {
+          "component": "Lab assignments",
+          "pct": 30
+        },
+        {
+          "component": "Midterm Exams",
+          "pct": 30
+        },
+        {
+          "component": "Final Exam",
+          "pct": 25
+        },
+        {
+          "component": "Homeworks",
+          "pct": 10
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "In this course, the principles of advanced digital design will be taught. This course builds on logic design principles learned in EE316: Digital Logic Design and demonstrates how digital design and rapid prototyping have been facilitated by HDLs (Hardware Description Languages) and FPGAs (Field Programmable Gate Arrays). Digital design is taught at a higher level of abstraction than EE316. This course has a significant lab component involving Verilog HDL and FPGAs. Students will learn principles of making complex digital systems work correctly and will practice prototyping such systems using…"
+    },
+    "ECE 445S": {
+      "course": "ECE 445S",
+      "title": "Real-Time Digital Signal Processing Laboratory.",
+      "term": "2013 Spring",
+      "instructor": "Brian Evans",
+      "docId": "2841410",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2841410/",
+      "textChars": 4288,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": ""
+    },
+    "ECE 445M": {
+      "course": "ECE 445M",
+      "title": "Embedded and Real-Time Systems Laboratory.",
+      "term": "2013 Spring",
+      "instructor": "Jonathan Valvano",
+      "docId": "2838932",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2838932/",
+      "textChars": 24889,
+      "grading": [],
+      "topics": [
+        "Week Book  Topic",
+        "1/14  1-3  Modular programming, call graphs, synchronization, data flow graphs, show",
+        "differences between busy-wait and interrupt synchronization, uVision4",
+        "compiler, device drivers, quality software, friendly",
+        "1/21  1, 2.5,  Arm architecture, instruction set, stack, interrupt servicing, lab environment,",
+        "2.6, 3.7 debugging techniques, intrusiveness, monitor, output to scope, simulator,",
+        "periodic interrupts",
+        "1/28  3.4, 4.1, RTOS, threads, TCB switching, spinlock semaphores, draw initial TCB,",
+        "4.2, 4.3 performance measures (response time, throughput), use of the FIFO, and thread",
+        "communication,",
+        "2/4  4.2, 4.3, Blocking semaphores, add cooperative multitasking priority scheduling,",
+        "4.4, 3.7 debugging",
+        "2/11  3.6, 3.7, Critical sections, debugging of the RTOS, time jitter, microphone interface, rail-",
+        "2.12, 5.1, to-rail single supply circuits",
+        "2/18  5.3, 5.3, Analog filters, Digital filers, FFT, graphics (both section 5.3’s)",
+        "5.4, 5.5",
+        "2/25  5.5, 6.1, DFT, windowing, SD interface using SSI, DMA",
+        "6.2, 6.3,",
+        "F 3/1  Quiz 1 in ENS115, covering material in Labs 1, 2, 3",
+        "3/4  6.4, 7  DMA, File system",
+        "3/18  9.2, 3.4, Ethernet and Controller area network, FIFO queue, layered software",
+        "3/25  8  Transistor interfaces (TIP120, L293, IRF540), motor interfacing, Pulse width",
+        "modulation, Input capture, simple period measurement,",
+        "4/1  10.1,  Control systems, PID control systems",
+        "10.2, 10.3",
+        "F 4/5  Quiz 2 in ENS115, covering material in Labs 1, 2, 3, 4, 5",
+        "4/8  10.4, 4.5, Fuzzy logic, Fixed rate scheduler",
+        "4/15  MicroC/OS-II, Vxworks, effect of sampling jitter,",
+        "4/22  Team work, testing and the design process",
+        "M 4/29  course review and evaluation"
+      ],
+      "textbooks": [
+        "EE445L : Embedded Systems: Real-Time Interfacing to Arm Cortex M Microcontrollers, 2012, ISBN: 978- 1463590154"
+      ],
+      "descriptionExcerpt": "EE345M Embedded and Real-Time Systems Lab Page 1 of 6"
+    },
+    "ECE 445L": {
+      "course": "ECE 445L",
+      "title": "Embedded Systems Design Laboratory.",
+      "term": "2013 Spring",
+      "instructor": "William Bard",
+      "docId": "2850348",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2850348/",
+      "textChars": 23504,
+      "grading": [
+        {
+          "component": "Laboratory",
+          "pct": 40
+        },
+        {
+          "component": "Quiz",
+          "pct": 20
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "Embedded Systems: Real-Time Interfacing to the Arm Cortex M3, 2011, ISBN: 978-1463590154"
+      ],
+      "descriptionExcerpt": "Course Catalog Description Microprocessor organization and interfacing; memory interfacing; hardware-software design of microprocessor systems; and applications, including communication systems."
+    },
+    "ECE 440": {
+      "course": "ECE 440",
+      "title": "Integrated Circuit Nanomanufacturing Techniques.",
+      "term": "2013 Spring",
+      "instructor": "Sanjay Banerjee",
+      "docId": "2874756",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2874756/",
+      "textChars": 9091,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Objectives: The purpose of this course is to provide students with technical background and hands-on laboratory experience in silicon device fabrication. The course involves approximately three hours of lecture and three hours of laboratory per week for one semester. The following is an outline of subjects to be presented in the lecture portion of the course and experiments to be performed in the laboratory. Topics to be discussed by the class:"
+    },
+    "ECE 438": {
+      "course": "ECE 438",
+      "title": "Fundamentals of Electronic Circuits.",
+      "term": "2013 Spring",
+      "instructor": "Deji Akinwande",
+      "docId": "2874741",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2874741/",
+      "textChars": 3498,
+      "grading": [
+        {
+          "component": "Homeworks",
+          "pct": 20
+        },
+        {
+          "component": "Exams contribute",
+          "pct": 75
+        },
+        {
+          "component": "Final Class Grade",
+          "pct": 75
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        " Sedra & Smith, “Microelectronics Circuits”, 5th Ed."
+      ],
+      "descriptionExcerpt": "Electronic devices in analog and digital circuits. Device physics and modeling; two-port networks; analysis and design of power supply circuits and amplifiers; frequency response; Bode plots. Laboratory work covers generation and acquisition of test signals; current, voltage, and impedance measurements; transfer function measurement; and spectrum measurements and analysis. Three lecture hours and three laboratory hours a week for one semester."
+    },
+    "ECE 422C": {
+      "course": "ECE 422C",
+      "title": "Software Design and Implementation II.",
+      "term": "2013 Spring",
+      "instructor": "Herbert Krasner",
+      "docId": "2755551",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2755551/",
+      "textChars": 27711,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "TA’s: Our TAs will be introduced at the beginning of the semester. Their role is to help you with your"
+    },
+    "ECE 396K": {
+      "course": "ECE 396K",
+      "title": "Integrated Circuit Nanomanufacturing Techniques.",
+      "term": "2013 Spring",
+      "instructor": "Sanjay Banerjee",
+      "docId": "2874756",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2874756/",
+      "textChars": 9091,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Objectives: The purpose of this course is to provide students with technical background and hands-on laboratory experience in silicon device fabrication. The course involves approximately three hours of lecture and three hours of laboratory per week for one semester. The following is an outline of subjects to be presented in the lecture portion of the course and experiments to be performed in the laboratory. Topics to be discussed by the class:"
+    },
+    "ECE 394L": {
+      "course": "ECE 394L",
+      "title": "Power Systems Apparatus and Laboratory.",
+      "term": "2013 Spring",
+      "instructor": "Surya Santoso",
+      "docId": "2850271",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2850271/",
+      "textChars": 9555,
+      "grading": [
+        {
+          "component": "assignments",
+          "pct": 25
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "Recommended J. Grainger, W. Stevenson, Power System Analysis, Mc-Graw Hill, 1994.",
+        "S. J Chapman, Electric Machinery Fundamentals, 4th or 5th ed., 2011."
+      ],
+      "descriptionExcerpt": "Course Objective: The objective of the course is to provide students with fundamental principles of electric power systems design and analysis emphasized through theory, simulation and modeling, as well as hands-on laboratory experiments. This course focuses on balanced three-phase power systems, their operation, and elements of power systems encompassing generation, transmission, and distribution systems. In addition, this course will introduce wind power generation and its interconnection requirements. This course serves as the first course in the electric power systems and renewable energy…"
+    },
+    "ECE 394J": {
+      "course": "ECE 394J",
+      "title": "Power System Engineering II.",
+      "term": "2013 Spring",
+      "instructor": "Surya Santoso",
+      "docId": "2847466",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2847466/",
+      "textChars": 7783,
+      "grading": [
+        {
+          "component": "assignments",
+          "pct": 25
+        },
+        {
+          "component": "projects",
+          "pct": 25
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Course Objective: This course provides first-year graduate students with a solid foundation and in-depth understanding of power system analysis. It focuses on network equations for solving large power networks, power flow analysis, balanced and unbalanced fault analysis, transient stability (small and large signal disturbances), as well as power system controls (voltage and frequency)."
+    },
+    "ECE 394": {
+      "course": "ECE 394",
+      "title": "Electric Drives and Machines.",
+      "term": "2013 Spring",
+      "instructor": "Mircea Driga",
+      "docId": "2841508",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2841508/",
+      "textChars": 2089,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 10
+        },
+        {
+          "component": "Final Exam",
+          "pct": 40
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "(1) P.C.Sen,Principles of Electric Machines and Power Electronics,2nd edition,John Wiley & Sons;",
+        "Electronics,2nd edition,John Wiley & Sons;",
+        "John Wiley & Sons (2009). OPTIONAL.",
+        "TA Mr.Agee Springer."
+      ],
+      "descriptionExcerpt": "Course notes will also be distributed on selected topics. TA Mr.Agee Springer."
+    },
+    "ECE 385J": {
+      "course": "ECE 385J",
+      "title": "Applications of Biomedical Engineering Laboratory.",
+      "term": "2013 Spring",
+      "instructor": "Henry Rylander",
+      "docId": "2840616",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2840616/",
+      "textChars": 11998,
+      "grading": [],
+      "topics": [
+        "January",
+        "15: Class Introduction, Effects of EM Fields on Tissue, Safety Standards",
+        "17: Overview of a Typical Biomedical Amplifier",
+        "22 Amplifiers and Filters",
+        "24: Digital Data Acquisition and Storage",
+        "29: Labview and NI Elvis (Wang)",
+        "31: Biopotentials",
+        "February",
+        "5: Electrodes",
+        "7: Transducers I",
+        "12: Transducers II",
+        "14: Cardiology",
+        "19: DSP and Data Mining",
+        "21: Wireless PCB design (Wang)",
+        "26: Microcontrollers/Evoked Potentials",
+        "28: Neuro ICU",
+        "March",
+        "5: Pediatrics",
+        "7: Midterm",
+        "12: Spring Break",
+        "14: Spring Break",
+        "19: Vision I: Physiology and Visual Prosthesis",
+        "21: Vision II: Instrumentation in Ophthalmology",
+        "26: ENT I: Physiology",
+        "28: ENT II: Prosthesis",
+        "April",
+        "2: Radiology, MRI, CT, PET, SPECT",
+        "4: Lasers in Medicine",
+        "9: Microscopy (Light, Fluoresence, and Confocal), AFM and TEM",
+        "11: OCT and Coherence- Based Imaging"
+      ],
+      "textbooks": [],
+      "descriptionExcerpt": "374L. Applications of Biomedical Engineering Laboratory. Restricted to biomedical engineering, electrical engineering, or mechanical engineering majors. An in-depth examination of selected topics in biomedical engineering, including but not limited to: optical and thermal properties of laser interaction with tissue; measurement of perfusion in the microvascular system; diagnostic imaging; interaction of living systems with electromagnetic fields; surgical tools; ophthalmic instrumentation; and noninvasive cardiovascular measurements. Students have the opportunity to design and build analog…"
+    },
+    "ECE 383V": {
+      "course": "ECE 383V",
+      "title": "New Topics in Electromagnetics.",
+      "term": "2013 Spring",
+      "instructor": "Mikhail Belkin",
+      "docId": "2568628",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2568628/",
+      "textChars": 4670,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "This course describes the principles of nonlinear optics and discusses the operation of photonic devices and"
+    },
+    "ECE 382V": {
+      "course": "ECE 382V",
+      "title": "Software Testing.",
+      "term": "2013 Spring",
+      "instructor": "Sarfraz Khurshid",
+      "docId": "2856100",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2856100/",
+      "textChars": 7149,
+      "grading": [
+        {
+          "component": "the mid-term exam for",
+          "pct": 30
+        },
+        {
+          "component": "nal exam for",
+          "pct": 50
+        },
+        {
+          "component": "and the project for",
+          "pct": 20
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "Introduction to Software Testing by Paul Amman and Jeﬀ Oﬀutt. Cambridge University Press. ISBN:"
+      ],
+      "descriptionExcerpt": "Basic concepts and techniques for testing software and ﬁnding bugs. Topics include the testing process, unit, integration and system testing, manual and automatic techniques for generation of test inputs and validation of test outputs, and coverage criteria, and focus on functional testing."
+    },
+    "ECE 382N": {
+      "course": "ECE 382N",
+      "title": "Advanced Embedded Microcontroller Systems.",
+      "term": "2013 Spring",
+      "instructor": "William Bard",
+      "docId": "2809228",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2809228/",
+      "textChars": 3773,
+      "grading": [],
+      "topics": [
+        "I. Introduction to Embedded Systems",
+        "a. Basic Definitions",
+        "b. Application Characteristics",
+        "c. Requirements/Constraints",
+        "d. Hardware/Software Components",
+        "e. System Design",
+        "f. System Performance Specification",
+        "II. Processors",
+        "a. Vocabulary",
+        "b. Examples: ARM and TI C55x DSP",
+        "c. I/O Synchronization and Exceptions",
+        "d. Memory Management",
+        "e. Performance and Power Consumption",
+        "III.  Computer Systems",
+        "a. Bus-based systems",
+        "b. I/O Interfacing",
+        "c. Hardware/Software Development",
+        "d. System Debugging",
+        "e. System Performance Assessment",
+        "IV. System Software",
+        "a. Program Models",
+        "b. Program Performance Analysis and Optimization",
+        "c. Program Assessment and Validation",
+        "V. Operating Systems",
+        "a. Real-Time Operating Systems",
+        "b. Scheduling",
+        "c. Operating System Performance",
+        "VI. Communication and Networks",
+        "a. Multiprocessor Systems",
+        "b. Distributed Embedded Systems"
+      ],
+      "textbooks": [],
+      "descriptionExcerpt": "TEXT: Computers As Components, 3rd ed., W. Wolf, Morgan Kaufmann, 2012, ISBN 978-0-12-388436-7"
+    },
+    "ECE 382M": {
+      "course": "ECE 382M",
+      "title": "Dependable Computing.",
+      "term": "2013 Spring",
+      "instructor": "Nur Touba",
+      "docId": "2666493",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2666493/",
+      "textChars": 2521,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 10
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "ISBN: 1-568-81092-X 3rd edition, 1998."
+      ],
+      "descriptionExcerpt": "Description: This course will cover theory and techniques for dependable computing. A design project will be integrated into the course to provide practical experience. Topics to be covered include failure mechanisms in IC’s, early failure screening, fault models, reliability, redundancy, error detection and correction, and software fault tolerance."
+    },
+    "ECE 382C": {
+      "course": "ECE 382C",
+      "title": "Requirements Engineering.",
+      "term": "2013 Spring",
+      "instructor": "Suzanne Barber",
+      "docId": "2857265",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2857265/",
+      "textChars": 5036,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 65
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Textbook: “Managing Software Requirements: A Unified Approach,” by Dean Leffingwell and Don Widrig"
+    },
+    "ECE 380L": {
+      "course": "ECE 380L",
+      "title": "Introduction to Data Mining.",
+      "term": "2013 Spring",
+      "instructor": "Joydeep Ghosh",
+      "docId": "2841116",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2841116/",
+      "textChars": 3875,
+      "grading": [],
+      "topics": [],
+      "textbooks": [
+        "1. Hastie/Tibshirani/Friedman (2009) The Elements of Statistical Learning , (2nd Ed) Springer.",
+        "2. C.M. Bishop (2006): Pattern Recognition and Machine Learning, Springer."
+      ],
+      "descriptionExcerpt": "For Grad students: (Graduate standing in Engineering, CS, Maths or Physics) OR (consent of the instructor). You are expected to know basics (undergraduate level) of probability/statistics. Knowledge of basic linear algebra and algorithms will be assumed."
+    },
+    "ECE 379K": {
+      "course": "ECE 379K",
+      "title": "Solar Energy Conversion Devices.",
+      "term": "2013 Spring",
+      "instructor": "Ananth Dodabalapur",
+      "docId": "2755060",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2755060/",
+      "textChars": 1409,
+      "grading": [],
+      "topics": [],
+      "textbooks": [
+        "“Physics of Solar Cells”, by Jenny Nelson, Imperial College Press"
+      ],
+      "descriptionExcerpt": "“Physics of Solar Cells”, by Jenny Nelson, Imperial College Press"
+    },
+    "ECE 377E": {
+      "course": "ECE 377E",
+      "title": "Interdisciplinary Entrepreneurship.",
+      "term": "2013 Spring",
+      "instructor": "Robert Metcalfe",
+      "docId": "2857398",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2857398/",
+      "textChars": 33265,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Kept at LonghornStartup.com, copies under various uniques on UTAustin Blackboard."
+    },
+    "ECE 374L": {
+      "course": "ECE 374L",
+      "title": "Applications of Biomedical Engineering Laboratory.",
+      "term": "2013 Spring",
+      "instructor": "Henry Rylander",
+      "docId": "2840616",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2840616/",
+      "textChars": 11998,
+      "grading": [],
+      "topics": [
+        "January",
+        "15: Class Introduction, Effects of EM Fields on Tissue, Safety Standards",
+        "17: Overview of a Typical Biomedical Amplifier",
+        "22 Amplifiers and Filters",
+        "24: Digital Data Acquisition and Storage",
+        "29: Labview and NI Elvis (Wang)",
+        "31: Biopotentials",
+        "February",
+        "5: Electrodes",
+        "7: Transducers I",
+        "12: Transducers II",
+        "14: Cardiology",
+        "19: DSP and Data Mining",
+        "21: Wireless PCB design (Wang)",
+        "26: Microcontrollers/Evoked Potentials",
+        "28: Neuro ICU",
+        "March",
+        "5: Pediatrics",
+        "7: Midterm",
+        "12: Spring Break",
+        "14: Spring Break",
+        "19: Vision I: Physiology and Visual Prosthesis",
+        "21: Vision II: Instrumentation in Ophthalmology",
+        "26: ENT I: Physiology",
+        "28: ENT II: Prosthesis",
+        "April",
+        "2: Radiology, MRI, CT, PET, SPECT",
+        "4: Lasers in Medicine",
+        "9: Microscopy (Light, Fluoresence, and Confocal), AFM and TEM",
+        "11: OCT and Coherence- Based Imaging"
+      ],
+      "textbooks": [],
+      "descriptionExcerpt": "374L. Applications of Biomedical Engineering Laboratory. Restricted to biomedical engineering, electrical engineering, or mechanical engineering majors. An in-depth examination of selected topics in biomedical engineering, including but not limited to: optical and thermal properties of laser interaction with tissue; measurement of perfusion in the microvascular system; diagnostic imaging; interaction of living systems with electromagnetic fields; surgical tools; ophthalmic instrumentation; and noninvasive cardiovascular measurements. Students have the opportunity to design and build analog…"
+    },
+    "ECE 371R": {
+      "course": "ECE 371R",
+      "title": "Digital Image and Video Processing.",
+      "term": "2013 Spring",
+      "instructor": "Alan Bovik",
+      "docId": "2702046",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2702046/",
+      "textChars": 3455,
+      "grading": [
+        {
+          "component": "project",
+          "pct": 25
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "1. Course Introduction. Image Types, Imaging Geometry, Image Acquisition, Imaging Devices, Visual Perception, Visual Illusions, Image Representation."
+    },
+    "ECE 368L": {
+      "course": "ECE 368L",
+      "title": "Power Systems Apparatus and Laboratory.",
+      "term": "2013 Spring",
+      "instructor": "Surya Santoso",
+      "docId": "2850271",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2850271/",
+      "textChars": 9555,
+      "grading": [
+        {
+          "component": "assignments",
+          "pct": 25
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "Recommended J. Grainger, W. Stevenson, Power System Analysis, Mc-Graw Hill, 1994.",
+        "S. J Chapman, Electric Machinery Fundamentals, 4th or 5th ed., 2011."
+      ],
+      "descriptionExcerpt": "Course Objective: The objective of the course is to provide students with fundamental principles of electric power systems design and analysis emphasized through theory, simulation and modeling, as well as hands-on laboratory experiments. This course focuses on balanced three-phase power systems, their operation, and elements of power systems encompassing generation, transmission, and distribution systems. In addition, this course will introduce wind power generation and its interconnection requirements. This course serves as the first course in the electric power systems and renewable energy…"
+    },
+    "ECE 366": {
+      "course": "ECE 366",
+      "title": "Engineering Economics I.",
+      "term": "2013 Spring",
+      "instructor": "Robert McCann",
+      "docId": "2851749",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2851749/",
+      "textChars": 18384,
+      "grading": [],
+      "topics": [],
+      "textbooks": [
+        "Contemporary Engineering Economics, 5th Edition, by Chan S. Park."
+      ],
+      "descriptionExcerpt": "Required Text: Contemporary Engineering Economics, 5th Edition, by Chan S. Park."
+    },
+    "ECE 364E": {
+      "course": "ECE 364E",
+      "title": "Interdisciplinary Entrepreneurship.",
+      "term": "2013 Spring",
+      "instructor": "Robert Metcalfe",
+      "docId": "2857398",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2857398/",
+      "textChars": 33265,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Kept at LonghornStartup.com, copies under various uniques on UTAustin Blackboard."
+    },
+    "ECE 364D": {
+      "course": "ECE 364D",
+      "title": "Introduction to Engineering Design.",
+      "term": "2013 Spring",
+      "instructor": "Suzanne Barber",
+      "docId": "2857376",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2857376/",
+      "textChars": 19887,
+      "grading": [],
+      "topics": [
+        "The EE 364D Preliminary Course Schedule (Table 1 on the next page) outlines the",
+        "chronology of design project activities and assignment submissions. You will begin the design",
+        "process by developing a clear understanding of your design problem, identifying a set of design",
+        "options, and developing your own system design. The assignments and schedule have been",
+        "designed to walk you through that process and to force you to undertake some of the thinking",
+        "that goes into good design. The syllabus will include a more detailed schedule that includes",
+        "events and topics for regular class meetings."
+      ],
+      "textbooks": [
+        "and Practice. McGraw-Hill: New York, 2007."
+      ],
+      "descriptionExcerpt": "The Senior Design sequence is the culmination of your undergraduate engineering education at The University of Texas at Austin. In your previous courses, you acquired a great store of mathematical, scientific, and engineering knowledge. The two semesters that make up the sequence will walk you through the design process and give you practice in solving a real- world engineering problem. In EE 364D, you will plan a project from problem definition to design specifications. In EE 464, you will implement that design in the form of a working prototype. That experience will help prepare you—as much…"
+    },
+    "ECE 363M": {
+      "course": "ECE 363M",
+      "title": "Microwave and Radio Frequency Engineering.",
+      "term": "2013 Spring",
+      "instructor": "Dean Neikirk",
+      "docId": "2837648",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2837648/",
+      "textChars": 12915,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Objectives: The purpose of this course is to provide students with background in the behavior of high frequency / high speed components. There is an increasing need for engineers with a working understanding of the properties of circuits carrying signals containing very high frequencies (i.e. f > 109 Hz), as both analog and digital systems increase in speed. In this course, emphasis will be placed on the fundamental aspects of (mainly guided) wave transmission and propagation. An extensive discussion of the properties of transmission line circuits will be included. Modeling of “digital”…"
+    },
+    "ECE 361Q": {
+      "course": "ECE 361Q",
+      "title": "Requirements Engineering.",
+      "term": "2013 Spring",
+      "instructor": "Suzanne Barber",
+      "docId": "2857265",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2857265/",
+      "textChars": 5036,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 65
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Textbook: “Managing Software Requirements: A Unified Approach,” by Dean Leffingwell and Don Widrig"
+    },
+    "ECE 361M": {
+      "course": "ECE 361M",
+      "title": "Introduction to Data Mining.",
+      "term": "2013 Spring",
+      "instructor": "Joydeep Ghosh",
+      "docId": "2841116",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2841116/",
+      "textChars": 3875,
+      "grading": [],
+      "topics": [],
+      "textbooks": [
+        "1. Hastie/Tibshirani/Friedman (2009) The Elements of Statistical Learning , (2nd Ed) Springer.",
+        "2. C.M. Bishop (2006): Pattern Recognition and Machine Learning, Springer."
+      ],
+      "descriptionExcerpt": "For Grad students: (Graduate standing in Engineering, CS, Maths or Physics) OR (consent of the instructor). You are expected to know basics (undergraduate level) of probability/statistics. Knowledge of basic linear algebra and algorithms will be assumed."
+    },
+    "ECE 360T": {
+      "course": "ECE 360T",
+      "title": "Software Testing.",
+      "term": "2013 Spring",
+      "instructor": "Sarfraz Khurshid",
+      "docId": "2856100",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2856100/",
+      "textChars": 7149,
+      "grading": [
+        {
+          "component": "the mid-term exam for",
+          "pct": 30
+        },
+        {
+          "component": "nal exam for",
+          "pct": 50
+        },
+        {
+          "component": "and the project for",
+          "pct": 20
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "Introduction to Software Testing by Paul Amman and Jeﬀ Oﬀutt. Cambridge University Press. ISBN:"
+      ],
+      "descriptionExcerpt": "Basic concepts and techniques for testing software and ﬁnding bugs. Topics include the testing process, unit, integration and system testing, manual and automatic techniques for generation of test inputs and validation of test outputs, and coverage criteria, and focus on functional testing."
+    },
+    "ECE 360P": {
+      "course": "ECE 360P",
+      "title": "Concurrent and Distributed Systems.",
+      "term": "2013 Spring",
+      "instructor": "Vijay Garg",
+      "docId": "2764962",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2764962/",
+      "textChars": 2104,
+      "grading": [
+        {
+          "component": "Assignments",
           "pct": 30
         }
       ],
       "topics": [],
       "textbooks": [
-        "and Equipment: F. T. Ulaby, M. M. Maharbiz, & C. M. Furse, Circuit Analysis and Design (Michigan Publishing, 2018) [same as",
-        "F. T. Ulaby, M. M. Maharbiz, & C. M. Furse, Circuit Analysis and Design (Michigan Publishing, 2018) [same as",
-        "Circuits (National Technology & Science Press, Third Edition, 2016) by the same authors]."
+        "Concurrent and Distributed Computing in Java by Vijay K. Garg, Wiley & Sons, 2004. Note that this"
       ],
-      "descriptionExcerpt": "nominal time slot allows some time for you to log on, set up, upload your completed exams, etc. Our regular lectures scheduled on 09/30/2020, 10/28/2020, and 11/23/2020 will not meet."
+      "descriptionExcerpt": "Course Contents: This is a senior-level undergraduate course in concurrent and distributed computing. It will expose students to theoretical as well as practical aspects of designing and implementing concurrent and distributed systems. The course assumes that the student knows programming. All programming assignments and projects will require use of Java. The course will cover concurrent and distributed programming aspects of Java; the students are expected to know the sequential aspects of Java. There will be two mid-terms and one final exam. The following topics will be covered in the…"
     },
-    "ECE 411": {
-      "course": "ECE 411",
-      "title": "Circuit Theory.",
-      "term": "2022 Spring",
-      "instructor": "Earl Swartzlander",
-      "docId": "11811365",
-      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/11811365/",
-      "textChars": 11895,
+    "ECE 360K": {
+      "course": "ECE 360K",
+      "title": "Introduction to Digital Communications.",
+      "term": "2013 Spring",
+      "instructor": "William Bard",
+      "docId": "2809199",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2809199/",
+      "textChars": 5359,
+      "grading": [],
+      "topics": [
+        "Communication channels and their impairments; modulation;",
+        "demodulation; probability-of-error analysis; source coding; error",
+        "control coding; link budget analysis; equalization;",
+        "synchronization and multiple access; spread spectrum;",
+        "applications in wireline and wireless communication systems.",
+        "PREREQUISITES:",
+        "Biomedical Engineering 335 or Electrical Engineering 351K with a",
+        "grade of at least C-, and Biomedical Engineering 343 or",
+        "Electrical Engineering 313 with a grade of at least C-.",
+        "ASSIGNMENTS:",
+        "Homework - there will be homework assignments consisting of",
+        "either problems from the text or exercises developed from class",
+        "discussion. Homework will be due at the beginning of the",
+        "assigned class. No late homework will be accepted.",
+        "Scheduled Quizzes - there will be two quizzes, scheduled in-",
+        "class, during the semester. Each will consist of problems",
+        "derived from material discussed in class or covered in homework.",
+        "The quizzes will be closed book/notes with limited supplemental",
+        "student-generated reference material. The second quiz will not",
+        "include material covered on the first quiz.",
+        "Papers - there will be one research paper with its topic assigned",
+        "by the instructor.",
+        "Final - there will be a comprehensive final scheduled during the",
+        "final examination period."
+      ],
+      "textbooks": [],
+      "descriptionExcerpt": "This course is intended to provide the student with an introduction to the essentials of digital communication system engineering theory and practice."
+    },
+    "ECE 351M": {
+      "course": "ECE 351M",
+      "title": "Digital Signal Processing.",
+      "term": "2013 Spring",
+      "instructor": "Robert Heath",
+      "docId": "2852492",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2852492/",
+      "textChars": 11303,
       "grading": [
         {
-          "component": "Examination 1",
+          "component": "Midterm",
+          "pct": 15
+        },
+        {
+          "component": "Final",
           "pct": 20
         },
         {
-          "component": "Examination 2",
+          "component": "Homework",
           "pct": 25
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Digital Signal Processing: A Computer-Based Approach (4th edition) By Sanjit Mitra ISBN-13: 978-0077366766 Publisher: McGraw-Hill Science/Engineering/Math"
+    },
+    "ECE 347": {
+      "course": "ECE 347",
+      "title": "Modern Optics.",
+      "term": "2013 Spring",
+      "instructor": "John Keto",
+      "docId": "2860253",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2860253/",
+      "textChars": 7714,
+      "grading": [
+        {
+          "component": "Final exam",
+          "pct": 20
         },
         {
-          "component": "Final Examination",
-          "pct": 35
-        },
+          "component": "Project",
+          "pct": 20
+        }
+      ],
+      "topics": [
+        "Grade breakdown",
+        "Homework (assigned each week)  20%",
+        "Hourly Quizzes (20% each)  40%",
+        "Final exam  20%",
+        "Project  20%",
+        "HOMEWORK: Homework will be assigned each week, usually at a rate of a",
+        "couple each lecture. These problems will be due at the",
+        "beginning of class each Monday. Do not procrastinate and try",
+        "to complete all of the problems Sunday. Work thoughout the",
+        "week. By having the problems due weekly you will have the",
+        "benefit of scheduling your own time (rather than being",
+        "required to turn work after each lecture. If I discover that you",
+        "are not managing your time correctly I may revert to",
+        "collecting the work each lecture.",
+        "DO THE HOMEWORK. You will get little out of the course if you",
+        "do not. Homework from the week before will be collected on Mondays.",
+        "Your homework grade will be counted as a third hourly exam eg.",
+        "20% of your semester's grade. There is no credit for late homework.",
+        "DROP DATES:  The last date to drop the course (with dean’s approval) except for urgent",
+        "And substantiated non-academic reasons is April 1, 2005.",
+        "If you become seriously ill or have other personal problems I encourage",
+        "you to appeal for withdrawal for non-academic reasons. Do not let such",
+        "circumstances generate a poor grade on your transcript.",
+        "documentation to the Dean of Students' Office, in order that the most",
+        "appropriate accommodations can be determined. Specialized services are",
+        "SCHOLASTIC DISHONEST: Will not be tolerated. What is permissible:",
+        "Homework--conferring with others is allowed but what you submit must",
+        "be your own work (not copied).",
+        "Projects: what you submit must be the team's own work, programs, results,",
+        "and text, or it must be referenced properly. If it's not referenced, and it's"
+      ],
+      "textbooks": [],
+      "descriptionExcerpt": "TEXT: Introduction to Optics, F. L. Pedrotti and L. S. Pedrotti 3rd Ed. If available, 2nd Ed. Possible optics reference books: Optics by Hecht. This was the text in 2009,2010. It is easy to read and quite descriptive, but many thought that it was too wordy. Optics by Klein and Furtek, This text was last used 2006 and is more complete mathematically than Pedrotti. Fundamentals of Optics by Jenkins and White, a classic, older text. Introduction to Classical and Modern Optics by Jurgen R. Mey-Arendt Principles of Optics by Born and Wolf, this is considered the bible of optics. It is often used…"
+    },
+    "ECE 341": {
+      "course": "ECE 341",
+      "title": "Electric Drives and Machines.",
+      "term": "2013 Spring",
+      "instructor": "Mircea Driga",
+      "docId": "2841508",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2841508/",
+      "textChars": 2089,
+      "grading": [
         {
           "component": "Homework",
           "pct": 10
         },
         {
-          "component": "and Labs",
+          "component": "Final Exam",
+          "pct": 40
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "(1) P.C.Sen,Principles of Electric Machines and Power Electronics,2nd edition,John Wiley & Sons;",
+        "Electronics,2nd edition,John Wiley & Sons;",
+        "John Wiley & Sons (2009). OPTIONAL.",
+        "TA Mr.Agee Springer."
+      ],
+      "descriptionExcerpt": "Course notes will also be distributed on selected topics. TA Mr.Agee Springer."
+    },
+    "ECE 338K": {
+      "course": "ECE 338K",
+      "title": "Analog Electronics.",
+      "term": "2013 Spring",
+      "instructor": "John Pearce",
+      "docId": "2858587",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2858587/",
+      "textChars": 8725,
+      "grading": [],
+      "topics": [
+        "________________________________________________________________________________________________",
+        "Lec. Date Topic  Text Pages",
+        "------------------------------------------------------------------------------------------------------------------------------------------------",
+        "1 1/15 Review of discrete amplifier topologies; Feedback in the CE/CS amplifier.  Ch 1 through Ch 7",
+        "2 1/17 Vacuum tube small signal amplifiers.  Notes",
+        "-----------------------------------------------------------------------------------------------------------------------------------------------",
+        "3 1/22 Ideal operational amplifiers (Ch 2).  52 - 88",
+        "4 1/24 DC imperfections; Input bias and offsets; Frequency response.  88 - 123 & 586 - 593",
+        "------------------------------------------------------------------------------------------------------------------------------------------------",
+        "5 1/29 Input differential pairs  612 - 635.",
+        "6 1/31 Multistage amplifiers; Noise processes; Op amp specifications.  651 – 686 Notes",
+        "------------------------------------------------------------------------------------------------------------------------------------------------",
+        "7 2/5 3 Op-amp instrumentation amplifiers; Voltage regulators.  Notes",
+        "8 2/7 Power amplifier topologies; Class A; Class B; Class AB.  911 - 933",
+        "------------------------------------------------------------------------------------------------------------------------------------------------",
+        "9 2/12 Vacuum tube power amplifiers.  Notes",
+        "10 2/14 Test No. 1 (to page 933) During class time (in rm. CPE 2.206)",
+        "------------------------------------------------------------------------------------------------------------------------------------------------",
+        "11 2/19 Low frequency response, internal capacitance.  687 - 711",
+        "12 2/21 High frequency response, Miller theorem.  712 - 801",
+        "------------------------------------------------------------------------------------------------------------------------------------------------",
+        "13 2/26 Feedback structures; Negative feedback.  803 - 814",
+        "14 2/28 Four basic feedback topologies; Current amps; Transconductance amps.  814 - 834",
+        "------------------------------------------------------------------------------------------------------------------------------------------------",
+        "15 3/5 Feedback voltage amps; Feedback transconductance amps.  834 - 863",
+        "16 3/7 Loop gain; Stability.  863 - 909",
+        "------------------------------------------------------------------------------------------------------------------------------------------------",
+        "Spring Break! Have some fun!",
+        "------------------------------------------------------------------------------------------------------------------------------------------------",
+        "17 3/19 Filter types; Transfer functions.  1255 - 1263"
+      ],
+      "textbooks": [
+        "Sedra & Smith; Microelectronic Circuits, 6th Edition, Oxford University Press, 2010."
+      ],
+      "descriptionExcerpt": "Feedback principles; Bode plots; analysis and design of circuits with operational amplifiers and oscillators; filters;"
+    },
+    "ECE 334K": {
+      "course": "ECE 334K",
+      "title": "Quantum Theory of Electronic Materials.",
+      "term": "2013 Spring",
+      "instructor": "Emanuel Tutuc",
+      "docId": "2652544",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2652544/",
+      "textChars": 5274,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 20
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "Eisberg and R. Resnick, John Wiley, Ed TBD. (ER)"
+      ],
+      "descriptionExcerpt": " Application of QM to the physics of atoms and molecules.  Application of QM to the physics of the solid state, with an emphasis on semiconductor physics."
+    },
+    "ECE 333T": {
+      "course": "ECE 333T",
+      "title": "Engineering Communication.",
+      "term": "2013 Spring",
+      "instructor": "Tracy Wuster",
+      "docId": "2857707",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2857707/",
+      "textChars": 26437,
+      "grading": [
+        {
+          "component": "Problem Statement Presentation",
+          "pct": 5
+        },
+        {
+          "component": "Progress Report Briefing",
+          "pct": 5
+        },
+        {
+          "component": "Team Presentation",
           "pct": 10
         }
       ],
       "topics": [
-        "DATE:  TEXT STUDY ASSIGNMENT:",
-        "January 18 (Tue)  No Recitation",
-        "January 19 (W)",
-        "January 24 (M)  Introduction  Review of Chapters 1-4",
-        "January 25 (Tue)",
-        "January 26 (W)  Chapter 5  Operational Amplifiers",
-        "January 31 (M)",
-        "February 1 (Tue)  Lab 1  Op-Amps",
-        "February 2 (W)",
-        "February 7 (M)  Chapter 6  Capacitors and Inductors",
-        "February 8 (Tue)",
-        "February 9 (W)  Chapter 7  First-Order Circuits",
-        "February 14 (M)",
-        "February 15 (Tue)  Lab 2  RC Circuits",
-        "February 16 (W)",
-        "February 21 (M)  Chapter 7  First-Order Circuits",
-        "February 22 (Tue)",
-        "February 23 (W)  Chapter 8  RLC Circuits",
-        "February 28 (M)",
-        "March 1 (Tue)  Lab 3  RL Circuits",
-        "March 2 (W)",
-        "March 7 (M)  Chapter 8  RLC Circuits",
-        "March 8 (Tue)",
-        "March 9 (W)  Chapter 8  RLC Circuits",
-        "March 14-19",
-        "March 21 (M)  Lab 4  RLC Circuits",
-        "March 22 (Tue)",
-        "Review",
-        "Exam 1  Covers Chapters 5-8.",
-        "Recitation"
+        "Please note that the schedule is subject to change, although assignment due dates will never",
+        "move to an earlier date. Note that page numbers listed refer to location in reader.",
+        "Week/Date Day 1  Day 2",
+        "1:  Introductions  This is what Engineers Do:",
+        "1/14-1/20 Readings: Syllabus (read twice)  Technical Communication as",
+        "Engineering Practice",
+        "C. Selinger, “Stuff you don’t learn in Readings:",
+        "engineering school” (115-117)  W.[B.] Chou, “Communication",
+        "smart” (7-11)",
+        "Jeremy  S.  Hyman,  Lynn  F.  Jacobs,",
+        "“18  Etiquitte  Tips  for  Emailing  Your  R. Lauchman, Plain Style, (93-100)",
+        "Professor”  (email)",
+        "Purdue Online Writing Lab (OWL),",
+        "“Effective Workplace Writing”",
+        "Assignment: Introductory  urce/624/1/",
+        "Presentation",
+        "2:  No Class—Martin Luther King Day  Introduction to the Design Process",
+        "1/21-1/27  and the Writing Process",
+        "Watch:  Readings:",
+        "EqnnklfYs  Design (25-39)",
+        "K.W. Miller and J. Voas, “IT as a",
+        "profession: Is competent creation the",
+        "primary goal?” (103-105)",
+        "3:  Presenting Yourself to Prospective  Introduce: Problem Statement Memo",
+        "1/28-2/3  Employers  Resumes and Interviews",
+        "Readings:  Readings:",
+        "K. Wiens, “I won’t hire people who  E.M. Smith, “How to ace an interview",
+        "use poor grammar. Here’s why” (133-  and other job-hunting tips” (119-120)",
+        "134)",
+        "Owl, “The Basic Business Letter”:"
+      ],
+      "textbooks": [],
+      "descriptionExcerpt": "The goal of this course is help you develop the skills to communicate effectively as an engineer. In order to help us meet this goal, we will focus on the following areas:"
+    },
+    "ECE 331": {
+      "course": "ECE 331",
+      "title": "Electrical Circuits, Electronics, and Machinery.",
+      "term": "2013 Spring",
+      "instructor": "Robert McCann",
+      "docId": "2851770",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2851770/",
+      "textChars": 16226,
+      "grading": [],
+      "topics": [],
+      "textbooks": [
+        "Electrical Engineering Principles and Applications, 5th Edition, by Allan R. Hambley"
+      ],
+      "descriptionExcerpt": "Physics 303L and 103N with a grade of at least C- in each. Required Text: Electrical Engineering Principles and Applications, 5th Edition, by Allan R. Hambley"
+    },
+    "ECE 325": {
+      "course": "ECE 325",
+      "title": "Electromagnetic Engineering.",
+      "term": "2013 Spring",
+      "instructor": "Ray Chen",
+      "docId": "2862189",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2862189/",
+      "textChars": 7874,
+      "grading": [
+        {
+          "component": "Attendance and Reading Assignment",
+          "pct": 10
+        },
+        {
+          "component": "Homework",
+          "pct": 15
+        },
+        {
+          "component": "Three quizzes",
+          "pct": 45
+        },
+        {
+          "component": "Final exam",
+          "pct": 30
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "William H. Hayt and John Buck, Engineering Electromagnetics (8th Edition)"
+      ],
+      "descriptionExcerpt": "Textbook: William H. Hayt and John Buck, Engineering Electromagnetics (8th Edition)"
+    },
+    "ECE 319K": {
+      "course": "ECE 319K",
+      "title": "Introduction to Embedded Systems.",
+      "term": "2013 Spring",
+      "instructor": "Ramesh Yerraballi",
+      "docId": "2847646",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2847646/",
+      "textChars": 25030,
+      "grading": [],
+      "topics": [
+        "Week 1",
+        "Week 2  Ch1,2  Introduction Course administration; Embedded systems, develop-",
+        "ment cycle; Flow charts, data flow and call graph",
+        "Week 3",
+        "Week 4  uVision - simulator; Numbers, Hexadecimal",
+        "Week 5",
+        "Week 6  Ch 2,3,  Architecture– Arm Cortex-M3 architecture and execution; Simple",
+        "Sections  addressing modes; Memory allocation; C Programming (C Primer) -",
+        "4.1.2,  Introduction to C; Structure of a C program (Cookie Day)",
+        "4.2(Patt,",
+        "Ch 11,12)  I/O, Execution, stack, subroutines - Parallel ports, direction regis-",
+        "ters; Logical and shift operations; C Programming – Assignment and",
+        "Boolean Expressions.",
+        "Ch 2,3,  Debugging - Debugging Keil uVision",
+        "Section",
+        "4.6  Arithmetic - Arithmetic operations; Condition code bits; C Program-",
+        "ming – Functions",
+        "Ch 4,5  Board- Demo of the board (bring board to class); Switch input and",
+        "LED output",
+        "Modular programming - If-then, loops; Subroutines parameters and",
+        "the stack; Debugging dump; C Programming – Loops",
+        "Sections  Pointers - Indexed addressing; Arrays; Strings",
+        "6.1-6.3,",
+        "4.4,  Timers – Timers; Advanced functional debugging. C Programming –",
+        "(Patt, Ch  Arrays, Indexing, Pointers.",
+        "14, 16)",
+        "Ch 1-5  Review for Exam 1 and Exam1 (Thu 2/21 in class)",
+        "Week 7  Section  FSMs - Finite state machines (FSMs)",
+        "6.5, 7.6,",
+        "7.1-7.5  Locals, parameters - Local variables; Stack frames and parameter"
+      ],
+      "textbooks": [],
+      "descriptionExcerpt": "Lab Time Each unique section has its associate lab time. In ENS 507"
+    },
+    "ECE 316": {
+      "course": "ECE 316",
+      "title": "Digital Logic Design.",
+      "term": "2013 Spring",
+      "instructor": "Adnan Aziz",
+      "docId": "2853491",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2853491/",
+      "textChars": 6001,
+      "grading": [
+        {
+          "component": "Two midterms",
+          "pct": 30
+        },
+        {
+          "component": "Final exam",
+          "pct": 30
+        },
+        {
+          "component": "pop quizzes",
+          "pct": 40
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "This course aims to study the design of digital hardware, speciﬁcaly the problem of realizing computation with logic gates."
+    },
+    "ECE 313": {
+      "course": "ECE 313",
+      "title": "Linear Systems and Signals.",
+      "term": "2013 Spring",
+      "instructor": "Zheng Wang",
+      "docId": "2861582",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2861582/",
+      "textChars": 10226,
+      "grading": [],
+      "topics": [
+        "Week #/  Tuesday  Thursday  In/Out (all on",
+        "(Date)  Tuesday, unless",
+        "1 (01/15-17)  Introduction and Overview  Complex numbers, Logs, dB",
+        "2 (01/22-24)  Systems and linearity;  System classification  indicated)",
+        "3 (01/29-31)  MATLAB demo  - /HW1",
+        "4 (02/05-07)  System state and  Zero-input response; unit impulse  HW1/HW2",
+        "5 (02/12-14)  differential equations  Convolution (cont) and Stability",
+        "6 (02/19-21)  Impulse response and  HW2/HW3",
+        "7 (02/26-28)  convolution  Midterm I (Continuous-time",
+        "8 (03/05-07)  The exponential input  Systems)  HW3/HW4",
+        "9  Discrete-time zero-input response",
+        "Intro to Discrete Time  HW4/-",
+        "Systems  Difference Equations and Stability",
+        "Discrete-time convolution  - /HW5",
+        "and driven response  Midterm II (Discrete-time",
+        "Laplace transform, transfer  Systems)  HW5/HW6",
+        "functions",
+        "Spring Break  HW6/HW7",
+        "10 (03/19-21) Block diagram algebra,  Bode plots  HW7/HW8",
+        "FVT, frequency response",
+        "Z Transform I  HW8/HW9",
+        "11 (03/26-28) Feedback control",
+        "12 (04/2-4) Z Transform II  Discrete-time frequency response I HW9/HW10",
+        "13 (04/9-11) Midterm III (Laplace and  Discrete-time frequency response  -",
+        "II  HW10/HW11",
+        "Z-transform)  Fourier Transform I  HW11/HW12",
+        "Fourier Transform Theorems",
+        "14 (04/16-18) Fourier Series  II, Sampling Theorem  HW12",
+        "15 (04/23-25) Fourier Transform  LTI systems, catchup, or final",
+        "exam review"
       ],
       "textbooks": [
-        "C. K. Alexander and M. N. O. Sadiku, Fundamentals of Electric Circuits, 7th edition, New York: McGraw-Hill, 2021.",
-        "edition, New York: McGraw-Hill, 2021."
+        "B. P. Lathi, Linear Systems and Signals, Oxford Univ. Press, 2nd ed., ISBN 019515833‐4, July 2004.."
       ],
-      "descriptionExcerpt": "Catalogue Data: EE 411. Circuit Theory. Capacitance and inductance; first- and second- order transient circuit response; sinusoidal steady state analysis; complex power in single- phase and balanced three-phase systems; transformers; Bode plots; two-port networks (Z- parameters); and computer-aided analysis and design."
+      "descriptionExcerpt": "Course Content: Representation of signals and systems; system properties; sampling; Laplace and z-transforms; transfer functions and frequency response; convolution; stability; Fourier transform; feedback; and control applications. Computer analysis using MATLAB."
+    },
+    "ECE 471C": {
+      "course": "ECE 471C",
+      "title": "Wireless Communications Laboratory.",
+      "term": "2012 Fall",
+      "instructor": "Robert Heath",
+      "docId": "2389906",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2389906/",
+      "textChars": 17640,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Syllabus: EE 471C / EE 381V Wireless Communications Laboratory"
+    },
+    "ECE 396V": {
+      "course": "ECE 396V",
+      "title": "New Topics in Solid-State Electronics.",
+      "term": "2012 Fall",
+      "instructor": "Emanuel Tutuc",
+      "docId": "2317304",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2317304/",
+      "textChars": 6016,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 30
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Advances in technology and fabrication of semiconductor structures have led to devices with size smaller that the electron mean free path. In this regime the structure and geometry intimately determine the device electronic properties. This course covers the theoretical framework for understanding the electronic properties, a review of state of the art fabrication techniques and reviews recent experimental results of quantum confined devices, such as semiconductor heterostructures, quantum wires and quantum dots."
+    },
+    "ECE 385V": {
+      "course": "ECE 385V",
+      "title": "Topics in Mechanical Engineering.",
+      "term": "2012 Fall",
+      "instructor": "H Beasley",
+      "docId": "2402924",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2402924/",
+      "textChars": 1665,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "This course is sponsored by the Mechanical Engineering Department and the Institute for Computational Engineering and Science. It consists of a lecture series, a preceptorship at the Heart Hospital of Austin and a site visit to Austin Radiologic Association. The preceptorship includes observation of both vascular and cardiac surgery, observation of cardiac catheterization, angiograms, and stent placements and observations of electrophysiology studies. These studies include pacemaker and defibrillator placements. Included in the preceptorship is cardiovascular imaging including coronary artery…"
+    },
+    "ECE 381V": {
+      "course": "ECE 381V",
+      "title": "Wireless Communications Laboratory.",
+      "term": "2012 Fall",
+      "instructor": "Robert Heath",
+      "docId": "2389906",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2389906/",
+      "textChars": 17640,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Syllabus: EE 471C / EE 381V Wireless Communications Laboratory"
+    },
+    "ECE 381K": {
+      "course": "ECE 381K",
+      "title": "Digital Signal Processing.",
+      "term": "2012 Fall",
+      "instructor": "Alan Bovik",
+      "docId": "2315469",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2315469/",
+      "textChars": 2796,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 20
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "2. Review of Continuous Signals and Systems - Fourier integral and properties, Gibb's phenomena,"
+    },
+    "ECE 380N": {
+      "course": "ECE 380N",
+      "title": "Introduction to Robotics and Mechatronics.",
+      "term": "2012 Fall",
+      "instructor": "Mircea Driga",
+      "docId": "2383137",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2383137/",
+      "textChars": 2226,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 10
+        },
+        {
+          "component": "Mid-term Exam",
+          "pct": 40
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "Saeed Niku, Introduction to Robotics: Analysis, Control,Applications, John Wiley&Sons,Inc, 2011(2nd Ed.)",
+        "Control,Applications, John Wiley&Sons,Inc, 2011(2nd Ed.)"
+      ],
+      "descriptionExcerpt": "Course Notes on selected topics will be distributed in class"
+    },
+    "ECE 374K": {
+      "course": "ECE 374K",
+      "title": "Biomedical Electronic Instrument Design.",
+      "term": "2012 Fall",
+      "instructor": "John Pearce",
+      "docId": "2390200",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2390200/",
+      "textChars": 9734,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "EE/BME 374K, EE 385J.31/BME 384J.1 Class Schedule Fall 2012"
+    },
+    "ECE 370N": {
+      "course": "ECE 370N",
+      "title": "Introduction to Robotics and Mechatronics.",
+      "term": "2012 Fall",
+      "instructor": "Mircea Driga",
+      "docId": "2383137",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2383137/",
+      "textChars": 2226,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 10
+        },
+        {
+          "component": "Mid-term Exam",
+          "pct": 40
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "Saeed Niku, Introduction to Robotics: Analysis, Control,Applications, John Wiley&Sons,Inc, 2011(2nd Ed.)",
+        "Control,Applications, John Wiley&Sons,Inc, 2011(2nd Ed.)"
+      ],
+      "descriptionExcerpt": "Course Notes on selected topics will be distributed in class"
+    },
+    "ECE 370K": {
+      "course": "ECE 370K",
+      "title": "Computer Control Systems.",
+      "term": "2012 Fall",
+      "instructor": "Robert Flake",
+      "docId": "2383424",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2383424/",
+      "textChars": 3328,
+      "grading": [
+        {
+          "component": "Quizzes",
+          "pct": 80
+        },
+        {
+          "component": "assignments",
+          "pct": 65
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Objectives The objective of this course is to teach Discrete Time Feedback Control System Design Methods for Embedded Systems. The analyses of these mixed signal systems using both Laplace and Z transforms will be the focus of the first part of the course followed by an extensive study and implementation of a family of algorithms useful in implementing Discrete Time controllers"
+    },
+    "ECE 369": {
+      "course": "ECE 369",
+      "title": "Power Systems Engineering.",
+      "term": "2012 Fall",
+      "instructor": "Ross Baldick",
+      "docId": "2317008",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2317008/",
+      "textChars": 14392,
+      "grading": [
+        {
+          "component": "Homeworks",
+          "pct": 30
+        },
+        {
+          "component": "Final",
+          "pct": 40
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "and Design, Thomson, Fifth Edition."
+      ],
+      "descriptionExcerpt": "This course is an introduction to power systems engineering. Topics include (with chapters of the text in parenthesis):"
+    },
+    "ECE 363N": {
+      "course": "ECE 363N",
+      "title": "Engineering Acoustics.",
+      "term": "2012 Fall",
+      "instructor": "Neal Hall",
+      "docId": "2391440",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2391440/",
+      "textChars": 2463,
+      "grading": [
+        {
+          "component": "project",
+          "pct": 50
+        },
+        {
+          "component": "final",
+          "pct": 15
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "TEXT: None Required. Optional is Fundamentals of Acoustics (4th ed.), Kinsler et al. (Wiley, 2000) GRADING: 50% class project (10% midterm report, 30% final report/publication, 10% final presentation), 15% Quiz 1, 15% Quiz 2, 20% homework"
+    },
+    "ECE 362S": {
+      "course": "ECE 362S",
+      "title": "Development of a Solar-Powered Vehicle.",
+      "term": "2012 Fall",
+      "instructor": "Gary Hallock",
+      "docId": "2384471",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2384471/",
+      "textChars": 18522,
+      "grading": [
+        {
+          "component": "Project",
+          "pct": 50
+        },
+        {
+          "component": "Oral presentation",
+          "pct": 10
+        },
+        {
+          "component": "Written report",
+          "pct": 10
+        },
+        {
+          "component": "Attendance",
+          "pct": 15
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "Douglas R. Carroll, SAE International, 2003, ISBN 0-7680-1131-0 (Optional)"
+      ],
+      "descriptionExcerpt": "The Winning Solar Car – A Design Guide for Solar Race Car Teams Douglas R. Carroll, SAE International, 2003, ISBN 0-7680-1131-0 (Optional)"
+    },
+    "ECE 362Q": {
+      "course": "ECE 362Q",
+      "title": "Power Quality and Harmonics.",
+      "term": "2012 Fall",
+      "instructor": "Surya Santoso",
+      "docId": "2385524",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2385524/",
+      "textChars": 7805,
+      "grading": [
+        {
+          "component": "Projects",
+          "pct": 25
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Focus Introduction and analysis of power quality and harmonic phenomena in electric power systems: Expected outcomes characteristics and definitions, voltage sags, electrical transients, harmonics, mitigation techniques, Pre‐requisites impacts of variable energy sources and electric vehicle loads, and technical standards Subjects • Thorough understanding of the concept of utility distribution power quality phenomena. Required textbook • Proficient in the analysis of power quality disturbances: voltage sags, motor starting, transient Recommended texts phenomena, and harmonics."
+    },
+    "ECE 360F": {
+      "course": "ECE 360F",
+      "title": "Introduction to Software Engineering.",
+      "term": "2012 Fall",
+      "instructor": "Dewayne Perry",
+      "docId": "2382691",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2382691/",
+      "textChars": 13018,
+      "grading": [
+        {
+          "component": "Homework/Class Participation",
+          "pct": 30
+        },
+        {
+          "component": "EXAM 1",
+          "pct": 30
+        },
+        {
+          "component": "EXAM 2",
+          "pct": 30
+        },
+        {
+          "component": "Design project & Class Participation",
+          "pct": 25
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "This course is an introduction to software engineering with an emphasis on the methods, techniques and technology to build and evolve software systems. The emphasis is on software engineering principles, and not on programming (an assumed skill and a relatively small part of building and evolving systems). We will cover the main activities of building systems (requirements engineering, system architecture and design, system construction, and deployment and maintenance) and the elements that are integral to those activites (evolution, measurement and evaluation, teamwork, and management of…"
+    },
+    "ECE 338L": {
+      "course": "ECE 338L",
+      "title": "Analog Integrated Circuit Design.",
+      "term": "2012 Fall",
+      "instructor": "Nan Sun",
+      "docId": "2388279",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2388279/",
+      "textChars": 7385,
+      "grading": [],
+      "topics": [
+        "Class Date  Lecture  Book Chapter  Topic",
+        "8/29  1  Ch. 1-7, Ch. 9  Course introduction. Review of EE438",
+        "9/5  2",
+        "9/10  3  Ch. 10  Differential amplifier: general",
+        "9/12  4  considerations, differential pair analysis,",
+        "9/17  5  cascode differential pairs, common-mode",
+        "9/19  6",
+        "9/24  7  rejection, active loads, etc.",
+        "9/26  8",
+        "10/1  9  Ch. 8  Operational amplifier: op-amp based",
+        "10/3  10  circuits, nonlinear functions, op-amp",
+        "10/8  11",
+        "10/10  12  nonidealities, etc",
+        "10/15  13",
+        "10/17  14  Ch. 11  Frequency response: fundamental concepts,",
+        "10/22  15  high-frequency model of transistor, frequency",
+        "10/24  response of various circuit building blocks, etc",
+        "10/29  Midterm exam",
+        "10/31  16  Ch. 12  Feedback: properties of negative feedback,",
+        "11/5  17  feedback topologies, stability in feedback",
+        "11/7  18  systems, etc.",
+        "11/12  19",
+        "11/14  20  Advanced Opamp large-signal behavior, common-mode",
+        "11/19  21",
+        "11/21  22  OPAMP topics  feedback",
+        "11/26  23",
+        "11/28  24  Ch. 13  Output stages and power amplifier: various",
+        "12/3  25  classes of power amplifiers",
+        "12/5  26",
+        "12/11  27  Ch. 14  Analog filters: passive filters, active filters,"
+      ],
+      "textbooks": [
+        "Behzad Razavi, Fundamental of Microelectronics, Wiley, 2008.",
+        "Paul Gray et al., Analysis and Design of Analog Integrated Circuits, Wiley, 2009."
+      ],
+      "descriptionExcerpt": "Electrical Engineering 438 with a grade of at least C-."
+    },
+    "ECE 325K": {
+      "course": "ECE 325K",
+      "title": "Antennas and Wireless Propagation.",
+      "term": "2012 Fall",
+      "instructor": "Hao Ling",
+      "docId": "2389068",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2389068/",
+      "textChars": 7186,
+      "grading": [
+        {
+          "component": "quizzes",
+          "pct": 45
+        },
+        {
+          "component": "hour final",
+          "pct": 35
+        }
+      ],
+      "topics": [
+        "1. Introduction and Review (4 lectures)",
+        "Electromagnetic spectrum, Maxwell's equations, constitutive relations,",
+        "Poynting’s theorem, time-harmonic fields, plane wave solution, dispersion",
+        "relation, polarization",
+        "2. Antenna Theory and Design (11 lectures)",
+        "Radiation from sources, antenna parameters, directivity, gain, input impedance,",
+        "wire antennas, monopoles, dipoles, helices, NEC, aperture theory, horns and",
+        "reflector antennas, phased arrays, Friis transmission formula, receiving properties",
+        "of antennas",
+        "3. Wave Propagation and Scattering (9 lectures)",
+        "Waves in materials, boundary conditions, reflection and transmission at media",
+        "interfaces, Fresnel coefficients, Brewster's angle, total internal reflection,",
+        "geometrical optics, scattering from different shapes, diffraction from knife edges,",
+        "radar principles",
+        "Homework Policy:",
+        "Homework problems will be assigned weekly. Problems as well as their solutions will",
+        "be posted simultaneously on the course webpage. Homework assignments will not be",
+        "collected or graded. Collaboration on homework problems is permitted and",
+        "encouraged.",
+        "Quizzes:",
+        "There will be a 10-minute in-class quiz at the beginning of class every Thursday. The",
+        "weekly quiz will include questions very similar to the week’s assigned homework",
+        "problems. Therefore, you are strongly encouraged to do the homework problems and",
+        "study the solutions.",
+        "There will be no make-up exam for the weekly quizzes. There will be a total of 12",
+        "quizzes. The lowest two quiz grades will be dropped in computing the final quiz grade.",
+        "Labs:",
+        "There will be 4 labs, where you are expected to design an antenna using an",
+        "electromagnetic simulation tool, build the antenna and measure its performance. The",
+        "measurement session will be held during class time in ENS 625. The TA for the course"
+      ],
+      "textbooks": [
+        "Prentice Hall, 6th ed, 2010."
+      ],
+      "descriptionExcerpt": "Text: There will be no required text in this course. The lecture materials will be delivered in class and made available on the web. It is therefore very important that you always attend class."
+    },
+    "ECE 309S": {
+      "course": "ECE 309S",
+      "title": "Development of a Solar-Powered Vehicle.",
+      "term": "2012 Fall",
+      "instructor": "Gary Hallock",
+      "docId": "2384471",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2384471/",
+      "textChars": 18522,
+      "grading": [
+        {
+          "component": "Project",
+          "pct": 50
+        },
+        {
+          "component": "Oral presentation",
+          "pct": 10
+        },
+        {
+          "component": "Written report",
+          "pct": 10
+        },
+        {
+          "component": "Attendance",
+          "pct": 15
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "Douglas R. Carroll, SAE International, 2003, ISBN 0-7680-1131-0 (Optional)"
+      ],
+      "descriptionExcerpt": "The Winning Solar Car – A Design Guide for Solar Race Car Teams Douglas R. Carroll, SAE International, 2003, ISBN 0-7680-1131-0 (Optional)"
+    },
+    "ECE 155": {
+      "course": "ECE 155",
+      "title": "Electrical and Computer Engineering Seminar.",
+      "term": "2012 Fall",
+      "instructor": "Michael Becker",
+      "docId": "2386932",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/2386932/",
+      "textChars": 56083,
+      "grading": [
+        {
+          "component": "project",
+          "pct": 10
+        }
+      ],
+      "topics": [
+        "The EE 364D Course Schedule (Table 1 on page 7) is the chronology of course events",
+        "and assignment submissions.",
+        "Submission of Written Assignments",
+        "With the exception of the Weekly Project Status Reports, you will submit four copies of",
+        "all written assignments:",
+        "• You will submit two copies of the finished report to your Writing TA no later than",
+        "3:00 p.m. on the day it is due in the Writing TAs’ office (ENS 330). If you are one or",
+        "two minutes late and the Writing TA is still nearby, he or she might consider your",
+        "report “on time.” Do not count on it. If the TA has already gathered the reports and left",
+        "the office, then your paper will be counted late. To be safe, you are advised to submit",
+        "the paper on time. The penalty for lateness is a 10% deduction per day of the",
+        "assignment’s total (i.e., combined technical and written) grade.",
+        "• You will submit one copy of the report to your Faculty Mentor, and you should",
+        "arrange the details of how, when, and in what format.",
+        "• You will submit one electronic copy to your Technical TA.",
+        "Note: Submissions of the report to the Faculty Mentor and Technical TA do not override",
+        "the requirements outlined above regarding timely submission to the Writing TA.",
+        "Oral Reports: Delivery and Attendance",
+        "The oral Design Review will be conducted during the week shown in Table 1 (or one",
+        "week later if your Faculty Mentor is not available). Interviews and interview trips will NOT be",
+        "considered excused absences from oral reports.",
+        "Course and Instructor Evaluations",
+        "Evaluations of the course and instructors will be conducted near the end of the semester."
+      ],
+      "textbooks": [
+        "and Practice. McGraw-Hill: New York, 2007."
+      ],
+      "descriptionExcerpt": "Your instructor for the course is Prof. Michael Becker, and your project will have a"
+    },
+    "ECE 360S": {
+      "course": "ECE 360S",
+      "title": "Digital Integrated Circuit Design.",
+      "term": "2012 Spring",
+      "instructor": "Zhigang Pan",
+      "docId": "1884358",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1884358/",
+      "textChars": 4458,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 25
+        },
+        {
+          "component": "Midterm",
+          "pct": 35
+        },
+        {
+          "component": "Final",
+          "pct": 40
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "(4th Edition), 2010. Addison-Wesley.",
+        "Circuits: A Design Perspective, 2nd Edition, Prentice Hall, ISBN: 0-13-090996-3,"
+      ],
+      "descriptionExcerpt": "EE 360S - Digital Integrated Circuits (Spring 2012, Unique No 16635)"
+    },
+    "ECE 360M": {
+      "course": "ECE 360M",
+      "title": "Digital Systems Design Using VHDL.",
+      "term": "2012 Spring",
+      "instructor": "Lizy John",
+      "docId": "1868857",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1868857/",
+      "textChars": 13269,
+      "grading": [
+        {
+          "component": "Lab assignments",
+          "pct": 30
+        },
+        {
+          "component": "Midterm Exams",
+          "pct": 30
+        },
+        {
+          "component": "Final Exam",
+          "pct": 25
+        },
+        {
+          "component": "Homeworks",
+          "pct": 10
+        }
+      ],
+      "topics": [],
+      "textbooks": [
+        "C. H. Roth and L. K. John, Digital System Design Using VHDL, Second edition – Thomson Publishers, ISBN"
+      ],
+      "descriptionExcerpt": "In this course, the principles of advanced digital design will be taught. This course builds on logic design principles learned in EE316: Digital Logic Design and demonstrates how digital design and rapid prototyping have been facilitated by HDLs (Hardware Description Languages) and FPGAs (Field Programmable Gate Arrays). Digital design is taught at a higher level of abstraction than EE316. This course has a significant lab component involving VHDL and FPGAs."
+    },
+    "ECE 345M": {
+      "course": "ECE 345M",
+      "title": "Embedded and Real-Time Systems Laboratory.",
+      "term": "2012 Spring",
+      "instructor": "Jonathan Valvano",
+      "docId": "1848945",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1848945/",
+      "textChars": 21117,
+      "grading": [
+        {
+          "component": "Laboratory",
+          "pct": 15
+        }
+      ],
+      "topics": [
+        "Week Topic",
+        "1/18 Modular programming, call graphs, synchronization, data flow graphs, show",
+        "differences between busy-wait and interrupt synchronization, uVision4 compiler,",
+        "device drivers, quality software, friendly",
+        "1/23 Arm architecture, instruction set, stack, interrupt servicing, lab environment,",
+        "debugging techniques, intrusiveness, monitor, output to scope, simulator, periodic",
+        "interrupts",
+        "1/30 RTOS, threads, TCB switching, spinlock semaphores, draw initial TCB,",
+        "performance measures (response time, throughput), use of the FIFO, and thread",
+        "communication,",
+        "2/6 Blocking semaphores, add cooperative multitasking priority scheduling, debugging",
+        "2/13 Critical sections, debugging of the RTOS, time jitter, microphone interface, rail-to-",
+        "rail single supply circuits",
+        "2/20 Analog filters, Digital filers, FFT, graphics",
+        "F  Quiz 1 in ENS115, covering material in Labs 1, 2, 3",
+        "2/24",
+        "2/27 DFT, windowing, SD interface using SSI, DMA",
+        "3/5 DMA, File system",
+        "3/19  Controller area network, FIFO queue, layered software",
+        "3/26  Transistor interfaces (TIP120, L293, IRF540), motor interfacing, Pulse width",
+        "modulation, Input capture, simple period measurement,",
+        "F  Quiz 2 in ENS115, covering material in Labs 1, 2, 3, 4, 5",
+        "3/30",
+        "4/2  Control systems, PID control systems",
+        "4/9  Fuzzy logic, Fixed rate scheduler",
+        "4/16  MicroC/OS-II, Vxworks, effect of sampling jitter,",
+        "4/23  Team work, testing and the design process",
+        "M  course review and evaluation",
+        "4/30",
+        "W 5/2  Robot preliminary competitions 3rd floor ENS"
+      ],
+      "textbooks": [
+        "EE445L : Embedded Systems: Real-Time Interfacing to the Arm Cortex M3, 2011, ISBN: 978-1463590154",
+        "2011, ISBN: 978-1463590154"
+      ],
+      "descriptionExcerpt": "Credit for both EE345M and EE380L.6 will not be allowed. Graduate students should register for EE380L.6 and undergraduates should register for EE345M."
+    },
+    "ECE 394V": {
+      "course": "ECE 394V",
+      "title": "New Topics in Energy Systems.",
+      "term": "2011 Fall",
+      "instructor": "Alexis Kwasinski",
+      "docId": "1429987",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1429987/",
+      "textChars": 9304,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 25
+        },
+        {
+          "component": "Project preliminary evaluation",
+          "pct": 15
+        },
+        {
+          "component": "Project report",
+          "pct": 30
+        },
+        {
+          "component": "Presentation",
+          "pct": 20
+        },
+        {
+          "component": "Class participation",
+          "pct": 10
+        },
+        {
+          "component": "Letter grades assignment",
+          "pct": 100
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "instructor. Familiarity with at least one computer simulation software. Knowledge on how to browse through professional publications."
+    },
+    "ECE 383N": {
+      "course": "ECE 383N",
+      "title": "Theory of Electromagnetic Fields: Electrodynamics.",
+      "term": "2011 Fall",
+      "instructor": "Andrea Alu",
+      "docId": "1438047",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1438047/",
+      "textChars": 4630,
+      "grading": [
+        {
+          "component": "Final",
+          "pct": 30
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Class meets TTh 5pm to 6.30pm in ENS 109; Final exam: to be decided"
+    },
+    "ECE 383L": {
+      "course": "ECE 383L",
+      "title": "Electromagnetic Field Theory.",
+      "term": "2011 Fall",
+      "instructor": "Ali Yilmaz",
+      "docId": "1447924",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1447924/",
+      "textChars": 3823,
+      "grading": [
+        {
+          "component": "paper",
+          "pct": 20
+        },
+        {
+          "component": "Project Presentations",
+          "pct": 20
+        }
+      ],
+      "topics": [
+        "1. Review of Electromagnetic Theory",
+        "Maxwell's equations, boundary conditions, vector and scalar potentials, radiation",
+        "condition, Huygens’ principle, radar cross section",
+        "2. Basics of Scientific Computing",
+        "Numerical error, convergence, interpolation, extrapolation, numerical integration,",
+        "numerical differentiation, direct and iterative matrix equation solvers",
+        "3. Finite Difference Method",
+        "Finite difference frequency domain, FDTD, absorbing boundary conditions, perfectly",
+        "matched layers",
+        "4. Finite Element Method",
+        "Galerkin and Rayleigh-Ritz methods, variational formulation, higher-order elements",
+        "5. Method of Moments",
+        "Surface and volume equivalence principles, wire, surface, and volume integral equations,",
+        "frequency- and time-domain formulations",
+        "6. Advanced Topics",
+        "Fast algorithms (FFT and FMM based), hybrid methods, finite-element boundary-integral",
+        "methods"
+      ],
+      "textbooks": [
+        "and Supplements J. Jin, The Finite Element Method in Electromagnetics, 2nd edition, Wiley, 2002.",
+        "J. Jin, The Finite Element Method in Electromagnetics, 2nd edition, Wiley, 2002.",
+        "Method, Artech House, Third Edition, 2005."
+      ],
+      "descriptionExcerpt": "J. Jin, The Finite Element Method in Electromagnetics, 2nd edition, Wiley, 2002."
+    },
+    "ECE 362R": {
+      "course": "ECE 362R",
+      "title": "Renewable Energy and Power Systems.",
+      "term": "2011 Fall",
+      "instructor": "Surya Santoso",
+      "docId": "1429641",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1429641/",
+      "textChars": 11659,
+      "grading": [],
+      "topics": [
+        "1. Overview of Renewable Energy Sources and Trends",
+        "1.1. Sources of renewable energy",
+        "1.2. Renewable energy trends",
+        "1.3. Key factors affecting renewable energy supply and prospects",
+        "1.4. U.S wind and solar energy outlook",
+        "2. Wind Resource Characteristics and Assessment",
+        "2.1. Wind speed characteristics and variations",
+        "2.1.1.Annual, seasonal",
+        "2.1.2.Synoptic, diurnal",
+        "2.1.3.Height",
+        "2.2. Wind speed and power relation",
+        "2.2.1.Available power and power extracted from the wind",
+        "2.2.2.Rotor swept area",
+        "2.2.3.Air density",
+        "2.3. Wind speed distribution and statistics",
+        "2.3.1.Weibull pdf",
+        "2.3.2.Mean, mode, root mean cube",
+        "2.4. Wind energy production",
+        "3. Fundamentals of Wind Turbines : Aerodynamics of Blades",
+        "3.1. System components",
+        "3.2. System design features: number of blades, rotor upwind /downwind, vertical and horizontal",
+        "axis rotors, tower spacing",
+        "3.3. Elementary momentum theory and Betz Limit",
+        "3.4. Airfoils and general concepts of aerodynamics",
+        "3.5. Aerodynamics of wind turbines: drag and lift",
+        "3.6. Aerodynamic power controls: pitch, stall, active stall",
+        "3.7. Blade shape for ideal rotor without wake rotation",
+        "3.8. Tip speed ratio and rotor power characteristics CP-λ",
+        "3.9. Power curves",
+        "4. Fundamentals of Wind Turbines: Drive trains"
+      ],
+      "textbooks": [],
+      "descriptionExcerpt": "Renewable energy has become an increasingly important source of energy in electricity generation. In addition to hydropower, wind and solar (photovoltaic and thermal) energy represent two most viable forms of renewable energy sources. The 2011 total installed wind power capacity in the U.S is over 42 GW. Nearly one quarter of this capacity is installed in Texas, making it rank first in the U.S. The state’s projected wind power capacity is expected to increase several folds in the next few years. Solar photovoltaic energy has been used primarily on a smaller scale such as in residential and…"
+    },
+    "ECE 360R": {
+      "course": "ECE 360R",
+      "title": "Computer-Aided Integrated Circuit Design.",
+      "term": "2011 Fall",
+      "instructor": "Jacob Abraham",
+      "docId": "1444792",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1444792/",
+      "textChars": 9640,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 10
+        },
+        {
+          "component": "Exams I and II",
+          "pct": 20
+        },
+        {
+          "component": "Laboratory Exercises",
+          "pct": 50
+        },
+        {
+          "component": "Final Exam",
+          "pct": 20
+        }
+      ],
+      "topics": [
+        "(tentative)",
+        "DATE  DAY  TOPIC OF  Reading  HOMEWORK  LAB.  EXAMS",
+        "LECTURE/DISCUSSION",
+        "ASSIGNMENT",
+        "Aug.  Wed.  1. Introduction,  1.1 - 1.3  Homework Lab. 1",
+        "24  CMOS Transistors",
+        "0  Assigned",
+        "Aug.  Mon.  2. CMOS  3.1 - 3.5",
+        "29  Fabrication and",
+        "Layout",
+        "Aug.  Wed.  3. Implementing  1.4 - 1.5  Homework",
+        "31  Logic in CMOS  1",
+        "Sep.  Wed.  4. MOS Transistor  2.1 -",
+        "7  Theory  2.3.1",
+        "2 of 5  08/26/2011 02:49 PM",
+        "Sep.  Mon.  5. CMOS Gate  2.3.2 -  Homework",
+        "12  Characteristics  2.6, 4.3 -  2",
+        "Sep.  Wed.  6. Logical Effort  4.3 - 4.5",
+        "Sep.  Mon.  7. Combinational  9.2 -  Homework",
+        "19  Circuits  9.2.1  3",
+        "Sep.  Wed.  8. Design of Adders  11.1 -",
+        "21  11.2",
+        "Sep.  Mon.  9. Interconnects in  10.1 -  Lab. 1 Due/",
+        "26  CMOS Technology  10.4  Lab. 2",
+        "Assigned",
+        "Sep.  Wed.  Exam.",
+        "28  1",
+        "Oct.  Mon.  10. Sequential  6.1 - 6.6",
+        "3  Elements",
+        "Oct.  Wed.  11. Datapath Design  11.3 -  Homework"
+      ],
+      "textbooks": [
+        "CMOS VLSI Design by Weste and Harris, 4th edition, Addison- Wesley/Pearson, 2010.",
+        "Wesley/Pearson, 2010."
+      ],
+      "descriptionExcerpt": "Textbook: CMOS VLSI Design by Weste and Harris, 4th edition, Addison- Wesley/Pearson, 2010."
+    },
+    "ECE 155R": {
+      "course": "ECE 155R",
+      "title": "Undergraduate Research Seminar.",
+      "term": "2011 Fall",
+      "instructor": "Lizy John",
+      "docId": "1445632",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1445632/",
+      "textChars": 2439,
+      "grading": [
+        {
+          "component": "Attendance and 1-page reports",
+          "pct": 75
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Undergraduate Research Seminar in Electrical and Computer Engineering"
+    },
+    "ECE 464C": {
+      "course": "ECE 464C",
+      "title": "Corporate Senior Design Project.",
+      "term": "2011 Spring",
+      "instructor": "Gary Hallock",
+      "docId": "1033694",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1033694/",
+      "textChars": 18898,
+      "grading": [],
+      "topics": [
+        "Wee  Dates  Week’s Activities",
+        "- Meet TA (in Thursday Lab) or Faculty Mentor (at arranged time) for",
+        "1 18–20 Jan  project update and to establish a regular meeting time",
+        "- Tues, 3:30 Course Orientation in ECJ 1.202",
+        "- Thu, 3:30 Lecture, Tips for Project Success, in ECJ 1.202",
+        "2 25–27 Jan  - Attend Design Review Meeting with TA or Mentor",
+        "3  1–3 Feb DUE: Design Implementation Plan at ENS 330 by 12:30 p.m. Thursday,",
+        "Feb 3*",
+        "4 8–10 Feb  - Submit Weekly Project Status Report",
+        "5 15–17 Feb  - Submit Weekly Project Status Report",
+        "- First Technical Performance Grade Assessed",
+        "6 22–24 Feb  - Submit Weekly Project Status Report",
+        "7 1–3 Mar  - Submit Weekly Project Status Report",
+        "- Pre-Demo Performance Milestone with TA or Mentor",
+        "8 8–10 Mar DUE: Testing and Evaluation Plan at ENS 330 by 12:30 p.m. Tuesday,",
+        "Mar 8*",
+        "SPRING BREAK",
+        "9  22–24  - Performance Review with TA or Mentor",
+        "Mar  - Submit Weekly Project Status Report",
+        "- Second Technical Performance Grade Assessed",
+        "10  29–31  - Present Oral Progress Report",
+        "- Test and Evaluation Period Begins (Discuss T&E Plan with TA or",
+        "Mentor)",
+        "11 5–7 Apr  - Submit Weekly Project Status Report",
+        "- Final Project Demo Milestone with TA or Mentor",
+        "12 12–14 Apr  - Submit Weekly Project Status Report",
+        "- Third Technical Performance Grade Assessed",
+        "13 19–21 Apr  - Submit Weekly Project Status Report",
+        "- Submit Peer Evaluations",
+        "14 26–28 Apr  OPEN HOUSE: Thursday, April 28"
+      ],
+      "textbooks": [],
+      "descriptionExcerpt": "Read the material in this Course Guide carefully and completely. Check with your"
+    },
+    "ECE 392N": {
+      "course": "ECE 392N",
+      "title": "Principles of Radar.",
+      "term": "2011 Spring",
+      "instructor": "Hao Ling",
+      "docId": "1034290",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1034290/",
+      "textChars": 4671,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 40
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Text: D. R. Wehner, High-Resolution Radar, 2nd edition, Artech House, 1994."
+    },
+    "ECE 391C": {
+      "course": "ECE 391C",
+      "title": "Technical Entrepreneurship.",
+      "term": "2011 Spring",
+      "instructor": "Sriram Vishwanath",
+      "docId": "1037004",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1037004/",
+      "textChars": 4808,
+      "grading": [
+        {
+          "component": "Class Participation & Presentations",
+          "pct": 40
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "(Technical Entrepreneurship:) From Idea to Intellectual Property: The Road to Commercializing"
+    },
+    "ECE 384N": {
+      "course": "ECE 384N",
+      "title": "Architectural Acoustics.",
+      "term": "2011 Spring",
+      "instructor": "Michael Haberman",
+      "docId": "1050098",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1050098/",
+      "textChars": 4233,
+      "grading": [
+        {
+          "component": "Homework",
+          "pct": 30
+        },
+        {
+          "component": "Project",
+          "pct": 20
+        },
+        {
+          "component": "Midterm",
+          "pct": 25
+        },
+        {
+          "component": "Final",
+          "pct": 25
+        }
+      ],
+      "topics": [
+        "□ Historical context, fundamentals of acoustics, human hearing and perception,",
+        "acoustic measurements and metrics, environmental noise, lumped parameter models,",
+        "acoustic absorption, sound enclosures, sound transmission loss, mechanical system",
+        "noise, flooring systems, acoustical room design, sound reinforcement. Further topics",
+        "and case studies will be covered at the instructor’s discretion and time permitting."
+      ],
+      "textbooks": [
+        "Architectural Acoustics, Marshall Long, Elsevier Academic Press, Burlington, MA, 2006."
+      ],
+      "descriptionExcerpt": "Objective: The goal of this course is to introduce the student to the field of Architectural Acoustics from a technical perspective. Students will gain a fundamental understanding of the acoustical principles governing noise control problems and the acoustical design of spaces."
+    },
+    "ECE 372N": {
+      "course": "ECE 372N",
+      "title": "Telecommunication Networks.",
+      "term": "2011 Spring",
+      "instructor": "Scott Nettles",
+      "docId": "1021184",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1021184/",
+      "textChars": 4516,
+      "grading": [
+        {
+          "component": "Final",
+          "pct": 20
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "or by appointment (Send email to make an appointment. Please do not just \"drop by\" my office.)"
+    },
+    "ECE 321K": {
+      "course": "ECE 321K",
+      "title": "Mixed Signal and Circuits Laboratory.",
+      "term": "2011 Spring",
+      "instructor": "John Davis",
+      "docId": "1034343",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/1034343/",
+      "textChars": 5477,
+      "grading": [
+        {
+          "component": "Reports",
+          "pct": 60
+        },
+        {
+          "component": "report",
+          "pct": 20
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "• Teams need to be formed on the first day of class. • e-mail me the members on each team (Only a single e-mail per team) ."
+    },
+    "ECE 371C": {
+      "course": "ECE 371C",
+      "title": "Wireless Communications Laboratory.",
+      "term": "2010 Fall",
+      "instructor": "Robert Heath",
+      "docId": "704788",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/704788/",
+      "textChars": 18568,
+      "grading": [],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "Syllabus: EE 371C / EE 381V Wireless Communications Laboratory"
+    },
+    "ECE 348": {
+      "course": "ECE 348",
+      "title": "Laser and Optical Engineering.",
+      "term": "2010 Fall",
+      "instructor": "Seth Bank",
+      "docId": "703129",
+      "pdfUrl": "https://utdirect.utexas.edu/apps/student/coursedocs/courses/nlogon/download/703129/",
+      "textChars": 9618,
+      "grading": [
+        {
+          "component": "Examinations",
+          "pct": 10
+        },
+        {
+          "component": "Homeworks",
+          "pct": 60
+        },
+        {
+          "component": "midterms",
+          "pct": 30
+        },
+        {
+          "component": "Final",
+          "pct": 10
+        }
+      ],
+      "topics": [],
+      "textbooks": [],
+      "descriptionExcerpt": "This course introduces fundamental concepts in photonics and applies them to describe lasers. Lasers are used in a variety of applications, ranging from cutting and welding tools to >10 Tbit/s fiber optic data links to artificial guide stars for astronomy. We will develop the requisite physics to (1) discover why lasers are actually losers, (2) qualitatively and quantitatively describe laser operation, and (3) identify the key tradeoffs in practical laser design."
     }
   }
 }
