@@ -59,6 +59,37 @@ export const CATEGORY_BORDER: Record<CourseCategory, string> = {
   math: 'border-l-4 border-[hsl(255_38%_58%)]',
 };
 
+/** Tailwind background color classes for dots / progress-bar fills per category */
+export const CATEGORY_BG: Record<CourseCategory, string> = {
+  ece_core: 'bg-[hsl(16_70%_50%)]',
+  tech_core: 'bg-[hsl(85_50%_42%)]',
+  gen_ed: 'bg-[hsl(40_72%_47%)]',
+  elective: 'bg-[hsl(220_8%_55%)]',
+  math: 'bg-[hsl(255_38%_58%)]',
+};
+
+/**
+ * Tailwind text-color classes per category (accessible contrast on light bg).
+ * gen_ed and elective use darker/semantic variants: the swatch values
+ * (hsl(40 72% 47%) and hsl(220 8% 55%)) fail text-AA on white backgrounds.
+ */
+export const CATEGORY_TEXT: Record<CourseCategory, string> = {
+  ece_core: 'text-[hsl(16_70%_45%)] dark:text-[hsl(16_70%_60%)]',
+  tech_core: 'text-[hsl(85_50%_36%)] dark:text-[hsl(85_50%_55%)]',
+  gen_ed: 'text-[hsl(40_72%_38%)] dark:text-[hsl(40_72%_58%)]',
+  elective: 'text-muted-foreground',
+  math: 'text-[hsl(255_38%_52%)] dark:text-[hsl(255_38%_68%)]',
+};
+
+/** Bare border color class (no width) — for callers that compose their own border width */
+export const CATEGORY_BORDER_COLOR: Record<CourseCategory, string> = {
+  ece_core: 'border-[hsl(16_70%_50%)]',
+  tech_core: 'border-[hsl(85_50%_42%)]',
+  gen_ed: 'border-[hsl(40_72%_47%)]',
+  elective: 'border-[hsl(220_8%_55%)]',
+  math: 'border-[hsl(255_38%_58%)]',
+};
+
 
 // ─── Credit Hours ─────────────────────────────────────────────────────────────
 
