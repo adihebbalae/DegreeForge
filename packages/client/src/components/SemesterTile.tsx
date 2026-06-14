@@ -21,6 +21,8 @@ import {
 } from '@/components/ui/tooltip';
 import type { StressBand, SemesterStressResult } from '@/lib/stress-score';
 import type { Semester, CourseCatalog, PrereqNode, GradeDistributions } from '@/types';
+import { usePlanDispatch } from '@/context/PlanContext';
+import { track } from '@/lib/analytics';
 
 // ─── Heat stripe colors (same mapping as SemesterColumn) ─────────────────────
 
@@ -151,17 +153,52 @@ const MAX_CHIPS = 8;
 
 function CourseChip({
   courseId,
+  semesterLabel,
   prereqNodes,
+  isPast,
+  onRemove,
 }: {
   courseId: string;
+  semesterLabel: string;
   prereqNodes: Record<string, PrereqNode>;
+  isPast: boolean;
+  onRemove: (courseId: string) => void;
 }) {
   const category = inferCategory(courseId, prereqNodes);
   const dotColor = CATEGORY_DOT[category] ?? 'bg-gray-400';
   return (
-    <span className="flex items-center gap-0.5 min-w-0 overflow-hidden">
+    <span className="group flex items-center gap-0.5 min-w-0 overflow-hidden">
       <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', dotColor)} aria-hidden="true" />
-      <span className="text-[10px] leading-tight truncate text-foreground/80">{courseId}</span>
+      <span className="text-[10px] leading-tight truncate text-foreground/80 flex-1 min-w-0">{courseId}</span>
+      {!isPast && (
+        <button
+          type="button"
+          aria-label={`Remove ${courseId} from ${semesterLabel}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(courseId);
+          }}
+          className={cn(
+            'shrink-0 h-3 w-3 rounded-full flex items-center justify-center',
+            'opacity-0 group-hover:opacity-100 focus:opacity-100',
+            'text-muted-foreground hover:text-destructive hover:bg-destructive/10',
+            'transition-opacity duration-100',
+          )}
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 8 8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            className="h-2 w-2"
+          >
+            <line x1="1" y1="1" x2="7" y2="7" />
+            <line x1="7" y1="1" x2="1" y2="7" />
+          </svg>
+        </button>
+      )}
     </span>
   );
 }
@@ -184,6 +221,13 @@ export default function SemesterTile({
   const { id, label, status, season } = semester;
   const isPast = status === 'past';
   const isCurrent = status === 'current';
+
+  const dispatch = usePlanDispatch();
+
+  function handleRemoveCourse(courseId: string) {
+    dispatch({ type: 'REMOVE_COURSE', semesterId: id, courseId });
+    track('course_removed', { via: 'tile-x' });
+  }
 
   // ── Droppable (future + current accept drops) ─────────────────────────────
   const isDroppable = !isPast;
@@ -230,12 +274,18 @@ export default function SemesterTile({
   const overflowCount = courseIds.length - MAX_CHIPS;
 
   return (
-    <button
+    <div
       ref={setNodeRef}
-      type="button"
       role="button"
+      tabIndex={0}
       aria-label={`${label}, ${totalCredits} credit hours, ${courseIds.length} courses${isFocused ? ', currently focused' : ''}`}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       className={cn(
         // Base sizing — fits within ~118px row height, ~170px width
         'relative flex flex-col w-full h-full min-h-[96px] rounded-lg overflow-hidden text-left',
@@ -319,7 +369,14 @@ export default function SemesterTile({
         ) : (
           <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 flex-1 min-h-0 overflow-hidden">
             {visibleCourses.map((cId) => (
-              <CourseChip key={cId} courseId={cId} prereqNodes={prereqNodes} />
+              <CourseChip
+                key={cId}
+                courseId={cId}
+                semesterLabel={label}
+                prereqNodes={prereqNodes}
+                isPast={isPast}
+                onRemove={handleRemoveCourse}
+              />
             ))}
             {overflowCount > 0 && (
               <span className="col-span-2 text-[10px] text-muted-foreground/70 pl-2">
@@ -329,6 +386,6 @@ export default function SemesterTile({
           </div>
         )}
       </div>
-    </button>
+    </div>
   );
 }
