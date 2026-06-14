@@ -10,6 +10,9 @@ export function initAnalytics() {
     api_host: import.meta.env.VITE_POSTHOG_HOST ?? 'https://us.i.posthog.com',
     person_profiles: 'identified_only',
     capture_pageview: true,
+    // capture_exceptions enables autocapture of uncaught errors + unhandled promise rejections as $exception events.
+    // posthog-js v1.384.0+ handles this natively via ExceptionObserver.
+    capture_exceptions: true,
     session_recording: { maskAllInputs: true }, // mask all input values in replay (protects the access code + any sensitive entry)
   })
   initialized = true
@@ -37,4 +40,16 @@ export function getFeatureFlag(key: string): string | boolean | undefined {
   } catch {
     return undefined
   }
+}
+
+/**
+ * Report an exception to PostHog. Safe no-op when PostHog is not initialized.
+ *
+ * PRIVACY: only the error object (message + stack) and the explicitly provided
+ * `extra` object are sent. Never attach plan state, profile, grades, or course
+ * data — users are promised those values never leave their device.
+ */
+export function captureException(error: unknown, extra?: Record<string, unknown>): void {
+  if (!initialized) return
+  posthog.captureException(error, extra)
 }
