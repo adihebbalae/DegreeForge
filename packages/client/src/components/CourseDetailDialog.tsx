@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,11 +8,12 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ExternalLink, Book, Users, Link as LinkIcon, TrendingUp, Calendar } from 'lucide-react';
+import { ExternalLink, Book, Users, Link as LinkIcon, TrendingUp, Calendar, Sparkles } from 'lucide-react';
 import { getCourseTitle, getCourseCredits, gpaColorClass, inferCategory, buildTranscriptCredits } from '@/lib/course-utils';
+import { getRelatedCourses } from '@/lib/related-courses';
 import type { CourseCatalog, PrereqNode, GradeDistributions, FallSections, CourseSection } from '@/types';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
-import { useFallSections, useUserProfile } from '@/context/DataContext';
+import { useFallSections, useUserProfile, useTechCoresRecord } from '@/context/DataContext';
 
 interface CourseDetailDialogProps {
   courseId: string | null;
@@ -33,12 +34,28 @@ export default function CourseDetailDialog({
 }: CourseDetailDialogProps) {
   const prereqGraph = usePrereqGraph();
   const profile = useUserProfile();
+  const techCores = useTechCoresRecord();
   const transcriptCredits = useMemo(() => buildTranscriptCredits(profile), [profile]);
 
   const fallSectionsList = useFallSections();
 
+  // "You may also like" can re-target the dialog at a related course without
+  // unmounting it. `navCourseId` is the course currently shown; it starts as the
+  // prop and is reset whenever the dialog (re)opens or the parent's course changes.
+  const [navCourseId, setNavCourseId] = useState<string | null>(courseId);
+  useEffect(() => {
+    if (open) setNavCourseId(courseId);
+  }, [courseId, open]);
+  const activeCourseId = navCourseId ?? courseId;
+
+  const related = useMemo(
+    () => (activeCourseId ? getRelatedCourses(activeCourseId, techCores) : []),
+    [activeCourseId, techCores]
+  );
+
   const details = useMemo(() => {
-    if (!courseId) return null;
+    if (!activeCourseId) return null;
+    const courseId = activeCourseId;
     const cat = catalog?.[courseId];
     const node = prereqNodes[courseId];
     const grade = gradeDistributions[courseId];
@@ -74,7 +91,7 @@ export default function CourseDetailDialog({
       activeSections,
       primaryInstructor,
     };
-  }, [courseId, catalog, gradeDistributions, prereqNodes, prereqGraph, fallSectionsList, transcriptCredits]);
+  }, [activeCourseId, catalog, gradeDistributions, prereqNodes, prereqGraph, fallSectionsList, transcriptCredits]);
 
   if (!details) return null;
 
@@ -255,6 +272,38 @@ export default function CourseDetailDialog({
                       +{details.activeSections.length - 5} more sections
                     </p>
                   )}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* You may also like — related courses in the same tech-core area(s) */}
+          {related.length > 0 && (
+            <>
+              <Separator />
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" /> You may also like
+                </h4>
+                <div className="space-y-1.5">
+                  {related.map((rec) => (
+                    <button
+                      key={rec.course}
+                      type="button"
+                      onClick={() => setNavCourseId(rec.course)}
+                      className="flex w-full items-center gap-3 rounded-md border border-border bg-card px-3 py-2 text-left transition-colors hover:bg-accent"
+                    >
+                      <Badge variant="outline" className="shrink-0 text-[10px] font-mono">
+                        {rec.course}
+                      </Badge>
+                      <span className="flex-1 truncate text-xs font-medium">
+                        {getCourseTitle(rec.course, catalog, prereqNodes)}
+                      </span>
+                      <span className="shrink-0 text-[10px] text-muted-foreground">
+                        {rec.reason}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </>
