@@ -26,7 +26,7 @@ export function SplitView() {
     // added (in B not A) -> green in right
     // removed (in A not B) -> red in left
     // moved -> blue in both
-    if (diff.moved.some(m => m.courseId === courseId)) return 'border-blue-500 bg-blue-500/10 text-blue-700';
+    if (diff.moved.some(m => m.courseId === courseId)) return 'border-primary bg-primary/10 text-primary';
 
     if (planSide === 'left') {
       if (diff.removed.some(m => m.courseId === courseId)) return 'border-red-500 bg-red-500/10 text-red-700';

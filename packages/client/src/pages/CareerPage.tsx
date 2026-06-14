@@ -64,7 +64,7 @@ export default function CareerPage() {
     <div className="h-full flex flex-col items-center bg-muted/20 p-6 overflow-y-auto">
       <div className="max-w-4xl w-full space-y-6 animate-in fade-in slide-in-from-bottom-4">
         <div className="flex items-center gap-3">
-          <div className="bg-blue-500/10 p-2 rounded-md text-blue-600">
+          <div className="bg-primary/10 p-2 rounded-md text-primary">
             <Briefcase className="w-6 h-6" />
           </div>
           <div>
@@ -85,7 +85,7 @@ export default function CareerPage() {
         <Card className="shadow-sm">
           <CardContent className="p-4 space-y-4">
             <textarea
-              className="w-full min-h-[200px] p-3 rounded-md border bg-background text-sm resize-none focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full min-h-[200px] p-3 rounded-md border bg-background text-sm resize-none focus:ring-2 focus:ring-ring outline-none"
               placeholder="Paste the job description here (e.g., 'Looking for a firmware engineer with RTOS, embedded systems, and C++ experience...')"
               value={jobDescription}
               onChange={e => setJobDescription(e.target.value)}
@@ -113,7 +113,7 @@ export default function CareerPage() {
                   <span className="text-sm text-muted-foreground italic">No known technical skills matched.</span>
                 ) : (
                   skills.map(skillKey => (
-                    <Badge key={skillKey} className="bg-blue-100 text-blue-800 hover:bg-blue-200 border-transparent">
+                    <Badge key={skillKey} className="bg-primary/10 text-primary hover:bg-primary/20 border-transparent">
                       {skillMap?.[skillKey]?.label || skillKey}
                     </Badge>
                   ))

@@ -33,8 +33,8 @@ export function WizardStepper({ steps, current }: WizardStepperProps) {
               <span
                 className={cn(
                   'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold transition-colors',
-                  isDone && 'border-blue-500 bg-blue-500 text-white',
-                  isActive && 'border-blue-500 text-blue-600 dark:text-blue-300',
+                  isDone && 'border-primary bg-primary text-primary-foreground',
+                  isActive && 'border-primary text-primary',
                   !isDone && !isActive && 'border-border text-muted-foreground'
                 )}
                 aria-current={isActive ? 'step' : undefined}

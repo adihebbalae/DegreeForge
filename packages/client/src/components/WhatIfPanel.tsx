@@ -349,7 +349,7 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
                   </Card>
                   <Card className="bg-muted/20 border-none shadow-none">
                     <CardContent className="p-3 pt-3 flex flex-col items-center justify-center">
-                      <span className="text-2xl font-bold text-blue-600">
+                      <span className="text-2xl font-bold text-primary">
                         {diff.semesterDelta > 0 ? `+${diff.semesterDelta}` : diff.semesterDelta}
                       </span>
                       <span className="text-[10px] uppercase text-muted-foreground font-medium">

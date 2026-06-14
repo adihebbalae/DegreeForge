@@ -86,9 +86,9 @@ export default function SemesterTransitionDialog({ open, onOpenChange }: Semeste
             </div>
           )}
 
-          <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded-md border border-blue-200 dark:border-blue-800 flex items-center justify-between">
-            <span className="text-sm text-blue-800 dark:text-blue-300">Next semester is:</span>
-            <span className="text-sm font-bold text-blue-900 dark:text-blue-100">{nextSem.label}</span>
+          <div className="bg-accent/40 dark:bg-accent/20 p-3 rounded-md border border-primary/20 flex items-center justify-between">
+            <span className="text-sm text-foreground/70">Next semester is:</span>
+            <span className="text-sm font-bold text-foreground">{nextSem.label}</span>
           </div>
         </div>
 

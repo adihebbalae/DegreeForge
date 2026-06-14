@@ -143,7 +143,7 @@ export function SnapshotSidebar() {
             
             {diffResult.moved.length > 0 && (
               <div>
-                <span className="text-xs font-semibold text-blue-500">Moved:</span>
+                <span className="text-xs font-semibold text-primary">Moved:</span>
                 <ul className="text-xs space-y-1 mt-1">
                   {diffResult.moved.map(c => <li key={c.courseId}>~ {c.courseId} ({c.fromSemester} → {c.toSemester})</li>)}
                 </ul>

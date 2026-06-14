@@ -268,7 +268,7 @@ function InProgressCourseRow({
 
   if (!editing) {
     return (
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-blue-50 dark:bg-blue-950/20 group">
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-accent/40 dark:bg-accent/10 group">
         <span className="font-mono text-xs text-foreground w-20 shrink-0">{course.course || '—'}</span>
         <span className="text-xs text-muted-foreground flex-1 truncate min-w-0">{course.title || '—'}</span>
         <span className="text-xs text-muted-foreground w-24 shrink-0">{course.semester}</span>

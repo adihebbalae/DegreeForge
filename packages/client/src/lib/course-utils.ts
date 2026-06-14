@@ -52,11 +52,11 @@ export function inferCategory(
 
 /** Tailwind classes for left-border accent per category */
 export const CATEGORY_BORDER: Record<CourseCategory, string> = {
-  ece_core: 'border-l-4 border-blue-500',
-  tech_core: 'border-l-4 border-green-500',
-  gen_ed: 'border-l-4 border-amber-500',
-  elective: 'border-l-4 border-gray-400',
-  math: 'border-l-4 border-purple-500',
+  ece_core: 'border-l-4 border-[hsl(16_70%_50%)]',
+  tech_core: 'border-l-4 border-[hsl(85_50%_42%)]',
+  gen_ed: 'border-l-4 border-[hsl(40_72%_47%)]',
+  elective: 'border-l-4 border-[hsl(220_8%_55%)]',
+  math: 'border-l-4 border-[hsl(255_38%_58%)]',
 };
 
 

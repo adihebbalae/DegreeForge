@@ -44,7 +44,7 @@ function PreviewCard({ mode, summary, labels }: PreviewCardProps) {
       className={cn(
         'flex-1 p-5 text-left',
         isFastest
-          ? 'border-blue-500/30 bg-blue-500/[0.03]'
+          ? 'border-primary/30 bg-primary/[0.03]'
           : 'border-amber-500/30 bg-amber-500/[0.03]'
       )}
       data-testid={`hero-preview-${mode}`}
@@ -53,7 +53,7 @@ function PreviewCard({ mode, summary, labels }: PreviewCardProps) {
         <span
           className={cn(
             'inline-flex h-7 w-7 items-center justify-center rounded-md',
-            isFastest ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+            isFastest ? 'bg-primary/10 text-primary' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
           )}
         >
           {isFastest ? <Gauge className="h-4 w-4" /> : <GraduationCap className="h-4 w-4" />}

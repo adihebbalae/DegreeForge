@@ -26,13 +26,13 @@ export default function CandidateCard({ candidate, index, isActive, onSelect, wh
     <Card
       className={cn(
         "cursor-pointer transition-all hover:shadow-md border-2",
-        isActive ? "border-blue-500 shadow-sm" : "border-transparent"
+        isActive ? "border-primary shadow-sm" : "border-transparent"
       )}
       onClick={onSelect}
     >
       <CardContent className="p-3">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-bold text-blue-600">Option #{index + 1}</span>
+          <span className="text-sm font-bold text-primary">Option #{index + 1}</span>
           <div className="flex gap-1">
             <Badge className="bg-green-500 text-white text-[10px]">
               {candidate.avgGpa.toFixed(2)} GPA

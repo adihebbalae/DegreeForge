@@ -3,9 +3,9 @@ import { parseTimeToMinutes, parseInterval } from '@/lib/score';
 import { cn } from '@/lib/utils';
 
 const colors = [
-  'bg-blue-500/20 border-blue-500 text-blue-700 dark:text-blue-300',
-  'bg-green-500/20 border-green-500 text-green-700 dark:text-green-300',
-  'bg-purple-500/20 border-purple-500 text-purple-700 dark:text-purple-300',
+  'bg-[hsl(16_70%_50%)]/20 border-[hsl(16_70%_50%)] text-[hsl(16_70%_38%)] dark:text-[hsl(16_70%_65%)]',
+  'bg-[hsl(85_50%_42%)]/20 border-[hsl(85_50%_42%)] text-[hsl(85_50%_30%)] dark:text-[hsl(85_50%_58%)]',
+  'bg-[hsl(255_38%_58%)]/20 border-[hsl(255_38%_58%)] text-[hsl(255_38%_46%)] dark:text-[hsl(255_38%_72%)]',
   'bg-orange-500/20 border-orange-500 text-orange-700 dark:text-orange-300',
   'bg-red-500/20 border-red-500 text-red-700 dark:text-red-300',
   'bg-teal-500/20 border-teal-500 text-teal-700 dark:text-teal-300',

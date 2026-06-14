@@ -49,7 +49,7 @@ export function ProgressBars() {
       completed: progress.eceCoreCompleted,
       total: progress.eceCoreTotal,
       unit: 'courses',
-      color: 'bg-blue-500',
+      color: 'bg-[hsl(16_70%_50%)]',
       weight: 63
     },
     {

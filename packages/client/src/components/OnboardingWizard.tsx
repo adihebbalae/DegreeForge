@@ -163,7 +163,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             {Array.from({ length: totalSteps }).map((_, i) => (
               <div
                 key={i}
-                className={`h-2 flex-1 rounded-full transition-colors ${i + 1 <= step ? 'bg-blue-500' : 'bg-secondary'}`}
+                className={`h-2 flex-1 rounded-full transition-colors ${i + 1 <= step ? 'bg-primary' : 'bg-secondary'}`}
               />
             ))}
           </div>
@@ -182,7 +182,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 <input
                   id="access-code-input"
                   type="password"
-                  className="w-full px-3 py-2 rounded-md border bg-background text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full px-3 py-2 rounded-md border bg-background text-sm focus:ring-2 focus:ring-ring outline-none"
                   placeholder="Paste your access code here"
                   value={accessCodeInput}
                   onChange={e => setAccessCodeInput(e.target.value)}
@@ -266,7 +266,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 ].map(opt => (
                   <div
                     key={opt.id}
-                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${loadTolerance === opt.id ? 'border-blue-500 bg-blue-500/10' : 'hover:bg-secondary'}`}
+                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${loadTolerance === opt.id ? 'border-primary bg-primary/10' : 'hover:bg-secondary'}`}
                     onClick={() => setLoadTolerance(opt.id as LoadTolerance)}
                   >
                     <div className="font-medium">{opt.label}</div>
@@ -307,21 +307,21 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
               <div className="flex gap-2">
                 <button
                   type="button"
-                  className={`flex-1 py-2 px-3 rounded-md border text-sm font-medium transition-colors ${importSource === 'transcript' ? 'border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-300' : 'hover:bg-secondary'}`}
+                  className={`flex-1 py-2 px-3 rounded-md border text-sm font-medium transition-colors ${importSource === 'transcript' ? 'border-primary bg-primary/10 text-primary' : 'hover:bg-secondary'}`}
                   onClick={() => { setImportSource('transcript'); setTranscriptError(false); }}
                 >
                   Transcript
                 </button>
                 <button
                   type="button"
-                  className={`flex-1 py-2 px-3 rounded-md border text-sm font-medium transition-colors ${importSource === 'ida' ? 'border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-300' : 'hover:bg-secondary'}`}
+                  className={`flex-1 py-2 px-3 rounded-md border text-sm font-medium transition-colors ${importSource === 'ida' ? 'border-primary bg-primary/10 text-primary' : 'hover:bg-secondary'}`}
                   onClick={() => { setImportSource('ida'); setTranscriptError(false); }}
                 >
                   IDA Audit
                 </button>
               </div>
               <textarea
-                className="flex-1 w-full min-h-[150px] p-3 rounded-md border bg-background text-sm resize-none focus:ring-2 focus:ring-blue-500 outline-none"
+                className="flex-1 w-full min-h-[150px] p-3 rounded-md border bg-background text-sm resize-none focus:ring-2 focus:ring-ring outline-none"
                 placeholder={importSource === 'ida'
                   ? 'ECE 302  Intro to Electrical Eng  A  FA 2025  3.0\n...'
                   : 'ECE 302 Intro to Electrical Eng A Fall 2025 3\n...'}

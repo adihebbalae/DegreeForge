@@ -19,11 +19,11 @@ import type { Semester, CourseCatalog, PrereqNode } from '@/types';
 // ─── Category dot colors (mirrors SemesterTile) ───────────────────────────────
 
 const CATEGORY_DOT: Record<string, string> = {
-  ece_core: 'bg-blue-500',
-  tech_core: 'bg-green-500',
-  gen_ed: 'bg-amber-500',
-  elective: 'bg-gray-400',
-  math: 'bg-purple-500',
+  ece_core:  'bg-[hsl(16_70%_50%)]',
+  tech_core: 'bg-[hsl(85_50%_42%)]',
+  gen_ed:    'bg-[hsl(40_72%_47%)]',
+  elective:  'bg-[hsl(220_8%_55%)]',
+  math:      'bg-[hsl(255_38%_58%)]',
 };
 
 const STRESS_BAND_BADGE: Record<StressBand, string> = {
@@ -96,7 +96,7 @@ export default function MobileSemesterCard({
         'transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         'active:scale-[0.99]',
         isPast && 'bg-muted/40',
-        isCurrent && 'ring-2 ring-blue-500 dark:ring-blue-400 border-transparent',
+        isCurrent && 'ring-2 ring-primary border-transparent',
         !isPast && !isCurrent && 'border-border',
         isFocused && 'ring-2 ring-primary shadow-md',
       )}
@@ -114,7 +114,7 @@ export default function MobileSemesterCard({
             </span>
           )}
           {isCurrent && (
-            <span className="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded font-medium">
+            <span className="text-xs bg-primary text-primary-foreground px-1.5 py-0.5 rounded font-medium">
               NOW
             </span>
           )}
