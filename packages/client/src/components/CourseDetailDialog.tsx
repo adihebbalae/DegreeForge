@@ -44,6 +44,9 @@ export default function CourseDetailDialog({
   // Sync open state into UiContext so PlannerPage can disable dnd sensors
   // while the dialog is visible. The cleanup always resets to false so dnd
   // is never left disabled if the component unmounts unexpectedly.
+  // Note: on a normal close, the effect body re-runs with open=false first;
+  // the cleanup of that run also calls setDetailDialogOpen(false) — React
+  // batches both and the result is correct. Cleanup is a safety net for unmount.
   useEffect(() => {
     setDetailDialogOpen(open);
     return () => setDetailDialogOpen(false);
@@ -116,6 +119,18 @@ export default function CourseDetailDialog({
     ? encodeURIComponent(details.primaryInstructor)
     : encodeURIComponent(details.id);
 
+  // course_number = everything after the first space in the course ID
+  // (e.g. "ECE 460N" → "460N", "M 325K" → "325K").
+  // course_title is intentionally omitted: coursedocs treats it as an exact-match
+  // filter and our scraped titles diverge from UT Direct's catalogue strings,
+  // which silently returns zero results. course_number alone is selective enough.
+  const spaceIdx = details.id.indexOf(' ');
+  const courseNumber = spaceIdx >= 0 ? details.id.slice(spaceIdx + 1) : details.id;
+  const pastSyllabiUrl =
+    `https://utdirect.utexas.edu/apps/student/coursedocs/?` +
+    `course_number=${encodeURIComponent(courseNumber)}` +
+    `&course_type=In+Residence&search=`;
+
   const externalLinks = [
     {
       label: details.primaryInstructor
@@ -132,19 +147,7 @@ export default function CourseDetailDialog({
     {
       label: 'Past Syllabi',
       icon: Book,
-      url: (() => {
-        // Deep-link to the coursedocs search for this specific course.
-        // Pattern: course_number = everything after the first space in the course ID
-        // (e.g. "ECE 460N" → "460N", "M 325K" → "325K").
-        const spaceIdx = details.id.indexOf(' ');
-        const courseNumber = spaceIdx >= 0 ? details.id.slice(spaceIdx + 1) : details.id;
-        return (
-          `https://utdirect.utexas.edu/apps/student/coursedocs/?` +
-          `course_number=${encodeURIComponent(courseNumber)}` +
-          `&course_title=${encodeURIComponent(details.title)}` +
-          `&course_type=In+Residence&search=`
-        );
-      })(),
+      url: pastSyllabiUrl,
     },
     {
       label: 'CIS Surveys',

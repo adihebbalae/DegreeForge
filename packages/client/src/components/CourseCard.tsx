@@ -323,7 +323,7 @@ export default function CourseCard({
           {onRemove && (
             <button
               onClick={(e) => { e.stopPropagation(); onRemove(courseId); }}
-              className="p-0.5 rounded transition-opacity opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500"
+              className="p-0.5 rounded transition-opacity opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500" // full opacity on hover for stronger affordance
               title="Remove course from plan"
               aria-label={`Remove ${courseId}`}
             >
