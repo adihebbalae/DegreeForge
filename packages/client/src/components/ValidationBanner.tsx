@@ -12,6 +12,7 @@ import { Notice } from '@/components/ui/notice';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
+import { useUi } from '@/context/UiContext';
 
 export default function ValidationBanner() {
   const { violations, hasViolations } = useValidation();
@@ -33,6 +34,7 @@ export default function ValidationBanner() {
   const profile = useUserProfile();
   const effectiveProfile = useEffectiveProfile();
   const engineGraph = usePrereqGraph();
+  const { setHighlightedCourseId } = useUi();
 
   const { futureCourseCount, futureSemesterCount } = useMemo(() => {
     const futureSems = semesters.filter(s => s.status === 'future');
@@ -118,6 +120,10 @@ export default function ValidationBanner() {
             <button
               className="underline underline-offset-2 opacity-80 hover:opacity-100 whitespace-nowrap text-[10px] shrink-0"
               onClick={() => {
+                if (!firstViolationId) return;
+                setHighlightedCourseId(firstViolationId);
+                // Fallback: in focus-view the CourseCard also carries data-course-id,
+                // so scrollIntoView still works there (no-op in the fixed-height grid).
                 const el = document.querySelector(`[data-course-id="${firstViolationId}"]`);
                 el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
               }}

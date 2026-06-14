@@ -22,6 +22,7 @@ import {
 import type { StressBand, SemesterStressResult } from '@/lib/stress-score';
 import type { Semester, CourseCatalog, PrereqNode, GradeDistributions } from '@/types';
 import { usePlanDispatch } from '@/context/PlanContext';
+import { useUi } from '@/context/UiContext';
 import { track } from '@/lib/analytics';
 
 // ─── Heat stripe colors (same mapping as SemesterColumn) ─────────────────────
@@ -156,18 +157,26 @@ function CourseChip({
   semesterLabel,
   prereqNodes,
   isPast,
+  isHighlighted,
   onRemove,
 }: {
   courseId: string;
   semesterLabel: string;
   prereqNodes: Record<string, PrereqNode>;
   isPast: boolean;
+  isHighlighted: boolean;
   onRemove: (courseId: string) => void;
 }) {
   const category = inferCategory(courseId, prereqNodes);
   const dotColor = CATEGORY_DOT[category] ?? 'bg-gray-400';
   return (
-    <span className="group flex items-center gap-0.5 min-w-0 overflow-hidden">
+    <span
+      data-course-id={courseId}
+      className={cn(
+        'group flex items-center gap-0.5 min-w-0 overflow-hidden rounded-sm',
+        isHighlighted && 'ring-2 ring-primary animate-pulse',
+      )}
+    >
       <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', dotColor)} aria-hidden="true" />
       <span className="text-[10px] leading-tight truncate text-foreground/80 flex-1 min-w-0">{courseId}</span>
       {!isPast && (
@@ -223,6 +232,7 @@ export default function SemesterTile({
   const isCurrent = status === 'current';
 
   const dispatch = usePlanDispatch();
+  const { highlightedCourseId } = useUi();
 
   function handleRemoveCourse(courseId: string) {
     dispatch({ type: 'REMOVE_COURSE', semesterId: id, courseId });
@@ -375,6 +385,7 @@ export default function SemesterTile({
                 semesterLabel={label}
                 prereqNodes={prereqNodes}
                 isPast={isPast}
+                isHighlighted={cId === highlightedCourseId}
                 onRemove={handleRemoveCourse}
               />
             ))}

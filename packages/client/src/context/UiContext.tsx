@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { OptimizeMode } from '@/lib/solver';
 import { safeGetRaw, safeSetItem } from '@/lib/persist';
 
@@ -36,6 +36,9 @@ interface UiContextValue {
    *  background dragging while the user reads / selects text in the dialog. Ephemeral. */
   detailDialogOpen: boolean;
   setDetailDialogOpen: (v: boolean) => void;
+  /** Transient highlight — set to a courseId to flash that chip/card for ~1.8 s, then auto-clears. */
+  highlightedCourseId: string | null;
+  setHighlightedCourseId: (id: string | null) => void;
 }
 
 const UiContext = createContext<UiContextValue | null>(null);
@@ -49,6 +52,14 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
   const [optimizeMode, setOptimizeMode] = useState<OptimizeMode>('fastest');
   const [focusLayout, setFocusLayoutRaw] = useState<FocusLayout>(loadFocusLayout);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [highlightedCourseId, setHighlightedCourseId] = useState<string | null>(null);
+
+  // Auto-clear the highlight after ~1.8 s so it doesn't linger.
+  useEffect(() => {
+    if (!highlightedCourseId) return;
+    const t = setTimeout(() => setHighlightedCourseId(null), 1800);
+    return () => clearTimeout(t);
+  }, [highlightedCourseId]);
 
   const setFocusLayout = (v: FocusLayout) => {
     setFocusLayoutRaw(v);
@@ -65,6 +76,7 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
       optimizeMode, setOptimizeMode,
       focusLayout, setFocusLayout,
       detailDialogOpen, setDetailDialogOpen,
+      highlightedCourseId, setHighlightedCourseId,
     }}>
       {children}
     </UiContext.Provider>
