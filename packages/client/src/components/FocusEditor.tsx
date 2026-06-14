@@ -8,10 +8,11 @@
  * This lets the user drag courses between adjacent semesters.
  */
 
-import { useMemo, useCallback } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useMemo, useCallback, useState } from 'react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUi } from '@/context/UiContext';
+import CoursePickerSheet from '@/components/CoursePickerSheet';
 import {
   useSemesters,
   usePlan,
@@ -51,6 +52,7 @@ interface FocusEditorProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorProps) {
+  const [pickerOpen, setPickerOpen] = useState(false);
   const semesters = useSemesters();
   const { setFocusedSemesterId } = useUi();
   const plan = usePlan();
@@ -204,7 +206,24 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
             <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         </div>
-        <span className="text-xs text-muted-foreground">Press Esc to close</span>
+        <span className="text-xs text-muted-foreground hidden sm:inline">Press Esc to close</span>
+
+        {/* + Add course — tap to open the inline course picker. Visible on all
+            viewports (harmless on desktop; essential on mobile). Past-term semesters
+            still show the button; the picker's guard + the reducer guard handle the
+            rejection so the user gets a clear message. */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-6 px-2 gap-1 text-xs shrink-0"
+          onClick={() => setPickerOpen((v) => !v)}
+          aria-label={pickerOpen ? 'Close course search' : 'Add course to semester'}
+          aria-expanded={pickerOpen}
+          data-testid="focus-editor-add-course-btn"
+        >
+          <Plus className="h-3 w-3" />
+          Add course
+        </Button>
       </div>
 
       {/* Semester columns */}
@@ -239,6 +258,14 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
           </div>
         ))}
       </div>
+
+      {/* Inline course picker — shown when the "+ Add course" button is active. */}
+      {pickerOpen && (
+        <CoursePickerSheet
+          semesterId={focusedSemesterId}
+          onClose={() => setPickerOpen(false)}
+        />
+      )}
     </div>
   );
 }
