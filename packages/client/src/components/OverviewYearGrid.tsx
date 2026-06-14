@@ -166,8 +166,17 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
               {seasonsPresent.map((season) => {
                 const sem = seasonMap.get(season);
                 if (!sem) {
-                  // Empty cell — no semester for this season in this year
-                  return <div key={season} />;
+                  // Placeholder for a season slot that doesn't exist in this academic year
+                  // (e.g. Summer 2029 when the horizon ends at Spring 2029).
+                  // Renders as a faint, clearly-inert surface so the grid reads as
+                  // intentionally 3-wide rather than leaving a jarring void.
+                  return (
+                    <div
+                      key={season}
+                      aria-hidden="true"
+                      className="rounded-lg bg-muted/30 border border-dashed border-border/25 min-h-[96px]"
+                    />
+                  );
                 }
                 return (
                   <SemesterTile
