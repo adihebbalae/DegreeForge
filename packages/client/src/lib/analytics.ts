@@ -3,7 +3,47 @@ import posthog from 'posthog-js'
 
 let initialized = false
 
+/**
+ * TASK-107: Persist/clear the internal-session flag from the URL param.
+ * This runs before the early-return so it works even in local dev (no key).
+ * ?internal=1 → sets localStorage['df_internal'] = 'true'
+ * ?internal=0 → removes localStorage['df_internal']
+ */
+function syncInternalFlag() {
+  try {
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('internal')) {
+      if (params.get('internal') === '1') {
+        localStorage.setItem('df_internal', 'true')
+      } else {
+        localStorage.removeItem('df_internal')
+      }
+    }
+  } catch {
+    // localStorage may be unavailable in sandboxed iframes — ignore
+  }
+}
+
+/**
+ * TASK-107: If the internal flag is set AND PostHog is initialized, register
+ * `internal: true` as a super property (on every event) and as a person property
+ * so dashboards can filter out developer sessions.
+ */
+function applyInternalFlag() {
+  try {
+    if (localStorage.getItem('df_internal') === 'true') {
+      posthog.register({ internal: true })
+      posthog.setPersonProperties({ internal: true })
+    }
+  } catch {
+    // Defensive: never throw from analytics setup
+  }
+}
+
 export function initAnalytics() {
+  // TASK-107: sync the flag from URL before early-return so it persists in local dev too
+  syncInternalFlag()
+
   const key = import.meta.env.VITE_POSTHOG_KEY
   if (!key) return // local dev / no key -> disabled
   posthog.init(key, {
@@ -16,6 +56,9 @@ export function initAnalytics() {
     session_recording: { maskAllInputs: true }, // mask all input values in replay (protects the access code + any sensitive entry)
   })
   initialized = true
+
+  // TASK-107: tag internal/developer sessions so they can be excluded from dashboards
+  applyInternalFlag()
 }
 
 /**

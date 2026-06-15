@@ -193,6 +193,94 @@ describe('OnboardingWizard', () => {
     expect(mockTrack).toHaveBeenCalledWith('onboarding_completed');
   });
 
+  // TASK-106: onboarding_started fires once on mount
+  it('fires onboarding_started once on mount', () => {
+    mockTrack.mockClear();
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+
+    const startedCalls = mockTrack.mock.calls.filter(([event]) => event === 'onboarding_started');
+    expect(startedCalls).toHaveLength(1);
+  });
+
+  // TASK-106: onboarding_step_viewed fires with correct step + name on step change
+  it('fires onboarding_step_viewed with step and name when step changes', () => {
+    mockTrack.mockClear();
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+
+    // Step 1 fires immediately on mount (via the step useEffect)
+    const step1Views = mockTrack.mock.calls.filter(
+      ([event, props]) => event === 'onboarding_step_viewed' && props?.step === 1 && props?.name === 'access_code'
+    );
+    expect(step1Views).toHaveLength(1);
+
+    // Advance to step 2
+    mockTrack.mockClear();
+    skipAccessCodeStep(); // 1->2
+
+    const step2Views = mockTrack.mock.calls.filter(
+      ([event, props]) => event === 'onboarding_step_viewed' && props?.step === 2 && props?.name === 'major_catalog'
+    );
+    expect(step2Views).toHaveLength(1);
+  });
+
+  // TASK-106: import events — attempted + parsed on success
+  it('fires onboarding_import_attempted and onboarding_import_parsed on successful parse', async () => {
+    const { parseTranscript } = await import('@/lib/agent-tools/parse-transcript');
+    const mockParse = parseTranscript as ReturnType<typeof vi.fn>;
+    mockParse.mockReturnValueOnce([
+      { courseId: 'ECE 302', title: 'Intro EE', grade: 'A', semester: 'Fall 2025', creditHours: 3 },
+    ]);
+
+    mockTrack.mockClear();
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+
+    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+
+    const textarea = screen.getByPlaceholderText(/ECE 302/);
+    fireEvent.change(textarea, { target: { value: 'ECE 302 Intro EE A Fall 2025 3' } });
+
+    mockTrack.mockClear();
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // triggers handleParseTranscript
+
+    expect(mockTrack).toHaveBeenCalledWith('onboarding_import_attempted', { source: 'transcript' });
+    expect(mockTrack).toHaveBeenCalledWith('onboarding_import_parsed', { source: 'transcript', count: 1 });
+    // failed must NOT fire on success
+    const failedCalls = mockTrack.mock.calls.filter(([event]) => event === 'onboarding_import_failed');
+    expect(failedCalls).toHaveLength(0);
+  });
+
+  // TASK-106: import events — attempted + failed when parser returns empty list
+  it('fires onboarding_import_attempted and onboarding_import_failed when parser returns 0 courses', async () => {
+    const { parseTranscript } = await import('@/lib/agent-tools/parse-transcript');
+    const mockParse = parseTranscript as ReturnType<typeof vi.fn>;
+    mockParse.mockReturnValueOnce([]); // empty result -> failure
+
+    mockTrack.mockClear();
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+
+    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+
+    const textarea = screen.getByPlaceholderText(/ECE 302/);
+    fireEvent.change(textarea, { target: { value: 'garbage text that wont parse' } });
+
+    mockTrack.mockClear();
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // triggers handleParseTranscript
+
+    expect(mockTrack).toHaveBeenCalledWith('onboarding_import_attempted', { source: 'transcript' });
+    expect(mockTrack).toHaveBeenCalledWith('onboarding_import_failed', { source: 'transcript' });
+    // parsed must NOT fire on failure
+    const parsedCalls = mockTrack.mock.calls.filter(([event]) => event === 'onboarding_import_parsed');
+    expect(parsedCalls).toHaveLength(0);
+  });
+
   it('dispatches SET_PROFILE_META with default major and catalogYear on commit', () => {
     mockPlanDispatch.mockClear();
     const handleComplete = vi.fn();

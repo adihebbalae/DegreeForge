@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -45,6 +45,29 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [isParsing, setIsParsing] = useState(false);
   const [transcriptError, setTranscriptError] = useState(false);
 
+  // TASK-106: readable names for each wizard step (used in funnel events only)
+  const STEP_NAMES: Record<number, string> = {
+    1: 'access_code',
+    2: 'major_catalog',
+    3: 'grad_target',
+    4: 'load_tolerance',
+    5: 'tech_core',
+    6: 'import',
+    7: 'review',
+  };
+
+  // TASK-106: fire once on mount to mark funnel entry
+  useEffect(() => {
+    track('onboarding_started');
+  }, []);
+
+  // TASK-106: fire on every step change so we can see exactly where users bail
+  // PRIVACY: only step number + name are sent — no profile/course/grade data
+  useEffect(() => {
+    track('onboarding_step_viewed', { step, name: STEP_NAMES[step] });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
   const handleNext = () => setStep(s => Math.min(s + 1, totalSteps));
   const handleBack = () => setStep(s => Math.max(s - 1, 1));
 
@@ -53,6 +76,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       handleNext();
       return;
     }
+    // TASK-106: user has pasted something and clicked Next — record the attempt
+    // PRIVACY: only source string ('ida'|'transcript') is sent — no text, no course IDs
+    track('onboarding_import_attempted', { source: importSource });
     setIsParsing(true);
     try {
       const courses = importSource === 'ida'
@@ -60,14 +86,20 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         : parseTranscript(transcriptText);
       setIsParsing(false);
       if (courses.length === 0) {
+        // TASK-106: parser ran but found nothing — counts as failed
+        track('onboarding_import_failed', { source: importSource });
         setTranscriptError(true);
       } else {
+        // TASK-106: successful parse — record count only (no course IDs or grades)
+        track('onboarding_import_parsed', { source: importSource, count: courses.length });
         setTranscriptError(false);
         setParsedCourses(courses);
         handleNext();
       }
     } catch (err) {
       console.error('Transcript parse error:', err);
+      // TASK-106: parser threw — also a failure
+      track('onboarding_import_failed', { source: importSource });
       setIsParsing(false);
       setTranscriptError(true);
     }
