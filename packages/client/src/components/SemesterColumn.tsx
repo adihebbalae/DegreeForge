@@ -217,6 +217,7 @@ export default function SemesterColumn({
 
   // Compute estimated GPA for future/current semesters (Feature 4)
   const estimatedGPA = useMemo(() => {
+    // guard divide-by-zero: a term whose courses sum to 0 credits has no credit-weighted GPA
     if (isPast || totalCredits === 0) return null;
     let weightedGpaSum = 0;
     let gpaCredits = 0;

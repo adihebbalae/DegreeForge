@@ -97,6 +97,7 @@ vi.mock('@/lib/course-utils', () => ({
   getCourseCredits: () => 3,
   inferCategory: () => 'ece_core',
   seasonEmoji: () => '🍂',
+  // simplified placeholder classes — real CATEGORY_BG uses HSL values (see course-utils.ts); these tests don't assert color values
   CATEGORY_BG: { ece_core: 'bg-orange-500', tech_core: 'bg-green-500', gen_ed: 'bg-amber-500', elective: 'bg-gray-500', math: 'bg-purple-500' },
 }));
 vi.mock('@/lib/auto-planner', () => ({ getCreditHourCap: () => 15 }));
