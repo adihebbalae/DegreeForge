@@ -39,6 +39,7 @@ app.use(
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         connectSrc: ["'self'", 'http://localhost:3001'],
         imgSrc: ["'self'", 'data:'],
+        workerSrc: ["'self'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
       },

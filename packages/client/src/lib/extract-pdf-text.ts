@@ -77,13 +77,6 @@ function pageTextFromContent(content: PdfjsTextContent): string {
     if (lastY !== null && Math.abs(y - lastY) > h * 0.5) {
       // New visual row — emit a newline separator.
       chunks.push('\n');
-    } else if (chunks.length > 0 && !chunks[chunks.length - 1].endsWith('\n')) {
-      // Same row, but pdfjs may split mid-word; insert a space only when the
-      // previous chunk doesn't already end with one and the gap is significant
-      // enough (pdfjs sets hasEOL on items where it detected an explicit EOL).
-      if (raw.hasEOL === false) {
-        // no separator needed — chunk will be concatenated
-      }
     }
 
     if (raw.str) {
@@ -136,17 +129,24 @@ export async function extractPdfText(file: File): Promise<string> {
   try {
     doc = await task.promise;
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
+    // Map pdfjs internal error names to user-friendly messages.
+    // Never surface raw pdfjs class names (e.g. InvalidPDFException) to the UI.
+    const raw = err instanceof Error ? err.message : String(err);
+    const friendly = raw.includes('InvalidPDF') || raw.includes('MissingPDF')
+      ? 'This file doesn\'t appear to be a valid PDF.'
+      : raw.includes('PasswordException') || raw.includes('password')
+        ? 'This PDF is password-protected and cannot be read.'
+        : 'Could not open PDF — the file may be corrupted.';
     // Clean up the loading task before surfacing the error.
     await task.destroy().catch(() => undefined);
-    throw new Error(
-      `Could not open PDF — ${msg}. Try pasting the text instead.`
-    );
+    throw new Error(`${friendly} Try pasting the text instead.`);
   }
 
+  const MAX_PAGES = 50;
   const pageTexts: string[] = [];
   try {
-    for (let i = 1; i <= doc.numPages; i++) {
+    const pagesToRead = Math.min(doc.numPages, MAX_PAGES);
+    for (let i = 1; i <= pagesToRead; i++) {
       const page = await doc.getPage(i);
       const content = await page.getTextContent();
       pageTexts.push(pageTextFromContent(content));

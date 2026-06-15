@@ -103,7 +103,7 @@ describe('extractPdfText', () => {
     await expect(extractPdfText(makeFile())).rejects.toThrow('no selectable text');
   });
 
-  it('throws a friendly error when pdfjs rejects (unreadable / encrypted PDF)', async () => {
+  it('throws a friendly error (no raw pdfjs class name) when pdfjs rejects with InvalidPDFException', async () => {
     // Use mockImplementation so the rejection is created only when getDocument
     // is called by the code under test — prevents a dangling unhandled rejection
     // that Vitest detects as a test-run error.
@@ -113,7 +113,38 @@ describe('extractPdfText', () => {
       destroy: async () => {},
     }));
 
-    await expect(extractPdfText(makeFile())).rejects.toThrow('Could not open PDF');
+    let err!: Error;
+    await extractPdfText(makeFile()).catch(e => { err = e as Error; });
+    // Must NOT expose the raw pdfjs class name
+    expect(err.message).not.toContain('InvalidPDFException');
+    // Must be user-friendly and end with the paste-text guidance
+    expect(err.message).toContain('Try pasting the text instead.');
+  });
+
+  it('throws a friendly error when pdfjs rejects with a password error', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (pdfjs.getDocument as any).mockImplementation(() => ({
+      promise: Promise.reject(new Error('PasswordException: requires password')),
+      destroy: async () => {},
+    }));
+
+    let err!: Error;
+    await extractPdfText(makeFile()).catch(e => { err = e as Error; });
+    expect(err.message).toContain('password-protected');
+    expect(err.message).toContain('Try pasting the text instead.');
+  });
+
+  it('caps page extraction at MAX_PAGES (50) without throwing', async () => {
+    // Build a 60-page mock — only first 50 should be read
+    const pages = Array.from({ length: 60 }, (_, i) => [
+      { str: `Page ${i + 1}`, y: 700, height: 12 },
+    ]);
+    mockPdf(pages);
+
+    const text = await extractPdfText(makeFile());
+    // Page 50 should appear, page 51 should not
+    expect(text).toContain('Page 50');
+    expect(text).not.toContain('Page 51');
   });
 
   it('hasEOL items produce a newline after the item text', async () => {

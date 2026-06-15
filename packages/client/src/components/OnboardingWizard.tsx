@@ -76,9 +76,15 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const handleNext = () => setStep(s => Math.min(s + 1, totalSteps));
   const handleBack = () => setStep(s => Math.max(s - 1, 1));
 
+  const MAX_PDF_BYTES = 10 * 1024 * 1024;
+
   const handlePdfFile = useCallback(async (file: File) => {
     if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
       setPdfError('Please select a PDF file.');
+      return;
+    }
+    if (file.size > MAX_PDF_BYTES) {
+      setPdfError('This PDF is too large (max 10 MB). Try pasting the text instead.');
       return;
     }
     setPdfError(null);
@@ -88,8 +94,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       const text = await extractPdfText(file);
       setTranscriptText(text);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Unknown error';
-      setPdfError(`Couldn't read this PDF — ${msg}. Try pasting the text instead.`);
+      setPdfError(err instanceof Error ? err.message : 'Could not read this PDF. Try pasting the text instead.');
     } finally {
       setIsExtractingPdf(false);
     }
