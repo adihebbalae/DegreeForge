@@ -93,27 +93,23 @@ export const CATEGORY_BORDER_COLOR: Record<CourseCategory, string> = {
 
 // ─── Credit Hours ─────────────────────────────────────────────────────────────
 
-/** Hardcoded credit hours for common non-catalog courses */
+/**
+ * Hardcoded credit hours for courses not in course-catalog.json.
+ *
+ * Previously this map also patched bad catalog rows (contact-hour artifacts).
+ * Those rows were corrected in place in course-catalog.json (TASK-102), so only
+ * courses absent from the catalog remain here. Removed (now catalog-matched):
+ *   M 427J, M 325K, M 408C, M 408D, M 340L, M 341, M 362K, M 365C, M 372K,
+ *   M 373K, M 374M, M 375T, M 378K, M 383C.
+ * Kept because absent from catalog: CTI 301G, CTI 302, RHE 306, M 311, M 374E,
+ *   M 508M, M 411, UGS 016.
+ */
 const CREDIT_OVERRIDES: Record<string, number> = {
   'CTI 301G': 3,
   'CTI 302': 3,
   'RHE 306': 3,
-  'M 427J': 4,
-  'M 325K': 3,
-  'M 408C': 4,
-  'M 408D': 4,
-  'M 340L': 3,
-  'M 341': 3,
   'M 311': 3,
-  'M 362K': 3,
-  'M 365C': 3,
-  'M 372K': 3,
-  'M 373K': 3,
   'M 374E': 3,
-  'M 374M': 3,
-  'M 375T': 3,
-  'M 378K': 3,
-  'M 383C': 3,
   'M 508M': 5,
   'M 411': 4,
   'UGS 016': 0,

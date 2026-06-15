@@ -2,7 +2,7 @@
   "ECE 302": {
     "id": "ECE 302",
     "title": "Introduction to Electrical Engineering",
-    "credits": 5,
+    "credits": 3,
     "description": "Examine the scope and nature of professional activities of electrical engineers, including problem-solving techniques; analysis and design methods; engineering professional ethics; analysis of analog resistive circuits, including Thevenin/Norton equivalents, mesh analysis, and nodal analysis; and operational amplifiers (DC response). Three lecture hours and two laboratory hours a week for one semester",
     "prerequisites": [
       "M 408C"
@@ -16,7 +16,7 @@
   "ECE 302H": {
     "id": "ECE 302H",
     "title": "Introduction to Electrical Engineering: Honors",
-    "credits": 5,
+    "credits": 3,
     "description": "Restricted to students in the electrical and computer engineering honors program. Examine the scope and nature of professional activities of electrical engineers, including problem-solving techniques; analysis and design methods; engineering professional ethics; analysis of linear and non-linear analog circuits, including Thevenin/Norton equivalents, two-port networks, frequency domain analysis, mesh analysis, and nodal analysis; and operational amplifiers (DC response). Three lecture hours and ",
     "prerequisites": [
       "M 408D"
@@ -58,7 +58,7 @@
   "ECE 307E": {
     "id": "ECE 307E",
     "title": "Elements of Electrical and Computer Engineering",
-    "credits": 4,
+    "credits": 3,
     "description": "Introduction to electrical engineering: direct current circuit analysis, resistors, LEDs, switches, current and voltage measurements. Introduction to computer engineering: number systems, digital logic, storage, finite state machines, programming basics, microcontrollers. Three lecture hours and one laboratory hour a week for one semester.",
     "prerequisites": [],
     "corequisites": [],
@@ -141,7 +141,7 @@
   "ECE 309S": {
     "id": "ECE 309S",
     "title": "Development of a Solar-Powered Vehicle",
-    "credits": 6,
+    "credits": 3,
     "description": "Analyze, design, and construct a solar-powered car for national competitions involving other universities. Study electrical, mechanical, and aerodynamic systems. Three lecture hours and three laboratory hours a week for one semester. Electrical and Computer Engineering 309S and Electrical Engineering 309S may not both be counted.",
     "prerequisites": [],
     "corequisites": [],
@@ -151,7 +151,7 @@
   "ECE 411": {
     "id": "ECE 411",
     "title": "Circuit Theory",
-    "credits": 3,
+    "credits": 4,
     "description": "Examine capacitance and inductance; first- and second-order transient circuit response, including operational amplifier circuits; sinusoidal steady state analysis; Bode plots; complex power in single and balanced three-phase systems; transformers; two-port networks (Z-parameters and Y-parameters); and computer-aided analysis and design. Three lecture hours and two recitation hours a week for one semester.",
     "prerequisites": [
       "ECE 302",
@@ -168,7 +168,7 @@
   "ECE 411H": {
     "id": "ECE 411H",
     "title": "Circuit Theory: Honors",
-    "credits": 3,
+    "credits": 4,
     "description": "Examine capacitance and inductance; first- and second-order transient circuit response, including operational amplifier circuits; sinusoidal steady state analysis; Bode plots; complex power in single and balanced three-phase systems; transformers; two-port networks (Z-parameters and Y-parameters); and computer-aided analysis and design. Three lecture hours and two recitation hours a week for one semester.",
     "prerequisites": [
       "ECE 302",
@@ -275,7 +275,7 @@
   "ECE 319H": {
     "id": "ECE 319H",
     "title": "Introduction to Embedded Systems: Honors",
-    "credits": 4,
+    "credits": 3,
     "description": "Examine embedded systems; machine language execution; assembly and C language programming; local variables and subroutines; input/output synchronization; analog to digital conversion and digital to analog conversion; debugging; and interrupts. Three lecture hours and one laboratory hour a week for one semester.",
     "prerequisites": [
       "BME 306",
@@ -289,7 +289,7 @@
   "ECE 319K": {
     "id": "ECE 319K",
     "title": "Introduction to Embedded Systems",
-    "credits": 4,
+    "credits": 3,
     "description": "Explore embedded systems; machine language execution; assembly and C language programming; local variables and subroutines; input/output synchronization; analog to digital conversion and digital to analog conversion; debugging; and interrupts. Three lecture hours and one laboratory hour a week for one semester.",
     "prerequisites": [
       "BME 306",
@@ -393,7 +393,7 @@
   "ECE 321K": {
     "id": "ECE 321K",
     "title": "Mixed Signal and Circuits Laboratory",
-    "credits": 6,
+    "credits": 3,
     "description": "Explore digital and analog parametric testing of mixed-signal circuits and systems, including frequency response, harmonic and intermodulation, and noise behavior; use of system-level test equipment, including network analyzers, spectrum analyzers, and probe stations; coherent versus noncoherent measurements; and design for testability. Three lecture hours and three laboratory hours a week for one semester. Electrical and Computer Engineering 321K and Electrical Engineering 321K may not both be ",
     "prerequisites": [
       "ECE 438",
@@ -409,7 +409,7 @@
   "ECE 422C": {
     "id": "ECE 422C",
     "title": "Software Design and Implementation II",
-    "credits": 3,
+    "credits": 4,
     "description": "Explore methods for engineering software with a focus on abstraction; specification, design, implementation, and testing of object-oriented code using a modern development tool-set for complex systems; design and implementation of object-oriented programs in Java; abstract data types; inheritance; polymorphism; parameterized types and generic programming; the operation and application of commonly used data structures; exception handling and fault tolerance; algorithm analysis; and teamwork model",
     "prerequisites": [
       "ECE 312",
@@ -592,7 +592,7 @@
   "ECE 438": {
     "id": "ECE 438",
     "title": "Fundamentals of Electronic Circuits I Laboratory",
-    "credits": 6,
+    "credits": 4,
     "description": "Explore the analysis and design of electronic circuits using semiconductor devices. Examine basic device physics and small-signal modeling for diodes, bipolar junction transistors, and metal-oxide-semiconductor transistors; operation region and biasing; basic switching circuits; single-stage and multi-stage amplifier design and analysis; input and output impedance characteristics of amplifiers; frequency response; AC and DC coupling techniques; and differential amplifiers and output stages. Thre",
     "prerequisites": [
       "BME 311",
@@ -609,7 +609,7 @@
   "ECE 438K": {
     "id": "ECE 438K",
     "title": "Analog Electronics",
-    "credits": 6,
+    "credits": 4,
     "description": "Explore the analysis and design of analog electronic circuits; transistor models; single-ended amplifiers; differential amplifiers; operational amplifiers; frequency response; feedback theory; stability analysis; circuit nonidealities; op-amp-based circuits; output stages; power amplifiers; passive and active analog filters; and relaxation oscillators Three lecture hours and three laboratory hours a week for one semester. Electrical and Computer Engineering 438K and Electrical Engineering 438K m",
     "prerequisites": [
       "ECE 438"
@@ -661,7 +661,7 @@
   "ECE 440": {
     "id": "ECE 440",
     "title": "Integrated Circuit Nanomanufacturing Techniques",
-    "credits": 6,
+    "credits": 4,
     "description": "Examine integrated circuit processing; crystal growth and wafer preparation; epitaxial growth; oxidation, diffusion, and ion implantation; thin-film deposition techniques; and lithography and etching. Three lecture hours and three laboratory hours a week for one semester. Electrical and Computer Engineering 440 and Electrical Engineering 440 may not both be counted.",
     "prerequisites": [
       "M 427J",
@@ -705,7 +705,7 @@
   "ECE 445L": {
     "id": "ECE 445L",
     "title": "Embedded Systems Design Laboratory",
-    "credits": 6,
+    "credits": 4,
     "description": "Explore the design of microcontroller-based embedded systems; interfacing from both a hardware and software perspective; and applications, including audio, data acquisition, and communication systems. Three lecture hours and three laboratory hours a week for one semester. Electrical and Computer Engineering 445L and Electrical Engineering 445L may not both be counted.",
     "prerequisites": [
       "ECE 312",
@@ -727,7 +727,7 @@
   "ECE 445M": {
     "id": "ECE 445M",
     "title": "Embedded and Real-Time Systems Laboratory",
-    "credits": 6,
+    "credits": 4,
     "description": "Explore real-time operating systems; implementation of context switching, threads, multitasking, real-time scheduling, synchronization, communication, storage, file systems, memory management, process linking and loading, hardware interfacing, and networking; debugging and testing; operating system performance, including latency, jitter, deadlines, deadlocks, and starvation; real-time systems, including data acquisition, sensing, actuating, digital control, signal processing, and robotics. Three",
     "prerequisites": [
       "ECE 306",
@@ -744,7 +744,7 @@
   "ECE 445S": {
     "id": "ECE 445S",
     "title": "Real-Time Digital Signal Processing Laboratory",
-    "credits": 6,
+    "credits": 4,
     "description": "Explore digital signal processing algorithms; simulation and real-time implementation of audio and communication systems; filters; pulse shaping and matched filters; modulation and demodulation; adaptive filters; carrier recovery; symbol synchronization; equalization; quantization; and data conversion. Three lecture hours and three laboratory hours a week for one semester. Electrical and Computer Engineering 445S and Electrical Engineering 445S may not both be counted.",
     "prerequisites": [
       "ECE 312",
@@ -869,7 +869,7 @@
   "ECE 160": {
     "id": "ECE 160",
     "title": "Special Problems in Electrical and Computer Engineering",
-    "credits": 3,
+    "credits": 1,
     "description": "Restricted to engineering majors. Investigate special problems as approved by the electrical and computer engineering department. For each semester hour of credit earned, the equivalent of three laboratory hours a week for one semester. May be repeated for credit.",
     "prerequisites": [
       "ECE 319K",
@@ -966,7 +966,7 @@
   "ECE 460J": {
     "id": "ECE 460J",
     "title": "Data Science Laboratory",
-    "credits": 6,
+    "credits": 4,
     "description": "Explore predictive modeling, regression and classification, data cleaning and preprocessing, feature engineering, unsupervised methods, principal component analysis, data clustering, model selection and feature selection, entropy and information theory, neural networks, deep learning, and machine learning for signals and time-series data. Three lecture hours and three laboratory hours a week for one semester.",
     "prerequisites": [
       "BME 343",
@@ -1004,7 +1004,7 @@
   "ECE 460M": {
     "id": "ECE 460M",
     "title": "Digital Systems Design Using Hardware Description Languages",
-    "credits": 6,
+    "credits": 4,
     "description": "Explore organization, design, simulation, synthesis, and testing of digital systems; hardware description languages (HDLs); field programmable gate arrays (FPGAs); hardware implementation of arithmetic and other algorithmic processes; state machine charts; microprogramming; and microprocessor design. Three lecture hours and three laboratory hours a week for one semester. Electrical and Computer Engineering 460M and Electrical Engineering 460M may not both be counted.",
     "prerequisites": [
       "ECE 312",
@@ -1020,7 +1020,7 @@
   "ECE 460N": {
     "id": "ECE 460N",
     "title": "Computer Architecture",
-    "credits": 3,
+    "credits": 4,
     "description": "Examine characteristics of instruction set architecture and microarchitecture; physical and virtual memory; caches and cache design; interrupts and exceptions; integer and floating-point arithmetic; I/O processing; buses; pipelining, out-of-order execution, branch prediction, and other performance enhancements; design trade-offs; and case studies of commercial microprocessors. Explore behavioral-level design of a microarchitecture in a laboratory setting. Three lecture hours and one-and-one-half",
     "prerequisites": [
       "C S 312",
@@ -1051,7 +1051,7 @@
   "ECE 460R": {
     "id": "ECE 460R",
     "title": "Introduction to VLSI Design",
-    "credits": 6,
+    "credits": 4,
     "description": "Explore theory and practice of very-large-scale integration (VLSI) circuit design. Examine metal-oxide-semiconductor (MOS) transistors; static and dynamic complementary metal-oxide-semiconductor (CMOS) combinational and sequential circuits; design of adders, multipliers, and shifters; performance, power consumption and testing. Use computer-aided design (CAD) tools for layout, timing analysis, synthesis, physical design, and verification. Three lecture hours and three laboratory hours a week for",
     "prerequisites": [
       "ECE 316",
@@ -1138,7 +1138,7 @@
   "ECE 461L": {
     "id": "ECE 461L",
     "title": "Software Engineering and Design Laboratory",
-    "credits": 6,
+    "credits": 4,
     "description": "Examine generation of concrete software engineering artifacts at all stages of the software life-cycle processes; stakeholder needs to system requirements mapping; object-oriented design and analysis; and test driven development. Study design principles and methods; design and modeling tools; collaborative development environment; design patterns and refactoring; integration and testing tools. Examine emerging concepts in cloud native devops, including microservices, containers, and application ",
     "prerequisites": [
       "C S 314",
@@ -1224,7 +1224,7 @@
   "ECE 461S": {
     "id": "ECE 461S",
     "title": "Operating Systems",
-    "credits": 3,
+    "credits": 4,
     "description": "Introduction to operating system design and implementation; the shell; process management and system calls; memory management; thread management, scheduling, synchronization and concurrency; file systems; input/output systems; virtual machines; and networking and security. Three lecture hours and one-and-one-half laboratory hour a week for one semester.",
     "prerequisites": [
       "ECE 312",
@@ -1267,7 +1267,7 @@
   "ECE 462L": {
     "id": "ECE 462L",
     "title": "Power Electronics Laboratory",
-    "credits": 6,
+    "credits": 4,
     "description": "Explore the analysis, design, and operation of power electronic circuits; power conversion from AC to DC, DC to DC, and DC to AC; rectifiers, inverters, and pulse width modulated motor drives. Examine the use of energy from renewable sources such as photovoltaics and wind in a laboratory setting. Three lecture hours and three laboratory hours a week for one semester. Electrical and Computer Engineering 462L and Electrical Engineering 462L may not both be counted.",
     "prerequisites": [
       "ECE 411",
@@ -1321,7 +1321,7 @@
   "ECE 362S": {
     "id": "ECE 362S",
     "title": "Development of a Solar-Powered Vehicle",
-    "credits": 6,
+    "credits": 3,
     "description": "Analyze, design, and construct a solar-powered car for national competitions involving other universities. Study electrical, mechanical, and aerodynamic systems. Three lecture hours and three laboratory hours a week for one semester.",
     "prerequisites": [
       "ECE 312",
@@ -1359,7 +1359,7 @@
   "ECE 464C": {
     "id": "ECE 464C",
     "title": "Corporate Senior Design Project",
-    "credits": 3,
+    "credits": 4,
     "description": "Undertake design and experimental projects in the laboratories of local companies. Examine the ethics of design for safety and reliability. Designed for electrical engineering students working full-time in the industry. Three lecture hours and one-and-one-half laboratory hours a week for one semester. Electrical and Computer Engineering 464C and Electrical Engineering 464C may not both be counted.",
     "prerequisites": [
       "ECE 364D",
@@ -1379,7 +1379,7 @@
   "ECE 364D": {
     "id": "ECE 364D",
     "title": "Introduction to Engineering Design",
-    "credits": 5,
+    "credits": 3,
     "description": "Introduction to the engineering design process. Explore the assessment and documentation of engineering problems and customer needs, such as acquiring, documenting, and verifying requirements; high-level system design principles; effects of economic, environmental, ethical, safety, and social issues in design; writing and presenting design specifications; and effective teamwork. Two lecture hours and three laboratory hours a week for one semester.",
     "prerequisites": [
       "BME 333T",
@@ -1425,7 +1425,7 @@
   "ECE 464G": {
     "id": "ECE 464G",
     "title": "Multidisciplinary Senior Design Project",
-    "credits": 3,
+    "credits": 4,
     "description": "Undertake design and experimental projects with teams from multiple engineering disciplines. Examine the ethics of design for safety and reliability. Three lecture hours and one-and-one-half laboratory hours a week for one semester. Electrical and Computer Engineering 464G and Electrical Engineering 464G may not both be counted.",
     "prerequisites": [
       "ECE 364D",
@@ -1444,7 +1444,7 @@
   "ECE 464H": {
     "id": "ECE 464H",
     "title": "Honors Senior Design Project",
-    "credits": 9,
+    "credits": 4,
     "description": "Implement the previously developed engineering system design, including design review, prototyping, project testing and any subsequent design modifications; addressing economic, environmental, ethical, safety, and social issues; documentation of each of the preceding and publicly presenting design results; and working effectively in teams. Three lecture hours and six laboratory hours a week for one semester.",
     "prerequisites": [
       "ECE 364D",
@@ -1466,7 +1466,7 @@
   "ECE 464K": {
     "id": "ECE 464K",
     "title": "Senior Design Project",
-    "credits": 9,
+    "credits": 4,
     "description": "Implement the previously developed engineering system design, including design review, prototyping, project testing and any subsequent design modifications; addressing economic, environmental, ethical, safety, and social issues; documentation of each of the preceding and publicly presenting design results; and working effectively in teams. Three lecture hours and six laboratory hours a week for one semester.",
     "prerequisites": [
       "ECE 364D",
@@ -1488,7 +1488,7 @@
   "ECE 464R": {
     "id": "ECE 464R",
     "title": "Research Senior Design Project",
-    "credits": 9,
+    "credits": 4,
     "description": "Implement the previously developed engineering system design, including design review, prototyping, project testing and any subsequent design modifications; addressing economic, environmental, ethical, safety, and social issues; documentation of each of the preceding and publicly presenting design results; and working effectively in teams. Three lecture hours and six laboratory hours a week for one semester.",
     "prerequisites": [
       "ECE 364D",
@@ -1510,7 +1510,7 @@
   "ECE 464S": {
     "id": "ECE 464S",
     "title": "Start-Up Senior Design Project",
-    "credits": 9,
+    "credits": 4,
     "description": "Complete a practical engineering product design; validate the design through prototype construction and testing, modeling and simulation, and manufacturability analysis. Develop a completed company prospectus and seek venture funding for the project. Three lecture hours and six laboratory hours a week for one semester.",
     "prerequisites": [
       "ECE 364D",
@@ -1574,7 +1574,7 @@
   "ECE 368L": {
     "id": "ECE 368L",
     "title": "Power Systems Apparatus and Laboratory",
-    "credits": 6,
+    "credits": 3,
     "description": "Explore fundamentals of power systems emphasized through laboratory experiments; complex power, three-phase circuits, per-unit system, transformers, synchronous machines, transmission line models, steady-state analysis, induction machines, capacitor banks, protective relaying, surge arrestors, and instrumentation. Three lecture hours and three laboratory hours a week for one semester. Electrical and Computer Engineering 368L and Electrical Engineering 368L may not both be counted.",
     "prerequisites": [
       "ECE 411",
@@ -1618,7 +1618,7 @@
   "ECE 369L": {
     "id": "ECE 369L",
     "title": "Relay Protection of Power Systems",
-    "credits": 5,
+    "credits": 3,
     "description": "Examine the theory, principles, and practices for protecting medium-voltage industrial power systems and high-voltage transmission grids, including symmetrical components; fault calculations and grounding; protection of motors, generators, cables, and transmission lines; and relay settings, fusing, and coordination of multiple protection devices. Two lecture hours and three laboratory hours a week for one semester. Electrical and Computer Engineering 369L and Electrical Engineering 369L may not ",
     "prerequisites": [
       "ECE 313"
@@ -1678,7 +1678,7 @@
   "ECE 471C": {
     "id": "ECE 471C",
     "title": "Wireless Communications Laboratory",
-    "credits": 6,
+    "credits": 4,
     "description": "Examine the fundamentals of wireless communication from a digital signal processing perspective; linear modulation, demodulation, and orthogonal frequency division multiplexing; synchronization, channel estimation, and equalization; communication in fading channels; and wireless standards. Three lecture hours and three laboratory hours a week for one semester. Electrical and Computer Engineering 371C and Electrical Engineering 371C may not both be counted.",
     "prerequisites": [
       "ECE 445S",
@@ -1762,7 +1762,7 @@
   "ECE 472L": {
     "id": "ECE 472L",
     "title": "Network Engineering Laboratory",
-    "credits": 6,
+    "credits": 4,
     "description": "Explore local, metropolitan, and wide-area operations; telecommunication common carrier organizations and services; administrative and political considerations; premise distribution systems; name resolution, address assignment, and mail; datagra,s, packets, frames, and cells; addressing and network-level interconnection; internetwork architecture; TCP/IP protocol suite (v. 4 and 6); Ethernet and IEEE 802 .3 standards; IEEE 802 .11 standards and wireless access points; repeaters, hubs, bridges, r",
     "prerequisites": [
       "ECE 372N",
@@ -1819,7 +1819,7 @@
   "ECE 374L": {
     "id": "ECE 374L",
     "title": "Applications of Biomedical Engineering",
-    "credits": 9,
+    "credits": 3,
     "description": "Examine areas of biomedical engineering, such as optical and thermal properties of laser interaction with tissue; measurement of perfusion in the microvascular system; diagnostic imaging; interaction of living systems with electromagnetic fields; robotic surgical tools; ophthalmic instrumentation; and noninvasive cardiovascular measurements. Three lecture hours and six laboratory hours a week for one semester. Electrical and Computer Engineering 374L and Electrical Engineering 374L may not both ",
     "prerequisites": [
       "ECE 374K",
@@ -2307,7 +2307,7 @@
   "ECE 394L": {
     "id": "ECE 394L",
     "title": "Power Systems Apparatus and Laboratory",
-    "credits": 6,
+    "credits": 3,
     "description": "Examine the fundamentals of power systems emphasized through laboratory experiments. Explore complex power, three-phase circuits, per-unit system, transformers, synchronous machines, transmission line models, steady-state analysis, induction machines, capacitor banks, protective relaying, surge arrestors, and instrumentation. Three lecture hours and three laboratory hours a week for one semester.",
     "prerequisites": [],
     "corequisites": [],
@@ -2549,7 +2549,7 @@
   "ECE 698": {
     "id": "ECE 698",
     "title": "Thesis",
-    "credits": 3,
+    "credits": 6,
     "description": "The equivalent of three lecture hours a week for two semesters. Electrical and Computer Engineering 698 and Electrical Engineering 698 may not both be counted. Offered on the credit/no credit basis only.",
     "prerequisites": [
       "ECE 698A"
@@ -2691,7 +2691,7 @@
   "M 403K": {
     "id": "M 403K",
     "title": "Calculus I for Business and Economics",
-    "credits": 5,
+    "credits": 4,
     "description": "Differential and integral calculus of algebraic, logarithmic, and exponential functions with applications. Three lecture hours and two discussion sessions a week for one semester.",
     "prerequisites": [],
     "corequisites": [],
@@ -2701,7 +2701,7 @@
   "M 403L": {
     "id": "M 403L",
     "title": "Calculus II for Business and Economics",
-    "credits": 5,
+    "credits": 4,
     "description": "Differential and integral calculus of functions of several variables with applications, infinite series, improper integrals; introductions to probability, differential equations, matrices, systems of linear equations, and linear programming. Three lecture hours and two discussion sessions a week for one semester. Mathematics 403L and 408L (or 308L ) may not both be counted. May not be counted toward the major requirement for the Bachelor of Arts, Plan I, degree with a major in mathematics or tow",
     "prerequisites": [
       "M 403K"
@@ -2735,7 +2735,7 @@
   "M 408C": {
     "id": "M 408C",
     "title": "Differential and Integral Calculus",
-    "credits": 5,
+    "credits": 4,
     "description": "Introduction to the theory and applications of differential and integral calculus of functions of one variable; topics include limits, continuity, differentiation, the mean value theorem and its applications, integration, the fundamental theorem of calculus, and transcendental functions. Three lecture hours and two discussion hours a week for one semester.",
     "prerequisites": [
       "M 305G"
@@ -2747,7 +2747,7 @@
   "M 408D": {
     "id": "M 408D",
     "title": "Sequences, Series, and Multivariable Calculus",
-    "credits": 5,
+    "credits": 4,
     "description": "Certain sections of this course are designated as advanced placement or honors sections; they are restricted to students who have scored well on the Advanced Placement Calculus BC exam or have the consent of the mathematics adviser. This is the second semester of the accelerated calculus sequence. The theory and applications of sequences and infinite series, including those involving functions of one variable, and an introduction to the theory and applications of differential and integral calcul",
     "prerequisites": [
       "M 408C"
@@ -2759,7 +2759,7 @@
   "M 408K": {
     "id": "M 408K",
     "title": "Differential Calculus",
-    "credits": 5,
+    "credits": 4,
     "description": "Introduction to the theory and applications of differential calculus of functions of one variable; topics include limits, continuity, differentiation, and the mean value theorem and its applications. Three lecture hours and two discussion hours a week for one semester.",
     "prerequisites": [
       "M 305G"
@@ -2771,7 +2771,7 @@
   "M 308L": {
     "id": "M 308L",
     "title": "Integral Calculus",
-    "credits": 5,
+    "credits": 3,
     "description": "Introduction to the theory and applications of integral calculus of functions of one variable; topics include integration, the fundamental theorem of calculus, transcendental functions, sequences, and infinite series. For Mathematics 308L , three lecture hours a week for one semester; for 408L , three lecture hours and two discussion hours a week for one semester.",
     "prerequisites": [
       "M 408C",
@@ -2784,7 +2784,7 @@
   "M 408L": {
     "id": "M 408L",
     "title": "Integral Calculus",
-    "credits": 5,
+    "credits": 4,
     "description": "Introduction to the theory and applications of integral calculus of functions of one variable; topics include integration, the fundamental theorem of calculus, transcendental functions, sequences, and infinite series. For Mathematics 308L , three lecture hours a week for one semester; for 408L , three lecture hours and two discussion hours a week for one semester.",
     "prerequisites": [
       "M 408C",
@@ -2797,7 +2797,7 @@
   "M 308M": {
     "id": "M 308M",
     "title": "Multivariable Calculus",
-    "credits": 5,
+    "credits": 3,
     "description": "Introduction to the theory and applications of differential and integral calculus of functions of several variables. Includes parametric equations, polar coordinates, vectors, vector calculus, functions of several variables, partial derivatives, gradients, and multiple integrals. For Mathematics 308M , three lecture hours a week for one semester; for 408M , three lecture hours and two discussion hours a week for one semester.",
     "prerequisites": [
       "M 408L"
@@ -2809,7 +2809,7 @@
   "M 408M": {
     "id": "M 408M",
     "title": "Multivariable Calculus",
-    "credits": 5,
+    "credits": 4,
     "description": "Introduction to the theory and applications of differential and integral calculus of functions of several variables. Includes parametric equations, polar coordinates, vectors, vector calculus, functions of several variables, partial derivatives, gradients, and multiple integrals. For Mathematics 308M , three lecture hours a week for one semester; for 408M , three lecture hours and two discussion hours a week for one semester.",
     "prerequisites": [
       "M 408L"
@@ -2821,7 +2821,7 @@
   "M 408N": {
     "id": "M 408N",
     "title": "Differential Calculus for Science",
-    "credits": 5,
+    "credits": 4,
     "description": "Restricted to students in the College of Natural Sciences. Introduction to the theory of differential calculus of functions of one variable, and its application to the natural sciences. Subjects may include limits and differentiation, with applications to rates of change, extremes, graphing, and exponential growth and decay. Three lecture hours and two discussion hours a week for one semester.",
     "prerequisites": [
       "M 305G"
@@ -2833,7 +2833,7 @@
   "M 408Q": {
     "id": "M 408Q",
     "title": "Differential and Integral Calculus for Business",
-    "credits": 5,
+    "credits": 4,
     "description": "Focus on the key concepts of calculus. These include: using successive approximations to solve problems that cannot be solved directly (Euler's Method), tracking the rate at which quantities are changing (derivatives) using rates of change to find optimal solutions to real-world problems (max/min), computing bulk quantities by adding up the pieces (integration), and understanding functions of several variables by studying one variable at a time. Designed for business students. Three lecture hour",
     "prerequisites": [
       "M 305G"
@@ -2845,7 +2845,7 @@
   "M 408R": {
     "id": "M 408R",
     "title": "Differential and Integral Calculus for the Sciences",
-    "credits": 5,
+    "credits": 4,
     "description": "A calculus course for students in the life sciences. Emphasizes representations and analysis of data. Subjects include functions, rates, and derivatives and their applications to problems in biology; differential equations; Riemann integrals; the Euler method; and fundamental theorems of calculus. Three lecture hours and two discussion hours a week for one semester.",
     "prerequisites": [
       "M 305G"
@@ -2857,7 +2857,7 @@
   "M 408S": {
     "id": "M 408S",
     "title": "Integral Calculus for Science",
-    "credits": 5,
+    "credits": 4,
     "description": "Restricted to students in the College of Natural Sciences. Introduction to the theory of integral calculus of functions of one variable, and its applications to the natural sciences. Subjects may include integration and its application to area and volume, and transcendental functions, sequences, and series and their application to numerical methods. Three lecture hours and two discussion hours a week for one semester.",
     "prerequisites": [
       "M 408C",
@@ -2910,7 +2910,7 @@
   "M 210E": {
     "id": "M 210E",
     "title": "Emerging Scholars Seminar",
-    "credits": 4,
+    "credits": 2,
     "description": "Restricted to students in the Emerging Scholars Program. Supplemental problem-solving laboratory for precalculus, calculus, or advanced calculus courses for students in the Emerging Scholars Program. Three or four laboratory hours a week for one semester. May be repeated for credit.",
     "prerequisites": [],
     "corequisites": [],
@@ -2930,7 +2930,7 @@
   "M 110T": {
     "id": "M 110T",
     "title": "Topics in Mathematics",
-    "credits": 4,
+    "credits": 1,
     "description": "One, two, three, or four lecture hours a week for one semester.",
     "prerequisites": [],
     "corequisites": [],
@@ -2940,7 +2940,7 @@
   "M 210T": {
     "id": "M 210T",
     "title": "Topics in Mathematics",
-    "credits": 4,
+    "credits": 2,
     "description": "One, two, three, or four lecture hours a week for one semester.",
     "prerequisites": [],
     "corequisites": [],
@@ -2950,7 +2950,7 @@
   "M 310T": {
     "id": "M 310T",
     "title": "Topics in Mathematics",
-    "credits": 4,
+    "credits": 3,
     "description": "One, two, three, or four lecture hours a week for one semester.",
     "prerequisites": [],
     "corequisites": [],
@@ -3120,7 +3120,7 @@
   "M 427J": {
     "id": "M 427J",
     "title": "Differential Equations with Linear Algebra",
-    "credits": 5,
+    "credits": 4,
     "description": "Ordinary differential equations, introduction to vector spaces, linear operators and eigenvalues, systems of linear differential equations, introduction to partial differential equations and Fourier series. Five lecture hours a week for one semester. Mathematics 427J and 427K may not both be counted.",
     "prerequisites": [
       "M 408D"
@@ -3132,7 +3132,7 @@
   "M 427K": {
     "id": "M 427K",
     "title": "Advanced Calculus for Applications I",
-    "credits": 5,
+    "credits": 4,
     "description": "Ordinary and partial differential equations and Fourier series. Five lecture hours a week for one semester. Mathematics 427J and 427K may not both be counted.",
     "prerequisites": [
       "M 408D"
@@ -3868,7 +3868,7 @@
   "M 175T": {
     "id": "M 175T",
     "title": "Topics in Mathematics",
-    "credits": 4,
+    "credits": 1,
     "description": "One, two, three, or four lecture hours a week for one semester. May be repeated for credit when the topics vary.",
     "prerequisites": [],
     "corequisites": [],
@@ -3878,7 +3878,7 @@
   "M 275T": {
     "id": "M 275T",
     "title": "Topics in Mathematics",
-    "credits": 4,
+    "credits": 2,
     "description": "One, two, three, or four lecture hours a week for one semester. May be repeated for credit when the topics vary.",
     "prerequisites": [],
     "corequisites": [],
@@ -3888,7 +3888,7 @@
   "M 375T": {
     "id": "M 375T",
     "title": "Topics in Mathematics",
-    "credits": 4,
+    "credits": 3,
     "description": "One, two, three, or four lecture hours a week for one semester. May be repeated for credit when the topics vary.",
     "prerequisites": [],
     "corequisites": [],
@@ -4604,5 +4604,75 @@
     "corequisites": [],
     "grading": "credit/no-credit",
     "department": "M"
+  },
+  "ECE 402": {
+    "id": "ECE 402",
+    "title": "Introduction to Electrical Engineering",
+    "credits": 4,
+    "description": "Examine the scope and nature of professional activities of electrical engineers, including problem-solving techniques; analysis and design methods; engineering professional ethics; analysis of analog resistive circuits, including Thevenin/Norton equivalents, mesh analysis, and nodal analysis; and operational amplifiers (DC response). Three lecture hours and two laboratory hours a week for one semester",
+    "prerequisites": [
+      "M 408C"
+    ],
+    "corequisites": [
+      "M 408C"
+    ],
+    "grading": "letter",
+    "department": "ECE",
+    "renumberedFrom": "ECE 302",
+    "effectiveCatalog": "2026-28",
+    "provisional": true
+  },
+  "ECE 406": {
+    "id": "ECE 406",
+    "title": "Introduction to Computing",
+    "credits": 4,
+    "description": "Introduction to computing including bits and operations on bits, number formats, arithmetic and logic operations, and digital logic. Explore the Von Neumann model of processing including memory, arithmetic logic unit, registers, and instruction decoding and execution. Examine structured programming and debugging, machine and assembly language programming, the structure of an assembler, physical input/output through device registers, subroutine call/return; trap instruction, stacks and applicatio",
+    "prerequisites": [
+      "M 408C"
+    ],
+    "corequisites": [
+      "M 408C"
+    ],
+    "grading": "letter",
+    "department": "ECE",
+    "renumberedFrom": "ECE 306",
+    "effectiveCatalog": "2026-28",
+    "provisional": true
+  },
+  "ECE 412": {
+    "id": "ECE 412",
+    "title": "Software Design and Implementation I",
+    "credits": 4,
+    "description": "Explore basic problem solving, design and implementation techniques for imperative programming; structured programming in the C/C++ language; programming idioms. Examine software design principles, including modularity, coupling and cohesion; software engineering tools; elementary data structures; and asymptotic analysis. Three lecture hours and one recitation hour a week for one semester.",
+    "prerequisites": [
+      "BME 306",
+      "ECE 306",
+      "ECE 306H",
+      "ECE 319K",
+      "ECE 319H"
+    ],
+    "corequisites": [],
+    "grading": "letter",
+    "department": "ECE",
+    "renumberedFrom": "ECE 312",
+    "effectiveCatalog": "2026-28",
+    "provisional": true
+  },
+  "ECE 419K": {
+    "id": "ECE 419K",
+    "title": "Introduction to Embedded Systems",
+    "credits": 4,
+    "description": "Explore embedded systems; machine language execution; assembly and C language programming; local variables and subroutines; input/output synchronization; analog to digital conversion and digital to analog conversion; debugging; and interrupts. Three lecture hours and one laboratory hour a week for one semester.",
+    "prerequisites": [
+      "BME 306",
+      "ECE 306",
+      "ECE 306H"
+    ],
+    "corequisites": [],
+    "grading": "letter",
+    "department": "ECE",
+    "renumberedFrom": "ECE 319K",
+    "effectiveCatalog": "2026-28",
+    "provisional": true
   }
 }

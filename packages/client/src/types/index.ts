@@ -9,6 +9,12 @@ export interface CatalogCourse {
   corequisites: string[];
   grading: string;
   department: string;
+  /** true for provisional 26-28 records not yet in catalog.utexas.edu (TASK-102) */
+  provisional?: boolean;
+  /** catalog year this record is effective from, e.g. "2026-28" (TASK-102) */
+  effectiveCatalog?: string;
+  /** old course id this record was renumbered from, e.g. "ECE 302" (TASK-102) */
+  renumberedFrom?: string;
 }
 
 /** course-catalog.json top-level — keyed by course ID e.g. "ECE 302" */

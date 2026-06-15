@@ -69,6 +69,32 @@ const TRANSFER_SATISFIES: Readonly<Record<string, readonly string[]>> = {
   'M 508M': ['M 408C', 'M 408D'],
 };
 
+/**
+ * 2026-28 catalog: PHY 303L + PHY 105N (4 hr combined) are replaced by
+ * PHY 303E (3 hr). A returning student who completed BOTH old courses
+ * satisfies the PHY 303E requirement; the net is -1 hr (no re-take needed).
+ *
+ * This is a 2-course → 1-course replacement — not a 1:1 symmetric rename and
+ * not a simple directional transfer — so it cannot be cleanly encoded in
+ * EQUIVALENCE_GROUPS or TRANSFER_SATISFIES without adding a companion-required
+ * condition neither data structure currently supports.
+ *
+ * TODO(returning-student-wiring): When the returning-student dedup path is
+ * wired (downstream of TASK-102), check BOTH PHY 303L and PHY 105N in the
+ * student's completed set before granting PHY 303E satisfaction. The -1 hr
+ * delta means the solver's credit total for that student also decreases by 1.
+ *
+ * Source: https://www.ece.utexas.edu/academics/undergraduate/admissions#notes-on-the-26-28-catalog
+ * Effective: 2026-28 catalog year only.
+ */
+export const PHY_303L_105N_REPLACES_303E = {
+  takenOld: ['PHY 303L', 'PHY 105N'] as const,
+  satisfiesNew: 'PHY 303E',
+  hoursOld: 4,
+  hoursNew: 3,
+  hoursDelta: -1,
+} as const;
+
 // ─── Registry ─────────────────────────────────────────────────────────────────
 
 export interface EquivalenceRegistry {
