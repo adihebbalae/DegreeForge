@@ -1,0 +1,2609 @@
+{
+  "semester": "Summer 2026",
+  "semester_code": "20266",
+  "source": "authenticated-fetch:ECE:levels=L+U+G + authenticated-fetch:M:levels=L+U+G + authenticated-fetch:PHY:levels=L+U+G + authenticated-fetch:CH:levels=L+U+G + authenticated-fetch:RHE:levels=L+U+G",
+  "courses": {
+    "ECE 309K": {
+      "course": "ECE 309K",
+      "title": "GLBL INDUSTRY IMMERSION-JPN",
+      "sections": [
+        {
+          "unique": 75179,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FAGELSON, WILLIAM F",
+          "status": "open; reserved",
+          "core": ""
+        },
+        {
+          "unique": 75180,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FAGELSON, WILLIAM F",
+          "status": "cancelled",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 312": {
+      "course": "ECE 312",
+      "title": "SOFTWR DSGN AND IMPLMNTTN I-WB",
+      "sections": [
+        {
+          "unique": 75185,
+          "meetings": [
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "MWF"
+            },
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "TH"
+            }
+          ],
+          "instruction_mode": "Internet",
+          "instructor": "SANTACRUZ, PEDRO ENRIQUE",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 313": {
+      "course": "ECE 313",
+      "title": "LINEAR SYSTEMS AND SIGNALS-WB",
+      "sections": [
+        {
+          "unique": 75190,
+          "meetings": [
+            {
+              "time": "11:30 a.m.-1:00 p.m.",
+              "days": "MWF"
+            }
+          ],
+          "instruction_mode": "Internet",
+          "instructor": "CUEVAS, ALFONSO",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 316": {
+      "course": "ECE 316",
+      "title": "DIGITAL LOGIC DESIGN-JPN",
+      "sections": [
+        {
+          "unique": 75193,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "TELANG, NINA K",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 75194,
+          "meetings": [
+            {
+              "time": "4:00 p.m.-5:30 p.m.",
+              "days": "MWF"
+            }
+          ],
+          "instruction_mode": "Internet",
+          "instructor": "TOUBA, NUR A",
+          "status": "closed",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 422C": {
+      "course": "ECE 422C",
+      "title": "SOFTWR DSGN/IMPLMENTTN II-WB",
+      "sections": [
+        {
+          "unique": 75195,
+          "meetings": [
+            {
+              "time": "7:00 p.m.-8:30 p.m.",
+              "days": "MWF"
+            },
+            {
+              "time": "6:30 p.m.-8:00 p.m.",
+              "days": "TH"
+            }
+          ],
+          "instruction_mode": "Internet",
+          "instructor": "SAMANT, ABHAY",
+          "status": "closed",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 333T": {
+      "course": "ECE 333T",
+      "title": "ENGINEERING COMM-JPN",
+      "sections": [
+        {
+          "unique": 75199,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FAGELSON, WILLIAM F",
+          "status": "closed",
+          "core": "Communication"
+        },
+        {
+          "unique": 75200,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FAGELSON, WILLIAM F",
+          "status": "cancelled",
+          "core": "Communication"
+        }
+      ]
+    },
+    "ECE 351K": {
+      "course": "ECE 351K",
+      "title": "PROBABLTY/RANDOM PROCESSES-JPN",
+      "sections": [
+        {
+          "unique": 75204,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "TELANG, VIVEK",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 75205,
+          "meetings": [
+            {
+              "time": "2:30 p.m.-4:00 p.m.",
+              "days": "MWF"
+            }
+          ],
+          "instruction_mode": "Internet",
+          "instructor": "SANTACRUZ, PEDRO ENRIQUE",
+          "status": "closed",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 160": {
+      "course": "ECE 160",
+      "title": "SPEC PROBS IN ELEC/COMP ENGR",
+      "sections": [
+        {
+          "unique": 75210,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "cancelled",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 260": {
+      "course": "ECE 260",
+      "title": "SPEC PROBS IN ELEC/COMP ENGR",
+      "sections": [
+        {
+          "unique": 75215,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "cancelled",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 360": {
+      "course": "ECE 360",
+      "title": "SPEC PROBS IN ELEC/COMP ENGR",
+      "sections": [
+        {
+          "unique": 75220,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "cancelled",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 460": {
+      "course": "ECE 460",
+      "title": "SPEC PROBS IN ELEC/COMP ENGR",
+      "sections": [
+        {
+          "unique": 75225,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "cancelled",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 360C": {
+      "course": "ECE 360C",
+      "title": "ALGORITHMS-WB",
+      "sections": [
+        {
+          "unique": 75230,
+          "meetings": [
+            {
+              "time": "5:30 p.m.-7:00 p.m.",
+              "days": "MWF"
+            }
+          ],
+          "instruction_mode": "Internet",
+          "instructor": "TOUBA, NUR A",
+          "status": "closed",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 362K": {
+      "course": "ECE 362K",
+      "title": "INTRO TO AUTOMATIC CONTROL-WB",
+      "sections": [
+        {
+          "unique": 75235,
+          "meetings": [
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "MWF"
+            }
+          ],
+          "instruction_mode": "Internet",
+          "instructor": "CUEVAS, ALFONSO",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 382V": {
+      "course": "ECE 382V",
+      "title": "SCALABLE MACHINE LEARNING",
+      "sections": [
+        {
+          "unique": 75239,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "ORSHANSKY, MICHAEL E",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 297C": {
+      "course": "ECE 297C",
+      "title": "RESEARCH PROBLEMS",
+      "sections": [
+        {
+          "unique": 75240,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "cancelled",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 397C": {
+      "course": "ECE 397C",
+      "title": "RESEARCH PROBLEMS",
+      "sections": [
+        {
+          "unique": 75245,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 75290,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 197M": {
+      "course": "ECE 197M",
+      "title": "GRADUATE RESEARCH INTERNSHIP",
+      "sections": [
+        {
+          "unique": 75250,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "closed",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 397M": {
+      "course": "ECE 397M",
+      "title": "GRADUATE RESEARCH INTERNSHIP",
+      "sections": [
+        {
+          "unique": 75255,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "closed",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 698A": {
+      "course": "ECE 698A",
+      "title": "THESIS",
+      "sections": [
+        {
+          "unique": 75260,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "closed",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 698B": {
+      "course": "ECE 698B",
+      "title": "THESIS",
+      "sections": [
+        {
+          "unique": 75265,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "closed",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 398R": {
+      "course": "ECE 398R",
+      "title": "MASTER'S REPORT",
+      "sections": [
+        {
+          "unique": 75270,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 75275,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 398T": {
+      "course": "ECE 398T",
+      "title": "SUPRVSD TEACHING ELECTRCL ENGR",
+      "sections": [
+        {
+          "unique": 75278,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "closed",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 399W": {
+      "course": "ECE 399W",
+      "title": "DISSERTATION",
+      "sections": [
+        {
+          "unique": 75280,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "ECE 699W": {
+      "course": "ECE 699W",
+      "title": "DISSERTATION",
+      "sections": [
+        {
+          "unique": 75285,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "M 302": {
+      "course": "M 302",
+      "title": "INTRODUCTION TO MATHEMATICS",
+      "sections": [
+        {
+          "unique": 85460,
+          "meetings": [
+            {
+              "time": "11:30 a.m.-1:00 p.m.",
+              "days": "MTWTHF",
+              "room": "CPE 2.220"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "DUNN, TAVISH J",
+          "status": "open",
+          "core": "Mathematics"
+        }
+      ]
+    },
+    "M 408C": {
+      "course": "M 408C",
+      "title": "DIFFEREN AND INTEGRAL CALCULUS",
+      "sections": [
+        {
+          "unique": 85465,
+          "meetings": [
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "MWF",
+              "room": "CPE 2.214"
+            },
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "TTH",
+              "room": "CPE 2.216"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "SAROWER, FARHANA",
+          "status": "open",
+          "core": "Mathematics"
+        },
+        {
+          "unique": 85470,
+          "meetings": [
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "MWF",
+              "room": "CPE 2.214"
+            },
+            {
+              "time": "11:30 a.m.-1:00 p.m.",
+              "days": "TTH",
+              "room": "CPE 2.216"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "SAROWER, FARHANA",
+          "status": "open",
+          "core": "Mathematics"
+        }
+      ]
+    },
+    "M 408D": {
+      "course": "M 408D",
+      "title": "SEQ, SERIES, AND MULTIVAR CALC",
+      "sections": [
+        {
+          "unique": 85475,
+          "meetings": [
+            {
+              "time": "11:30 a.m.-1:00 p.m.",
+              "days": "MWF",
+              "room": "CPE 2.208"
+            },
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "TTH",
+              "room": "CPE 2.212"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "REYES, NICOLAS",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 85480,
+          "meetings": [
+            {
+              "time": "11:30 a.m.-1:00 p.m.",
+              "days": "MWF",
+              "room": "CPE 2.208"
+            },
+            {
+              "time": "11:30 a.m.-1:00 p.m.",
+              "days": "TTH",
+              "room": "CPE 2.212"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "REYES, NICOLAS",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "M 325K": {
+      "course": "M 325K",
+      "title": "DISCRETE MATHEMATICS",
+      "sections": [
+        {
+          "unique": 85485,
+          "meetings": [
+            {
+              "time": "2:30 p.m.-4:00 p.m.",
+              "days": "MTWTHF",
+              "room": "CPE 2.220"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "STARON, ERIC J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 85550,
+          "meetings": [
+            {
+              "time": "11:30 a.m.-1:00 p.m.",
+              "days": "MTWTHF",
+              "room": "CPE 2.220"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "PARKER, MYCHELLE",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "M 427J": {
+      "course": "M 427J",
+      "title": "DIFF EQNS WITH LINEAR ALGEBRA",
+      "sections": [
+        {
+          "unique": 85490,
+          "meetings": [
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "MWF",
+              "room": "ECJ 1.202"
+            },
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "TTH",
+              "room": "ECJ 1.202"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "WILLIAMS, SHAWN",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "M 427L": {
+      "course": "M 427L",
+      "title": "ADV CALCULUS FOR APPLICATNS II",
+      "sections": [
+        {
+          "unique": 85495,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:30 p.m.",
+              "days": "MWF",
+              "room": "ECJ 1.202"
+            },
+            {
+              "time": "1:00 p.m.-2:30 p.m.",
+              "days": "TTH",
+              "room": "ECJ 1.202"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "ANSARI, HASEEB",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "M 328K": {
+      "course": "M 328K",
+      "title": "INTRODUCTION TO NUMBER THEORY",
+      "sections": [
+        {
+          "unique": 85500,
+          "meetings": [
+            {
+              "time": "11:30 a.m.-1:00 p.m.",
+              "days": "MTWTHF",
+              "room": "CPE 2.206"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "MACEDO, ALEX",
+          "status": "closed",
+          "core": ""
+        }
+      ]
+    },
+    "M 340L": {
+      "course": "M 340L",
+      "title": "MATRICES AND MATRIX CALCULATNS",
+      "sections": [
+        {
+          "unique": 85505,
+          "meetings": [
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "MTWTHF",
+              "room": "CPE 2.208"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "BLAZEK, KIRK D",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "M 361K": {
+      "course": "M 361K",
+      "title": "INTRODUCTION TO REAL ANALYSIS",
+      "sections": [
+        {
+          "unique": 85509,
+          "meetings": [
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "MTWTHF",
+              "room": "CPE 2.220"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "WOLESENSKY, WILLIAM R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 85555,
+          "meetings": [
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "MTWTHF"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "cancelled",
+          "core": ""
+        }
+      ]
+    },
+    "M 362K": {
+      "course": "M 362K",
+      "title": "PROBABILITY I",
+      "sections": [
+        {
+          "unique": 85510,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:30 p.m.",
+              "days": "MTWTHF",
+              "room": "CPE 2.220"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "WALLACE, AURORA D",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "M 175": {
+      "course": "M 175",
+      "title": "CONFERENCE COURSE",
+      "sections": [
+        {
+          "unique": 85515,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "cancelled",
+          "core": ""
+        },
+        {
+          "unique": 85560,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "M 275": {
+      "course": "M 275",
+      "title": "CONFERENCE COURSE",
+      "sections": [
+        {
+          "unique": 85520,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "cancelled",
+          "core": ""
+        }
+      ]
+    },
+    "M 375": {
+      "course": "M 375",
+      "title": "CONFERENCE COURSE",
+      "sections": [
+        {
+          "unique": 85525,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "cancelled",
+          "core": ""
+        },
+        {
+          "unique": 85565,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "M 475": {
+      "course": "M 475",
+      "title": "CONFERENCE COURSE",
+      "sections": [
+        {
+          "unique": 85570,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "M 379H": {
+      "course": "M 379H",
+      "title": "HONORS TUTORIAL COURSE",
+      "sections": [
+        {
+          "unique": 85575,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": "Communication"
+        }
+      ]
+    },
+    "M 396D": {
+      "course": "M 396D",
+      "title": "CONFERENCE COURSE",
+      "sections": [
+        {
+          "unique": 85530,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "M 698B": {
+      "course": "M 698B",
+      "title": "THESIS",
+      "sections": [
+        {
+          "unique": 85535,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "M 398R": {
+      "course": "M 398R",
+      "title": "MASTER'S REPORT",
+      "sections": [
+        {
+          "unique": 85540,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "M 399W": {
+      "course": "M 399W",
+      "title": "DISSERTATION",
+      "sections": [
+        {
+          "unique": 85545,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "PHY 302K": {
+      "course": "PHY 302K",
+      "title": "GEN PHY TCH CRS: MECH/HEAT/SND",
+      "sections": [
+        {
+          "unique": 86045,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-4:00 p.m.",
+              "days": "MTWTHF",
+              "room": "PAI 2.48"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FANG, BIN",
+          "status": "open",
+          "core": "Natural Science and Technology, Part I"
+        }
+      ]
+    },
+    "PHY 303K": {
+      "course": "PHY 303K",
+      "title": "ENGINEERING PHYSICS I",
+      "sections": [
+        {
+          "unique": 86050,
+          "meetings": [
+            {
+              "time": "11:00 a.m.-1:00 p.m.",
+              "days": "MTWTHF",
+              "room": "PAI 2.48"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "TSOI, MAXIM",
+          "status": "open",
+          "core": "Natural Science and Technology, Part I"
+        }
+      ]
+    },
+    "PHY 105M": {
+      "course": "PHY 105M",
+      "title": "LAB FOR PHY 302K/303K/317K",
+      "sections": [
+        {
+          "unique": 86055,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-11:00 a.m.",
+              "days": "MW",
+              "room": "PMA 8.316"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86060,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-11:00 a.m.",
+              "days": "MW",
+              "room": "PMA 8.318"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86065,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-11:00 a.m.",
+              "days": "TTH",
+              "room": "PMA 8.316"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86070,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-11:00 a.m.",
+              "days": "TTH",
+              "room": "PMA 8.318"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86075,
+          "meetings": [
+            {
+              "time": "11:00 a.m.-2:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.316"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 86080,
+          "meetings": [
+            {
+              "time": "11:00 a.m.-2:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.318"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 86085,
+          "meetings": [
+            {
+              "time": "11:00 a.m.-2:00 p.m.",
+              "days": "TTH",
+              "room": "PMA 8.316"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 86090,
+          "meetings": [
+            {
+              "time": "11:00 a.m.-2:00 p.m.",
+              "days": "TTH",
+              "room": "PMA 8.318"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 86095,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-5:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.316"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86100,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-5:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.318"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "cancelled",
+          "core": ""
+        },
+        {
+          "unique": 86105,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-5:00 p.m.",
+              "days": "TTH",
+              "room": "PMA 8.316"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86110,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-5:00 p.m.",
+              "days": "TTH",
+              "room": "PMA 8.318"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86115,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-5:00 p.m.",
+              "days": "TTH"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "cancelled",
+          "core": ""
+        },
+        {
+          "unique": 86117,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-5:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.320"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "cancelled",
+          "core": ""
+        },
+        {
+          "unique": 86118,
+          "meetings": [
+            {
+              "time": "11:00 a.m.-2:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.320"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86119,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-11:00 a.m.",
+              "days": "MW",
+              "room": "PMA 8.320"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "cancelled",
+          "core": ""
+        }
+      ]
+    },
+    "PHY 317K": {
+      "course": "PHY 317K",
+      "title": "GENERAL PHYSICS I",
+      "sections": [
+        {
+          "unique": 86120,
+          "meetings": [
+            {
+              "time": "9:00 a.m.-11:00 a.m.",
+              "days": "MTWTHF",
+              "room": "PAI 2.48"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "PERRY, JONATHAN",
+          "status": "open",
+          "core": "Natural Science and Technology, Part I"
+        }
+      ]
+    },
+    "PHY 302L": {
+      "course": "PHY 302L",
+      "title": "GEN PHY TCH CRS: ELEC/LGHT/NUC",
+      "sections": [
+        {
+          "unique": 86175,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-4:00 p.m.",
+              "days": "MTWTHF",
+              "room": "PAI 4.42"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "TORABI, AIDA",
+          "status": "open",
+          "core": "Natural Science and Technology, Part I"
+        }
+      ]
+    },
+    "PHY 303L": {
+      "course": "PHY 303L",
+      "title": "ENGINEERING PHYSICS II",
+      "sections": [
+        {
+          "unique": 86180,
+          "meetings": [
+            {
+              "time": "11:00 a.m.-1:00 p.m.",
+              "days": "MTWTHF",
+              "room": "PAI 4.42"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "QUEVEDO, HERNAN J",
+          "status": "open",
+          "core": "Natural Science and Technology, Part I"
+        }
+      ]
+    },
+    "PHY 105N": {
+      "course": "PHY 105N",
+      "title": "LAB FOR PHY 302L/303L/317L",
+      "sections": [
+        {
+          "unique": 86185,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-11:00 a.m.",
+              "days": "MW",
+              "room": "PMA 8.316"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "waitlisted",
+          "core": ""
+        },
+        {
+          "unique": 86190,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-11:00 a.m.",
+              "days": "MW",
+              "room": "PMA 8.318"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "waitlisted",
+          "core": ""
+        },
+        {
+          "unique": 86195,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-11:00 a.m.",
+              "days": "TTH",
+              "room": "PMA 8.316"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86200,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-11:00 a.m.",
+              "days": "TTH",
+              "room": "PMA 8.318"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86205,
+          "meetings": [
+            {
+              "time": "11:00 a.m.-2:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.316"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "waitlisted",
+          "core": ""
+        },
+        {
+          "unique": 86210,
+          "meetings": [
+            {
+              "time": "11:00 a.m.-2:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.318"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "waitlisted",
+          "core": ""
+        },
+        {
+          "unique": 86215,
+          "meetings": [
+            {
+              "time": "11:00 a.m.-1:00 p.m.",
+              "days": "TTH",
+              "room": "PMA 8.316"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "waitlisted",
+          "core": ""
+        },
+        {
+          "unique": 86220,
+          "meetings": [
+            {
+              "time": "11:00 a.m.-2:00 p.m.",
+              "days": "TTH",
+              "room": "PMA 8.318"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "waitlisted",
+          "core": ""
+        },
+        {
+          "unique": 86225,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-5:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.316"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "waitlisted",
+          "core": ""
+        },
+        {
+          "unique": 86230,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-5:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.318"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86235,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-5:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.322"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86240,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-5:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.314"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 86242,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-5:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.320"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "waitlisted",
+          "core": ""
+        },
+        {
+          "unique": 86243,
+          "meetings": [
+            {
+              "time": "11:00 a.m.-1:00 p.m.",
+              "days": "MW",
+              "room": "PMA 8.320"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "waitlisted",
+          "core": ""
+        },
+        {
+          "unique": 86244,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-11:00 a.m.",
+              "days": "MW",
+              "room": "PMA 8.320"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "waitlisted",
+          "core": ""
+        }
+      ]
+    },
+    "PHY 317L": {
+      "course": "PHY 317L",
+      "title": "GENERAL PHYSICS II",
+      "sections": [
+        {
+          "unique": 86245,
+          "meetings": [
+            {
+              "time": "9:00 a.m.-11:00 a.m.",
+              "days": "MTWTHF",
+              "room": "PAI 4.42"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "PERRY, JONATHAN",
+          "status": "open",
+          "core": "Natural Science and Technology, Part I"
+        }
+      ]
+    },
+    "PHY 353L": {
+      "course": "PHY 353L",
+      "title": "MODERN PHYSICS LABORATORY",
+      "sections": [
+        {
+          "unique": 86125,
+          "meetings": [
+            {
+              "time": "8:30 a.m.-11:30 a.m.",
+              "days": "MTWTH",
+              "room": "PMA 7.302"
+            },
+            {
+              "time": "9:00 a.m.-11:00 a.m.",
+              "days": "F",
+              "room": "PMA 7.114"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LOVERIDGE, ANDREW J",
+          "status": "closed",
+          "core": "Communication"
+        },
+        {
+          "unique": 86130,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-4:00 p.m.",
+              "days": "MTWTH",
+              "room": "PMA 7.302"
+            },
+            {
+              "time": "9:00 a.m.-11:00 a.m.",
+              "days": "F",
+              "room": "PMA 7.114"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "TORABI, AIDA",
+          "status": "closed",
+          "core": "Communication"
+        }
+      ]
+    },
+    "PHY 371C": {
+      "course": "PHY 371C",
+      "title": "INDIVIDUAL STUDY IN PHYSICS",
+      "sections": [
+        {
+          "unique": 86135,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        },
+        {
+          "unique": 86250,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "PHY 379H": {
+      "course": "PHY 379H",
+      "title": "HONORS TUTORIAL COURSE",
+      "sections": [
+        {
+          "unique": 86255,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": "Communication"
+        }
+      ]
+    },
+    "PHY 380N": {
+      "course": "PHY 380N",
+      "title": "EXPERIMENTAL PHYSICS",
+      "sections": [
+        {
+          "unique": 86140,
+          "meetings": [
+            {
+              "time": "12:30 p.m.-2:00 p.m.",
+              "days": "TTH",
+              "room": "ASE 1.124"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "HEGELICH, BJORN",
+          "status": "cancelled",
+          "core": ""
+        }
+      ]
+    },
+    "PHY 390": {
+      "course": "PHY 390",
+      "title": "GRADUATE RESEARCH",
+      "sections": [
+        {
+          "unique": 86150,
+          "meetings": [],
+          "instruction_mode": "Hybrid or Blended",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "PHY 698A": {
+      "course": "PHY 698A",
+      "title": "THESIS",
+      "sections": [
+        {
+          "unique": 86155,
+          "meetings": [],
+          "instruction_mode": "Hybrid or Blended",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "PHY 698B": {
+      "course": "PHY 698B",
+      "title": "THESIS",
+      "sections": [
+        {
+          "unique": 86160,
+          "meetings": [],
+          "instruction_mode": "Hybrid or Blended",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "PHY 399W": {
+      "course": "PHY 399W",
+      "title": "DISSERTATION",
+      "sections": [
+        {
+          "unique": 86165,
+          "meetings": [],
+          "instruction_mode": "Hybrid or Blended",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "PHY 382Q": {
+      "course": "PHY 382Q",
+      "title": "BIOPHYSICS II",
+      "sections": [
+        {
+          "unique": 86260,
+          "meetings": [
+            {
+              "time": "10:00 a.m.-11:30 a.m.",
+              "days": "MTWTHF",
+              "room": "ECJ 1.304"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FERNANDEZ DE LAS NIEVES,",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 301": {
+      "course": "CH 301",
+      "title": "PRINCIPLES OF CHEMISTRY I",
+      "sections": [
+        {
+          "unique": 84250,
+          "meetings": [
+            {
+              "time": "8:30 a.m.-10:00 a.m.",
+              "days": "MTWTHF",
+              "room": "BUR 108"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "TULEY, ALFRED A",
+          "status": "open",
+          "core": "Natural Science and Technology, Part I"
+        }
+      ]
+    },
+    "CH 204": {
+      "course": "CH 204",
+      "title": "INTRO TO CHEMICAL PRACTICE",
+      "sections": [
+        {
+          "unique": 84255,
+          "meetings": [
+            {
+              "time": "12:00 p.m.-2:00 p.m.",
+              "days": "TTH",
+              "room": "PAI 5.42"
+            },
+            {
+              "time": "2:00 p.m.-4:00 p.m.",
+              "days": "TTH",
+              "room": "WEL 5.130"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "SOTELO, PAOLA",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84260,
+          "meetings": [
+            {
+              "time": "12:00 p.m.-2:00 p.m.",
+              "days": "TTH",
+              "room": "PAI 5.42"
+            },
+            {
+              "time": "2:00 p.m.-4:00 p.m.",
+              "days": "TTH",
+              "room": "WEL 5.132"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "SOTELO, PAOLA",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84265,
+          "meetings": [
+            {
+              "time": "12:00 p.m.-2:00 p.m.",
+              "days": "TTH",
+              "room": "PAI 5.42"
+            },
+            {
+              "time": "2:00 p.m.-4:00 p.m.",
+              "days": "TTH",
+              "room": "WEL 5.134"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "SOTELO, PAOLA",
+          "status": "cancelled",
+          "core": ""
+        },
+        {
+          "unique": 84270,
+          "meetings": [
+            {
+              "time": "12:00 p.m.-2:00 p.m.",
+              "days": "TTH",
+              "room": "PAI 5.42"
+            },
+            {
+              "time": "2:00 p.m.-4:00 p.m.",
+              "days": "TTH",
+              "room": "WEL 5.136"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "SOTELO, PAOLA",
+          "status": "cancelled",
+          "core": ""
+        },
+        {
+          "unique": 84275,
+          "meetings": [
+            {
+              "time": "12:00 p.m.-2:00 p.m.",
+              "days": "TTH",
+              "room": "PAI 5.42"
+            },
+            {
+              "time": "2:00 p.m.-4:00 p.m.",
+              "days": "TTH",
+              "room": "WEL 5.146"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "SOTELO, PAOLA",
+          "status": "cancelled",
+          "core": ""
+        }
+      ]
+    },
+    "CH 206K": {
+      "course": "CH 206K",
+      "title": "UNDERGRADUATE RESEARCH",
+      "sections": [
+        {
+          "unique": 84280,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "CH 302": {
+      "course": "CH 302",
+      "title": "PRINCIPLES OF CHEMISTRY II",
+      "sections": [
+        {
+          "unique": 84435,
+          "meetings": [
+            {
+              "time": "8:30 a.m.-10:00 a.m.",
+              "days": "MTWTHF",
+              "room": "WEL 3.502"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "GIORGI, NICOLE V",
+          "status": "open",
+          "core": "Natural Science and Technology, Part I"
+        }
+      ]
+    },
+    "CH 220C": {
+      "course": "CH 220C",
+      "title": "ORGANIC CHEMISTRY LABORATORY",
+      "sections": [
+        {
+          "unique": 84285,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "T",
+              "room": "NHB 1.106"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 84290,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "T",
+              "room": "NHB 1.110"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 84295,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "T",
+              "room": "NHB 1.116A"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 84300,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "T",
+              "room": "NHB 1.118"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 84305,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "T",
+              "room": "NHB 1.124"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84310,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "T",
+              "room": "NHB 1.126A"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84315,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "W",
+              "room": "NHB 1.106"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 84320,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "W",
+              "room": "NHB 1.110"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84325,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "W",
+              "room": "NHB 1.116A"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84330,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "W",
+              "room": "NHB 1.118"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84335,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "W",
+              "room": "NHB 1.124"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84340,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "W",
+              "room": "NHB 1.126A"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84345,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "TH",
+              "room": "NHB 1.106"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84350,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "TH",
+              "room": "NHB 1.110"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84355,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "TH",
+              "room": "NHB 1.116A"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84360,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "TH",
+              "room": "NHB 1.118"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84365,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "TH",
+              "room": "NHB 1.124"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84370,
+          "meetings": [
+            {
+              "time": "1:00 p.m.-2:00 p.m.",
+              "days": "M",
+              "room": "JGB 2.324"
+            },
+            {
+              "time": "1:00 p.m.-5:00 p.m.",
+              "days": "TH",
+              "room": "NHB 1.126A"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "FJETLAND, CONRAD R",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 320M": {
+      "course": "CH 320M",
+      "title": "ORGANIC CHEMISTRY I",
+      "sections": [
+        {
+          "unique": 84375,
+          "meetings": [
+            {
+              "time": "8:30 a.m.-10:00 a.m.",
+              "days": "MTWTHF",
+              "room": "WEL 2.122"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "SHABBIR, SHAGUFTA HASNAIN",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 328M": {
+      "course": "CH 328M",
+      "title": "ORGANIC CHEMISTRY I",
+      "sections": [
+        {
+          "unique": 84380,
+          "meetings": [
+            {
+              "time": "8:30 a.m.-10:00 a.m.",
+              "days": "MTWTHF",
+              "room": "WEL 2.122"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "SHABBIR, SHAGUFTA HASNAIN",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 455": {
+      "course": "CH 455",
+      "title": "FUNDMNTLS OF ANALYTICAL CHEM",
+      "sections": [
+        {
+          "unique": 84385,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-10:00 a.m.",
+              "days": "MTWTH",
+              "room": "WEL 3.320"
+            },
+            {
+              "time": "1:00 p.m.-4:00 p.m.",
+              "days": "MW",
+              "room": "WEL 4.110"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LAUDE, DAVID A, HERATH, THUSHANI",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84390,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-10:00 a.m.",
+              "days": "MTWTH",
+              "room": "WEL 3.320"
+            },
+            {
+              "time": "1:00 p.m.-4:00 p.m.",
+              "days": "TTH",
+              "room": "WEL 4.110"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LAUDE, DAVID A, HERATH, THUSHANI",
+          "status": "closed",
+          "core": ""
+        },
+        {
+          "unique": 84395,
+          "meetings": [
+            {
+              "time": "8:00 a.m.-10:00 a.m.",
+              "days": "MTWTH",
+              "room": "WEL 3.320"
+            },
+            {
+              "time": "1:00 p.m.-4:00 p.m.",
+              "days": "TTH",
+              "room": "WEL 4.124"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "LAUDE, DAVID A, HERATH, THUSHANI",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 369K": {
+      "course": "CH 369K",
+      "title": "TECHNIQUES OF RESEARCH",
+      "sections": [
+        {
+          "unique": 84400,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "cancelled",
+          "core": ""
+        }
+      ]
+    },
+    "CH 320N": {
+      "course": "CH 320N",
+      "title": "ORGANIC CHEMISTRY II",
+      "sections": [
+        {
+          "unique": 84440,
+          "meetings": [
+            {
+              "time": "8:30 a.m.-10:00 a.m.",
+              "days": "MTWTHF",
+              "room": "WEL 2.122"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "VIVIANI, VINCENT ROGER",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 328N": {
+      "course": "CH 328N",
+      "title": "ORGANIC CHEMISTRY II",
+      "sections": [
+        {
+          "unique": 84445,
+          "meetings": [
+            {
+              "time": "8:30 a.m.-10:00 a.m.",
+              "days": "MTWTHF",
+              "room": "WEL 2.122"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "VIVIANI, VINCENT ROGER",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 153K": {
+      "course": "CH 153K",
+      "title": "PHYSICAL CHEMISTRY LABORATORY",
+      "sections": [
+        {
+          "unique": 84450,
+          "meetings": [
+            {
+              "time": "10:30 a.m.-1:30 p.m.",
+              "days": "MWF",
+              "room": "WEL 4.138"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "WORDEN, MATTHEW",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84455,
+          "meetings": [
+            {
+              "time": "2:00 p.m.-5:00 p.m.",
+              "days": "MWF",
+              "room": "WEL 4.138"
+            }
+          ],
+          "instruction_mode": "Face-to-face",
+          "instructor": "WORDEN, MATTHEW",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 197C": {
+      "course": "CH 197C",
+      "title": "PROBLEMS IN CHEMISTRY",
+      "sections": [
+        {
+          "unique": 84405,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 297C": {
+      "course": "CH 297C",
+      "title": "PROBLEMS IN CHEMISTRY",
+      "sections": [
+        {
+          "unique": 84410,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 397C": {
+      "course": "CH 397C",
+      "title": "PROBLEMS IN CHEMISTRY",
+      "sections": [
+        {
+          "unique": 84415,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 84460,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 698A": {
+      "course": "CH 698A",
+      "title": "THESIS",
+      "sections": [
+        {
+          "unique": 84420,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 698B": {
+      "course": "CH 698B",
+      "title": "THESIS",
+      "sections": [
+        {
+          "unique": 84425,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "CH 399W": {
+      "course": "CH 399W",
+      "title": "DISSERTATION",
+      "sections": [
+        {
+          "unique": 84430,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "RHE 306": {
+      "course": "RHE 306",
+      "title": "RHETORIC AND WRITING-WB",
+      "sections": [
+        {
+          "unique": 81675,
+          "meetings": [],
+          "instruction_mode": "Internet",
+          "instructor": "HEHN, HANNAH",
+          "status": "closed",
+          "core": "Communication"
+        },
+        {
+          "unique": 81680,
+          "meetings": [],
+          "instruction_mode": "Internet",
+          "instructor": "ANDERSON, ABIGAIL",
+          "status": "closed",
+          "core": "Communication"
+        },
+        {
+          "unique": 81685,
+          "meetings": [],
+          "instruction_mode": "Internet",
+          "instructor": "",
+          "status": "cancelled",
+          "core": "Communication"
+        },
+        {
+          "unique": 81695,
+          "meetings": [],
+          "instruction_mode": "Internet",
+          "instructor": "JENNINGS, MONTEZ",
+          "status": "open",
+          "core": "Communication"
+        },
+        {
+          "unique": 81700,
+          "meetings": [],
+          "instruction_mode": "Internet",
+          "instructor": "VESELKIN, KIRILL",
+          "status": "waitlisted",
+          "core": "Communication"
+        },
+        {
+          "unique": 81705,
+          "meetings": [],
+          "instruction_mode": "Internet",
+          "instructor": "MORENO, ELOISA ERNESTINA",
+          "status": "open",
+          "core": "Communication"
+        }
+      ]
+    },
+    "RHE 309J": {
+      "course": "RHE 309J",
+      "title": "RHETORIC OF ASTROLOGY-WB",
+      "sections": [
+        {
+          "unique": 81688,
+          "meetings": [],
+          "instruction_mode": "Internet",
+          "instructor": "TURNER, SAM JANE",
+          "status": "closed",
+          "core": "Communication"
+        },
+        {
+          "unique": 81689,
+          "meetings": [],
+          "instruction_mode": "Internet",
+          "instructor": "STALLINGS, ALEXANDRA MILL",
+          "status": "closed",
+          "core": "Communication"
+        },
+        {
+          "unique": 81709,
+          "meetings": [],
+          "instruction_mode": "Internet",
+          "instructor": "BANUELOS, MIA FRANCIS",
+          "status": "open",
+          "core": "Communication"
+        }
+      ]
+    },
+    "RHE 328": {
+      "course": "RHE 328",
+      "title": "2-WRITING FOR NONPROFITS-WB",
+      "sections": [
+        {
+          "unique": 81690,
+          "meetings": [],
+          "instruction_mode": "Internet",
+          "instructor": "HANSON, TRISTAN",
+          "status": "closed",
+          "core": "Communication"
+        },
+        {
+          "unique": 81710,
+          "meetings": [
+            {
+              "time": "8:30 a.m.-10:00 a.m.",
+              "days": "MTWTHF"
+            }
+          ],
+          "instruction_mode": "Internet",
+          "instructor": "BUCKLEY, TOM",
+          "status": "cancelled",
+          "core": "Communication"
+        }
+      ]
+    },
+    "RHE 325M": {
+      "course": "RHE 325M",
+      "title": "ADVANCED WRITING-WB",
+      "sections": [
+        {
+          "unique": 81708,
+          "meetings": [],
+          "instruction_mode": "Internet",
+          "instructor": "BUCKLEY, TOM",
+          "status": "open",
+          "core": "Communication"
+        }
+      ]
+    },
+    "RHE 399W": {
+      "course": "RHE 399W",
+      "title": "DISSERTATION",
+      "sections": [
+        {
+          "unique": 81687,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 81691,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        },
+        {
+          "unique": 81714,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    },
+    "RHE 389E": {
+      "course": "RHE 389E",
+      "title": "AREA EXAM AND PROSPECTUS HOURS",
+      "sections": [
+        {
+          "unique": 81692,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        },
+        {
+          "unique": 81712,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "RHE 380": {
+      "course": "RHE 380",
+      "title": "CONFERENCE COURSE IN RHET/WRT",
+      "sections": [
+        {
+          "unique": 81693,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        },
+        {
+          "unique": 81711,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open; reserved",
+          "core": ""
+        }
+      ]
+    },
+    "RHE 389R": {
+      "course": "RHE 389R",
+      "title": "MASTER'S REPORT",
+      "sections": [
+        {
+          "unique": 81694,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "cancelled",
+          "core": ""
+        },
+        {
+          "unique": 81713,
+          "meetings": [],
+          "instruction_mode": "Face-to-face",
+          "instructor": "",
+          "status": "open",
+          "core": ""
+        }
+      ]
+    }
+  }
+}
