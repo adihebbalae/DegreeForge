@@ -43,16 +43,28 @@ type RawData = { courses: Record<string, GradeDistribution> };
 
 const gradeData = rawData as RawData;
 
+/** Module-level memo: computed once per courseId, cleared never (source JSON is immutable). */
+const _statsCache = new Map<string, CourseGradeStats | undefined>();
+
 /**
  * Returns grade stats for a given course ID (e.g. "ECE 411", "ECE 312").
  * Returns undefined if the course is not found in the dataset.
+ * Results are memoized — repeated calls are O(1) after the first.
  */
 export function getCourseGradeStats(courseId: string): CourseGradeStats | undefined {
+  if (_statsCache.has(courseId)) return _statsCache.get(courseId);
+
   const course = gradeData.courses[courseId];
-  if (!course) return undefined;
+  if (!course) {
+    _statsCache.set(courseId, undefined);
+    return undefined;
+  }
 
   const totalEnrollment = course.total_enrollment;
-  if (totalEnrollment === 0) return undefined;
+  if (totalEnrollment === 0) {
+    _statsCache.set(courseId, undefined);
+    return undefined;
+  }
 
   // Compute withdrawal rate from "Other" grades across all sections
   const otherCount = course.sections.reduce(
@@ -70,7 +82,7 @@ export function getCourseGradeStats(courseId: string): CourseGradeStats | undefi
     ? `${semesters[0]}–${semesters[semesters.length - 1]}`
     : 'Unknown';
 
-  return {
+  const stats: CourseGradeStats = {
     gpa_mean: course.avg_gpa,
     pct_a: course.a_pct,
     pct_df: pctDf,
@@ -78,6 +90,8 @@ export function getCourseGradeStats(courseId: string): CourseGradeStats | undefi
     sample_size: totalEnrollment,
     term_range: termRange,
   };
+  _statsCache.set(courseId, stats);
+  return stats;
 }
 
 /**
