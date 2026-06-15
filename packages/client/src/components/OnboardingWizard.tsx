@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Notice } from '@/components/ui/notice';
-import { Lock } from 'lucide-react';
+import { Lock, Upload } from 'lucide-react';
 import { useTechCoresRecord } from '@/context/DataContext';
 import { useSettings, useSettingsDispatch, type LoadTolerance } from '@/context/SettingsContext';
 import { usePlanDispatch, SEMESTERS } from '@/context/PlanContext';
 import { useProfileDispatch, EMPTY_PROFILE } from '@/context/ProfileContext';
 import { parseTranscript, type ParsedCourse } from '@/lib/agent-tools/parse-transcript';
 import { parseIdaAudit } from '@/lib/parse-ida';
+import { extractPdfText } from '@/lib/extract-pdf-text';
 import { deriveTimelinePlanFromProfile } from '@/lib/derive-timeline';
 import { sanitizePlan, sanitizeCourseList, isValidCourseId } from '@/lib/sanitize-course-list';
 import { track } from '@/lib/analytics';
@@ -44,6 +45,10 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [parsedCourses, setParsedCourses] = useState<ParsedCourse[]>([]);
   const [isParsing, setIsParsing] = useState(false);
   const [transcriptError, setTranscriptError] = useState(false);
+  const [isExtractingPdf, setIsExtractingPdf] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // TASK-106: readable names for each wizard step (used in funnel events only)
   const STEP_NAMES: Record<number, string> = {
@@ -70,6 +75,25 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
   const handleNext = () => setStep(s => Math.min(s + 1, totalSteps));
   const handleBack = () => setStep(s => Math.max(s - 1, 1));
+
+  const handlePdfFile = useCallback(async (file: File) => {
+    if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+      setPdfError('Please select a PDF file.');
+      return;
+    }
+    setPdfError(null);
+    setTranscriptError(false);
+    setIsExtractingPdf(true);
+    try {
+      const text = await extractPdfText(file);
+      setTranscriptText(text);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      setPdfError(`Couldn't read this PDF — ${msg}. Try pasting the text instead.`);
+    } finally {
+      setIsExtractingPdf(false);
+    }
+  }, []);
 
   const handleParseTranscript = () => {
     if (!transcriptText.trim()) {
@@ -334,27 +358,73 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             <div className="space-y-4 flex flex-col h-full animate-in fade-in slide-in-from-right-4">
               <h3 className="text-lg font-medium">Import Course History (Optional)</h3>
               <p className="text-sm text-muted-foreground">
-                Paste your UT transcript text <em>or</em> your Interactive Degree Audit to automatically mark courses as completed or in-progress.
+                Upload or paste your UT transcript <em>or</em> Interactive Degree Audit to automatically mark courses as completed or in-progress.
               </p>
               {/* Source toggle */}
               <div className="flex gap-2">
                 <button
                   type="button"
                   className={`flex-1 py-2 px-3 rounded-md border text-sm font-medium transition-colors ${importSource === 'transcript' ? 'border-primary bg-primary/10 text-primary' : 'hover:bg-secondary'}`}
-                  onClick={() => { setImportSource('transcript'); setTranscriptError(false); }}
+                  onClick={() => { setImportSource('transcript'); setTranscriptError(false); setPdfError(null); }}
                 >
                   Transcript
                 </button>
                 <button
                   type="button"
                   className={`flex-1 py-2 px-3 rounded-md border text-sm font-medium transition-colors ${importSource === 'ida' ? 'border-primary bg-primary/10 text-primary' : 'hover:bg-secondary'}`}
-                  onClick={() => { setImportSource('ida'); setTranscriptError(false); }}
+                  onClick={() => { setImportSource('ida'); setTranscriptError(false); setPdfError(null); }}
                 >
                   IDA Audit
                 </button>
               </div>
+              {/* PDF drop zone — additive above the textarea */}
+              <div
+                role="button"
+                tabIndex={0}
+                aria-label="Upload PDF — drag and drop or click to select"
+                className={`flex items-center justify-center gap-2 rounded-md border-2 border-dashed px-4 py-3 text-sm transition-colors cursor-pointer select-none
+                  ${isDragOver ? 'border-primary bg-primary/10 text-primary' : 'border-muted-foreground/30 text-muted-foreground hover:border-primary/60 hover:text-foreground'}
+                  ${isExtractingPdf ? 'opacity-60 pointer-events-none' : ''}`}
+                onClick={() => fileInputRef.current?.click()}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click(); }}
+                onDragOver={e => { e.preventDefault(); setIsDragOver(true); }}
+                onDragLeave={() => setIsDragOver(false)}
+                onDrop={e => {
+                  e.preventDefault();
+                  setIsDragOver(false);
+                  const f = e.dataTransfer.files[0];
+                  if (f) void handlePdfFile(f);
+                }}
+              >
+                <Upload className="w-4 h-4 shrink-0" aria-hidden="true" />
+                {isExtractingPdf
+                  ? 'Reading PDF…'
+                  : transcriptText
+                    ? 'Replace with another PDF'
+                    : 'Drop PDF here or click to upload'}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  className="sr-only"
+                  aria-hidden="true"
+                  onChange={e => {
+                    const f = e.target.files?.[0];
+                    if (f) void handlePdfFile(f);
+                    // reset so same file can be re-selected
+                    e.target.value = '';
+                  }}
+                />
+              </div>
+              {pdfError && (
+                <Notice
+                  variant="error"
+                  message={pdfError}
+                  onDismiss={() => setPdfError(null)}
+                />
+              )}
               <textarea
-                className="flex-1 w-full min-h-[150px] p-3 rounded-md border bg-background text-sm resize-none focus:ring-2 focus:ring-ring outline-none"
+                className="flex-1 w-full min-h-[120px] p-3 rounded-md border bg-background text-sm resize-none focus:ring-2 focus:ring-ring outline-none"
                 placeholder={importSource === 'ida'
                   ? 'ECE 302  Intro to Electrical Eng  A  FA 2025  3.0\n...'
                   : 'ECE 302 Intro to Electrical Eng A Fall 2025 3\n...'}
