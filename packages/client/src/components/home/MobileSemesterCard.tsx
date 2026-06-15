@@ -12,37 +12,15 @@
 
 import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
-import { getCourseCredits, inferCategory } from '@/lib/course-utils';
-import type { StressBand, SemesterStressResult } from '@/lib/stress-score';
+import { getCourseCredits, inferCategory, CATEGORY_BG, seasonEmoji } from '@/lib/course-utils';
+import { type StressBand, type SemesterStressResult, STRESS_BAND_LABEL } from '@/lib/stress-score';
 import type { Semester, CourseCatalog, PrereqNode } from '@/types';
-
-// ─── Category dot colors (mirrors SemesterTile) ───────────────────────────────
-
-const CATEGORY_DOT: Record<string, string> = {
-  ece_core:  'bg-[hsl(16_70%_50%)]',
-  tech_core: 'bg-[hsl(85_50%_42%)]',
-  gen_ed:    'bg-[hsl(40_72%_47%)]',
-  elective:  'bg-[hsl(220_8%_55%)]',
-  math:      'bg-[hsl(255_38%_58%)]',
-};
 
 const STRESS_BAND_BADGE: Record<StressBand, string> = {
   low: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
   medium: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
   high: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
 };
-
-const STRESS_BAND_LABEL: Record<StressBand, string> = {
-  low: 'Low',
-  medium: 'Med',
-  high: 'High',
-};
-
-function seasonEmoji(season: 'Fall' | 'Spring' | 'Summer'): string {
-  if (season === 'Fall') return '🍂';
-  if (season === 'Spring') return '🌸';
-  return '☀️';
-}
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -158,7 +136,7 @@ export default function MobileSemesterCard({
         <ul className="mt-2 flex flex-col gap-1">
           {courseIds.map((cId) => {
             const category = inferCategory(cId, prereqNodes);
-            const dotColor = CATEGORY_DOT[category] ?? 'bg-gray-400';
+            const dotColor = CATEGORY_BG[category] ?? 'bg-gray-400';
             return (
               <li key={cId} className="flex items-center gap-2 min-w-0">
                 <span className={cn('w-2 h-2 rounded-full shrink-0', dotColor)} aria-hidden="true" />

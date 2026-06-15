@@ -96,6 +96,8 @@ vi.mock('@/lib/course-utils', () => ({
   buildTermLoadCredits: () => ({}),
   getCourseCredits: () => 3,
   inferCategory: () => 'ece_core',
+  seasonEmoji: () => '🍂',
+  CATEGORY_BG: { ece_core: 'bg-orange-500', tech_core: 'bg-green-500', gen_ed: 'bg-amber-500', elective: 'bg-gray-500', math: 'bg-purple-500' },
 }));
 vi.mock('@/lib/auto-planner', () => ({ getCreditHourCap: () => 15 }));
 vi.mock('@/lib/analytics', () => ({ track: vi.fn() }));

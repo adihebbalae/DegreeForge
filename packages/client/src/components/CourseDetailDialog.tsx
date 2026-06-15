@@ -111,6 +111,7 @@ export default function CourseDetailDialog({
   // Look up the scraped past-syllabus entry for the active course.
   // May be null if syllabi.json didn't load or has no entry for this course.
   const syllabusEntry = syllabiMap ? (syllabiMap[activeCourseId ?? ''] ?? null) : null;
+  const books = syllabusEntry ? dedupeTextbooks(syllabusEntry.textbooks) : [];
 
   if (!details) return null;
 
@@ -385,13 +386,13 @@ export default function CourseDetailDialog({
                 )}
 
                 {/* 4. Textbooks — deduped, capped at 3 */}
-                {dedupeTextbooks(syllabusEntry.textbooks).length > 0 && (
+                {books.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      Textbook{dedupeTextbooks(syllabusEntry.textbooks).length > 1 ? 's' : ''}
+                      Textbook{books.length > 1 ? 's' : ''}
                     </p>
                     <ul className="space-y-1">
-                      {dedupeTextbooks(syllabusEntry.textbooks).map((book) => (
+                      {books.map((book) => (
                         <li key={book} className="text-xs text-muted-foreground leading-snug">
                           {book}
                         </li>

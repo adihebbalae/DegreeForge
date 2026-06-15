@@ -225,7 +225,7 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
             <button
               key={opt.id}
               type="button"
-              onClick={() => setFocusLayout(opt.id)}
+              onClick={() => { setFocusLayout(opt.id); if (opt.id !== 'insights') setPickerOpen(false); }}
               className={cn(
                 'px-2.5 py-1 text-[11px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 focusLayout === opt.id

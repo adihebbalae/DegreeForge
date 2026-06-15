@@ -102,6 +102,13 @@ export const BAND_MEDIUM_MAX = 59;
 
 export type StressBand = 'low' | 'medium' | 'high';
 
+/** Human-readable short label for each stress band. Single source — used by SemesterTile, MobileSemesterCard, and FocusInsightsPanel. */
+export const STRESS_BAND_LABEL: Record<StressBand, string> = {
+  low: 'Low',
+  medium: 'Med',
+  high: 'High',
+};
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 /** Per-course entry in the hover breakdown */

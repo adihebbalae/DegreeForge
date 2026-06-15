@@ -42,6 +42,14 @@ const COURSE_LEVEL_MAX = 600;
 
 export type HeatBucket = 'green' | 'yellow' | 'orange' | 'red';
 
+/** Tailwind bg class for each workload heat bucket. Single source — used by SemesterTile and SemesterColumn. */
+export const HEAT_STRIPE_CLASS: Record<HeatBucket, string> = {
+  green:  'bg-green-400',
+  yellow: 'bg-yellow-400',
+  orange: 'bg-orange-400',
+  red:    'bg-red-500',
+};
+
 export interface DifficultyResult {
   score: number;    // [0, 1] composite score
   bucket: HeatBucket;

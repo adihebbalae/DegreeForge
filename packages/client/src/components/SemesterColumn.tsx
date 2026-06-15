@@ -3,12 +3,12 @@ import { useDroppable, useDndMonitor } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
-import { getCourseCredits } from '@/lib/course-utils';
+import { getCourseCredits, seasonEmoji } from '@/lib/course-utils';
 import { usePlanDispatch } from '@/context/PlanContext';
 import CourseCard from './CourseCard';
 import type { Semester, CourseCatalog, PrereqNode, PrereqViolation, GradeDistributions } from '@/types';
 // TASK-024: workload heat stripe
-import { computeSemesterDifficulty, type HeatBucket } from '@/lib/workload';
+import { computeSemesterDifficulty, HEAT_STRIPE_CLASS } from '@/lib/workload';
 import { getCreditHourCap } from '@/lib/auto-planner';
 
 // ─── Sortable course card (timeline cards that can be dragged/reordered) ─────
@@ -102,9 +102,7 @@ function SortableCourseCard({
 // ─── Season icon ───────────────────────────────────────────────────────────────
 
 function SeasonIcon({ season }: { season: 'Fall' | 'Spring' | 'Summer' }) {
-  if (season === 'Fall') return <span aria-hidden="true">🍂</span>;
-  if (season === 'Spring') return <span aria-hidden="true">🌸</span>;
-  return <span aria-hidden="true">☀️</span>;
+  return <span aria-hidden="true">{seasonEmoji(season)}</span>;
 }
 
 // ─── Credit-count color ────────────────────────────────────────────────────────
@@ -114,15 +112,6 @@ function creditCountClass(credits: number, cap: number): string {
   if (credits === cap) return 'text-yellow-500 font-semibold';
   return 'text-green-600 dark:text-green-400';
 }
-
-// ─── Heat stripe color ────────────────────────────────────────────────────────
-
-const HEAT_STRIPE_COLOR: Record<HeatBucket, string> = {
-  green:  'bg-green-400',
-  yellow: 'bg-yellow-400',
-  orange: 'bg-orange-400',
-  red:    'bg-red-500',
-};
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -218,27 +207,32 @@ export default function SemesterColumn({
   const sortableIds = courseIds.map((c) => `timeline-${id}-${c}`);
 
   // Compute total credits for the semester
-  const totalCredits = courseIds.reduce(
-    (sum, courseId) => sum + getCourseCredits(courseId, catalog, transcriptCredits),
-    0
+  const totalCredits = useMemo(
+    () => courseIds.reduce(
+      (sum, courseId) => sum + getCourseCredits(courseId, catalog, transcriptCredits),
+      0
+    ),
+    [courseIds, catalog, transcriptCredits]
   );
 
   // Compute estimated GPA for future/current semesters (Feature 4)
-  const estimatedGPA = !isPast && totalCredits > 0 ? (() => {
+  const estimatedGPA = useMemo(() => {
+    if (isPast || totalCredits === 0) return null;
     let weightedGpaSum = 0;
     let gpaCredits = 0;
 
-    courseIds.forEach(courseId => {
+    for (const courseId of courseIds) {
       const dist = gradeDistributions[courseId];
       if (dist && dist.avg_gpa > 0) {
-        const credits = getCourseCredits(courseId, catalog);
-        weightedGpaSum += (dist.avg_gpa * credits);
+        // Use transcriptCredits for weighting — same source as totalCredits above.
+        const credits = getCourseCredits(courseId, catalog, transcriptCredits);
+        weightedGpaSum += dist.avg_gpa * credits;
         gpaCredits += credits;
       }
-    });
+    }
 
     return gpaCredits > 0 ? (weightedGpaSum / gpaCredits).toFixed(2) : null;
-  })() : null;
+  }, [courseIds, catalog, transcriptCredits, gradeDistributions, isPast, totalCredits]);
 
   // TASK-024: workload heat-stripe — build a minimal plan object for the helper
   const { bucket: heatBucket } = useMemo(() => {
@@ -259,7 +253,7 @@ export default function SemesterColumn({
       {/* TASK-024: heat stripe — 4px decorative bar at top of column */}
       <div
         aria-hidden="true"
-        className={cn('h-1 w-full shrink-0', HEAT_STRIPE_COLOR[heatBucket])}
+        className={cn('h-1 w-full shrink-0', HEAT_STRIPE_CLASS[heatBucket])}
       />
 
       {/* Inner content with padding (moved from outer to preserve stripe flush positioning) */}

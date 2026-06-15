@@ -248,6 +248,15 @@ export function getOfferedSeasons(
   return null;
 }
 
+// ─── Season Emoji ─────────────────────────────────────────────────────────────
+
+/** Map a semester season to its display emoji. Single source — used by SemesterTile, SemesterColumn, and MobileSemesterCard. */
+export function seasonEmoji(season: 'Fall' | 'Spring' | 'Summer'): string {
+  if (season === 'Fall') return '🍂';
+  if (season === 'Spring') return '🌸';
+  return '☀️';
+}
+
 // ─── GPA Badge ────────────────────────────────────────────────────────────────
 
 /** Returns Tailwind bg color class for a GPA value */

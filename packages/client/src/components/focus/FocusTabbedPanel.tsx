@@ -34,13 +34,12 @@ export default function FocusTabbedPanel({ semester, creditHourCap }: FocusTabbe
 
   return (
     <div className="h-full flex flex-col min-h-0">
-      {/* Tab bar — role="button" + aria-pressed matches the outer layout switcher in FocusEditor */}
+      {/* Tab bar */}
       <div className="flex shrink-0 border-b border-border px-2 pt-1 gap-0.5">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             type="button"
-            role="button"
             onClick={() => setActiveTab(tab.id)}
             className={cn(
               'px-3 py-1.5 text-xs font-medium rounded-t transition-colors',

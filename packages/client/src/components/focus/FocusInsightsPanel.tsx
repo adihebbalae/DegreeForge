@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { usePlan } from '@/context/PlanContext';
 import { useCatalogRecord } from '@/context/DataContext';
 import { getCourseCredits, getCourseTitle } from '@/lib/course-utils';
+import { STRESS_BAND_LABEL } from '@/lib/stress-score';
 import { useStressScore } from '@/hooks/useStressScore';
 import { useDiagnostics } from '@/hooks/useDiagnostics';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
@@ -94,7 +95,6 @@ export default function FocusInsightsPanel({ semester, creditHourCap }: FocusIns
       ? 'text-amber-600 dark:text-amber-400'
       : 'text-emerald-600 dark:text-emerald-400';
 
-  const bandLabel: Record<string, string> = { low: 'Low', medium: 'Med', high: 'High' };
   const bandClass: Record<string, string> = {
     low: 'text-emerald-600 dark:text-emerald-400',
     medium: 'text-amber-600 dark:text-amber-400',
@@ -138,7 +138,7 @@ export default function FocusInsightsPanel({ semester, creditHourCap }: FocusIns
             <Zap className="h-3 w-3" aria-hidden="true" />
             Stress
             <span className={cn('ml-auto text-xs font-semibold normal-case tracking-normal', bandClass[stressResult.band])}>
-              {bandLabel[stressResult.band]} {stressResult.score}
+              {STRESS_BAND_LABEL[stressResult.band]} {stressResult.score}
             </span>
           </h3>
           <ul className="flex flex-col gap-1">
@@ -215,6 +215,7 @@ export default function FocusInsightsPanel({ semester, creditHourCap }: FocusIns
           </h3>
           <ul className="flex flex-col gap-0.5">
             {unlockedCourses.map(({ courseId, via }) => {
+              // prereq-node titles unused here — catalog-only lookup
               const title = getCourseTitle(courseId, catalog, {});
               return (
                 <li key={courseId} className="flex items-baseline gap-2">

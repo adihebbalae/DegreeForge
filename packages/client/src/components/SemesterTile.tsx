@@ -11,48 +11,19 @@ import { useMemo } from 'react';
 import { useDroppable, useDndMonitor } from '@dnd-kit/core';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { getCourseCredits, inferCategory } from '@/lib/course-utils';
-import { computeSemesterDifficulty, type HeatBucket } from '@/lib/workload';
+import { getCourseCredits, inferCategory, CATEGORY_BG, seasonEmoji } from '@/lib/course-utils';
+import { computeSemesterDifficulty, HEAT_STRIPE_CLASS } from '@/lib/workload';
 import { getCreditHourCap } from '@/lib/auto-planner';
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
 } from '@/components/ui/tooltip';
-import type { StressBand, SemesterStressResult } from '@/lib/stress-score';
+import { type StressBand, type SemesterStressResult, STRESS_BAND_LABEL } from '@/lib/stress-score';
 import type { Semester, CourseCatalog, PrereqNode, GradeDistributions } from '@/types';
 import { usePlanDispatch } from '@/context/PlanContext';
 import { useUi } from '@/context/UiContext';
 import { track } from '@/lib/analytics';
-
-// ─── Heat stripe colors (same mapping as SemesterColumn) ─────────────────────
-
-const HEAT_COLOR: Record<HeatBucket, string> = {
-  green:  'bg-green-400',
-  yellow: 'bg-yellow-400',
-  orange: 'bg-orange-400',
-  red:    'bg-red-500',
-};
-
-// ─── Category dot colors ──────────────────────────────────────────────────────
-
-const CATEGORY_DOT: Record<string, string> = {
-  ece_core:  'bg-[hsl(16_70%_50%)]',
-  tech_core: 'bg-[hsl(85_50%_42%)]',
-  gen_ed:    'bg-[hsl(40_72%_47%)]',
-  elective:  'bg-[hsl(220_8%_55%)]',
-  math:      'bg-[hsl(255_38%_58%)]',
-};
-
-// ─── Season emoji ─────────────────────────────────────────────────────────────
-
-function seasonEmoji(season: 'Fall' | 'Spring' | 'Summer'): string {
-  if (season === 'Fall') return '🍂';
-  if (season === 'Spring') return '🌸';
-  return '☀️';
-}
-
-// ─── Props ────────────────────────────────────────────────────────────────────
 
 // ─── Stress badge colors ──────────────────────────────────────────────────────
 
@@ -60,12 +31,6 @@ const STRESS_BAND_BADGE: Record<StressBand, string> = {
   low:    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
   medium: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
   high:   'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
-};
-
-const STRESS_BAND_LABEL: Record<StressBand, string> = {
-  low: 'Low',
-  medium: 'Med',
-  high: 'High',
 };
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -168,7 +133,7 @@ function CourseChip({
   onRemove: (courseId: string) => void;
 }) {
   const category = inferCategory(courseId, prereqNodes);
-  const dotColor = CATEGORY_DOT[category] ?? 'bg-gray-400';
+  const dotColor = CATEGORY_BG[category] ?? 'bg-gray-400';
   return (
     <span
       data-course-id={courseId}
@@ -315,7 +280,7 @@ export default function SemesterTile({
       {/* Heat stripe */}
       <div
         aria-hidden="true"
-        className={cn('h-1 w-full shrink-0', HEAT_COLOR[bucket])}
+        className={cn('h-1 w-full shrink-0', HEAT_STRIPE_CLASS[bucket])}
       />
 
       {/* Content */}

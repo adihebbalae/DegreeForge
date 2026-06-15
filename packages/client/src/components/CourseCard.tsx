@@ -231,8 +231,7 @@ export default function CourseCard({
         // Drag states
         isDragging && 'opacity-50',
         isDragOverlay && 'shadow-xl rotate-1 scale-105 cursor-grabbing',
-        !isDragOverlay && !isPast && 'cursor-pointer',
-        isPast && 'cursor-pointer',
+        !isDragOverlay && 'cursor-pointer',
         'select-none group'
       )}
       title={`${courseId} — ${title} (${credits} cr)`}

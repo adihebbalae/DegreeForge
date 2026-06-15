@@ -71,6 +71,7 @@ export default function FocusAddPanel({ semester }: FocusAddPanelProps) {
           </div>
           <ul className="flex flex-col divide-y divide-border max-h-40 overflow-y-auto">
             {suggestions.map(({ courseId, reason }) => {
+              // prereq-node titles unused here — catalog-only lookup
               const title = getCourseTitle(courseId, catalog, {});
               return (
                 <li key={courseId} className="px-3 py-1.5">
