@@ -186,6 +186,7 @@ Before declaring a UI task done, exercise the feature in a running browser via t
 2. Exercise the new behavior via `mcp__playwright__browser_navigate`, `mcp__playwright__browser_click`, etc.
 3. Check `mcp__playwright__browser_console_messages` — no errors
 4. Take a screenshot to confirm visual state
+5. **Delete the screenshot(s) once verified.** Ad-hoc verification PNGs are throwaway — leaving them clutters `git status` and risks being swept into a commit. Clean up every screenshot you captured for the check. This applies ONLY to manual verification captures (typically at the repo root) — NEVER delete committed assets (e.g. `public/og-image.png`) or the e2e visual-regression baselines in `packages/client/e2e/__screenshots__/`.
 
 Do NOT ask the user "want me to verify?" — verification is part of the task.
 
