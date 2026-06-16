@@ -19,6 +19,7 @@ import { PlanComparisonPanel } from '../components/PlanComparison';
 import CoursePalette from '@/components/CoursePalette';
 import CourseCard from '@/components/CourseCard';
 import ValidationBanner from '@/components/ValidationBanner';
+import { Notice } from '@/components/ui/notice';
 import ChatPanel from '@/components/ChatPanel';
 import WhatIfPanel from '@/components/WhatIfPanel';
 import OverviewYearGrid from '@/components/OverviewYearGrid';
@@ -33,7 +34,8 @@ import {
   usePrereqGraph as useRawPrereqGraph,
   useGradeDistributions,
 } from '@/context/DataContext';
-import { usePlanDispatch, usePlan } from '@/context/PlanContext';
+import { usePlanDispatch, usePlan, useSemesters } from '@/context/PlanContext';
+import { isBlockedPastDrop, canReverseSemester } from '@/lib/past-drop';
 import { useUi } from '@/context/UiContext';
 import { track } from '@/lib/analytics';
 import { AI_ENABLED } from '@/lib/features';
@@ -88,6 +90,20 @@ export default function PlannerPage() {
   // ── Dispatch + plan state ─────────────────────────────────────────────────
   const dispatch = usePlanDispatch();
   const plan = usePlan();
+  const semesters = useSemesters();
+
+  // When a drag is dropped onto a PAST (read-only) semester, the reducer's
+  // isPastSemester guard silently rejects the ADD/MOVE. Without feedback users
+  // think drag-and-drop is broken — so we surface a dismissable notice instead
+  // of a silent no-op. Holds the past target's label, or null when hidden.
+  const [pastDropLabel, setPastDropLabel] = useState<string | null>(null);
+
+  // Reverse Semester (⋯ More menu) dispatches RETREAT_SEMESTER, shifting the
+  // most recent past term back to current so it becomes editable. The notice's
+  // action button fires the same dispatch. It can only run when a current term
+  // exists with a past term before it — when it can't, the notice falls back to
+  // pointing the user at "⋯ More → Reverse Semester" instead of a dead button.
+  const canReverse = useMemo(() => canReverseSemester(semesters), [semesters]);
 
   // Total courses placed across all semesters — the tour's "Add a course" step
   // auto-advances when this rises (a real ADD_COURSE happened).
@@ -202,6 +218,17 @@ export default function PlannerPage() {
     }
 
     if (!toSemester) return;
+
+    // ── Past (read-only) target: explain instead of silently no-op'ing ───────
+    // The reducer's isPastSemester guard rejects ADD/MOVE into a past term, so
+    // intercept that case here to surface a notice. (Same-semester reorders
+    // within a past term are harmless and fall through to the reorder path.)
+    if (isBlockedPastDrop(toSemester, source, fromSemester, semesters)) {
+      const sem = semesters.find((s) => s.id === toSemester);
+      setPastDropLabel(sem?.label ?? toSemester);
+      track('past_drop_blocked');
+      return;
+    }
 
     // ── Palette → semester: add course ──────────────────────────────────────
     if (source === 'palette') {
@@ -400,6 +427,45 @@ export default function PlannerPage() {
           </div>
         </aside>
       </div>
+
+      {/* ── Past-semester drop notice — explains the read-only rejection ──────
+           Surfaced when a drag is dropped onto a past term (the reducer guard
+           silently rejects it). Non-blocking: floats bottom-center, dismissable,
+           and the plan is unchanged. The action reverses the most recent
+           semester (RETREAT_SEMESTER) so a past term becomes editable. */}
+      {pastDropLabel && (
+        <div
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[min(28rem,calc(100vw-2rem))]"
+          data-testid="past-drop-notice"
+        >
+          <Notice
+            variant="info"
+            className="shadow-lg"
+            message={`${pastDropLabel} is a completed semester and can't be edited.`}
+            action={
+              canReverse
+                ? {
+                    label: 'Reverse a semester',
+                    onClick: () => {
+                      dispatch({ type: 'RETREAT_SEMESTER' });
+                      track('past_drop_reverse_clicked');
+                      setPastDropLabel(null);
+                    },
+                  }
+                : undefined
+            }
+            secondaryAction={
+              canReverse
+                ? undefined
+                : {
+                    label: 'Use ⋯ More → Reverse Semester',
+                    onClick: () => setPastDropLabel(null),
+                  }
+            }
+            onDismiss={() => setPastDropLabel(null)}
+          />
+        </div>
+      )}
 
       {/* ── Command palette — Cmd/Ctrl+K to add a course to focused semester ─── */}
       <CommandPalette />
