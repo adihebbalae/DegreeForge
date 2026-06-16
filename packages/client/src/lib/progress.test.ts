@@ -540,4 +540,36 @@ describe('buildBucketViews — BucketView per-bucket view-model', () => {
     const govSub = genEdBucket.subRequirements?.find((s) => s.label === 'American Government I');
     expect(govSub?.status).toBe('missing');
   });
+
+  // ── Dedupe check: gen-ed remaining[] has no duplicate courseIds ────────────
+  it('gen-ed remaining[] has no duplicate courseIds (HIS 314K dedup)', () => {
+    // The real degree-requirements.json has two US-History slots (his1, his2)
+    // both sharing HIS 314K as their first option. When both are unsatisfied,
+    // buildBucketViews must not emit HIS 314K twice in remaining[].
+    const catalog = loadJson<CourseCatalog>('course-catalog.json');
+    const degreeReqs = loadJson<DegreeRequirements>('degree-requirements.json');
+    const techCores = loadJson<TechCores>('tech-cores.json');
+    // Use an empty profile so all gen-ed slots are unsatisfied
+    const emptyProfile: UserProfile = {
+      name: '', eid: '', university: '', catalog_year: '', major: '', classification: '',
+      first_semester: '', graduation_target: '',
+      tech_core: { declared: '', status: '', required_math: '', required_ece: [], tech_electives_needed: 3 },
+      secondary_aspirations: { math_ba: { status: '', notes: '' }, advanced_math_cert: { status: '', notes: '' }, jefferson_scholars_cert: { status: '', notes: '' } },
+      preferences: { course_load: '', course_load_tolerance: '', time_preference: '', summer_courses: false, summer_notes: '' },
+      gpa: { cumulative: 0, lower_division: 0, upper_division: 0, gpa_hours: 0, grade_points: 0 },
+      credit_summary: { total_hours_transferred: 0, total_hours_taken: 0, total_hours: 0 },
+      completed_courses: [],
+      in_progress_courses: [],
+      career_interests: [],
+      notes: '',
+    };
+    const techCore = techCores.software_engineering;
+    const result = computeProgress({}, emptyProfile, catalog, degreeReqs, techCore);
+    const genEdBucket = result.buckets.find((b) => b.id === 'gen_ed')!;
+    const remainingCourseIds = (genEdBucket.remaining ?? [])
+      .map((r) => r.courseId)
+      .filter((id): id is string => id != null);
+    const uniqueIds = new Set(remainingCourseIds);
+    expect(remainingCourseIds).toHaveLength(uniqueIds.size);
+  });
 });

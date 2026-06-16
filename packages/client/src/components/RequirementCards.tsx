@@ -190,7 +190,7 @@ export function RequirementCard({ bucket }: RequirementCardProps) {
           <ul className="space-y-0.5">
             {bucket.remaining.map((item, idx) => (
               <li
-                key={item.courseId ?? idx}
+                key={item.courseId != null ? `${item.courseId}-${idx}` : idx}
                 className="relative pl-3 text-[11.5px] text-foreground"
               >
                 <span

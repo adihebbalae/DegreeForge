@@ -1,23 +1,23 @@
 /**
  * ProgressReveal — TASK-105 Phase 2
  *
- * Wraps ProgressDashboard in an upload-reward reveal flow:
+ * Wraps ProgressAuditPage in an upload-reward reveal flow:
  *   1. Shows an indeterminate animated loading bar + skeleton shimmer for a
  *      minimum of MIN_SHIMMER_MS (~800 ms). Parsing is client-side sync/fast,
  *      so the floor prevents an imperceptible flash.
- *   2. After the floor elapses, cross-fades to the real ProgressDashboard with
- *      a warm success banner: "N completed · M in progress loaded!"
+ *   2. After the floor elapses, cross-fades to ProgressAuditPage with a warm
+ *      success banner: "N completed · M in progress loaded!"
  *   3. A prominent nudge CTA routes to the planner and fires upload_reward_nudge_clicked.
  *
  * The fallback for direct nav (no fromUpload state) lives in ProgressPage.tsx,
- * which renders ProgressDashboard directly without this wrapper.
+ * which renders ProgressAuditPage directly without this wrapper.
  */
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ProgressAuditPage } from '@/pages/ProgressPage';
+import { ProgressAuditPage } from '@/pages/ProgressAuditPage';
 import { track } from '@/lib/analytics';
 
 // Minimum shimmer display time in ms. Parsing is sync + fast; without a floor
@@ -33,50 +33,41 @@ interface ProgressRevealProps {
   source: string;
 }
 
-/** Skeleton placeholder that mimics ProgressDashboard's hero + bars layout. */
+/** Skeleton placeholder that mirrors ProgressAuditPage's radial + cards layout. */
 function RevealSkeleton() {
   return (
     <div
-      className="mx-auto h-full w-full max-w-4xl overflow-y-auto px-6 py-8"
+      className="mx-auto h-full w-full max-w-5xl overflow-y-auto px-6 py-8"
       data-testid="progress-reveal-skeleton"
     >
-      {/* Hero block skeleton */}
+      {/* Title bar skeleton */}
       <div className="mb-6 flex items-center gap-3">
-        <div className="h-10 w-10 animate-pulse rounded-lg bg-muted" />
-        <div className="space-y-1.5">
-          <div className="h-5 w-48 animate-pulse rounded bg-muted" />
-          <div className="h-3.5 w-32 animate-pulse rounded bg-muted" />
-        </div>
+        <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />
+        <div className="h-5 w-44 animate-pulse rounded bg-muted" />
       </div>
 
-      {/* Requirement bars card skeleton */}
-      <div className="mb-5 rounded-lg border border-border p-5 space-y-3">
-        <div className="h-4 w-24 animate-pulse rounded bg-muted" />
-        <div className="space-y-2">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div className="h-3 w-20 animate-pulse rounded bg-muted" />
-              <div className="flex-1 h-2 animate-pulse rounded-full bg-muted" />
-              <div className="h-3 w-10 animate-pulse rounded bg-muted" />
+      {/* Hero: pulsing radial circle + legend rows */}
+      <div className="mb-8 flex flex-col items-center gap-6 lg:flex-row lg:items-start">
+        <div className="h-[220px] w-[220px] flex-none animate-pulse rounded-full bg-muted" />
+        <div className="flex-1 space-y-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="space-y-1">
+              <div className="flex items-center gap-2">
+                <div className="h-2.5 w-2.5 animate-pulse rounded-full bg-muted" />
+                <div className="h-3 w-28 animate-pulse rounded bg-muted" />
+                <div className="ml-auto h-3 w-16 animate-pulse rounded bg-muted" />
+              </div>
+              <div className="h-1.5 w-full animate-pulse rounded-full bg-muted" />
             </div>
           ))}
         </div>
       </div>
 
-      {/* Next term skeleton */}
-      <div className="mb-6 rounded-lg border border-border p-5 space-y-2">
-        <div className="h-4 w-28 animate-pulse rounded bg-muted" />
-        <div className="flex gap-1.5 flex-wrap mt-3">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-6 w-16 animate-pulse rounded-md bg-muted" />
-          ))}
-        </div>
-      </div>
-
-      {/* Action buttons skeleton */}
-      <div className="flex gap-3">
-        <div className="h-9 w-36 animate-pulse rounded-md bg-muted" />
-        <div className="h-9 w-28 animate-pulse rounded-md bg-muted" />
+      {/* Cards grid skeleton */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="h-40 animate-pulse rounded-lg bg-muted" />
+        ))}
       </div>
     </div>
   );

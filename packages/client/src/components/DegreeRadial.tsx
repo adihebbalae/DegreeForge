@@ -22,11 +22,9 @@
  */
 
 import type { BucketView } from '@/types';
-import { CATEGORY_BG } from '@/lib/course-utils';
 
-// Map BucketView category to a CSS color variable so arcs respect the theme.
-// We inline hex-compatible hsl values because SVG stroke doesn't inherit
-// Tailwind classes — we use the same hsl values from the brand token table.
+// Map BucketView category to inline hsl values — SVG stroke doesn't inherit
+// Tailwind classes, so we use the same brand token values as CATEGORY_BG/TEXT.
 const CATEGORY_STROKE: Record<BucketView['category'], string> = {
   ece_core: 'hsl(16 70% 50%)',
   tech_core: 'hsl(85 50% 42%)',
@@ -34,10 +32,6 @@ const CATEGORY_STROKE: Record<BucketView['category'], string> = {
   elective: 'hsl(220 8% 55%)',
   math: 'hsl(255 38% 58%)',
 };
-
-// Suppress unused-import warning; CATEGORY_BG is not used in SVG but confirms
-// we're following the same token source as other components.
-void CATEGORY_BG;
 
 interface DegreeRadialProps {
   buckets: BucketView[];
@@ -61,6 +55,7 @@ export function DegreeRadial({
   done,
   total,
   gradTerm,
+  hrsToGo,
   size = 220,
 }: DegreeRadialProps) {
   const cx = size / 2;
@@ -144,6 +139,8 @@ export function DegreeRadial({
 
   const ariaLabel = gradTerm
     ? `${clampedPct}% complete, ${done} of ${total} credit hours, on track for ${gradTerm}`
+    : hrsToGo != null && hrsToGo > 0
+    ? `${clampedPct}% complete, ${done} of ${total} credit hours, ${hrsToGo} hrs to go`
     : `${clampedPct}% complete, ${done} of ${total} credit hours`;
 
   const onTrackText =

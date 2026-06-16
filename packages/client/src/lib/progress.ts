@@ -641,6 +641,19 @@ export function buildBucketViews(
     .filter((slot) => summary.completedGenEdSlots.has(slot.id))
     .reduce((s, slot) => s + slot.hours, 0);
 
+  // Dedupe genEdRemaining by courseId: a representative course (e.g. HIS 314K)
+  // can appear as the first option for two distinct gen-ed slots (his1 + his2).
+  // If both slots are unsatisfied we'd push the same courseId twice, causing a
+  // duplicate React key. Keep the first occurrence; the slot count already tells
+  // the user how many slots still need filling.
+  const seenGenEdCourseIds = new Set<string>();
+  const dedupedGenEdRemaining = genEdRemaining.filter((entry) => {
+    if (!entry.courseId) return true; // note-only entries are always kept
+    if (seenGenEdCourseIds.has(entry.courseId)) return false;
+    seenGenEdCourseIds.add(entry.courseId);
+    return true;
+  });
+
   const genEdBucket: BucketView = {
     id: 'gen_ed',
     label: 'Core Curriculum',
@@ -653,7 +666,7 @@ export function buildBucketViews(
     totalCount: summary.genEdTotal,
     countNoun: 'slots',
     subRequirements: genEdSubReqs,
-    remaining: genEdRemaining,
+    remaining: dedupedGenEdRemaining,
   };
 
   // ── Free Electives ─────────────────────────────────────────────────────────

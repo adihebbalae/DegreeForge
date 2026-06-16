@@ -143,9 +143,10 @@ describe('ProgressPage (TASK-098)', () => {
     expect(screen.queryByTestId('progress-audit-page')).toBeNull();
   });
 
-  it('track("progress_tab_viewed") fires on direct nav', () => {
+  it('track("progress_tab_viewed") fires exactly once on direct nav', () => {
     renderWithState();
     expect(mockTrack).toHaveBeenCalledWith('progress_tab_viewed');
+    expect(mockTrack).toHaveBeenCalledTimes(1);
   });
 
   it('track("progress_tab_viewed") does NOT fire when fromUpload=true', () => {

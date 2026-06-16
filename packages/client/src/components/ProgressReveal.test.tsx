@@ -30,7 +30,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 });
 
 // ── ProgressAuditPage mock (heavy; not under test) ───────────────────────────
-vi.mock('@/pages/ProgressPage', () => ({
+vi.mock('@/pages/ProgressAuditPage', () => ({
   ProgressAuditPage: () => <div data-testid="mock-progress-dashboard">Progress Dashboard</div>,
 }));
 
