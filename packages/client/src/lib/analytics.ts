@@ -1,18 +1,84 @@
 /// <reference types="vite/client" />
 import posthog from 'posthog-js'
+import type { CaptureResult } from 'posthog-js'
 
 let initialized = false
+
+// Patterns for scrubbing PII from autocaptured $exception events.
+// Course codes: e.g. "ECE 312", "M 408D", "CS 311H"
+const COURSE_CODE_RE = /\b[A-Z]{1,4}\s?\d{3}[A-Z]?\b/g
+// UT letter grades: A+/A/A- through F, W, Q, CR, NC — anchored by word boundary
+// on the left and a non-letter-grade character (or end of string) on the right.
+const LETTER_GRADE_RE = /\b(?:CR|NC|[ABCDF][+-]?|[WQ])(?![A-Za-z0-9])/g
+// GPA-looking decimals: 0.00–4.99
+const GPA_DECIMAL_RE = /\b[0-4]\.\d{1,2}\b/g
+
+function scrubString(value: string): string {
+  return value
+    .replace(COURSE_CODE_RE, '[redacted]')
+    .replace(LETTER_GRADE_RE, '[redacted]')
+    .replace(GPA_DECIMAL_RE, '[redacted]')
+}
+
+/**
+ * Scrub PII from a PostHog $exception event before it is sent.
+ * Non-exception events are returned untouched.
+ */
+function scrubExceptionEvent(event: CaptureResult): CaptureResult {
+  if (event.event !== '$exception') return event
+
+  const props = { ...event.properties }
+
+  if (typeof props['$exception_message'] === 'string') {
+    props['$exception_message'] = scrubString(props['$exception_message'])
+  }
+  if (typeof props['$exception_type'] === 'string') {
+    props['$exception_type'] = scrubString(props['$exception_type'])
+  }
+  if (Array.isArray(props['$exception_list'])) {
+    props['$exception_list'] = (props['$exception_list'] as unknown[]).map((entry) => {
+      if (!entry || typeof entry !== 'object') return entry
+      const e = { ...(entry as Record<string, unknown>) }
+      if (typeof e['value'] === 'string') e['value'] = scrubString(e['value'])
+      if (typeof e['type'] === 'string') e['type'] = scrubString(e['type'])
+      if (e['stacktrace'] && typeof e['stacktrace'] === 'object') {
+        const st = { ...(e['stacktrace'] as Record<string, unknown>) }
+        if (typeof st['raw'] === 'string') st['raw'] = scrubString(st['raw'])
+        e['stacktrace'] = st
+      }
+      return e
+    })
+  }
+
+  return { ...event, properties: props }
+}
 
 /**
  * TASK-107: Persist/clear the internal-session flag from the URL param.
  * This runs before the early-return so it works even in local dev (no key).
- * ?internal=1 → sets localStorage['df_internal'] = 'true'
- * ?internal=0 → removes localStorage['df_internal']
+ *
+ * When VITE_INTERNAL_TOKEN is set (prod):
+ *   ?internal=<TOKEN>  → sets localStorage['df_internal'] = 'true'
+ *   Any other value (bare ?internal=1 etc.) → silently ignored
+ *
+ * When VITE_INTERNAL_TOKEN is not set (local dev):
+ *   ?internal=1 → sets localStorage['df_internal'] = 'true'
+ *   ?internal=0 → removes localStorage['df_internal']
  */
 function syncInternalFlag() {
   try {
     const params = new URLSearchParams(window.location.search)
-    if (params.has('internal')) {
+    if (!params.has('internal')) return
+
+    const token = import.meta.env.VITE_INTERNAL_TOKEN as string | undefined
+
+    if (token) {
+      // Prod: only an exact token match sets the flag; anything else is a no-op
+      if (params.get('internal') === token) {
+        localStorage.setItem('df_internal', 'true')
+      }
+    } else {
+      // Local dev: honor the original convenience shortcuts
       if (params.get('internal') === '1') {
         localStorage.setItem('df_internal', 'true')
       } else {
@@ -54,6 +120,10 @@ export function initAnalytics() {
     // posthog-js v1.384.0+ handles this natively via ExceptionObserver.
     capture_exceptions: true,
     session_recording: { maskAllInputs: true }, // mask all input values in replay (protects the access code + any sensitive entry)
+    before_send: (event: CaptureResult | null) => {
+      if (!event) return event
+      return scrubExceptionEvent(event)
+    },
   })
   initialized = true
 
