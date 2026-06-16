@@ -17,16 +17,6 @@ import { getEquivalenceRegistry, satisfiesRequirement, expandSatisfied } from '.
  */
 const ADVANCED_ELECTIVE_MIN_NUMBER = 320;
 
-/**
- * Gen-ed slot target (denominator of the gen-ed progress bar). The degree JSON
- * authors 9 core_curriculum slots (ugs, rhe, humanities, vapa, his1, his2, gov1,
- * gov2, sbs) but the shipped bar tracks a target of 8, so the numerator (which can
- * reach 9) is clamped to this value. Kept as a named constant rather than derived
- * from slots.length to preserve the shipped /8 denominator — the 8-vs-9 mismatch is
- * a domain/requirements question deferred to Brief 2, not changed here.
- */
-const GEN_ED_SLOT_TARGET = 8;
-
 /** Tech-core target: 8 upper-division courses in a declared track (ECB dual = 7). */
 const TECH_CORE_TARGET = 8;
 
@@ -121,8 +111,8 @@ export function computeProgress(
     }
   });
 
-  // Numerator can reach the authored 9 slots; clamp to the tracked target of 8.
-  const genEdTotal = GEN_ED_SLOT_TARGET;
+  // Denominator is the number of slots authored in the JSON — data-driven.
+  const genEdTotal = degreeReqs.core_curriculum.slots.length;
   const genEdCompleted = Math.min(completedGenEdSlots.size, genEdTotal);
 
   // 5. Tech Core
@@ -229,7 +219,7 @@ export function computeProgress(
 
   return {
     totalHours,
-    totalHoursTarget: 128,
+    totalHoursTarget: degreeReqs.total_credit_hours,
     eceCoreCompleted,
     eceCoreTotal,
     genEdCompleted,
@@ -237,7 +227,7 @@ export function computeProgress(
     techCoreCompleted: Math.min(techCoreCompletedCount, techCoreTotal),
     techCoreTotal,
     electiveHours,
-    electiveTotalHours: 11,
+    electiveTotalHours: degreeReqs.free_electives.total_hours,
     mathBACompleted,
     mathBATotal,
   };

@@ -188,7 +188,7 @@
     "description": "1 additional upper-division ECE course from any tech area. ECE 316 may count if not part of declared tech core. 2 semesters of ECE Co-op or 1 semester ECE 125S may substitute."
   },
   "free_electives": {
-    "total_hours": 14,
+    "total_hours": 11,
     "constraints": [
       "At least 3 hours must be approved advanced math or basic science",
       "No more than 3 hours of lower-division credit",

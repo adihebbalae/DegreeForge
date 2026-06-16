@@ -66,10 +66,10 @@ describe('computeProgress', () => {
       notes: ''
     },
     advanced_tech_elective: { count: 1, hours: '3', description: '' },
-    free_electives: { total_hours: 14, constraints: [], approved_list_url: '' },
+    free_electives: { total_hours: 11, constraints: [], approved_list_url: '' },
     math_sequence: { required: [], alternate_calculus: [], notes: '' },
     physics_sequence: { required: [], alternate: [], notes: '' },
-    total_credit_hours: 128,
+    total_credit_hours: 125,
     notes: ''
   };
 
@@ -211,9 +211,9 @@ describe('computeProgress — real data (characterization)', () => {
     const result = computeProgress({}, adiProfile, catalog, degreeReqs, techCore);
 
     // Derivable / constant denominators — these pin the X/Y targets the bars render.
-    expect(result.totalHoursTarget).toBe(128);
+    expect(result.totalHoursTarget).toBe(125);
     expect(result.eceCoreTotal).toBe(degreeReqs.ece_core.courses.length); // 10
-    expect(result.genEdTotal).toBe(8);
+    expect(result.genEdTotal).toBe(9); // 9 slots authored in degree-requirements.json
     expect(result.techCoreTotal).toBe(8);
     expect(result.electiveTotalHours).toBe(11);
   });
