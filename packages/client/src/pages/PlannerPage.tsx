@@ -25,6 +25,8 @@ import FocusEditor from '@/components/FocusEditor';
 import CommandPalette from '@/components/CommandPalette';
 import { OnboardingWizard } from '@/components/OnboardingWizard';
 import { useOnboarded } from '@/components/home/useOnboarded';
+import { FirstRunTourController, hasTourBeenSeen, TOUR_SEEN_KEY } from '@/components/FirstRunTour';
+import { safeSetItem } from '@/lib/persist';
 import {
   useCatalogRecord,
   usePrereqGraph as useRawPrereqGraph,
@@ -62,6 +64,49 @@ export default function PlannerPage() {
   const [ctaDismissed, setCtaDismissed] = useState(false);
   const [personalizeOpen, setPersonalizeOpen] = useState(false);
   const showPersonalizeCta = !isOnboarded && !ctaDismissed;
+
+  // ── First-run tour ─────────────────────────────────────────────────────────
+  // Show only to first-time visitors who haven't seen the tour yet.
+  // hasTourBeenSeen() is read once at component init (module-scoped flag).
+  const [tourStep, setTourStep] = useState<number | null>(() => {
+    if (!isOnboarded && !hasTourBeenSeen()) return 0;
+    return null;
+  });
+  const tourActive = tourStep !== null;
+
+  const handleTourNext = useCallback(() => {
+    const TOTAL = 4; // must match TOUR_STEPS.length in FirstRunTour.tsx
+    setTourStep(prev => {
+      if (prev === null) return null;
+      const next = prev + 1;
+      if (next >= TOTAL) {
+        // Tour complete
+        safeSetItem(TOUR_SEEN_KEY, 'true');
+        track('tour_completed');
+        return null;
+      }
+      track('tour_step_viewed', { step: next });
+      return next;
+    });
+  }, []);
+
+  const handleTourSkip = useCallback(() => {
+    setTourStep(prev => {
+      if (prev === null) return null;
+      safeSetItem(TOUR_SEEN_KEY, 'true');
+      track('tour_skipped', { step: prev });
+      return null;
+    });
+  }, []);
+
+  // Fire tour_started + tour_step_viewed for step 0 on mount (only once).
+  useEffect(() => {
+    if (tourActive && tourStep === 0) {
+      track('tour_started');
+      track('tour_step_viewed', { step: 0 });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);  // intentionally empty — run once on mount
 
   const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
   // Track whether the command palette is the "primary" Esc consumer so that
@@ -399,6 +444,15 @@ export default function PlannerPage() {
       <OnboardingWizard
         onComplete={() => setPersonalizeOpen(false)}
         onDismiss={() => setPersonalizeOpen(false)}
+      />
+    )}
+
+    {/* ── First-run tour — non-blocking coachmark, first-time visitors only ─ */}
+    {tourActive && !personalizeOpen && (
+      <FirstRunTourController
+        step={tourStep!}
+        onNext={handleTourNext}
+        onSkip={handleTourSkip}
       />
     )}
     </PlannerErrorBoundary>
