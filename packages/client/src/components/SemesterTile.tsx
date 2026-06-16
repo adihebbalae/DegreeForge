@@ -235,13 +235,23 @@ export default function SemesterTile({
     track('course_removed', { via: 'tile-x' });
   }
 
-  // ── Droppable (future + current accept drops) ─────────────────────────────
-  const isDroppable = !isPast;
+  // ── Droppable ──────────────────────────────────────────────────────────────
+  // Every tile (incl. past) registers as a droppable so handleDragEnd can RESOLVE
+  // a past-semester target and surface the "read-only / Reverse Semester" notice.
+  // If past tiles were `disabled`, dnd-kit would never report them as `over`, the
+  // drop would resolve to no target, and the notice would never fire (inert popup).
+  // The reducer's isPastSemester guard + handleDragEnd's isBlockedPastDrop early
+  // return mean a past drop is REJECTED without mutating the plan — registering the
+  // droppable only lets us EXPLAIN the rejection, it does not allow the mutation.
   const { setNodeRef, isOver: isOverDirect } = useDroppable({
     id,
-    disabled: isPast,
     data: { type: 'semester', semesterId: id },
   });
+
+  // Past tiles register the drop (above) but show NO drop-accept affordance —
+  // they're read-only. `showsDropAffordance` gates the visual highlight + the
+  // "empty"/"—" placeholder so past tiles never light up as a valid target.
+  const showsDropAffordance = !isPast;
 
   // Track hover state via DnD monitor (same pattern as SemesterColumn)
   const [isActivelyOver, setIsActivelyOver] = useState(false);
@@ -258,7 +268,7 @@ export default function SemesterTile({
     onDragCancel() { setIsActivelyOver(false); },
   });
 
-  const showDropHighlight = isDroppable && (isActivelyOver || isOverDirect);
+  const showDropHighlight = showsDropAffordance && (isActivelyOver || isOverDirect);
 
   // ── Credits ───────────────────────────────────────────────────────────────
   const totalCredits = useMemo(
@@ -370,7 +380,7 @@ export default function SemesterTile({
             'border border-dashed rounded text-[10px] text-muted-foreground/50',
             showDropHighlight ? 'border-primary/60' : 'border-border/40',
           )}>
-            {isDroppable ? 'empty' : '—'}
+            {showsDropAffordance ? 'empty' : '—'}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 flex-1 min-h-0 overflow-hidden">

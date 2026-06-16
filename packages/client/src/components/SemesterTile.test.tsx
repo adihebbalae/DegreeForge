@@ -16,15 +16,21 @@ import SemesterTile from './SemesterTile';
 // ─── dnd-kit mocks ─────────────────────────────────────────────────────────────
 // Capture the data passed to useDraggable so we can assert on it.
 const capturedDraggableArgs: { id: string; disabled?: boolean; data?: Record<string, unknown> }[] = [];
+// Capture useDroppable args so we can assert past tiles still REGISTER the drop
+// (so handleDragEnd can resolve the past target and fire the read-only notice).
+const capturedDroppableArgs: { id: string; disabled?: boolean; data?: Record<string, unknown> }[] = [];
 
 vi.mock('@dnd-kit/core', () => {
   const actual = { DndContext: ({ children }: { children: unknown }) => children };
   return {
     ...actual,
-    useDroppable: () => ({
-      setNodeRef: vi.fn(),
-      isOver: false,
-    }),
+    useDroppable: (args: { id: string; disabled?: boolean; data?: Record<string, unknown> }) => {
+      capturedDroppableArgs.push({ ...args, data: args.data as Record<string, unknown> });
+      return {
+        setNodeRef: vi.fn(),
+        isOver: false,
+      };
+    },
     useDndMonitor: () => {},
     useDraggable: (args: { id: string; disabled?: boolean; data?: Record<string, unknown> }) => {
       capturedDraggableArgs.push({ ...args, data: args.data as Record<string, unknown> });
@@ -156,6 +162,44 @@ describe('SemesterTile course chips — fix #3 (draggable data)', () => {
     const chipDrag = capturedDraggableArgs.find(a => String(a.id).includes('ECE 302'));
     expect(chipDrag).toBeDefined();
     expect(chipDrag?.disabled).toBe(true);
+  });
+});
+
+describe('SemesterTile droppable — past tiles register the drop (inert-popup fix)', () => {
+  beforeEach(() => {
+    capturedDroppableArgs.length = 0;
+  });
+
+  it('future tile registers a semester droppable (not disabled)', () => {
+    render(<SemesterTile semester={futureSemester} courseIds={[]} {...baseProps} />);
+    const drop = capturedDroppableArgs.find((a) => a.id === 'fall-2026');
+    expect(drop).toBeDefined();
+    expect(drop?.disabled).toBeUndefined();
+    expect(drop?.data?.type).toBe('semester');
+    expect(drop?.data?.semesterId).toBe('fall-2026');
+  });
+
+  it('past tile is STILL droppable (not disabled) so handleDragEnd can reject + explain', () => {
+    render(<SemesterTile semester={pastSemester} courseIds={['ECE 302']} {...baseProps} />);
+    const drop = capturedDroppableArgs.find((a) => a.id === 'fall-2024');
+    expect(drop).toBeDefined();
+    // Must NOT be disabled — a disabled droppable is never reported as `over`,
+    // so the past-drop notice would never fire (the inert-popup bug).
+    expect(drop?.disabled).toBeFalsy();
+    expect(drop?.data?.type).toBe('semester');
+    expect(drop?.data?.semesterId).toBe('fall-2024');
+  });
+
+  it('past tile shows NO drop affordance: empty placeholder is "—" not "empty"', () => {
+    render(<SemesterTile semester={pastSemester} courseIds={[]} {...baseProps} />);
+    // Read-only past tile: dash placeholder, never the "empty" drop-target cue.
+    expect(screen.getByText('—')).toBeDefined();
+    expect(screen.queryByText('empty')).toBeNull();
+  });
+
+  it('future tile shows the "empty" drop affordance placeholder', () => {
+    render(<SemesterTile semester={futureSemester} courseIds={[]} {...baseProps} />);
+    expect(screen.getByText('empty')).toBeDefined();
   });
 });
 
