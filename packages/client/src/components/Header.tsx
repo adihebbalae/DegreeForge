@@ -38,6 +38,7 @@ import { useOwnedProfile, useProfileDispatch } from '@/context/ProfileContext'
 import type { UserProfile } from '@/types'
 import SemesterTransitionDialog from './SemesterTransitionDialog'
 import OptimizeStrip from './OptimizeStrip'
+import { AI_ENABLED } from '@/lib/features'
 
 // ─── Export bundle versioning ─────────────────────────────────────────────────
 // v1: plan-only (legacy, no version field)
@@ -252,15 +253,18 @@ export default function Header() {
               >
                 <Zap className="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setChatOpen(true)}
-                title="Open AI Chat"
-                className={chatOpen ? 'bg-accent text-accent-foreground' : ''}
-              >
-                <MessageSquare className="h-4 w-4" />
-              </Button>
+              {/* AI hidden for soft launch — re-enable by setting AI_ENABLED=true in lib/features.ts */}
+              {AI_ENABLED && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setChatOpen(true)}
+                  title="Open AI Chat"
+                  className={chatOpen ? 'bg-accent text-accent-foreground' : ''}
+                >
+                  <MessageSquare className="h-4 w-4" />
+                </Button>
+              )}
               <Button
                 variant="default"
                 size="sm"

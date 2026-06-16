@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { RotateCcw, X, Plus, User, Sliders, BookOpen, MessageSquare, UserCog } from 'lucide-react';
+import { AI_ENABLED } from '@/lib/features';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -383,79 +384,84 @@ export default function SettingsPage() {
 
           <Separator />
 
-          {/* ── Section 4: Chat Tools ───────────────────────────────────── */}
-          <section aria-labelledby="chat-tools-section">
-            <SectionHeader icon={<MessageSquare className="h-4 w-4" />} title="Chat Tools" />
+          {/* AI hidden for soft launch — re-enable by setting AI_ENABLED=true in lib/features.ts.
+              When re-enabled, this section exposes: Chat Provider, Access code (beta),
+              and per-tool enable/disable toggles. The Access code field gates /api/* calls;
+              the Chat Tools toggles control which tools the agent can use per turn. */}
+          {AI_ENABLED && (
+            <section aria-labelledby="chat-tools-section">
+              <SectionHeader icon={<MessageSquare className="h-4 w-4" />} title="Chat Tools" />
 
-            {/* Provider selector */}
-            <div className="space-y-2 mb-6">
-              <Label htmlFor="chat-provider">Chat Provider</Label>
-              <Select
-                value={settings.chatProvider}
-                onValueChange={(v) => dispatch({ type: 'SET_CHAT_PROVIDER', value: v as ChatProvider })}
-              >
-                <SelectTrigger id="chat-provider" className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ollama">Ollama (local)</SelectItem>
-                  <SelectItem value="claude">Claude (via server)</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                Claude routes through the Express server and requires{' '}
-                <code className="font-mono text-xs">ANTHROPIC_API_KEY</code> to be set server-side.
-                Ollama runs locally with no API key.
+              {/* Provider selector */}
+              <div className="space-y-2 mb-6">
+                <Label htmlFor="chat-provider">Chat Provider</Label>
+                <Select
+                  value={settings.chatProvider}
+                  onValueChange={(v) => dispatch({ type: 'SET_CHAT_PROVIDER', value: v as ChatProvider })}
+                >
+                  <SelectTrigger id="chat-provider" className="w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ollama">Ollama (local)</SelectItem>
+                    <SelectItem value="claude">Claude (via server)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Claude routes through the Express server and requires{' '}
+                  <code className="font-mono text-xs">ANTHROPIC_API_KEY</code> to be set server-side.
+                  Ollama runs locally with no API key.
+                </p>
+              </div>
+
+              {/* Beta access code */}
+              <div className="space-y-2 mb-6">
+                <Label htmlFor="access-code">Access code (beta)</Label>
+                <input
+                  id="access-code"
+                  type="password"
+                  placeholder="Leave empty for local dev"
+                  value={settings.accessCode}
+                  onChange={(e) => dispatch({ type: 'SET_ACCESS_CODE', value: e.target.value })}
+                  className="flex h-9 w-full max-w-xs rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Sent as <code className="font-mono text-xs">x-access-code</code> on AI requests.
+                  Leave empty for local dev (server ignores it when{' '}
+                  <code className="font-mono text-xs">BETA_ACCESS_SECRET</code> is unset).
+                </p>
+              </div>
+
+              <p className="text-sm text-muted-foreground mb-4">
+                Choose which tools the chat advisor can use. Enabled tools are sent to the model on every turn.
               </p>
-            </div>
 
-            {/* Beta access code */}
-            <div className="space-y-2 mb-6">
-              <Label htmlFor="access-code">Access code (beta)</Label>
-              <input
-                id="access-code"
-                type="password"
-                placeholder="Leave empty for local dev"
-                value={settings.accessCode}
-                onChange={(e) => dispatch({ type: 'SET_ACCESS_CODE', value: e.target.value })}
-                className="flex h-9 w-full max-w-xs rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              />
-              <p className="text-xs text-muted-foreground">
-                Sent as <code className="font-mono text-xs">x-access-code</code> on AI requests.
-                Leave empty for local dev (server ignores it when{' '}
-                <code className="font-mono text-xs">BETA_ACCESS_SECRET</code> is unset).
-              </p>
-            </div>
-
-            <p className="text-sm text-muted-foreground mb-4">
-              Choose which tools the chat advisor can use. Enabled tools are sent to the model on every turn.
-            </p>
-
-            <div className="space-y-2 p-4 bg-muted/40 rounded-lg border border-border">
-              {TOOL_REGISTRY.map((tool) => {
-                const enabled = settings.enabledTools.includes(tool.name);
-                return (
-                  <div key={tool.name} className="flex items-start gap-3 py-1.5">
-                    <Checkbox
-                      id={`tool-${tool.name}`}
-                      checked={enabled}
-                      onCheckedChange={() => dispatch({ type: 'TOGGLE_TOOL', toolName: tool.name })}
-                      aria-label={tool.name}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <label
-                        htmlFor={`tool-${tool.name}`}
-                        className="font-mono text-xs font-medium text-foreground cursor-pointer"
-                      >
-                        {tool.name}
-                      </label>
-                      <p className="text-xs text-muted-foreground mt-0.5">{tool.description}</p>
+              <div className="space-y-2 p-4 bg-muted/40 rounded-lg border border-border">
+                {TOOL_REGISTRY.map((tool) => {
+                  const enabled = settings.enabledTools.includes(tool.name);
+                  return (
+                    <div key={tool.name} className="flex items-start gap-3 py-1.5">
+                      <Checkbox
+                        id={`tool-${tool.name}`}
+                        checked={enabled}
+                        onCheckedChange={() => dispatch({ type: 'TOGGLE_TOOL', toolName: tool.name })}
+                        aria-label={tool.name}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <label
+                          htmlFor={`tool-${tool.name}`}
+                          className="font-mono text-xs font-medium text-foreground cursor-pointer"
+                        >
+                          {tool.name}
+                        </label>
+                        <p className="text-xs text-muted-foreground mt-0.5">{tool.description}</p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+                  );
+                })}
+              </div>
+            </section>
+          )}
 
           <Separator />
 

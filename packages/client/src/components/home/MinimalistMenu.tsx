@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useUi } from '@/context/UiContext';
 import { useSnapshotDispatch } from '@/context/PlanContext';
+import { AI_ENABLED } from '@/lib/features';
 import type { PlanIO } from './usePlanIO';
 
 interface MinimalistMenuProps {
@@ -71,10 +72,13 @@ export default function MinimalistMenu({ onRecommend, planIO, onOpenHelp, onImpo
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>Tools</DropdownMenuLabel>
-        <DropdownMenuItem onSelect={() => setChatOpen(true)}>
-          <MessageSquare className="h-4 w-4" />
-          Chat
-        </DropdownMenuItem>
+        {/* AI hidden for soft launch — re-enable by setting AI_ENABLED=true in lib/features.ts */}
+        {AI_ENABLED && (
+          <DropdownMenuItem onSelect={() => setChatOpen(true)}>
+            <MessageSquare className="h-4 w-4" />
+            Chat
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onSelect={() => setWhatIfOpen(true)}>
           <Zap className="h-4 w-4" />
           What-If

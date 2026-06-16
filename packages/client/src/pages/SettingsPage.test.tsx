@@ -135,7 +135,10 @@ describe('SettingsPage Profile section', () => {
   });
 });
 
-describe('SettingsPage Chat Tools section', () => {
+// ── Chat Tools section tests — skipped for soft launch (AI_ENABLED=false hides this section) ──
+// The Chat Tools section (provider, access code, tool toggles) is hidden behind AI_ENABLED.
+// These tests remain so they can be un-skipped when AI is re-enabled (set AI_ENABLED=true in lib/features.ts).
+describe.skip('SettingsPage Chat Tools section (AI_ENABLED=false — hidden for soft launch)', () => {
   it('renders a "Chat Tools" heading', () => {
     render(<SettingsPage />);
     expect(screen.getByText('Chat Tools')).toBeDefined();

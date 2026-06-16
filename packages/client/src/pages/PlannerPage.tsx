@@ -35,6 +35,7 @@ import {
 import { usePlanDispatch, usePlan } from '@/context/PlanContext';
 import { useUi } from '@/context/UiContext';
 import { track } from '@/lib/analytics';
+import { AI_ENABLED } from '@/lib/features';
 import type { PrereqNode } from '@/types';
 
 // ─── Active card shape ────────────────────────────────────────────────────────
@@ -340,37 +341,39 @@ export default function PlannerPage() {
           )}
         </div>
 
-        {/* ── Chat slide-in panel ──────────────────────────────────────────── */}
-        {/* fixed: viewport-relative so translate-x-full always pushes fully off-screen */}
-        <aside
-          className={[
-            'fixed inset-y-0 right-0 w-80',
-            'bg-background border-l border-border shadow-lg',
-            'flex flex-col transition-transform duration-300 ease-in-out z-20',
-            chatOpen
-              ? 'translate-x-0'
-              : 'translate-x-full invisible pointer-events-none',
-          ].join(' ')}
-          aria-label="AI chat panel"
-          aria-hidden={!chatOpen}
-        >
-          <div className="flex items-center justify-between p-4 border-b border-border">
-            <span className="font-medium">AI Chat</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setChatOpen(false)}
-              aria-label="Close chat"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <RecoverableErrorBoundary label="chat panel">
-              <ChatPanel />
-            </RecoverableErrorBoundary>
-          </div>
-        </aside>
+        {/* AI hidden for soft launch — re-enable by setting AI_ENABLED=true in lib/features.ts */}
+        {/* ── Chat slide-in panel (AI_ENABLED only) ───────────────────────── */}
+        {AI_ENABLED && (
+          <aside
+            className={[
+              'fixed inset-y-0 right-0 w-80',
+              'bg-background border-l border-border shadow-lg',
+              'flex flex-col transition-transform duration-300 ease-in-out z-20',
+              chatOpen
+                ? 'translate-x-0'
+                : 'translate-x-full invisible pointer-events-none',
+            ].join(' ')}
+            aria-label="AI chat panel"
+            aria-hidden={!chatOpen}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <span className="font-medium">AI Chat</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setChatOpen(false)}
+                aria-label="Close chat"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <RecoverableErrorBoundary label="chat panel">
+                <ChatPanel />
+              </RecoverableErrorBoundary>
+            </div>
+          </aside>
+        )}
 
         {/* ── What-If slide-in panel ────────────────────────────────────────── */}
         <aside

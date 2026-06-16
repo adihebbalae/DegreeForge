@@ -44,6 +44,7 @@ import { runSolver } from '@/lib/run-solver';
 import { getCreditHourCap } from '@/lib/auto-planner';
 import { sanitizePlan } from '@/lib/sanitize-course-list';
 import { postAiJson } from '@/lib/ai-api';
+import { AI_ENABLED } from '@/lib/features';
 import { TechCoreTrack } from '@/types';
 import { useDegreeRequirements, useOfferingSchedule } from '@/context/DataContext';
 import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
@@ -252,45 +253,50 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-6">
-          <div className="space-y-3 p-4 bg-purple-500/10 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-900/50">
-            <div className="space-y-1.5">
-              <Label className="text-sm font-semibold flex items-center gap-2 text-purple-700 dark:text-purple-400">
-                <Sparkles className="h-4 w-4" />
-                AI Smart Auto-Plan
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                Let the AI analyze your transcript and instantly generate your optimal remaining semesters.
-              </p>
-            </div>
-            <Textarea 
-              placeholder="Any custom preferences? (e.g. 'I want to focus heavily on robotics')"
-              className="min-h-[80px] text-sm resize-none bg-background"
-              value={customInput}
-              onChange={(e) => setCustomInput(e.target.value)}
-            />
-            <Button
-              className="w-full gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md border-0"
-              onClick={() => { setRecommendError(null); handleAIRecommend(); }}
-              disabled={isRecommending || isSolving}
-            >
-              {isRecommending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              {isRecommending ? 'Analyzing Profile...' : 'Generate Plan'}
-            </Button>
-            {recommendError && (
-              <Notice
-                variant="error"
-                message={`Recommendation request failed: ${recommendError}`}
-                action={{ label: 'Retry', onClick: () => { setRecommendError(null); handleAIRecommend(); } }}
-                onDismiss={() => setRecommendError(null)}
+          {/* AI hidden for soft launch — re-enable by setting AI_ENABLED=true in lib/features.ts.
+              When re-enabled, the AI Smart Auto-Plan block (Generate Plan + QuestionnaireDialog)
+              lives here and calls /api/recommend + /api/generate-questionnaire. */}
+          {AI_ENABLED && (
+            <div className="space-y-3 p-4 bg-purple-500/10 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-900/50">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold flex items-center gap-2 text-purple-700 dark:text-purple-400">
+                  <Sparkles className="h-4 w-4" />
+                  AI Smart Auto-Plan
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Let the AI analyze your transcript and instantly generate your optimal remaining semesters.
+                </p>
+              </div>
+              <Textarea
+                placeholder="Any custom preferences? (e.g. 'I want to focus heavily on robotics')"
+                className="min-h-[80px] text-sm resize-none bg-background"
+                value={customInput}
+                onChange={(e) => setCustomInput(e.target.value)}
               />
-            )}
-            <QuestionnaireDialog
-              onComplete={(answers) => {
-                setCustomInput(answers);
-                handleAIRecommend(answers, true);
-              }}
-            />
-          </div>
+              <Button
+                className="w-full gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md border-0"
+                onClick={() => { setRecommendError(null); handleAIRecommend(); }}
+                disabled={isRecommending || isSolving}
+              >
+                {isRecommending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                {isRecommending ? 'Analyzing Profile...' : 'Generate Plan'}
+              </Button>
+              {recommendError && (
+                <Notice
+                  variant="error"
+                  message={`Recommendation request failed: ${recommendError}`}
+                  action={{ label: 'Retry', onClick: () => { setRecommendError(null); handleAIRecommend(); } }}
+                  onDismiss={() => setRecommendError(null)}
+                />
+              )}
+              <QuestionnaireDialog
+                onComplete={(answers) => {
+                  setCustomInput(answers);
+                  handleAIRecommend(answers, true);
+                }}
+              />
+            </div>
+          )}
 
           {/* ── Configuration ────────────────────────────────────────────── */}
           <div className="space-y-4">
@@ -436,7 +442,8 @@ export default function WhatIfPanel({ onClose }: WhatIfPanelProps) {
         </Button>
       </div>
 
-      <Dialog open={!!recommendationData} onOpenChange={(open) => !open && setRecommendationData(null)}>
+      {/* AI hidden for soft launch — re-enable by setting AI_ENABLED=true in lib/features.ts */}
+      <Dialog open={AI_ENABLED && !!recommendationData} onOpenChange={(open) => !open && setRecommendationData(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">

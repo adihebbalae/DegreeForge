@@ -182,7 +182,9 @@ describe('HomeMinimalist', () => {
     fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false });
     fireEvent.pointerUp(trigger, { button: 0 });
     fireEvent.click(trigger);
-    expect(screen.getByText('Chat')).toBeDefined();
+    // AI hidden for soft launch — Chat menu item is not rendered (AI_ENABLED=false in lib/features.ts).
+    // Re-enable check when AI is re-enabled: expect(screen.getByText('Chat')).toBeDefined();
+    expect(screen.queryByText('Chat')).toBeNull();
     expect(screen.getByText('What-If')).toBeDefined();
     expect(screen.getByText('Course palette')).toBeDefined();
     // "Recommend plan" appears in both the action bar and the dropdown menu.

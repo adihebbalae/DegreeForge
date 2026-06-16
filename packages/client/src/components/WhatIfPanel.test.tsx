@@ -125,7 +125,9 @@ vi.mock('@/components/ui/separator', () => ({
 
 import WhatIfPanel from './WhatIfPanel';
 
-describe('WhatIfPanel — H2 stale-closure fix', () => {
+// AI_ENABLED=false hides the "Generate Plan" button and QuestionnaireDialog trigger in WhatIfPanel.
+// These tests remain so they can be un-skipped when AI is re-enabled (set AI_ENABLED=true in lib/features.ts).
+describe.skip('WhatIfPanel — H2 stale-closure fix (AI_ENABLED=false — hidden for soft launch)', () => {
   beforeEach(() => {
     mockRunSolver.mockClear();
     mockDispatch.mockClear();
