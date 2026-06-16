@@ -4,6 +4,7 @@ import type {
   CourseCatalog,
   DegreeRequirements,
   TechCoreTrack,
+  BucketView,
 } from '../types';
 import { getCourseCredits, buildTranscriptCredits } from './course-utils';
 import { parseCourseId } from './sanitize-course-list';
@@ -33,6 +34,16 @@ export interface ProgressSummary {
   electiveTotalHours: number;
   mathBACompleted?: number;
   mathBATotal?: number;
+  // Physics bucket (split out from totals)
+  physicsCompleted: number;
+  physicsTotal: number;
+  // Math hours (separate from tech-core math)
+  mathHoursCompleted: number;
+  mathHoursTotal: number;
+  // Gen-ed slot detail
+  completedGenEdSlots: ReadonlySet<string>;
+  // Per-bucket view-models (FR-4)
+  buckets: BucketView[];
 }
 
 /**
@@ -165,10 +176,20 @@ export function computeProgress(
     }
   }
 
-  // Required Elective
-  if (req.required_elective && satisfiesRequirement(req.required_elective.id, uniqueSet, registry)) {
-    techCoreCompletedCount++;
-    markUsed(req.required_elective.id);
+  // Required Elective (may be a single course or a pick-one group)
+  if (req.required_elective) {
+    if (isTechCorePickOne(req.required_elective)) {
+      const match = req.required_elective.options.find((opt) =>
+        satisfiesRequirement(opt.id, uniqueSet, registry)
+      );
+      if (match) {
+        techCoreCompletedCount++;
+        markUsed(match.id);
+      }
+    } else if (satisfiesRequirement(req.required_elective.id, uniqueSet, registry)) {
+      techCoreCompletedCount++;
+      markUsed(req.required_elective.id);
+    }
   }
 
   // Electives from pool (count remaining needed to reach the tech-core target)
@@ -217,7 +238,27 @@ export function computeProgress(
     })
     .reduce((sum, id) => sum + getCourseCredits(id, catalog, transcriptCredits), 0);
 
-  return {
+  // 8. Physics bucket — separate from other counts
+  const physicsRequired = degreeReqs.physics_sequence.required;
+  const physicsHoursTotal = physicsRequired.reduce(
+    (sum, id) => sum + getCourseCredits(id, catalog, transcriptCredits),
+    0
+  );
+  const physicsHoursCompleted = physicsRequired
+    .filter((id) => satisfiesRequirement(id, uniqueSet, registry))
+    .reduce((sum, id) => sum + getCourseCredits(id, catalog, transcriptCredits), 0);
+
+  // 9. Math sequence hours
+  const mathRequired = degreeReqs.math_sequence.required;
+  const mathHoursTotal = mathRequired.reduce(
+    (sum, id) => sum + getCourseCredits(id, catalog, transcriptCredits),
+    0
+  );
+  const mathHoursCompleted = mathRequired
+    .filter((id) => satisfiesRequirement(id, uniqueSet, registry))
+    .reduce((sum, id) => sum + getCourseCredits(id, catalog, transcriptCredits), 0);
+
+  const summary: Omit<ProgressSummary, 'buckets'> = {
     totalHours,
     totalHoursTarget: degreeReqs.total_credit_hours,
     eceCoreCompleted,
@@ -230,5 +271,399 @@ export function computeProgress(
     electiveTotalHours: degreeReqs.free_electives.total_hours,
     mathBACompleted,
     mathBATotal,
+    physicsCompleted: physicsHoursCompleted,
+    physicsTotal: physicsHoursTotal,
+    mathHoursCompleted,
+    mathHoursTotal,
+    completedGenEdSlots,
   };
+
+  return {
+    ...summary,
+    buckets: buildBucketViews(
+      summary,
+      degreeReqs,
+      techCore,
+      uniqueSet,
+      registry,
+      catalog,
+      transcriptCredits,
+      techCoreUsed,
+      eceCoreAllIds
+    ),
+  };
+}
+
+// ─── BucketView builder ────────────────────────────────────────────────────────
+
+/**
+ * Build the per-bucket view-model array from a computed ProgressSummary.
+ * This is THE single place where `ProgressSummary → BucketView[]` is defined,
+ * so every surface (bars, radial, cards) renders identical buckets.
+ *
+ * The `remaining[]` entries are the unsatisfied requirements per bucket.
+ * Pick-one / "any of N" slots that are unsatisfied are encoded as a note entry
+ * rather than a single courseId (there is no canonical single course to suggest).
+ * Free electives and the advanced-ECE gap use note entries because there is no
+ * single required course ID.
+ */
+export function buildBucketViews(
+  summary: Omit<ProgressSummary, 'buckets'>,
+  degreeReqs: DegreeRequirements,
+  techCore: TechCoreTrack,
+  uniqueSet: ReadonlySet<string>,
+  registry: ReturnType<typeof getEquivalenceRegistry>,
+  catalog: CourseCatalog,
+  transcriptCredits: Record<string, number>,
+  techCoreUsed: ReadonlySet<string>,
+  eceCoreAllIds: ReadonlySet<string>
+): BucketView[] {
+  // ── ECE Core ──────────────────────────────────────────────────────────────
+  const eceCoreRemaining: BucketView['remaining'] = [];
+  const eceCoreHoursCompleted = degreeReqs.ece_core.courses
+    .filter((id) => satisfiesRequirement(id, uniqueSet, registry))
+    .reduce((sum, id) => sum + getCourseCredits(id, catalog, transcriptCredits), 0);
+  const eceCoreHoursTotal = degreeReqs.ece_core.courses.reduce(
+    (sum, id) => sum + getCourseCredits(id, catalog, transcriptCredits),
+    0
+  );
+
+  for (const courseId of degreeReqs.ece_core.courses) {
+    if (!satisfiesRequirement(courseId, uniqueSet, registry)) {
+      eceCoreRemaining.push({ courseId });
+    }
+  }
+
+  const eceCoreBucket: BucketView = {
+    id: 'ece_core',
+    label: 'ECE Core',
+    category: 'ece_core',
+    doneHours: eceCoreHoursCompleted,
+    totalHours: eceCoreHoursTotal,
+    unit: 'hrs',
+    complete: summary.eceCoreCompleted >= summary.eceCoreTotal,
+    doneCount: summary.eceCoreCompleted,
+    totalCount: summary.eceCoreTotal,
+    countNoun: 'courses',
+    remaining: eceCoreRemaining,
+  };
+
+  // ── Math ──────────────────────────────────────────────────────────────────
+  const mathRemaining: BucketView['remaining'] = [];
+  for (const courseId of degreeReqs.math_sequence.required) {
+    if (!satisfiesRequirement(courseId, uniqueSet, registry)) {
+      mathRemaining.push({ courseId });
+    }
+  }
+
+  const mathBucket: BucketView = {
+    id: 'math',
+    label: 'Math',
+    category: 'math',
+    doneHours: Math.min(summary.mathHoursCompleted, summary.mathHoursTotal),
+    totalHours: summary.mathHoursTotal,
+    unit: 'hrs',
+    complete: summary.mathHoursCompleted >= summary.mathHoursTotal,
+    doneCount: degreeReqs.math_sequence.required.filter((id) =>
+      satisfiesRequirement(id, uniqueSet, registry)
+    ).length,
+    totalCount: degreeReqs.math_sequence.required.length,
+    countNoun: 'courses',
+    remaining: mathRemaining,
+  };
+
+  // ── Physics ───────────────────────────────────────────────────────────────
+  const physicsRemaining: BucketView['remaining'] = [];
+  for (const courseId of degreeReqs.physics_sequence.required) {
+    if (!satisfiesRequirement(courseId, uniqueSet, registry)) {
+      physicsRemaining.push({ courseId });
+    }
+  }
+
+  const physicsBucket: BucketView = {
+    id: 'physics',
+    label: 'Physics',
+    category: 'math',
+    doneHours: Math.min(summary.physicsCompleted, summary.physicsTotal),
+    totalHours: summary.physicsTotal,
+    unit: 'hrs',
+    complete: summary.physicsCompleted >= summary.physicsTotal,
+    doneCount: degreeReqs.physics_sequence.required.filter((id) =>
+      satisfiesRequirement(id, uniqueSet, registry)
+    ).length,
+    totalCount: degreeReqs.physics_sequence.required.length,
+    countNoun: 'courses',
+    remaining: physicsRemaining,
+    ruleNote: degreeReqs.physics_sequence.notes || undefined,
+  };
+
+  // ── Technical Component ───────────────────────────────────────────────────
+  const techRemaining: BucketView['remaining'] = [];
+  const req = techCore.required_courses;
+
+  // Advanced math slot
+  if (req.advanced_math && !satisfiesRequirement(req.advanced_math.id, uniqueSet, registry)) {
+    techRemaining.push({ courseId: req.advanced_math.id });
+  }
+
+  // Core courses
+  req.core?.forEach((entry) => {
+    if (isTechCorePickOne(entry)) {
+      const anyDone = entry.options.some((opt) =>
+        satisfiesRequirement(opt.id, uniqueSet, registry)
+      );
+      if (!anyDone) {
+        const ids = entry.options.map((o) => o.id).join(' / ');
+        techRemaining.push({ note: `any of: ${ids}` });
+      }
+    } else {
+      if (!satisfiesRequirement(entry.id, uniqueSet, registry)) {
+        techRemaining.push({ courseId: entry.id });
+      }
+    }
+  });
+
+  // Core lab
+  if (req.core_lab) {
+    if (isTechCorePickOne(req.core_lab)) {
+      const anyDone = req.core_lab.options.some((opt) =>
+        satisfiesRequirement(opt.id, uniqueSet, registry)
+      );
+      if (!anyDone) {
+        const ids = req.core_lab.options.map((o) => o.id).join(' / ');
+        techRemaining.push({ note: `any of: ${ids}` });
+      }
+    } else {
+      if (!satisfiesRequirement(req.core_lab.id, uniqueSet, registry)) {
+        techRemaining.push({ courseId: req.core_lab.id });
+      }
+    }
+  }
+
+  // Required elective
+  if (req.required_elective) {
+    if (isTechCorePickOne(req.required_elective)) {
+      const anyDone = req.required_elective.options.some((opt) =>
+        satisfiesRequirement(opt.id, uniqueSet, registry)
+      );
+      if (!anyDone) {
+        const ids = req.required_elective.options.map((o) => o.id).join(' / ');
+        techRemaining.push({ note: `any of: ${ids}` });
+      }
+    } else {
+      if (!satisfiesRequirement(req.required_elective.id, uniqueSet, registry)) {
+        techRemaining.push({ courseId: req.required_elective.id });
+      }
+    }
+  }
+
+  // Elective pool deficit
+  const electivesNeeded = techCore.elective_count?.general ?? 0;
+  const electivesDone = techCore.elective_pool.filter(
+    (id) => satisfiesRequirement(id, uniqueSet, registry) && !techCoreUsed.has(id)
+  ).length;
+  // How many elective slots are already filled (from the pool, not re-counting above)
+  // Re-derive by subtracting required-slot done count from overall techCoreCompleted
+  const requiredSlotsDone =
+    (req.advanced_math && satisfiesRequirement(req.advanced_math.id, uniqueSet, registry) ? 1 : 0) +
+    (req.core?.reduce((n, entry) => {
+      if (isTechCorePickOne(entry)) {
+        return n + (entry.options.some((o) => satisfiesRequirement(o.id, uniqueSet, registry)) ? 1 : 0);
+      }
+      return n + (satisfiesRequirement(entry.id, uniqueSet, registry) ? 1 : 0);
+    }, 0) ?? 0) +
+    (req.core_lab
+      ? (isTechCorePickOne(req.core_lab)
+          ? (req.core_lab.options.some((o) => satisfiesRequirement(o.id, uniqueSet, registry)) ? 1 : 0)
+          : satisfiesRequirement(req.core_lab.id, uniqueSet, registry) ? 1 : 0)
+      : 0) +
+    (req.required_elective
+      ? (isTechCorePickOne(req.required_elective)
+          ? (req.required_elective.options.some((o) => satisfiesRequirement(o.id, uniqueSet, registry)) ? 1 : 0)
+          : satisfiesRequirement(req.required_elective.id, uniqueSet, registry) ? 1 : 0)
+      : 0);
+
+  const electiveSlotsFilled = Math.min(summary.techCoreCompleted - requiredSlotsDone, electivesNeeded);
+  const electiveSlotsNeeded = Math.max(0, electivesNeeded - electiveSlotsFilled);
+  if (electiveSlotsNeeded > 0) {
+    techRemaining.push({
+      note: `${electiveSlotsNeeded} tech elective${electiveSlotsNeeded !== 1 ? 's' : ''} from approved pool`,
+    });
+  }
+
+  // Tech hours: sum required-courses hours + elective pool hours at TECH_CORE_TARGET slots
+  // The spec says 29 hrs total; derive from the data:
+  // required slots sum + (electivesNeeded * average elective hrs)
+  // For simplicity: use 3 hrs per elective pool slot (most ECE electives = 3 hrs)
+  const techRequiredHours =
+    (req.advanced_math ? getCourseCredits(req.advanced_math.id, catalog, transcriptCredits) : 0) +
+    (req.core?.reduce((s, entry) => {
+      if (isTechCorePickOne(entry)) {
+        return s + getCourseCredits(entry.options[0]?.id ?? '', catalog, transcriptCredits);
+      }
+      return s + getCourseCredits(entry.id, catalog, transcriptCredits);
+    }, 0) ?? 0) +
+    (req.core_lab
+      ? (isTechCorePickOne(req.core_lab)
+          ? getCourseCredits(req.core_lab.options[0]?.id ?? '', catalog, transcriptCredits)
+          : getCourseCredits(req.core_lab.id, catalog, transcriptCredits))
+      : 0) +
+    (req.required_elective
+      ? (isTechCorePickOne(req.required_elective)
+          ? getCourseCredits(req.required_elective.options[0]?.id ?? '', catalog, transcriptCredits)
+          : getCourseCredits(req.required_elective.id, catalog, transcriptCredits))
+      : 0);
+  const techElectiveHoursTotal = electivesNeeded * 3; // ECE upper-div electives default to 3 hrs
+  const techTotalHours = techRequiredHours + techElectiveHoursTotal;
+
+  // doneHours: sum of satisfied required slots + satisfied electives from pool
+  const techRequiredDoneHours =
+    (req.advanced_math && satisfiesRequirement(req.advanced_math.id, uniqueSet, registry)
+      ? getCourseCredits(req.advanced_math.id, catalog, transcriptCredits)
+      : 0) +
+    (req.core?.reduce((s, entry) => {
+      if (isTechCorePickOne(entry)) {
+        const m = entry.options.find((o) => satisfiesRequirement(o.id, uniqueSet, registry));
+        return s + (m ? getCourseCredits(m.id, catalog, transcriptCredits) : 0);
+      }
+      return (
+        s +
+        (satisfiesRequirement(entry.id, uniqueSet, registry)
+          ? getCourseCredits(entry.id, catalog, transcriptCredits)
+          : 0)
+      );
+    }, 0) ?? 0) +
+    (req.core_lab
+      ? isTechCorePickOne(req.core_lab)
+        ? (() => {
+            const m = req.core_lab.options.find((o) =>
+              satisfiesRequirement(o.id, uniqueSet, registry)
+            );
+            return m ? getCourseCredits(m.id, catalog, transcriptCredits) : 0;
+          })()
+        : satisfiesRequirement(req.core_lab.id, uniqueSet, registry)
+        ? getCourseCredits(req.core_lab.id, catalog, transcriptCredits)
+        : 0
+      : 0) +
+    (req.required_elective
+      ? isTechCorePickOne(req.required_elective)
+        ? (() => {
+            const m = req.required_elective.options.find((o) =>
+              satisfiesRequirement(o.id, uniqueSet, registry)
+            );
+            return m ? getCourseCredits(m.id, catalog, transcriptCredits) : 0;
+          })()
+        : satisfiesRequirement(req.required_elective.id, uniqueSet, registry)
+        ? getCourseCredits(req.required_elective.id, catalog, transcriptCredits)
+        : 0
+      : 0);
+
+  const techElectiveDoneHours = Math.min(electiveSlotsFilled * 3, techElectiveHoursTotal);
+  const techDoneHours = Math.min(
+    techRequiredDoneHours + techElectiveDoneHours,
+    techTotalHours
+  );
+
+  const techBucket: BucketView = {
+    id: 'tech',
+    label: 'Technical Component',
+    category: 'tech_core',
+    doneHours: techDoneHours,
+    totalHours: techTotalHours,
+    unit: 'hrs',
+    complete: summary.techCoreCompleted >= TECH_CORE_TARGET,
+    doneCount: summary.techCoreCompleted,
+    totalCount: TECH_CORE_TARGET,
+    countNoun: 'courses',
+    remaining: techRemaining,
+    ruleNote: degreeReqs.tech_core.description || undefined,
+  };
+
+  // ── Core Curriculum (Gen Ed) ──────────────────────────────────────────────
+  const genEdSubReqs: NonNullable<BucketView['subRequirements']> = [];
+  const genEdRemaining: BucketView['remaining'] = [];
+  const genEdSlots = degreeReqs.core_curriculum.slots;
+
+  for (const slot of genEdSlots) {
+    const isDone = summary.completedGenEdSlots.has(slot.id);
+    genEdSubReqs.push({
+      label: slot.label,
+      status: isDone ? 'done' : 'missing',
+    });
+
+    if (!isDone) {
+      // Resolve options (handle same_as_his1 alias)
+      let options = slot.options;
+      if (options.includes('same_as_his1')) {
+        const his1 = genEdSlots.find((s) => s.id === 'his1');
+        if (his1) options = his1.options;
+      }
+      const enhanced = [...options];
+      if (slot.id === 'vapa') enhanced.push('CTI 301G');
+      if (slot.id === 'humanities') enhanced.push('CTI 302');
+
+      if (enhanced.includes('list_of_approved')) {
+        // No single canonical courseId — emit a note
+        genEdRemaining.push({ note: `${slot.label} (${slot.hours} hrs, any approved course)` });
+      } else {
+        // Emit the first concrete option as the representative courseId,
+        // and list alternatives in a note when there are multiple choices.
+        const firstOption = enhanced[0];
+        if (firstOption) {
+          if (enhanced.length > 1) {
+            genEdRemaining.push({
+              courseId: firstOption,
+              note: `any of: ${enhanced.join(' / ')}`,
+            });
+          } else {
+            genEdRemaining.push({ courseId: firstOption });
+          }
+        }
+      }
+    }
+  }
+
+  const genEdHoursPerSlot = 3; // All gen-ed slots are 3 credit hours
+  const genEdDoneHours = Math.min(summary.genEdCompleted * genEdHoursPerSlot, summary.genEdTotal * genEdHoursPerSlot);
+  const genEdTotalHours = summary.genEdTotal * genEdHoursPerSlot;
+
+  const genEdBucket: BucketView = {
+    id: 'gen_ed',
+    label: 'Core Curriculum',
+    category: 'gen_ed',
+    doneHours: genEdDoneHours,
+    totalHours: genEdTotalHours,
+    unit: 'hrs',
+    complete: summary.genEdCompleted >= summary.genEdTotal,
+    doneCount: summary.genEdCompleted,
+    totalCount: summary.genEdTotal,
+    countNoun: 'slots',
+    subRequirements: genEdSubReqs,
+    remaining: genEdRemaining,
+  };
+
+  // ── Free Electives ─────────────────────────────────────────────────────────
+  const freeElecTotal = degreeReqs.free_electives.total_hours;
+  const freeElecDone = Math.min(summary.electiveHours, freeElecTotal);
+  const freeElecGap = Math.max(0, freeElecTotal - summary.electiveHours);
+  const freeElecRemaining: BucketView['remaining'] = [];
+  if (freeElecGap > 0) {
+    freeElecRemaining.push({
+      note: `${freeElecGap} hr${freeElecGap !== 1 ? 's' : ''} of advanced ECE ${ADVANCED_ELECTIVE_MIN_NUMBER}+ electives`,
+    });
+  }
+
+  const freeElecBucket: BucketView = {
+    id: 'free_elec',
+    label: 'Free Electives',
+    category: 'elective',
+    doneHours: freeElecDone,
+    totalHours: freeElecTotal,
+    unit: 'hrs',
+    complete: summary.electiveHours >= freeElecTotal,
+    ruleNote: degreeReqs.free_electives.constraints?.[0] || undefined,
+    remaining: freeElecRemaining,
+  };
+
+  return [eceCoreBucket, mathBucket, physicsBucket, techBucket, genEdBucket, freeElecBucket];
 }

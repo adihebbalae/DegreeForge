@@ -47,7 +47,13 @@ function getEssentialCourses(track: TechCoreTrack): string[] {
   }
 
   if (req.required_elective) {
-    courses.push(req.required_elective.id);
+    if (isTechCorePickOne(req.required_elective)) {
+      if (req.required_elective.options.length > 0) {
+        courses.push(req.required_elective.options[0].id);
+      }
+    } else {
+      courses.push(req.required_elective.id);
+    }
   }
 
   return courses;

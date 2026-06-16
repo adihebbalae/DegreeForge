@@ -235,3 +235,250 @@ describe('computeProgress — real data (characterization)', () => {
     expect(result.techCoreCompleted).toBe(1);
   });
 });
+
+// ─── BucketView tests (TASK-098 Increment 1) ─────────────────────────────────
+//
+// Four mandatory cases per spec §6:
+//   1. Partially-done pick-one slot → remaining[] shows the correct "still need"
+//   2. Fully-satisfied bucket → remaining[] empty, complete: true
+//   3. Over-cap bucket (>100%) → fill clamps, remaining[] empty
+//   4. Adi real-data characterization: incomplete bucket remaining[] correct,
+//      completed bucket (math) has empty remaining[]
+//
+describe('buildBucketViews — BucketView per-bucket view-model', () => {
+  function loadJson<T>(filename: string): T {
+    const path = join(__dirname, '../../public/data', filename);
+    return JSON.parse(readFileSync(path, 'utf8')) as T;
+  }
+
+  // ── Shared mock data ────────────────────────────────────────────────────────
+  const mockCatalog: CourseCatalog = {
+    'ECE 402': { id: 'ECE 402', title: 'Intro to EE', credits: 4, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 406': { id: 'ECE 406', title: 'Intro to Computing', credits: 4, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 419K': { id: 'ECE 419K', title: 'Embedded Systems', credits: 4, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 411': { id: 'ECE 411', title: 'Circuit Theory', credits: 4, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 412': { id: 'ECE 412', title: 'Software I', credits: 4, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 313': { id: 'ECE 313', title: 'Linear Systems', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 333T': { id: 'ECE 333T', title: 'Eng Communication', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 351K': { id: 'ECE 351K', title: 'Probability', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 364D': { id: 'ECE 364D', title: 'Engineering Design', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 464K': { id: 'ECE 464K', title: 'Senior Design', credits: 4, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'M 408C': { id: 'M 408C', title: 'Calculus I', credits: 4, department: 'Math', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'M 408D': { id: 'M 408D', title: 'Calculus II', credits: 4, department: 'Math', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'M 427J': { id: 'M 427J', title: 'Diff Eq', credits: 4, department: 'Math', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'M 340L': { id: 'M 340L', title: 'Matrices', credits: 3, department: 'Math', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'M 325K': { id: 'M 325K', title: 'Discrete Math', credits: 3, department: 'Math', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 316': { id: 'ECE 316', title: 'Digital Logic', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 460N': { id: 'ECE 460N', title: 'Computer Arch', credits: 4, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 445L': { id: 'ECE 445L', title: 'Embedded Lab', credits: 4, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 360C': { id: 'ECE 360C', title: 'Algorithms', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'RHE 306': { id: 'RHE 306', title: 'Rhetoric', credits: 3, department: 'RHE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'UGS 303': { id: 'UGS 303', title: 'Signature', credits: 3, department: 'UGS', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    'ECE 422C': { id: 'ECE 422C', title: 'Software II', credits: 4, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+  };
+
+  const mockDegreeReqs: DegreeRequirements = {
+    ece_core: {
+      courses: ['ECE 402', 'ECE 406', 'ECE 419K', 'ECE 411', 'ECE 412', 'ECE 313', 'ECE 333T', 'ECE 351K', 'ECE 364D', 'ECE 464K'],
+      notes: '',
+      honors_variants: {
+        'ECE 402': 'ECE 302H',
+        'ECE 412': 'ECE 312H',
+        'ECE 419K': 'ECE 319H'
+      },
+      senior_design_options: []
+    },
+    core_curriculum: {
+      slots: [
+        { id: 'ugs', label: 'UGS', hours: 3, core_code: '090', options: ['UGS 303'], ap_eligible: false },
+        { id: 'rhe', label: 'RHE', hours: 3, core_code: '010', options: ['RHE 306'], ap_eligible: true },
+      ]
+    },
+    tech_core: { description: 'Tech core', components: { advanced_math: { hours: '3', count: 1 }, core_courses: { hours: '6', count: 2 }, core_lab: { hours: '4', count: 1 }, tech_electives: { hours_min: 12, count: '3' } }, notes: '' },
+    advanced_tech_elective: { count: 1, hours: '3', description: '' },
+    free_electives: { total_hours: 11, constraints: ['At least 3 hrs advanced math or science'], approved_list_url: '' },
+    math_sequence: { required: ['M 408C', 'M 408D', 'M 427J', 'M 340L'], alternate_calculus: [], notes: '' },
+    physics_sequence: { required: ['PHY 303K', 'PHY 105M', 'PHY 303L', 'PHY 105N'], alternate: [], notes: '' },
+    total_credit_hours: 125,
+    notes: ''
+  };
+
+  const mockTechCore: TechCoreTrack = {
+    name: 'Computer Architecture',
+    graduate_track: '',
+    category: 'CE',
+    required_math: 'M 325K',
+    required_courses: {
+      advanced_math: { id: 'M 325K', title: 'Discrete Math' },
+      core: [{ id: 'ECE 316', title: 'Digital Logic' }, { id: 'ECE 460N', title: 'Comp Arch' }],
+      core_lab: { id: 'ECE 445L', title: 'Embedded Lab' },
+      required_elective: { id: 'ECE 360C', title: 'Algorithms' }
+    },
+    elective_count: { general: 3, ecb: 2 },
+    elective_pool: ['ECE 422C']
+  };
+
+  const emptyProfile: UserProfile = {
+    name: 'Test', eid: '', university: '', catalog_year: '', major: '', classification: '',
+    first_semester: '', graduation_target: '',
+    tech_core: { declared: '', status: '', required_math: '', required_ece: [], tech_electives_needed: 3 },
+    secondary_aspirations: { math_ba: { status: '', notes: '' }, advanced_math_cert: { status: '', notes: '' }, jefferson_scholars_cert: { status: '', notes: '' } },
+    preferences: { course_load: '', course_load_tolerance: '', time_preference: '', summer_courses: false, summer_notes: '' },
+    gpa: { cumulative: 0, lower_division: 0, upper_division: 0, gpa_hours: 0, grade_points: 0 },
+    credit_summary: { total_hours_transferred: 0, total_hours_taken: 0, total_hours: 0 },
+    completed_courses: [],
+    in_progress_courses: [],
+    career_interests: [],
+    notes: ''
+  };
+
+  // ── Case 1: Partially-done pick-one slot ───────────────────────────────────
+  it('pick-one unsatisfied tech slot emits note-form remaining entry', () => {
+    // The CA tech core has a single required_elective (ECE 360C) — but we test
+    // using the SE track fixture which has a PickOne required_elective.
+    const seTrack: TechCoreTrack = {
+      ...mockTechCore,
+      required_courses: {
+        advanced_math: { id: 'M 325K', title: 'Discrete Math' },
+        core: [{ id: 'ECE 316', title: 'Digital Logic' }],
+        core_lab: {
+          options: [
+            { id: 'ECE 445L', title: 'Embedded Lab' },
+            { id: 'ECE 461L', title: 'SE Lab' }
+          ],
+          pick: 1
+        },
+        required_elective: { id: 'ECE 360C', title: 'Algorithms' }
+      },
+    };
+
+    // User has satisfied the advanced_math slot but NOT core_lab (pick-one)
+    const profile: UserProfile = {
+      ...emptyProfile,
+      completed_courses: [
+        { course: 'M 325K', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+        { course: 'ECE 316', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+      ],
+    };
+
+    const result = computeProgress({}, profile, mockCatalog, mockDegreeReqs, seTrack);
+    const techBucket = result.buckets.find((b) => b.id === 'tech')!;
+
+    // The pick-one core_lab slot is unsatisfied → a note entry
+    const coreLabEntry = techBucket.remaining?.find((r) => r.note?.includes('any of'));
+    expect(coreLabEntry).toBeDefined();
+    expect(coreLabEntry?.note).toMatch(/ECE 445L/);
+    expect(coreLabEntry?.note).toMatch(/ECE 461L/);
+    // advanced_math (M 325K) and ECE 316 ARE satisfied so they should NOT appear in remaining
+    const advMathEntry = techBucket.remaining?.find((r) => r.courseId === 'M 325K');
+    expect(advMathEntry).toBeUndefined();
+  });
+
+  // ── Case 2: Fully-satisfied bucket → remaining[] empty, complete: true ─────
+  it('fully-satisfied math bucket has empty remaining[] and complete: true', () => {
+    // Give the user all 4 math sequence courses
+    const profile: UserProfile = {
+      ...emptyProfile,
+      completed_courses: [
+        { course: 'M 408C', title: '', grade: 'A', semester: '', type: '', credit_hours: 4 },
+        { course: 'M 408D', title: '', grade: 'A', semester: '', type: '', credit_hours: 4 },
+        { course: 'M 427J', title: '', grade: 'A', semester: '', type: '', credit_hours: 4 },
+        { course: 'M 340L', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+      ],
+    };
+
+    const result = computeProgress({}, profile, mockCatalog, mockDegreeReqs, mockTechCore);
+    const mathBucket = result.buckets.find((b) => b.id === 'math')!;
+
+    expect(mathBucket.complete).toBe(true);
+    expect(mathBucket.remaining).toEqual([]);
+    expect(mathBucket.doneHours).toBe(15);
+  });
+
+  // ── Case 3: Over-cap bucket fill clamps, remaining[] empty ─────────────────
+  it('over-cap free-electives bucket: doneHours clamps at totalHours, remaining empty', () => {
+    // User has 20 hrs of advanced ECE electives but target is 11 hrs
+    const bigCatalog: CourseCatalog = {
+      ...mockCatalog,
+      'ECE 360G': { id: 'ECE 360G', title: 'Graph Theory', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+      'ECE 371P': { id: 'ECE 371P', title: 'DSP', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+      'ECE 380J': { id: 'ECE 380J', title: 'Info Theory', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+      'ECE 381K': { id: 'ECE 381K', title: 'Multi-Rate DSP', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+      'ECE 382M': { id: 'ECE 382M', title: 'Signal Processing', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    };
+    const profile: UserProfile = {
+      ...emptyProfile,
+      completed_courses: [
+        // 5 non-core non-tech-core advanced ECE courses = 15 hrs
+        { course: 'ECE 360G', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+        { course: 'ECE 371P', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+        { course: 'ECE 380J', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+        { course: 'ECE 381K', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+        { course: 'ECE 382M', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+      ],
+    };
+
+    const result = computeProgress({}, profile, bigCatalog, mockDegreeReqs, mockTechCore);
+    const freeElecBucket = result.buckets.find((b) => b.id === 'free_elec')!;
+
+    // doneHours clamps at totalHours (11), never exceeds it
+    expect(freeElecBucket.doneHours).toBe(11);
+    expect(freeElecBucket.totalHours).toBe(11);
+    expect(freeElecBucket.complete).toBe(true);
+    // No negative gap → remaining is empty
+    expect(freeElecBucket.remaining).toEqual([]);
+  });
+
+  // ── Case 4: Adi real-data characterization ─────────────────────────────────
+  it('Adi real-data: ECE Core has 6 remaining courses, Math bucket complete', () => {
+    const catalog = loadJson<CourseCatalog>('course-catalog.json');
+    const degreeReqs = loadJson<DegreeRequirements>('degree-requirements.json');
+    const techCores = loadJson<TechCores>('tech-cores.json');
+    const adiProfile = loadJson<UserProfile>('user-profile.json');
+    // Use CA+ES track (Adi's declared track)
+    const techCore = techCores.computer_architecture;
+
+    const result = computeProgress({}, adiProfile, catalog, degreeReqs, techCore);
+
+    // ECE Core: Adi has ECE 302→402, ECE 306→406, ECE 312H→412, ECE 319H→419K done (4/10)
+    // Remaining: ECE 411, ECE 313, ECE 333T, ECE 351K, ECE 364D, ECE 464K
+    const eceCoreBucket = result.buckets.find((b) => b.id === 'ece_core')!;
+    expect(eceCoreBucket.complete).toBe(false);
+    const remainingIds = (eceCoreBucket.remaining ?? []).map((r) => r.courseId).filter(Boolean);
+    expect(remainingIds).toContain('ECE 411');
+    expect(remainingIds).toContain('ECE 313');
+    expect(remainingIds).toContain('ECE 333T');
+    expect(remainingIds).toContain('ECE 351K');
+    expect(remainingIds).toContain('ECE 364D');
+    expect(remainingIds).toContain('ECE 464K');
+    expect(remainingIds).toHaveLength(6);
+
+    // Math: M 508M→M 408C+M 408D, M 411→M 340L, M 427J direct → all 4 satisfied
+    const mathBucket = result.buckets.find((b) => b.id === 'math')!;
+    expect(mathBucket.complete).toBe(true);
+    expect(mathBucket.remaining).toEqual([]);
+    expect(mathBucket.doneHours).toBe(15); // 4+4+4+3
+
+    // Physics: Adi has no physics courses → all 4 remain
+    const physicsBucket = result.buckets.find((b) => b.id === 'physics')!;
+    expect(physicsBucket.complete).toBe(false);
+    const physRemaining = (physicsBucket.remaining ?? []).map((r) => r.courseId);
+    expect(physRemaining).toContain('PHY 303K');
+    expect(physRemaining).toContain('PHY 105M');
+    expect(physRemaining).toContain('PHY 303L');
+    expect(physRemaining).toContain('PHY 105N');
+
+    // Gen-ed: 9 slots total, Adi has 3 (rhe, vapa, humanities) → 6 remaining
+    const genEdBucket = result.buckets.find((b) => b.id === 'gen_ed')!;
+    expect(genEdBucket.complete).toBe(false);
+    expect(genEdBucket.doneCount).toBe(3);
+    expect(genEdBucket.totalCount).toBe(9);
+    expect(genEdBucket.subRequirements).toHaveLength(9);
+    // Confirm completed slots are marked done
+    const rheSub = genEdBucket.subRequirements?.find((s) => s.label === 'Rhetoric & Writing');
+    expect(rheSub?.status).toBe('done');
+    // Confirm an uncompleted slot is marked missing
+    const govSub = genEdBucket.subRequirements?.find((s) => s.label === 'American Government I');
+    expect(govSub?.status).toBe('missing');
+  });
+});

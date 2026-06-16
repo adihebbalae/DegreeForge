@@ -113,6 +113,12 @@ const CREDIT_OVERRIDES: Record<string, number> = {
   'M 508M': 5,
   'M 411': 4,
   'UGS 016': 0,
+  // Physics courses are absent from course-catalog.json; canonical hours per UT catalog.
+  'PHY 303K': 3,
+  'PHY 105M': 1,
+  'PHY 303L': 3,
+  'PHY 105N': 1,
+  'PHY 303E': 3,
 };
 
 /**

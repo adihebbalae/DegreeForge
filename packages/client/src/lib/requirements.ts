@@ -76,9 +76,14 @@ export function getTechCoreCourses(track: TechCoreTrack): string[] {
     }
   }
 
-  // S4: required_elective is typed as TechCourseRef — single required course only
   if (req.required_elective) {
-    courses.push(req.required_elective.id);
+    if (isTechCorePickOne(req.required_elective)) {
+      if (req.required_elective.options.length > 0) {
+        courses.push(req.required_elective.options[0].id);
+      }
+    } else {
+      courses.push(req.required_elective.id);
+    }
   }
 
   return courses;
@@ -163,7 +168,12 @@ export function computeRemainingRequired(
   }
 
   if (req.required_elective) {
-    need(req.required_elective.id);
+    if (isTechCorePickOne(req.required_elective)) {
+      const matched = req.required_elective.options.some((o) => satisfied.has(o.id));
+      if (!matched && req.required_elective.options[0]) need(req.required_elective.options[0].id);
+    } else {
+      need(req.required_elective.id);
+    }
   }
 
   // Tech-core electives — pick first N from the pool that user hasn't taken

@@ -307,7 +307,7 @@ interface TechCoreRequiredCourses {
   advanced_math?: TechCourseRef;
   core?: TechCoreCourseEntry[];
   core_lab?: TechCorePickOne | TechCourseRef;
-  required_elective?: TechCourseRef;
+  required_elective?: TechCorePickOne | TechCourseRef;
 }
 
 interface TechCoreElectiveCount {
@@ -503,6 +503,34 @@ export interface PlanState {
 
 /** Display category for color-coding course cards */
 export type CourseCategory = 'ece_core' | 'tech_core' | 'gen_ed' | 'elective' | 'math';
+
+// ─── Progress Bucket View-Model ───────────────────────────────────────────────
+
+/**
+ * Per-bucket view-model for the FR-4 progress surfaces.
+ * Built by `buildBucketViews` in lib/progress.ts from a `ProgressSummary`.
+ * Every surface (ProgressBars, RequirementCards, DegreeRadial) renders from
+ * this shape so buckets can never disagree across views.
+ */
+export interface BucketView {
+  id: 'ece_core' | 'math' | 'physics' | 'tech' | 'gen_ed' | 'free_elec';
+  label: string;
+  category: CourseCategory;
+  doneHours: number;
+  totalHours: number;
+  unit: 'hrs';
+  complete: boolean;
+  /** Slot/count framing for the human rule line, e.g. "8 of 10 courses done". */
+  doneCount?: number;
+  totalCount?: number;
+  countNoun?: string;
+  /** Gen-ed 9 chips, tech sub-requirements. */
+  subRequirements?: { label: string; status: 'done' | 'partial' | 'missing' }[];
+  /** Unsatisfied requirements. courseId is absent for note-only entries. */
+  remaining?: { courseId?: string; title?: string; note?: string }[];
+  /** Human-readable rule line, e.g. "≥3 hrs advanced math/science · ≤3 lower-div". */
+  ruleNote?: string;
+}
 
 // ─── Syllabi (past-syllabus enrichment) ──────────────────────────────────────
 
