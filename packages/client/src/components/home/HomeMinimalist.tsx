@@ -18,8 +18,8 @@
  */
 
 import { useState, useCallback } from 'react';
-import { NavLink } from 'react-router-dom';
-import { X } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { X, Wand2, FileText } from 'lucide-react';
 import {
   DndContext,
   DragOverlay,
@@ -39,6 +39,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { OnboardingWizard } from '@/components/OnboardingWizard';
 import { Notice } from '@/components/ui/notice';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { PlannerErrorBoundary, RecoverableErrorBoundary } from '@/components/PlannerErrorBoundary';
@@ -73,6 +74,7 @@ interface ActiveCardInfo {
 }
 
 export default function HomeMinimalist() {
+  const navigate = useNavigate();
   const {
     chatOpen, setChatOpen,
     whatIfOpen, setWhatIfOpen,
@@ -82,6 +84,7 @@ export default function HomeMinimalist() {
 
   const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   const dispatch = usePlanDispatch();
   const plan = usePlan();
@@ -220,6 +223,10 @@ export default function HomeMinimalist() {
               onRecommend={handleRecommendPlan}
               planIO={planIO}
               onOpenHelp={() => setHelpOpen(true)}
+              onImportTranscript={() => {
+                track('personalize_cta_clicked');
+                setWizardOpen(true);
+              }}
             />
           </header>
 
@@ -243,6 +250,38 @@ export default function HomeMinimalist() {
               <Notice {...noticeProps} />
             </div>
           )}
+
+          {/* ── Persistent "make it yours" action bar ────────────────────────── */}
+          {/* Visible on all viewports. On mobile this surfaces Recommend and the
+              IDA/transcript import that are otherwise buried in the ≡ hamburger.
+              On desktop it complements the ≡ menu with a quick-access strip. */}
+          <div
+            className="shrink-0 flex items-center gap-2 px-3 py-1.5 border-b border-border bg-primary/5"
+            data-testid="minimalist-action-bar"
+          >
+            <button
+              type="button"
+              className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 rounded-md text-sm font-medium text-primary hover:bg-primary/10 active:bg-primary/15 transition-colors"
+              onClick={() => {
+                track('personalize_cta_clicked');
+                setWizardOpen(true);
+              }}
+              data-testid="import-transcript-cta"
+            >
+              <FileText className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>Import transcript / audit</span>
+            </button>
+            <div className="w-px h-6 bg-border shrink-0" aria-hidden="true" />
+            <button
+              type="button"
+              className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 rounded-md text-sm font-medium text-foreground hover:bg-accent active:bg-accent/80 transition-colors"
+              onClick={handleRecommendPlan}
+              data-testid="recommend-cta"
+            >
+              <Wand2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>Recommend plan</span>
+            </button>
+          </div>
 
           {/* ── Plan canvas — fills the viewport ─────────────────────────────── */}
           <div className="flex-1 min-h-0 relative overflow-hidden">
@@ -351,8 +390,10 @@ export default function HomeMinimalist() {
             </DialogHeader>
             <ul className="text-sm text-muted-foreground space-y-2">
               <li><strong className="text-foreground">Tap a semester</strong> to view and edit its courses.</li>
+              <li><strong className="text-foreground">Import transcript / audit</strong> (action bar) personalizes the plan from your UT transcript or degree audit PDF.</li>
+              <li><strong className="text-foreground">Recommend plan</strong> (action bar) fills in a solver-optimized 4-year schedule.</li>
               <li><strong className="text-foreground">Fastest / Easiest</strong> (top bar) sets what Recommend optimises for.</li>
-              <li><strong className="text-foreground">≡ menu</strong> holds Chat, What-If, the course palette, Recommend, Compare, Schedule, Settings, and Export/Import.</li>
+              <li><strong className="text-foreground">≡ menu</strong> holds Chat, What-If, the course palette, Compare, Settings, Export, and more.</li>
               <li><strong className="text-foreground">Cmd/Ctrl+K</strong> quickly adds a course to the open semester.</li>
             </ul>
           </DialogContent>
@@ -372,6 +413,20 @@ export default function HomeMinimalist() {
           )}
         </DragOverlay>
       </DndContext>
+
+      {/* ── Import transcript / audit wizard ─────────────────────────────── */}
+      {wizardOpen && (
+        <OnboardingWizard
+          onComplete={() => setWizardOpen(false)}
+          onDismiss={() => setWizardOpen(false)}
+          onImportComplete={(completed, inProgress, source) => {
+            setWizardOpen(false);
+            navigate('/progress', {
+              state: { fromUpload: true, completed, inProgress, source },
+            });
+          }}
+        />
+      )}
     </PlannerErrorBoundary>
   );
 }

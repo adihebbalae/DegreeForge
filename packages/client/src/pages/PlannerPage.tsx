@@ -25,7 +25,6 @@ import OverviewYearGrid from '@/components/OverviewYearGrid';
 import FocusEditor from '@/components/FocusEditor';
 import CommandPalette from '@/components/CommandPalette';
 import { OnboardingWizard } from '@/components/OnboardingWizard';
-import { useOnboarded } from '@/components/home/useOnboarded';
 import { FirstRunTourController, hasTourBeenSeen, TOUR_SEEN_KEY, TOTAL_TOUR_STEPS } from '@/components/FirstRunTour';
 import { safeSetItem } from '@/lib/persist';
 import {
@@ -60,18 +59,17 @@ export default function PlannerPage() {
     detailDialogOpen,
   } = useUi();
 
-  const isOnboarded = useOnboarded();
-  // Show the "Import / Personalize" CTA for first-time visitors; user can dismiss
-  // it or open the wizard. Once dismissed or wizard completes, it hides for the session.
+  // Show the "Import transcript / audit" CTA persistently — even for the seeded
+  // example visitor. User can dismiss for the session; wizard opens the reward flow.
   const [ctaDismissed, setCtaDismissed] = useState(false);
   const [personalizeOpen, setPersonalizeOpen] = useState(false);
-  const showPersonalizeCta = !isOnboarded && !ctaDismissed;
+  const showPersonalizeCta = !ctaDismissed;
 
   // ── First-run tour ─────────────────────────────────────────────────────────
-  // Show only to first-time visitors who haven't seen the tour yet.
+  // Show on first visit to this browser (key: tour-seen localStorage flag).
   // hasTourBeenSeen() is read once at component init (module-scoped flag).
   const [tourStep, setTourStep] = useState<number | null>(() => {
-    if (!isOnboarded && !hasTourBeenSeen()) return 0;
+    if (!hasTourBeenSeen()) return 0;
     return null;
   });
   const tourActive = tourStep !== null;
@@ -284,7 +282,7 @@ export default function PlannerPage() {
         {showPersonalizeCta && (
           <div className="flex items-center justify-between gap-3 px-4 py-2 bg-primary/5 border-b border-primary/20 text-sm shrink-0">
             <span className="text-muted-foreground">
-              This is your default plan for ECE BSE.{' '}
+              Exploring the example?{' '}
               <button
                 type="button"
                 className="text-primary underline underline-offset-2 hover:opacity-80 font-medium"
@@ -293,9 +291,9 @@ export default function PlannerPage() {
                   setPersonalizeOpen(true);
                 }}
               >
-                Import your transcript or audit
+                Import your transcript or degree audit
               </button>{' '}
-              to personalize it.
+              to make it yours.
             </span>
             <Button
               variant="ghost"

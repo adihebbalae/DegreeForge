@@ -23,6 +23,7 @@ import {
   Settings,
   Download,
   Upload,
+  FileText,
   HelpCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -45,9 +46,11 @@ interface MinimalistMenuProps {
   planIO: PlanIO;
   /** Opens the inline help dialog. */
   onOpenHelp: () => void;
+  /** Opens the transcript/IDA import wizard (distinct from JSON snapshot import). */
+  onImportTranscript: () => void;
 }
 
-export default function MinimalistMenu({ onRecommend, planIO, onOpenHelp }: MinimalistMenuProps) {
+export default function MinimalistMenu({ onRecommend, planIO, onOpenHelp, onImportTranscript }: MinimalistMenuProps) {
   const navigate = useNavigate();
   const { setChatOpen, setWhatIfOpen, setPaletteOpen } = useUi();
   const snapshotDispatch = useSnapshotDispatch();
@@ -101,13 +104,17 @@ export default function MinimalistMenu({ onRecommend, planIO, onOpenHelp }: Mini
 
         <DropdownMenuSeparator />
 
+        <DropdownMenuItem onSelect={onImportTranscript}>
+          <FileText className="h-4 w-4" />
+          Import transcript / audit
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={planIO.exportPlan}>
           <Download className="h-4 w-4" />
           Export plan
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={planIO.openImport}>
           <Upload className="h-4 w-4" />
-          Import plan
+          Import plan snapshot (.json)
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />

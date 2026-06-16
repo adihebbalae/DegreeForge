@@ -91,6 +91,15 @@ vi.mock('./usePlanIO', () => ({
   }),
 }));
 
+// OnboardingWizard is heavy; stub to a lightweight marker.
+vi.mock('@/components/OnboardingWizard', () => ({
+  OnboardingWizard: ({ onDismiss }: { onDismiss?: () => void }) => (
+    <div data-testid="onboarding-wizard">
+      <button onClick={onDismiss}>dismiss</button>
+    </div>
+  ),
+}));
+
 // lib helpers — keep simple, deterministic.
 vi.mock('@/lib/course-utils', () => ({
   buildTermLoadCredits: () => ({}),
@@ -176,13 +185,39 @@ describe('HomeMinimalist', () => {
     expect(screen.getByText('Chat')).toBeDefined();
     expect(screen.getByText('What-If')).toBeDefined();
     expect(screen.getByText('Course palette')).toBeDefined();
-    expect(screen.getByText('Recommend plan')).toBeDefined();
+    // "Recommend plan" appears in both the action bar and the dropdown menu.
+    expect(screen.getAllByText('Recommend plan').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Compare')).toBeDefined();
     // Schedule removed for alpha launch.
     expect(screen.getByText('Settings')).toBeDefined();
     expect(screen.getByText('Export plan')).toBeDefined();
-    expect(screen.getByText('Import plan')).toBeDefined();
+    // IDA/transcript import is now separate from the JSON snapshot import.
+    // "Import transcript / audit" appears in both the action bar and the dropdown; check at least one.
+    expect(screen.getAllByText('Import transcript / audit').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Import plan snapshot (.json)')).toBeDefined();
     expect(screen.getByText('Help')).toBeDefined();
+  });
+
+  it('renders the persistent action bar with import and recommend CTAs', () => {
+    renderShell();
+    expect(screen.getByTestId('minimalist-action-bar')).toBeDefined();
+    expect(screen.getByTestId('import-transcript-cta')).toBeDefined();
+    expect(screen.getByTestId('recommend-cta')).toBeDefined();
+  });
+
+  it('opens the onboarding wizard when import transcript CTA is clicked', () => {
+    renderShell();
+    expect(screen.queryByTestId('onboarding-wizard')).toBeNull();
+    fireEvent.click(screen.getByTestId('import-transcript-cta'));
+    expect(screen.getByTestId('onboarding-wizard')).toBeDefined();
+  });
+
+  it('closes the onboarding wizard when dismissed', () => {
+    renderShell();
+    fireEvent.click(screen.getByTestId('import-transcript-cta'));
+    expect(screen.getByTestId('onboarding-wizard')).toBeDefined();
+    fireEvent.click(screen.getByText('dismiss'));
+    expect(screen.queryByTestId('onboarding-wizard')).toBeNull();
   });
 
   it('tapping a semester card focuses it (drives the editor sheet)', () => {
