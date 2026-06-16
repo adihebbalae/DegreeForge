@@ -98,7 +98,10 @@ export function ProgressBars() {
       {whatIf.isActive && (
         <Zap className="h-3 w-3 text-yellow-600 fill-yellow-600 shrink-0" aria-hidden="true" />
       )}
-      <span className="text-[10px] font-semibold tabular-nums text-muted-foreground whitespace-nowrap shrink-0">
+      <span
+        data-tour="progress-total"
+        className="text-[10px] font-semibold tabular-nums text-muted-foreground whitespace-nowrap shrink-0"
+      >
         {progress.totalHours} / {progress.totalHoursTarget} hrs{suffix}
       </span>
       <Tooltip>

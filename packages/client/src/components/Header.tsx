@@ -271,6 +271,7 @@ export default function Header() {
                 className="gap-1.5"
                 onClick={handleRecommendPlan}
                 title="Recommend 4-Year Plan"
+                data-tour="recommend"
               >
                 <Wand2 className="h-4 w-4" />
                 Recommend

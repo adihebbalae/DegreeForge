@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { PlannerErrorBoundary, RecoverableErrorBoundary } from '@/components/PlannerErrorBoundary';
@@ -25,8 +25,8 @@ import OverviewYearGrid from '@/components/OverviewYearGrid';
 import FocusEditor from '@/components/FocusEditor';
 import CommandPalette from '@/components/CommandPalette';
 import { OnboardingWizard } from '@/components/OnboardingWizard';
-import { FirstRunTourController, hasTourBeenSeen, TOUR_SEEN_KEY, TOTAL_TOUR_STEPS } from '@/components/FirstRunTour';
-import { safeSetItem, safeGetRaw } from '@/lib/persist';
+import { FirstRunTourController, hasTourBeenSeen } from '@/components/FirstRunTour';
+import { safeGetRaw } from '@/lib/persist';
 import { PROFILE_SOURCE_KEY } from '@/components/DemoSeedBootstrap';
 import {
   useCatalogRecord,
@@ -71,46 +71,13 @@ export default function PlannerPage() {
   const showPersonalizeCta = isExampleOrEmpty && !ctaDismissed;
 
   // ── First-run tour ─────────────────────────────────────────────────────────
-  // Show on first visit to this browser (key: tour-seen localStorage flag).
-  // hasTourBeenSeen() is read once at component init (module-scoped flag).
-  const [tourStep, setTourStep] = useState<number | null>(() => {
-    if (!hasTourBeenSeen()) return 0;
-    return null;
-  });
-  const tourActive = tourStep !== null;
-
-  const handleTourNext = useCallback(() => {
-    setTourStep(prev => {
-      if (prev === null) return null;
-      const next = prev + 1;
-      if (next >= TOTAL_TOUR_STEPS) {
-        // Tour complete
-        safeSetItem(TOUR_SEEN_KEY, 'true');
-        track('tour_completed');
-        return null;
-      }
-      track('tour_step_viewed', { step: next });
-      return next;
-    });
-  }, []);
-
-  const handleTourSkip = useCallback(() => {
-    setTourStep(prev => {
-      if (prev === null) return null;
-      safeSetItem(TOUR_SEEN_KEY, 'true');
-      track('tour_skipped', { step: prev });
-      return null;
-    });
-  }, []);
-
-  // Fire tour_started + tour_step_viewed for step 0 on mount (only once).
-  useEffect(() => {
-    if (tourActive && tourStep === 0) {
-      track('tour_started');
-      track('tour_step_viewed', { step: 0 });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);  // intentionally empty — run once on mount
+  // Interactive walkthrough shown once per browser (gate: df:tour-seen). The
+  // controller owns its own step machine + analytics; this page only decides
+  // whether to mount it and feeds it the signals it needs (placed-course count
+  // for add-detection, open/close of the Add command palette).
+  // hasTourBeenSeen() is read once at component init so a mid-session "tour-seen"
+  // write doesn't re-trigger render churn.
+  const [tourMounted, setTourMounted] = useState(() => !hasTourBeenSeen());
 
   const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
   // Track whether the command palette is the "primary" Esc consumer so that
@@ -121,6 +88,13 @@ export default function PlannerPage() {
   // ── Dispatch + plan state ─────────────────────────────────────────────────
   const dispatch = usePlanDispatch();
   const plan = usePlan();
+
+  // Total courses placed across all semesters — the tour's "Add a course" step
+  // auto-advances when this rises (a real ADD_COURSE happened).
+  const placedCourseCount = useMemo(
+    () => Object.values(plan).reduce((sum, ids) => sum + ids.length, 0),
+    [plan]
+  );
 
   // ── Data for the DragOverlay CourseCard ──────────────────────────────────
   const catalog = useCatalogRecord();
@@ -285,7 +259,7 @@ export default function PlannerPage() {
 
         {/* ── Import / Personalize CTA — first-time visitors only ──────────── */}
         {showPersonalizeCta && (
-          <div className="flex items-center justify-between gap-3 px-4 py-2 bg-primary/5 border-b border-primary/20 text-sm shrink-0">
+          <div data-tour="import-cta" className="flex items-center justify-between gap-3 px-4 py-2 bg-primary/5 border-b border-primary/20 text-sm shrink-0">
             <span className="text-muted-foreground">
               Exploring the example?{' '}
               <button
@@ -459,13 +433,14 @@ export default function PlannerPage() {
       />
     )}
 
-    {/* ── First-run tour — non-blocking coachmark, first-time visitors only ─ */}
-    {tourActive && !personalizeOpen && (
+    {/* ── First-run tour — interactive walkthrough, first-time visitors only ─ */}
+    {tourMounted && !personalizeOpen && (
       <FirstRunTourController
-        step={tourStep!}
-        onNext={handleTourNext}
-        onSkip={handleTourSkip}
+        placedCourseCount={placedCourseCount}
+        onOpenAdd={() => setCommandPaletteOpen(true)}
+        onCloseAdd={() => setCommandPaletteOpen(false)}
         hasFocusedSemester={!!focusedSemesterId}
+        onEnd={() => setTourMounted(false)}
       />
     )}
     </PlannerErrorBoundary>

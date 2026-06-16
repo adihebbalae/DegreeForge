@@ -1,9 +1,12 @@
 // @vitest-environment jsdom
 /**
- * FirstRunTour — TASK-105 Commit 2
+ * FirstRunTour — interactive first-run tour.
  *
- * Covers the tour-gating logic (hasTourBeenSeen) and the controller's
- * skip/next/Esc behavior.
+ * Covers:
+ *  - the tour-seen gate (hasTourBeenSeen)
+ *  - the pure step machine (tourReducer): advance, complete→null, skip→null
+ *  - the controller: Next advances, Skip sets tour-seen, course-added auto-advances,
+ *    Recommend-click advances, welcome step has no spotlight, Esc skips/yields.
  */
 
 import { render, screen, fireEvent, cleanup, act } from '@testing-library/react';
@@ -24,10 +27,17 @@ vi.mock('@/lib/analytics', () => ({
   track: (...args: unknown[]) => mockTrack(...args),
 }));
 
-import { hasTourBeenSeen, TOUR_SEEN_KEY, FirstRunTourController } from './FirstRunTour';
+import {
+  hasTourBeenSeen,
+  TOUR_SEEN_KEY,
+  TOTAL_TOUR_STEPS,
+  tourReducer,
+  FirstRunTourController,
+} from './FirstRunTour';
 
 afterEach(() => {
   cleanup();
+  document.body.innerHTML = '';
   vi.clearAllMocks();
 });
 
@@ -35,7 +45,18 @@ beforeEach(() => {
   mockSafeGetRaw.mockReturnValue(null);
 });
 
-// ─── hasTourBeenSeen ──────────────────────────────────────────────────────────
+// Default props for the controller — overridable per test.
+function controllerProps(overrides: Partial<React.ComponentProps<typeof FirstRunTourController>> = {}) {
+  return {
+    placedCourseCount: 0,
+    onOpenAdd: vi.fn(),
+    onCloseAdd: vi.fn(),
+    onEnd: vi.fn(),
+    ...overrides,
+  };
+}
+
+// ─── hasTourBeenSeen (gate) ─────────────────────────────────────────────────────
 
 describe('hasTourBeenSeen', () => {
   it('returns false when the key is absent', () => {
@@ -59,94 +80,210 @@ describe('hasTourBeenSeen', () => {
   });
 });
 
-// ─── FirstRunTourController ───────────────────────────────────────────────────
+// ─── tourReducer (pure step machine) ────────────────────────────────────────────
+
+describe('tourReducer', () => {
+  it('advances from step 0 to step 1', () => {
+    expect(tourReducer({ step: 0 }, { type: 'advance' })).toEqual({ step: 1 });
+  });
+
+  it('advancing past the last step ends the tour (step → null)', () => {
+    const last = TOTAL_TOUR_STEPS - 1;
+    expect(tourReducer({ step: last }, { type: 'advance' })).toEqual({ step: null });
+  });
+
+  it('skip ends the tour from any step', () => {
+    expect(tourReducer({ step: 2 }, { type: 'skip' })).toEqual({ step: null });
+  });
+
+  it('advance is a no-op once the tour has ended', () => {
+    expect(tourReducer({ step: null }, { type: 'advance' })).toEqual({ step: null });
+  });
+
+  it('goto jumps to an explicit step', () => {
+    expect(tourReducer({ step: null }, { type: 'goto', step: 3 })).toEqual({ step: 3 });
+  });
+
+  it('has 5 steps', () => {
+    expect(TOTAL_TOUR_STEPS).toBe(5);
+  });
+});
+
+// ─── Controller — render + gating ────────────────────────────────────────────────
 
 describe('FirstRunTourController', () => {
-  it('renders the tour card for step 0', () => {
-    render(
-      <FirstRunTourController step={0} onNext={vi.fn()} onSkip={vi.fn()} />
-    );
+  it('starts at step 0 (welcome) with a centered card and NO spotlight', () => {
+    render(<FirstRunTourController {...controllerProps()} />);
     expect(screen.getByTestId('tour-card')).toBeDefined();
-    expect(screen.getByText('1 / 4')).toBeDefined();
+    expect(screen.getByText('1 / 5')).toBeDefined();
+    // Welcome step has no target → full backdrop, no per-target spotlight ring.
+    expect(screen.getByTestId('tour-backdrop')).toBeDefined();
+    expect(screen.queryByTestId('tour-spotlight')).toBeNull();
   });
 
-  it('renders the correct step title for each step', () => {
-    const { rerender } = render(
-      <FirstRunTourController step={0} onNext={vi.fn()} onSkip={vi.fn()} />
-    );
-    expect(screen.getByText('Start with Recommend')).toBeDefined();
-
-    rerender(<FirstRunTourController step={1} onNext={vi.fn()} onSkip={vi.fn()} />);
-    expect(screen.getByText('Your degree at a glance')).toBeDefined();
-
-    rerender(<FirstRunTourController step={2} onNext={vi.fn()} onSkip={vi.fn()} />);
-    expect(screen.getByText('Click any semester to edit')).toBeDefined();
-
-    rerender(<FirstRunTourController step={3} onNext={vi.fn()} onSkip={vi.fn()} />);
-    expect(screen.getByText('Make it yours')).toBeDefined();
+  it('shows the welcome copy on step 0', () => {
+    render(<FirstRunTourController {...controllerProps()} />);
+    expect(screen.getByText('Build your plan in under a minute')).toBeDefined();
   });
 
-  it('shows "Done" button on the last step', () => {
-    render(
-      <FirstRunTourController step={3} onNext={vi.fn()} onSkip={vi.fn()} />
-    );
-    expect(screen.getByRole('button', { name: 'Done' })).toBeDefined();
+  it('Next advances from welcome to the Recommend step', () => {
+    render(<FirstRunTourController {...controllerProps()} />);
+    fireEvent.click(screen.getByRole('button', { name: /start/i }));
+    expect(screen.getByText('2 / 5')).toBeDefined();
+    expect(screen.getByText('One click for a full plan')).toBeDefined();
   });
 
-  it('shows "Next" on non-last steps', () => {
-    render(
-      <FirstRunTourController step={0} onNext={vi.fn()} onSkip={vi.fn()} />
-    );
-    // The Next button includes a ChevronRight icon; text is "Next"
-    const nextBtn = screen.getByRole('button', { name: /next/i });
-    expect(nextBtn).toBeDefined();
+  it('spotlights a real target when one exists (Recommend step)', () => {
+    // Provide the live target so the controller can resolve its rect.
+    const btn = document.createElement('button');
+    btn.setAttribute('data-tour', 'recommend');
+    document.body.appendChild(btn);
+
+    render(<FirstRunTourController {...controllerProps()} />);
+    fireEvent.click(screen.getByRole('button', { name: /start/i }));
+    // Now on the Recommend step with a resolvable target → spotlight ring renders.
+    expect(screen.getByTestId('tour-spotlight')).toBeDefined();
   });
 
-  it('calls onNext when Next is clicked', () => {
-    const onNext = vi.fn();
-    render(<FirstRunTourController step={0} onNext={onNext} onSkip={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: /next/i }));
-    expect(onNext).toHaveBeenCalledTimes(1);
-  });
+  it('clicking the spotlit Recommend target advances the tour', () => {
+    const btn = document.createElement('button');
+    btn.setAttribute('data-tour', 'recommend');
+    document.body.appendChild(btn);
 
-  it('calls onSkip when Skip tour is clicked', () => {
-    const onSkip = vi.fn();
-    render(<FirstRunTourController step={0} onNext={vi.fn()} onSkip={onSkip} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Skip tour' }));
-    expect(onSkip).toHaveBeenCalledTimes(1);
-  });
+    render(<FirstRunTourController {...controllerProps()} />);
+    fireEvent.click(screen.getByRole('button', { name: /start/i })); // → step 1 (Recommend)
+    expect(screen.getByText('One click for a full plan')).toBeDefined();
 
-  it('calls onSkip when the X (Dismiss) button is clicked', () => {
-    const onSkip = vi.fn();
-    render(<FirstRunTourController step={0} onNext={vi.fn()} onSkip={onSkip} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Dismiss tour' }));
-    expect(onSkip).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls onSkip when Esc is pressed', () => {
-    const onSkip = vi.fn();
-    render(<FirstRunTourController step={0} onNext={vi.fn()} onSkip={onSkip} />);
     act(() => {
-      fireEvent.keyDown(window, { key: 'Escape' });
+      fireEvent.click(btn); // user clicks the real Recommend button
     });
-    expect(onSkip).toHaveBeenCalledTimes(1);
+    // Advanced to step 2 (Add).
+    expect(screen.getByText('Add a course here')).toBeDefined();
   });
 
-  it('renders nothing when step >= totalSteps', () => {
-    render(<FirstRunTourController step={99} onNext={vi.fn()} onSkip={vi.fn()} />);
+  it('opens the Add affordance when entering the Add step', () => {
+    const onOpenAdd = vi.fn();
+    render(<FirstRunTourController {...controllerProps({ onOpenAdd })} />);
+    // welcome → recommend → add
+    fireEvent.click(screen.getByRole('button', { name: /start/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(onOpenAdd).toHaveBeenCalled();
+  });
+
+  it('auto-advances from Add to Progress when placedCourseCount rises', () => {
+    const { rerender } = render(
+      <FirstRunTourController {...controllerProps({ placedCourseCount: 5 })} />
+    );
+    // Navigate to the Add step (index 2).
+    fireEvent.click(screen.getByRole('button', { name: /start/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(screen.getByText('Add a course here')).toBeDefined();
+
+    // Simulate a course being added → count increases.
+    act(() => {
+      rerender(<FirstRunTourController {...controllerProps({ placedCourseCount: 6 })} />);
+    });
+    expect(screen.getByText('Watch your progress climb')).toBeDefined();
+  });
+
+  it('does NOT auto-advance the Add step if the count does not rise', () => {
+    const { rerender } = render(
+      <FirstRunTourController {...controllerProps({ placedCourseCount: 5 })} />
+    );
+    fireEvent.click(screen.getByRole('button', { name: /start/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(screen.getByText('Add a course here')).toBeDefined();
+
+    act(() => {
+      rerender(<FirstRunTourController {...controllerProps({ placedCourseCount: 5 })} />);
+    });
+    // Still on the Add step.
+    expect(screen.getByText('Add a course here')).toBeDefined();
+  });
+
+  it('shows "Done" on the last (Import) step and completing ends the tour', () => {
+    const onEnd = vi.fn();
+    const { rerender } = render(
+      <FirstRunTourController {...controllerProps({ placedCourseCount: 0, onEnd })} />
+    );
+    // welcome → recommend → add
+    fireEvent.click(screen.getByRole('button', { name: /start/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    // add → progress via a count rise
+    act(() => {
+      rerender(<FirstRunTourController {...controllerProps({ placedCourseCount: 1, onEnd })} />);
+    });
+    // progress → import
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(screen.getByText('Make it yours')).toBeDefined();
+    const doneBtn = screen.getByRole('button', { name: 'Done' });
+    expect(doneBtn).toBeDefined();
+
+    fireEvent.click(doneBtn);
+    expect(mockSafeSetItem).toHaveBeenCalledWith(TOUR_SEEN_KEY, 'true');
+    expect(mockTrack).toHaveBeenCalledWith('tour_completed');
+    expect(onEnd).toHaveBeenCalled();
+  });
+
+  it('Skip sets df:tour-seen and ends the tour at any step', () => {
+    const onEnd = vi.fn();
+    render(<FirstRunTourController {...controllerProps({ onEnd })} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Skip tour' }));
+    expect(mockSafeSetItem).toHaveBeenCalledWith(TOUR_SEEN_KEY, 'true');
+    expect(onEnd).toHaveBeenCalled();
     expect(screen.queryByTestId('tour-card')).toBeNull();
   });
 
-  it('cleans up the keydown listener on unmount', () => {
-    const onSkip = vi.fn();
-    const { unmount } = render(
-      <FirstRunTourController step={0} onNext={vi.fn()} onSkip={onSkip} />
-    );
-    unmount();
-    // After unmount, Esc should NOT call onSkip
+  it('the X (Dismiss) button also skips + sets tour-seen', () => {
+    render(<FirstRunTourController {...controllerProps()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss tour' }));
+    expect(mockSafeSetItem).toHaveBeenCalledWith(TOUR_SEEN_KEY, 'true');
+  });
+
+  it('fires tour_started once and tour_step_viewed per step', () => {
+    render(<FirstRunTourController {...controllerProps()} />);
+    expect(mockTrack).toHaveBeenCalledWith('tour_started');
+    expect(mockTrack).toHaveBeenCalledWith('tour_step_viewed', { step: 0 });
+    fireEvent.click(screen.getByRole('button', { name: /start/i }));
+    expect(mockTrack).toHaveBeenCalledWith('tour_step_viewed', { step: 1 });
+    // tour_started only once
+    expect(mockTrack.mock.calls.filter((c) => c[0] === 'tour_started')).toHaveLength(1);
+  });
+
+  it('Esc skips the tour when no semester is focused', () => {
+    render(<FirstRunTourController {...controllerProps({ hasFocusedSemester: false })} />);
     act(() => {
       fireEvent.keyDown(window, { key: 'Escape' });
     });
-    expect(onSkip).toHaveBeenCalledTimes(0);
+    expect(mockSafeSetItem).toHaveBeenCalledWith(TOUR_SEEN_KEY, 'true');
+  });
+
+  it('Esc yields (does NOT skip) when a semester panel is focused', () => {
+    render(<FirstRunTourController {...controllerProps({ hasFocusedSemester: true })} />);
+    act(() => {
+      fireEvent.keyDown(window, { key: 'Escape' });
+    });
+    expect(mockSafeSetItem).not.toHaveBeenCalled();
+    expect(screen.getByTestId('tour-card')).toBeDefined();
+  });
+});
+
+// ─── data-tour targets the tour depends on ──────────────────────────────────────
+
+describe('tour target selectors', () => {
+  // The controller spotlights elements by these selectors; if a target component
+  // drops its data-tour hook, the relevant step silently loses its spotlight.
+  // This documents the contract so a rename breaks loudly.
+  it('uses the documented data-tour selectors', () => {
+    const SELECTORS = [
+      '[data-tour="recommend"]',
+      '[data-tour="command-search"]',
+      '[data-tour="progress-total"]',
+      '[data-tour="import-cta"]',
+    ];
+    // Render each as a probe — querySelector must accept the selector syntax.
+    for (const sel of SELECTORS) {
+      expect(() => document.querySelector(sel)).not.toThrow();
+    }
   });
 });

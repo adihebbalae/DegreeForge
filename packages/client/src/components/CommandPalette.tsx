@@ -295,6 +295,7 @@ export default function CommandPalette() {
           <Search className="h-4 w-4 text-muted-foreground shrink-0" />
           <input
             ref={inputRef}
+            data-tour="command-search"
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
