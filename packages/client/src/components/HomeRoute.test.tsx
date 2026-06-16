@@ -40,6 +40,19 @@ vi.mock('../pages/SchedulerPage', () => ({ default: () => <div data-testid="sche
 vi.mock('../pages/SettingsPage', () => ({ default: () => <div data-testid="settings-page" /> }));
 vi.mock('../pages/CareerPage', () => ({ default: () => <div data-testid="career-page" /> }));
 
+// jsdom lacks matchMedia; Layout now mounts FeedbackWidget, which reads it via
+// useMediaQuery. Stub it so rendering <Layout /> doesn't throw.
+window.matchMedia = window.matchMedia ?? ((query: string) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addEventListener: () => {},
+  removeEventListener: () => {},
+  addListener: () => {},
+  removeListener: () => {},
+  dispatchEvent: () => false,
+} as unknown as MediaQueryList));
+
 import HomeRoute from './HomeRoute';
 import Layout from './Layout';
 

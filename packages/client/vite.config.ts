@@ -2,9 +2,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { readFileSync } from 'fs'
+
+// Build-time app version, surfaced to the client as `__APP_VERSION__`.
+// Read from package.json so feedback submissions can be correlated to a build
+// without standing up a release pipeline.
+const pkgVersion = JSON.parse(
+  readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8'),
+).version as string
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    __APP_VERSION__: JSON.stringify(pkgVersion),
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

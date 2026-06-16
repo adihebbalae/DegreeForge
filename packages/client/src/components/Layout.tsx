@@ -5,6 +5,7 @@ import PlannerPage from '../pages/PlannerPage'
 import SettingsPage from '../pages/SettingsPage'
 import ProgressPage from '../pages/ProgressPage'
 import { RecoverableErrorBoundary } from './PlannerErrorBoundary'
+import FeedbackWidget from './FeedbackWidget'
 import { useHomeVariant } from '../hooks/useHomeVariant'
 import { useStuckPointerEventsGuard } from '../hooks/useStuckPointerEventsGuard'
 
@@ -33,6 +34,9 @@ export default function Layout() {
           <Route path="/progress" element={<ProgressPage />} />
         </Routes>
       </main>
+      {/* Persistent feedback widget — mounted once here so it renders on every
+          route and on both the desktop and mobile (minimalist) shells. */}
+      <FeedbackWidget />
     </div>
   )
 }
