@@ -99,8 +99,14 @@ Before implementation, Manager writes a plan to `.agents/plans/<TASK-ID>.md` usi
 
 User reviews and approves the plan before Engineer writes any code. Manager updates the plan if user requests changes.
 
-### 2. Critic Review
-After Engineer commits, Manager invokes the Critic agent to review for over-engineering, slop, and redundancy. Critic produces `.agents/critic-report.md`. Engineer acts on feedback or escalates to Manager. Only then proceeds to Security audit.
+### 2. Critic Review (risk-gated, not every task)
+The Critic is **independent verification**, not a substitute for engineer quality — the Engineer still writes critic-worthy code on the first pass (it's primed with this checklist + BDR format). The Critic exists because self-review has a structural blind spot: an author evaluates work against the same mental model that produced it, so it can't see what it didn't know to check. (Proof: a Phase-1 commit passed tsc + 1023 tests and still shipped a real `useOnboarded` BLOCKER that a cold Critic pass caught.)
+
+Because its value scales with **change risk**, run it by risk, not by reflex:
+- **RUN the Critic** for: new features, multi-file changes, anything touching state/routing/data/correctness-critical paths, or where the BDR claim is non-trivial to verify.
+- **SKIP the Critic** for: trivial/mechanical changes — one-liners, comment/doc edits, pure renames, config bumps.
+
+When run: Manager invokes the Critic agent (a SUBAGENT, never inline) → it produces `.agents/critic-report.md`. **Critic output needs judgment, not auto-apply** — it can overstate severity or be wrong (e.g. a suggested guard-swap that would have introduced a NaN bug). Manager weighs each finding; Engineer acts on the real ones or escalates. Then proceeds to the (separately risk-judged) Security audit.
 
 ### 3. BDR Commits
 All commits use BDR format (Business/Decision/Rationale). See `.agents/templates/bdr-commit.md` for the full template. Every commit documents:
