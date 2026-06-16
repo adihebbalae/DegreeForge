@@ -442,4 +442,101 @@ describe('OnboardingWizard (TASK-105 5-step flow)', () => {
     // Review step shows catalog year
     expect(screen.getByText('Catalog Year')).toBeDefined();
   });
+
+  // TASK-105 Phase 2: import-success → onImportComplete short-circuit
+  it('calls onImportComplete with counts when parse succeeds and onImportComplete is provided', async () => {
+    const { parseTranscript } = await import('@/lib/agent-tools/parse-transcript');
+    const mockParse = parseTranscript as ReturnType<typeof vi.fn>;
+    mockParse.mockReturnValueOnce([
+      { courseId: 'ECE 302', title: 'Intro EE', grade: 'A', semester: 'Fall 2025', creditHours: 3 },
+      { courseId: 'ECE 306', title: 'Control Systems', grade: 'B', semester: 'Fall 2025', creditHours: 3 },
+      { courseId: 'ECE 319H', title: 'Circuits', grade: 'IP', semester: 'Spring 2026', creditHours: 3 },
+    ]);
+
+    const handleImportComplete = vi.fn();
+    const handleComplete = vi.fn();
+
+    renderWithProviders(
+      <OnboardingWizard onComplete={handleComplete} onImportComplete={handleImportComplete} />
+    );
+
+    skipToImportStep(); // reach step 4
+
+    const textarea = screen.getByPlaceholderText(/ECE 302/);
+    fireEvent.change(textarea, { target: { value: 'ECE 302 Intro EE A Fall 2025 3' } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // triggers handleParseTranscript
+
+    // onImportComplete should be called with completed=2, inProgress=1, source='transcript'
+    expect(handleImportComplete).toHaveBeenCalledTimes(1);
+    expect(handleImportComplete).toHaveBeenCalledWith(2, 1, 'transcript');
+    // onComplete must NOT be called (short-circuit)
+    expect(handleComplete).not.toHaveBeenCalled();
+  });
+
+  it('does NOT call onImportComplete when parse returns 0 courses (graceful, no false reward)', async () => {
+    const { parseTranscript } = await import('@/lib/agent-tools/parse-transcript');
+    const mockParse = parseTranscript as ReturnType<typeof vi.fn>;
+    mockParse.mockReturnValueOnce([]); // 0 courses → failure path
+
+    const handleImportComplete = vi.fn();
+    const handleComplete = vi.fn();
+
+    renderWithProviders(
+      <OnboardingWizard onComplete={handleComplete} onImportComplete={handleImportComplete} />
+    );
+
+    skipToImportStep(); // reach step 4
+
+    const textarea = screen.getByPlaceholderText(/ECE 302/);
+    fireEvent.change(textarea, { target: { value: 'garbage text' } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    // Neither callback should fire — wizard stays on import step with error
+    expect(handleImportComplete).not.toHaveBeenCalled();
+    expect(handleComplete).not.toHaveBeenCalled();
+  });
+
+  it('does NOT call onImportComplete when parse throws (graceful, no false reward)', async () => {
+    const { parseTranscript } = await import('@/lib/agent-tools/parse-transcript');
+    const mockParse = parseTranscript as ReturnType<typeof vi.fn>;
+    mockParse.mockImplementationOnce(() => { throw new Error('parse error'); });
+
+    const handleImportComplete = vi.fn();
+    const handleComplete = vi.fn();
+
+    renderWithProviders(
+      <OnboardingWizard onComplete={handleComplete} onImportComplete={handleImportComplete} />
+    );
+
+    skipToImportStep(); // reach step 4
+
+    const textarea = screen.getByPlaceholderText(/ECE 302/);
+    fireEvent.change(textarea, { target: { value: 'anything' } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(handleImportComplete).not.toHaveBeenCalled();
+    expect(handleComplete).not.toHaveBeenCalled();
+  });
+
+  it('falls back to review-step flow when onImportComplete is not provided', async () => {
+    const { parseTranscript } = await import('@/lib/agent-tools/parse-transcript');
+    const mockParse = parseTranscript as ReturnType<typeof vi.fn>;
+    mockParse.mockReturnValueOnce([
+      { courseId: 'ECE 302', title: 'Intro EE', grade: 'A', semester: 'Fall 2025', creditHours: 3 },
+    ]);
+
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+
+    skipToImportStep(); // reach step 4
+
+    const textarea = screen.getByPlaceholderText(/ECE 302/);
+    fireEvent.change(textarea, { target: { value: 'ECE 302 Intro EE A Fall 2025 3' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 4->5
+
+    // Should advance to review step (original behavior preserved)
+    expect(screen.getByText('Review & Commit')).toBeDefined();
+  });
 });

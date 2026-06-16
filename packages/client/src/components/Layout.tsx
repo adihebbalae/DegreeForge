@@ -5,6 +5,7 @@ import PlannerPage from '../pages/PlannerPage'
 import SchedulerPage from '../pages/SchedulerPage'
 import SettingsPage from '../pages/SettingsPage'
 import CareerPage from '../pages/CareerPage'
+import ProgressPage from '../pages/ProgressPage'
 import { RecoverableErrorBoundary } from './PlannerErrorBoundary'
 import { useHomeVariant } from '../hooks/useHomeVariant'
 import { useStuckPointerEventsGuard } from '../hooks/useStuckPointerEventsGuard'
@@ -38,6 +39,7 @@ export default function Layout() {
             </RecoverableErrorBoundary>
           } />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/progress" element={<ProgressPage />} />
         </Routes>
       </main>
     </div>

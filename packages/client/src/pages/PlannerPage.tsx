@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { PlannerErrorBoundary, RecoverableErrorBoundary } from '@/components/PlannerErrorBoundary';
 import {
@@ -49,6 +50,7 @@ interface ActiveCardInfo {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function PlannerPage() {
+  const navigate = useNavigate();
   const {
     chatOpen, setChatOpen,
     whatIfOpen, setWhatIfOpen,
@@ -443,6 +445,12 @@ export default function PlannerPage() {
       <OnboardingWizard
         onComplete={() => setPersonalizeOpen(false)}
         onDismiss={() => setPersonalizeOpen(false)}
+        onImportComplete={(completed, inProgress, source) => {
+          setPersonalizeOpen(false);
+          navigate('/progress', {
+            state: { fromUpload: true, completed, inProgress, source },
+          });
+        }}
       />
     )}
 

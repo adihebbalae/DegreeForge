@@ -23,9 +23,15 @@ interface OnboardingWizardProps {
   onComplete: () => void;
   /** Optional: called when the user dismisses the wizard without completing it. */
   onDismiss?: () => void;
+  /**
+   * TASK-105 Phase 2: called instead of onComplete when the import step produces
+   * a successful parse (≥1 course). Receives the cleaned counts so the caller can
+   * navigate to the /progress reveal. When not provided, falls back to onComplete.
+   */
+  onImportComplete?: (completed: number, inProgress: number, source: ImportSource) => void;
 }
 
-export function OnboardingWizard({ onComplete, onDismiss }: OnboardingWizardProps) {
+export function OnboardingWizard({ onComplete, onDismiss, onImportComplete }: OnboardingWizardProps) {
   const techCores = useTechCoresRecord();
   const settingsDispatch = useSettingsDispatch();
   const planDispatch = usePlanDispatch();
@@ -114,6 +120,7 @@ export function OnboardingWizard({ onComplete, onDismiss }: OnboardingWizardProp
       setIsParsing(false);
       if (courses.length === 0) {
         // TASK-106: parser ran but found nothing — counts as failed
+        // Graceful (no false reward): do NOT navigate to /progress on 0 courses.
         track('onboarding_import_failed', { source: importSource });
         setTranscriptError(true);
       } else {
@@ -121,18 +128,38 @@ export function OnboardingWizard({ onComplete, onDismiss }: OnboardingWizardProp
         track('onboarding_import_parsed', { source: importSource, count: courses.length });
         setTranscriptError(false);
         setParsedCourses(courses);
-        handleNext();
+
+        // TASK-105 Phase 2: if a reward-navigation callback is wired, commit
+        // immediately and short-circuit the remaining review step. The user
+        // goes straight to the /progress reveal with their parsed counts.
+        if (onImportComplete) {
+          const { completed, inProgress } = commitWizardState(courses);
+          track('onboarding_completed');
+          onImportComplete(completed, inProgress, importSource);
+        } else {
+          // Original path: advance to review step so user can confirm + "Start Planning".
+          handleNext();
+        }
       }
     } catch (err) {
       console.error('Transcript parse error:', err);
       // TASK-106: parser threw — also a failure
+      // Graceful (no false reward): do NOT navigate to /progress on parse error.
       track('onboarding_import_failed', { source: importSource });
       setIsParsing(false);
       setTranscriptError(true);
     }
   };
 
-  const handleCommit = () => {
+  /**
+   * Shared commit: writes settings + profile + plan from wizard state.
+   * Used by both the review-step "Start Planning" path and the import-success
+   * short-circuit path (TASK-105 Phase 2).
+   *
+   * Returns the cleaned completed/in-progress counts so the caller can pass
+   * them to the reveal navigation.
+   */
+  const commitWizardState = (courses: ParsedCourse[]) => {
     // Settings dispatches (tolerance, grad target, tech core) remain in SettingsContext.
     settingsDispatch({ type: 'SET_GRAD_TARGET', value: gradTarget });
     settingsDispatch({ type: 'SET_LOAD_TOLERANCE', value: loadTolerance });
@@ -151,11 +178,11 @@ export function OnboardingWizard({ onComplete, onDismiss }: OnboardingWizardProp
     // extracted token that isn't a valid course code (e.g. a requirement-section
     // header the IDA parser mistook for a course) so it can't become a phantom
     // completed course that satisfies a requirement or pins a non-existent node.
-    const { dropped } = sanitizeCourseList(parsedCourses.map(c => c.courseId));
+    const { dropped } = sanitizeCourseList(courses.map(c => c.courseId));
     if (dropped.length > 0) {
       console.warn(`[onboarding] dropped ${dropped.length} unrecognized course token(s):`, dropped);
     }
-    const cleanParsed = parsedCourses.filter(c => isValidCourseId(c.courseId));
+    const cleanParsed = courses.filter(c => isValidCourseId(c.courseId));
 
     const completedCourses: UserProfile['completed_courses'] = cleanParsed
       .filter(c => c.grade !== 'IP')
@@ -204,8 +231,15 @@ export function OnboardingWizard({ onComplete, onDismiss }: OnboardingWizardProp
     // Keep PlanState.major/catalogYear in sync for any consumers that read those fields.
     planDispatch({ type: 'SET_PROFILE_META', major, catalogYear });
 
-    track('onboarding_completed');
+    return {
+      completed: completedCourses.length,
+      inProgress: inProgressCourses.length,
+    };
+  };
 
+  const handleCommit = () => {
+    commitWizardState(parsedCourses);
+    track('onboarding_completed');
     onComplete();
   };
 
