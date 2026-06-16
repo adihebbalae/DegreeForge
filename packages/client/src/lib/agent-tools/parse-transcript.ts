@@ -57,10 +57,11 @@ const FOOTER_SKIP_RE = /^(?:Total\s+Hours|Lower\s+Division|Upper\s+Division|Grad
 // Matches a valid UT course code at the start of a line:
 // 1–4 uppercase letters, a space, then a 3-digit number with optional letter suffix.
 // After E E → ECE normalization, multi-token depts are already collapsed.
-const COURSE_CODE_START_RE = /^([A-Z]{1,4})\s+(\d{3}[A-Z]?\d?)\s+(.*)/;
+// Group 3 captures everything after the course number (may be empty).
+const COURSE_CODE_START_RE = /^([A-Z]{1,4})\s+(\d{3}[A-Z]?\d?)(?:\s+(.*))?$/;
 
 // Finds the grade token (letter grade or CR/NC/W/Q) followed by the unique number
-// (1–5 digits) somewhere WITHIN the "rest" string (after the course code).
+// (1–5 digits) somewhere WITHIN a string.
 // Captured groups: (1) grade, (2) unique digits, (3) optional trailing content.
 // The leading \s ensures we don't match inside a word (e.g. "B" inside "ALGEBRA").
 const GRADE_UNIQUE_RE = /\s(A[+-]?|B[+-]?|C[+-]?|D[+-]?|F|CR|NC|W|Q)\s+(\d{1,5})(?:\s+(.*))?$/;
@@ -93,29 +94,27 @@ function mapTypeToSource(type: string): CreditSource {
 /**
  * Parse a UT Academic Summary PDF text export into ParsedCourse records.
  *
- * Algorithm:
- * 1. Walk lines tracking the current term via "<Season YYYY> Courses" headings.
- * 2. Skip column-header lines, page/document headers, and GPA-table footer lines.
- * 3. For each line that starts with a valid course code, extract: dept+num (course
- *    ID), everything before the grade as the title, the grade (letter or CR), the
- *    unique number, and the type fragment (may be on same line or following lines).
+ * Real pdfjs extraction behaviour (observed from the actual PDF):
+ * - Every content line is followed by a blank line (pdfjs y-delta newlines).
+ * - Long course rows are split across MULTIPLE content lines by pdfjs:
+ *     Line 1: just the course code              e.g. "M 408C"
+ *     Line 2: first part of the title            e.g. "DIFFEREN AND INTEGRAL"
+ *     Line 3: rest of title + grade + fields     e.g. "CALCULUS CR 26050"
+ * - Credit-by-exam type is always on two follow-on lines:
+ *     "Credit by"  then  "exam N.N 0.00"
+ * - Page-break artifacts appear between pages:
+ *     "Academic Summary Unofficial Document Page N of 2"
+ *     repeated column header
  *
- * The pdfjs text-reconstruction of the Academic Summary produces three layout
- * variants for the Type column:
- *   A) "In residence" / "Transfer" — same line as course row:
- *      `ECE 302 INTRO ELECTRICAL ENGINEERING B+ 18210 In residence 3.0 9.99`
- *   B) "Credit by exam" — split across THREE lines:
- *      Line 1: `RHE 306 RHETORIC AND WRITING CR 20127`  (no type or credits)
- *      Line 2: `Credit by`
- *      Line 3: `exam 3.0 0.00`
+ * The state machine uses four stages:
+ *   idle            — scanning for section headings or course code lines
+ *   pendingCourse   — accumulated a course code (+partial title), waiting for
+ *                     the line that contains the grade+unique
+ *   pendingNoType   — grade/unique found, type not yet seen; waiting for type line
+ *   pendingCBE      — "Credit by" seen; waiting for "exam N.N" line
  *
- * The parser uses a two-stage pending state to handle variant B:
- *   Stage 1 (pendingNoType): course row parsed, waiting for the type line.
- *   Stage 2 (pendingCreditByExam): "Credit by" seen, waiting for "exam N.N".
- *
- * 4. CR-graded courses (Transfer / Credit by exam) are included as completed
- *    credit-only entries (grade field = "CR", excluded from GPA by callers).
- * 5. Lines over 300 chars are skipped (ReDoS guard inherited from flat-paste path).
+ * Blank lines and lines > 300 chars are skipped in ALL states (transparent to
+ * the state machine — they never flush a pending row).
  */
 function parseAcademicSummary(text: string): ParsedCourse[] {
   const results: ParsedCourse[] = [];
@@ -123,57 +122,158 @@ function parseAcademicSummary(text: string): ParsedCourse[] {
 
   interface PartialRow {
     courseId: string;
-    title: string;
+    titleParts: string[];  // accumulated across continuation lines
     grade: string;
     semester: string;
   }
 
-  // Stage 1: course row parsed but type not yet seen (empty typeFragment).
+  // Stage: course code seen, accumulating title, waiting for line with grade+unique.
+  let pendingCourse: { courseId: string; titleParts: string[]; semester: string } | null = null;
+
+  // Stage: grade found, waiting for type line.
   let pendingNoType: PartialRow | null = null;
 
-  // Stage 2: "Credit by" seen, waiting for "exam N.N" to get credit hours.
-  // Source is always 'credit_by_exam' at this stage.
-  let pendingCreditByExam: (PartialRow & { source: CreditSource }) | null = null;
+  // Stage: "Credit by" seen, waiting for "exam N.N".
+  let pendingCBE: (PartialRow & { source: CreditSource }) | null = null;
 
   const rawLines = text.split('\n');
 
   for (const rawLine of rawLines) {
     const line = rawLine.trim();
 
-    // ── Stage 2: waiting for "exam N.N" continuation ──
-    if (pendingCreditByExam !== null) {
+    // Blank lines and over-length lines are transparent to ALL states.
+    // Hoisted ABOVE pending checks so they never mis-flush a pending row.
+    if (!line || line.length > 300) continue;
+
+    // ── Stage: pendingCBE — waiting for "exam N.N" ──
+    if (pendingCBE !== null) {
       if (EXAM_CONTINUATION_RE.test(line)) {
         const m = EXAM_CONTINUATION_RE.exec(line)!;
-        results.push({ ...pendingCreditByExam, creditHours: parseFloat(m[1]) });
-        pendingCreditByExam = null;
+        const title = pendingCBE.titleParts.join(' ').trim();
+        results.push({ ...pendingCBE, title, creditHours: parseFloat(m[1]) });
+        pendingCBE = null;
         continue;
       }
-      // Non-continuation line — flush with 0 credit hours (data loss, but safe).
-      results.push({ ...pendingCreditByExam, creditHours: 0 });
-      pendingCreditByExam = null;
+      // Non-continuation, non-blank line — this is unexpected but shouldn't
+      // swallow the line.  Flush the pending CBE with 0 credit hours (data loss
+      // is better than dropping the following course row).
+      const title = pendingCBE.titleParts.join(' ').trim();
+      results.push({ ...pendingCBE, title, creditHours: 0 });
+      pendingCBE = null;
       // Fall through to process current line normally.
     }
 
-    // ── Stage 1: waiting for type line after a course row with empty typeFragment ──
+    // ── Stage: pendingNoType — waiting for type line ──
     if (pendingNoType !== null) {
       if (CREDIT_BY_LINE_RE.test(line)) {
-        // "Credit by" line found — advance to stage 2.
-        pendingCreditByExam = { ...pendingNoType, source: 'credit_by_exam' };
+        // Advance to pendingCBE — "exam N.N" expected next.
+        pendingCBE = { ...pendingNoType, source: 'credit_by_exam' };
         pendingNoType = null;
         continue;
       }
-      // Unexpected line — the course had no type (malformed row). Emit with defaults.
-      results.push({ ...pendingNoType, creditHours: 0, source: 'in_residence' });
-      pendingNoType = null;
-      // Fall through to process current line normally.
+      const typeMatch = TYPE_RE.exec(line);
+      if (typeMatch) {
+        // Type line found — complete the row.
+        const typeStr = typeMatch[1];
+        const afterType = typeMatch[2];
+        if (/^Credit\s+by$/i.test(typeStr.trim()) && !afterType.trim()) {
+          // "Credit by" but "exam N.N" still on the next line.
+          pendingCBE = { ...pendingNoType, source: 'credit_by_exam' };
+          pendingNoType = null;
+          continue;
+        }
+        const source = mapTypeToSource(typeStr);
+        const creditMatch = CREDIT_RE.exec(afterType.trim());
+        const creditHours = creditMatch ? parseFloat(creditMatch[1]) : 0;
+        const title = pendingNoType.titleParts.join(' ').trim();
+        results.push({ courseId: pendingNoType.courseId, title, grade: pendingNoType.grade, semester: pendingNoType.semester, creditHours, source });
+        pendingNoType = null;
+        continue;
+      }
+      // Any other non-blank, non-type line while waiting for type:
+      // treat as a title continuation (shouldn't normally happen but guards
+      // against unexpected PDF layout).
+      pendingNoType.titleParts.push(line);
+      continue;
     }
 
-    if (!line || line.length > 300) continue;
+    // ── Stage: pendingCourse — accumulating title lines, waiting for grade+unique ──
+    if (pendingCourse !== null) {
+      // Normalize E E → ECE before trying to match a new course code.
+      const normalized = line.replace(/\bE\s+E\b/g, 'ECE');
 
-    // ── Section heading: "Fall 2025 Courses" → set current term ──
+      // Check if this line contains the grade+unique — it may be a bare
+      // continuation line (title fragment) or the final field line.
+      // We try GRADE_UNIQUE_RE against the full normalized line.
+      const gradeUniqueMatch = GRADE_UNIQUE_RE.exec(normalized);
+      if (gradeUniqueMatch) {
+        // This line ends with grade+unique (and optionally type).
+        // Everything before the match is an additional title fragment.
+        const matchStart = normalized.indexOf(gradeUniqueMatch[0]);
+        const titleFragment = normalized.slice(0, matchStart).trim();
+        if (titleFragment) pendingCourse.titleParts.push(titleFragment);
+
+        const grade = gradeUniqueMatch[1].toUpperCase();
+        const typeFragment = gradeUniqueMatch[3] ?? '';
+
+        if (!typeFragment.trim()) {
+          // Type on next line(s).
+          pendingNoType = { courseId: pendingCourse.courseId, titleParts: pendingCourse.titleParts, grade, semester: pendingCourse.semester };
+          pendingCourse = null;
+          continue;
+        }
+
+        const typeMatch = TYPE_RE.exec(typeFragment);
+        if (!typeMatch) {
+          // Unrecognised type fragment — skip row.
+          pendingCourse = null;
+          continue;
+        }
+
+        const typeStr = typeMatch[1];
+        const afterType = typeMatch[2];
+
+        if (/^Credit\s+by$/i.test(typeStr.trim()) && !afterType.trim()) {
+          pendingCBE = { courseId: pendingCourse.courseId, titleParts: pendingCourse.titleParts, grade, semester: pendingCourse.semester, source: 'credit_by_exam' };
+          pendingCourse = null;
+          continue;
+        }
+
+        const source = mapTypeToSource(typeStr);
+        const creditMatch = CREDIT_RE.exec(afterType.trim());
+        const creditHours = creditMatch ? parseFloat(creditMatch[1]) : 0;
+        const title = pendingCourse.titleParts.join(' ').trim();
+        results.push({ courseId: pendingCourse.courseId, title, grade, semester: pendingCourse.semester, creditHours, source });
+        pendingCourse = null;
+        continue;
+      }
+
+      // No grade found — check if this is a new course code line (new course
+      // starting, which would mean the previous one was malformed — discard it).
+      const codeMatch2 = COURSE_CODE_START_RE.exec(normalized);
+      if (codeMatch2 && codeMatch2[3] === undefined) {
+        // New bare course code — discard previous pending and start fresh.
+        pendingCourse = { courseId: `${codeMatch2[1]} ${codeMatch2[2]}`, titleParts: [], semester: currentTerm };
+        continue;
+      }
+
+      // Title continuation line — skip known skip-lines first.
+      if (SECTION_HEADING_RE.test(line) || COLUMN_HEADER_RE.test(line) || FOOTER_SKIP_RE.test(line)) {
+        // A structural line appeared before the grade — the pending course was
+        // malformed (0-credit or layout anomaly).  Discard it.
+        pendingCourse = null;
+        // Fall through to process the structural line.
+      } else {
+        pendingCourse.titleParts.push(line);
+        continue;
+      }
+    }
+
+    // ── Normal scanning (idle state) ──
+
+    // Section heading: "Fall 2025 Courses" → set current term.
     const headingMatch = SECTION_HEADING_RE.exec(line);
     if (headingMatch) {
-      // Normalize to "Season YYYY" with proper title case.
       const raw = headingMatch[1].trim();
       const spaceIdx = raw.lastIndexOf(' ');
       const season = raw.slice(0, spaceIdx);
@@ -182,14 +282,13 @@ function parseAcademicSummary(text: string): ParsedCourse[] {
       continue;
     }
 
-    // ── Column header row ──
+    // Column header row — skip.
     if (COLUMN_HEADER_RE.test(line)) continue;
 
-    // ── Footer / document header lines ──
+    // Footer / document header lines — skip.
     if (FOOTER_SKIP_RE.test(line)) continue;
 
-    // ── Course row ──
-    // Normalize E E → ECE before matching.
+    // Normalize E E → ECE before attempting course-code match.
     const normalized = line.replace(/\bE\s+E\b/g, 'ECE');
 
     const codeMatch = COURSE_CODE_START_RE.exec(normalized);
@@ -198,36 +297,42 @@ function parseAcademicSummary(text: string): ParsedCourse[] {
     const dept = codeMatch[1];
     const num = codeMatch[2];
     const courseId = `${dept} ${num}`;
-    const rest = codeMatch[3]; // everything after "DEPT NUM "
+    const rest = codeMatch[3] ?? ''; // everything after "DEPT NUM" (may be empty)
 
-    // Find "grade unique [type_and_rest]" pattern anywhere in rest.
-    // The grade and unique together anchor the boundary between title and fields.
+    if (!rest.trim()) {
+      // Bare course code line — enter pendingCourse to accumulate title.
+      pendingCourse = { courseId, titleParts: [], semester: currentTerm };
+      continue;
+    }
+
+    // Try to find grade+unique in the rest of this line.
     const gradeUniqueMatch = GRADE_UNIQUE_RE.exec(rest);
-    if (!gradeUniqueMatch) continue;
+    if (!gradeUniqueMatch) {
+      // Title present but no grade yet — enter pendingCourse with the partial title.
+      pendingCourse = { courseId, titleParts: [rest.trim()], semester: currentTerm };
+      continue;
+    }
 
-    // Title is everything in rest before the " grade unique" match.
+    // Full or partial row with grade on same line as code.
     const matchStart = rest.indexOf(gradeUniqueMatch[0]);
     const title = rest.slice(0, matchStart).trim();
     const grade = gradeUniqueMatch[1].toUpperCase();
     const typeFragment = gradeUniqueMatch[3] ?? '';
 
-    if (typeFragment === '') {
-      // Empty type fragment: type is on the next line(s) — enter stage 1.
-      pendingNoType = { courseId, title, grade, semester: currentTerm };
+    if (!typeFragment.trim()) {
+      // Type on next line(s) — enter pendingNoType.
+      pendingNoType = { courseId, titleParts: title ? [title] : [], grade, semester: currentTerm };
       continue;
     }
 
-    // Type is on this line — parse it directly.
     const typeMatch = TYPE_RE.exec(typeFragment);
     if (!typeMatch) continue;
 
     const typeStr = typeMatch[1];
     const afterType = typeMatch[2];
 
-    if (/^Credit\s+by$/i.test(typeStr.trim())) {
-      // Rare: "Credit by" appears on the same line as the course but "exam N.N"
-      // is still on the next line. Enter stage 2 directly.
-      pendingCreditByExam = { courseId, title, grade, semester: currentTerm, source: 'credit_by_exam' };
+    if (/^Credit\s+by$/i.test(typeStr.trim()) && !afterType.trim()) {
+      pendingCBE = { courseId, titleParts: title ? [title] : [], grade, semester: currentTerm, source: 'credit_by_exam' };
       continue;
     }
 
@@ -238,13 +343,14 @@ function parseAcademicSummary(text: string): ParsedCourse[] {
     results.push({ courseId, title, grade, semester: currentTerm, creditHours, source });
   }
 
-  // Flush any remaining pending rows.
-  if (pendingCreditByExam !== null) {
-    results.push({ ...pendingCreditByExam, creditHours: 0 });
+  // Flush any remaining pending rows at EOF.
+  if (pendingCBE !== null) {
+    results.push({ ...pendingCBE, title: pendingCBE.titleParts.join(' ').trim(), creditHours: 0 });
   }
   if (pendingNoType !== null) {
-    results.push({ ...pendingNoType, creditHours: 0, source: 'in_residence' });
+    results.push({ ...pendingNoType, title: pendingNoType.titleParts.join(' ').trim(), creditHours: 0, source: 'in_residence' });
   }
+  // pendingCourse at EOF = malformed/incomplete row, discard.
 
   return results;
 }
