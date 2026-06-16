@@ -14,13 +14,16 @@ export type { ParsedCourse };
 const GRADE_RE = /\b(A[+-]?|B[+-]?|C[+-]?|D[+-]?|F|CR|NC|IP|Q|W)(?![A-Za-z0-9])/;
 
 // ─── Course-code token ────────────────────────────────────────────────────────
-// Matches patterns like: ECE 302, M 408C, PHY 303L, CS 314
+// Matches patterns like: ECE 302, M 408C, PHY 303L, C S 363M, B M E 343, M E 320
 // Note: "E E" is normalised to "ECE" before this regex runs, so no E E case here.
-// Captured groups: (1) dept string (1–4 uppercase letters), (2) course number.
-// Avoids the nested-quantifier ReDoS that `(?:[A-Z]{1,4}\s+)+` carries on a
-// non-matching run of spaces: plain `[A-Z]{1,4}` with a separate `\s+` has no
-// backtracking ambiguity.
-const COURSE_CODE_RE = /\b([A-Z]{1,4})\s+(\d{3}[A-Z]?)\b/;
+// Captured groups: (1) dept string — a 1–4-letter lead token plus zero or more
+// 1–2-letter continuation tokens, so multi-word UT depts ("C S", "B M E", "M E",
+// "C E", "T D", "N S") are captured whole instead of dropping the leading token,
+// (2) course number.
+// The continuation `(?:\s+[A-Z]{1,2})*` is bounded in practice by the 300-char
+// line cap in parseIdaAudit, and each token boundary is deterministic (mutually
+// exclusive `\s` vs `[A-Z]` classes), so there is no exponential backtracking.
+const COURSE_CODE_RE = /\b([A-Z]{1,4}(?:\s+[A-Z]{1,2})*)\s+(\d{3}[A-Z]?)\b/;
 
 // ─── Term token ───────────────────────────────────────────────────────────────
 // Handles: Fall/FA, Spring/SP, Summer/SUM  followed by optional space + 4-digit year.
@@ -145,7 +148,13 @@ export function parseIdaAudit(text: string): ParsedCourse[] {
     const codeEnd = codeMatch.index + codeMatch[0].length;
 
     // Extract optional fields; defaults apply when absent.
-    const gradeMatch = normalised.match(GRADE_RE);
+    // The grade is read from the text AFTER the course code: a multi-word dept
+    // can begin with a token that looks like a letter grade (e.g. "C S 363M"),
+    // and matching the whole line would capture that "C" instead of the real
+    // grade. Term/credit tokens can't appear inside a course code, so they
+    // safely match the full line.
+    const afterCode = normalised.slice(codeEnd);
+    const gradeMatch = afterCode.match(GRADE_RE);
     const grade = gradeMatch ? gradeMatch[1].toUpperCase() : '';
 
     const termMatch = normalised.match(TERM_RE);

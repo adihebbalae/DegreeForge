@@ -5,7 +5,9 @@
  *
  * Invariant 1 — Valid course code (TASK-061A):
  *   Plan state NEVER holds a null / undefined / non-course-code token.
- *   A valid course-code token matches /^[A-Z]+ \d+\S*$/
+ *   A valid course-code token matches /^[A-Z]+(?: [A-Z]+)* \d+\S*$/ — i.e. one
+ *   or more space-separated uppercase-letter department tokens (e.g. "ECE",
+ *   "C S", "B M E", "M E"), a space, then the number + optional suffix.
  *
  * Invariant 2 — No writes to past terms (TASK-064):
  *   isPastSemester(semesterId, semesters) is the single canonical predicate.
@@ -24,8 +26,14 @@
 
 import type { Semester } from '../types';
 
-/** Pattern matching a valid UT course code (uppercase dept, space, number + optional suffix). */
-export const COURSE_CODE_RE = /^[A-Z]+ \d+\S*$/;
+/**
+ * Pattern matching a valid UT course code: one or more space-separated
+ * uppercase-letter department tokens (e.g. "ECE", "C S", "B M E", "M E"), a
+ * space, then the number + optional suffix. The dept-token repetition is
+ * bounded by the required ` \d+` that follows, so there is no
+ * catastrophic-backtracking risk.
+ */
+export const COURSE_CODE_RE = /^[A-Z]+(?: [A-Z]+)* \d+\S*$/;
 
 /** Returns true iff `id` is a valid course-code token. */
 export function isValidCourseId(id: unknown): id is string {
@@ -42,10 +50,12 @@ export interface ParsedCourseId {
   suffix: string;
 }
 
-// Matches the same shape as COURSE_CODE_RE (`[A-Z]+ \d+\S*`) but captures the
-// three parts. The number is the LEADING run of digits, mirroring the historic
-// `parseInt(courseId.split(' ')[1], 10)` behaviour exactly for any valid code.
-const COURSE_ID_PARTS_RE = /^([A-Z]+) (\d+)(\S*)$/;
+// Matches the same shape as COURSE_CODE_RE (`[A-Z]+(?: [A-Z]+)* \d+\S*`) but
+// captures the three parts. Group 1 is the FULL (possibly multi-word) dept,
+// e.g. "C S" or "B M E". The number is the LEADING run of digits, mirroring the
+// historic `parseInt(courseId.split(' ')[1], 10)` behaviour for single-word
+// depts and extending it correctly to multi-word depts.
+const COURSE_ID_PARTS_RE = /^([A-Z]+(?: [A-Z]+)*) (\d+)(\S*)$/;
 
 /**
  * Parse a course code into {prefix, number, suffix}, or null if it is not a

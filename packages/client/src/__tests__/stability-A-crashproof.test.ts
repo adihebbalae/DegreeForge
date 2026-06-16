@@ -48,7 +48,11 @@ const mathReqs = loadJson<MathRequirements>('math-requirements.json');
 
 describe('sanitizeCourseList — shared sanitizer (TASK-061-A)', () => {
   it('isValidCourseId: accepts valid course codes', () => {
-    for (const id of ['ECE 302', 'ECE 312H', 'M 427J', 'UGS 302', 'RHE 306', 'CTI 301G']) {
+    for (const id of [
+      'ECE 302', 'ECE 312H', 'M 427J', 'UGS 302', 'RHE 306', 'CTI 301G',
+      // Multi-word department prefixes (launch-critical bug fix).
+      'C S 363M', 'B M E 343', 'M E 320', 'E E 411',
+    ]) {
       expect(isValidCourseId(id)).toBe(true);
     }
   });
@@ -107,6 +111,24 @@ describe('PlanContext reducer — layer-B guard (TASK-061-A)', () => {
       courseId: 'any 2 UD math courses',
     });
     expect(state.plan['Fall 2026'] ?? []).not.toContain('any 2 UD math courses');
+  });
+
+  it('ADD_COURSE: actually places a multi-word-dept course (end-to-end guard, not just regex)', () => {
+    // Launch-critical regression: "C S 363M" passed Cmd+K search but the reducer
+    // guard (isValidCourseId) silently dropped the add because the old regex
+    // stopped the dept at the first space. Prove it now lands in plan state.
+    const futureSem = INITIAL_STATE.semesters.find((s) => s.status === 'future');
+    expect(futureSem).toBeDefined();
+    const semId = futureSem!.id;
+
+    const state = planReducer(INITIAL_STATE, {
+      type: 'ADD_COURSE',
+      semesterId: semId,
+      courseId: 'C S 363M',
+    });
+
+    expect(state).not.toBe(INITIAL_STATE); // mutation happened (not silently dropped)
+    expect(state.plan[semId]).toContain('C S 363M');
   });
 
   it('SET_PLAN: strips null and placeholder tokens before they reach plan state', () => {

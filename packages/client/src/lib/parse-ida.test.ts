@@ -17,6 +17,7 @@ EARNED: 17.0
 
 M 408C  Differential and Integral Calculus  A-  FA 2022  4.0
 M 408D  Sequences Series and Multivariable Calc  B  SP 2023  4.0
+C S 363M  Introduction to Software Engineering  A  FA 2024  3.0
 
 SECTION: FREE ELECTIVES
 COMPLETE
@@ -73,12 +74,25 @@ describe('parseIdaAudit', () => {
     expect(m408d?.semester).toBe('Spring 2023');
   });
 
+  it('parses a multi-word department prefix without dropping the leading token', () => {
+    // Launch-critical: old regex matched "S 363M" (dropping the "C"). The dept
+    // must be captured whole as "C S".
+    const results = parseIdaAudit(IDA_FIXTURE);
+    const cs = results.find(c => c.courseId === 'C S 363M');
+    expect(cs).toBeDefined();
+    expect(cs?.courseId).toBe('C S 363M');
+    expect(cs?.grade).toBe('A');
+    expect(cs?.semester).toBe('Fall 2024');
+    // The leading "C" must NOT have been dropped into a bogus "S 363M" entry.
+    expect(results.find(c => c.courseId === 'S 363M')).toBeUndefined();
+  });
+
   it('skips requirement header lines', () => {
     const results = parseIdaAudit(IDA_FIXTURE);
     // Header lines should contribute no ParsedCourse entries.
-    // We verify by checking there are exactly the 6 course lines present
-    // (ECE 302, ECE 319K, PHY 303L, ECE 460N, M 408C, M 408D).
-    expect(results).toHaveLength(6);
+    // We verify by checking there are exactly the 7 course lines present
+    // (ECE 302, ECE 319K, PHY 303L, ECE 460N, M 408C, M 408D, C S 363M).
+    expect(results).toHaveLength(7);
   });
 
   it('skips lines longer than 300 chars', () => {
