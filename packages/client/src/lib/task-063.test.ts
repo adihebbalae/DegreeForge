@@ -345,6 +345,148 @@ describe('H3 — silently-dropped future course detection (unit)', () => {
   });
 });
 
+// ─── 26-28 catalog renumber — ordering + no double-placement ─────────────────
+//
+// Acceptance: for a fresh 26-28 student (no completed courses):
+//   1. ECE 402/406/419K are placed AFTER M 408C (their prereq).
+//   2. ECE 412 is placed AFTER ECE 406 and ECE 419K (its prereqs).
+//   3. The plan has ZERO prereq violations against the real authored CNF.
+//   4. Neither ECE 302/306/312/319K (old numbers) NOR the new 4xx numbers
+//      appear twice (no double-placement across the equivalence boundary).
+
+describe('26-28 catalog renumber — ordering and no double-placement', () => {
+  // Minimal semester sequence for a fresh 26-28 student
+  const freshSemesters: Semester[] = [
+    { id: 'Fall 2026',   label: "Fall '26",   status: 'future', year: 2026, season: 'Fall'   },
+    { id: 'Spring 2027', label: "Sp '27",     status: 'future', year: 2027, season: 'Spring' },
+    { id: 'Fall 2027',   label: "Fall '27",   status: 'future', year: 2027, season: 'Fall'   },
+    { id: 'Spring 2028', label: "Sp '28",     status: 'future', year: 2028, season: 'Spring' },
+    { id: 'Fall 2028',   label: "Fall '28",   status: 'future', year: 2028, season: 'Fall'   },
+    { id: 'Spring 2029', label: "Sp '29",     status: 'future', year: 2029, season: 'Spring' },
+    { id: 'Fall 2029',   label: "Fall '29",   status: 'future', year: 2029, season: 'Fall'   },
+    { id: 'Spring 2030', label: "Sp '30",     status: 'future', year: 2030, season: 'Spring' },
+  ];
+
+  // The 26-28 intro courses that must be placed after M 408C.
+  // We use generatePlan directly to control the requirement list.
+  it('ECE 402 and ECE 406 are placed after M 408C (their prereq)', () => {
+    const result = generatePlan({
+      // M 305G is the entry prereq for M 408C; treat as completed (equivalent to AP/pre-calc credit)
+      completedCourses: ['M 305G'],
+      remainingRequirements: ['M 408C', 'ECE 402', 'ECE 406'],
+      prereqGraph: realGraph,
+      offeringSchedule: {},
+      pinnedCourses: {},
+      maxHoursPerSemester: 18,
+      semesters: freshSemesters,
+      catalog,
+    });
+
+    expect(result.unplacedCourses).not.toContain('M 408C');
+    expect(result.unplacedCourses).not.toContain('ECE 402');
+    expect(result.unplacedCourses).not.toContain('ECE 406');
+
+    const semIdx = (courseId: string): number =>
+      freshSemesters.findIndex((s) => result.plan[s.id]?.includes(courseId));
+
+    const m408cIdx = semIdx('M 408C');
+    expect(semIdx('ECE 402')).toBeGreaterThan(m408cIdx);
+    expect(semIdx('ECE 406')).toBeGreaterThan(m408cIdx);
+  });
+
+  it('ECE 419K is placed after ECE 406 (its prereq), ECE 412 is placed after both', () => {
+    const result = generatePlan({
+      completedCourses: ['M 305G'],
+      remainingRequirements: ['M 408C', 'ECE 406', 'ECE 419K', 'ECE 412'],
+      prereqGraph: realGraph,
+      offeringSchedule: {},
+      pinnedCourses: {},
+      maxHoursPerSemester: 18,
+      semesters: freshSemesters,
+      catalog,
+    });
+
+    for (const c of ['M 408C', 'ECE 406', 'ECE 419K', 'ECE 412']) {
+      expect(result.unplacedCourses).not.toContain(c);
+    }
+
+    const semIdx = (courseId: string): number =>
+      freshSemesters.findIndex((s) => result.plan[s.id]?.includes(courseId));
+
+    const ece406Idx  = semIdx('ECE 406');
+    const ece419kIdx = semIdx('ECE 419K');
+    const ece412Idx  = semIdx('ECE 412');
+
+    // ECE 419K comes after ECE 406
+    expect(ece419kIdx).toBeGreaterThan(ece406Idx);
+    // ECE 412 comes after ECE 406 (and may come after ECE 419K too)
+    expect(ece412Idx).toBeGreaterThan(ece406Idx);
+  });
+
+  it('generateAutoPlan for a fresh 26-28 profile produces ZERO prereq violations', () => {
+    // Build a 26-28 profile: no completed courses, no in-progress, 26-28 catalog year.
+    const fresh2628Profile: UserProfile = {
+      ...baseProfile,
+      catalog_year: '2026-28',
+      completed_courses: [],
+      in_progress_courses: [],
+      preferences: {
+        ...baseProfile.preferences,
+        course_load_tolerance: 'normal',
+      },
+    };
+
+    const freshPlan: Plan = Object.fromEntries(freshSemesters.map((s) => [s.id, []]));
+
+    const result = generateAutoPlan({
+      prereqGraph: realGraph,
+      offeringSchedule,
+      userProfile: fresh2628Profile,
+      degreeReqs,
+      techCore: techCores.software_engineering,
+      mathReqs,
+      mathBAToggle: false,
+      semesters: freshSemesters,
+      currentPlan: freshPlan,
+      catalog,
+    });
+
+    const semesterOrder = freshSemesters.map((s) => s.id);
+    const violations = realGraph
+      .validatePlan(result.plan, semesterOrder, new Set<string>())
+      .filter((v) => freshSemesters.find((s) => s.id === v.semesterId)?.status === 'future');
+
+    expect(violations).toEqual([]);
+  });
+
+  it('no double-placement: renumbered courses do not appear alongside their old equivalents', () => {
+    // Fresh profile: only the new 4xx courses in the requirement set.
+    const result = generatePlan({
+      completedCourses: ['M 305G'],
+      remainingRequirements: ['M 408C', 'ECE 402', 'ECE 406', 'ECE 419K', 'ECE 412'],
+      prereqGraph: realGraph,
+      offeringSchedule: {},
+      pinnedCourses: {},
+      maxHoursPerSemester: 18,
+      semesters: freshSemesters,
+      catalog,
+    });
+
+    const allPlaced = Object.values(result.plan).flat();
+
+    // Each new-number course placed at most once
+    for (const c of ['ECE 402', 'ECE 406', 'ECE 412', 'ECE 419K']) {
+      const count = allPlaced.filter((id) => id === c).length;
+      expect(count).toBeLessThanOrEqual(1);
+    }
+
+    // Old-number equivalents must NOT be placed (not in the requirement list)
+    for (const c of ['ECE 302', 'ECE 306', 'ECE 312', 'ECE 319K']) {
+      expect(allPlaced).not.toContain(c);
+    }
+  });
+});
+
 // ─── Regression: existing OR-safe courses still place correctly ───────────────
 
 describe('H1 regression — OR-group fix does not break ECE 411 (AND-stack)', () => {

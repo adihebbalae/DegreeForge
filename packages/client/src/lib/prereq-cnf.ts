@@ -104,6 +104,14 @@ export const PREREQ_CNF: PrereqCNF = {
     { one_of: ['ECE 306', 'ECE 306H', 'BME 306', 'ECE 319H'] },
   ],
 
+  // ── ECE 412 — Software Design and Implementation II (2026-28 renumber of ECE 312) ──
+  // Needs: ECE 406 OR ECE 419K (the 26-28 intro-computing family).
+  // ECE 406≡ECE 306 and ECE 419K≡ECE 319K via equivalence, so old-catalog transcripts
+  // satisfy this via equivalence expansion in isRequirementSatisfied.
+  'ECE 412': [
+    { one_of: ['ECE 406', 'ECE 419K', 'ECE 306', 'ECE 306H', 'BME 306', 'ECE 319H', 'ECE 319K'] },
+  ],
+
   // ── ECE 319H / 319K — Introduction to Embedded Systems ────────────────────
   // Needs: any one of ECE 306 / ECE 306H / BME 306 — pure OR-pool (same course, 3 labels)
   'ECE 319K': [
@@ -111,6 +119,13 @@ export const PREREQ_CNF: PrereqCNF = {
   ],
   'ECE 319H': [
     { one_of: ['ECE 306', 'ECE 306H', 'BME 306'] },
+  ],
+
+  // ── ECE 419K — Introduction to Embedded Systems (2026-28 renumber of ECE 319K) ──
+  // Needs: ECE 406 (the 2026-28 intro-computing course; ECE 406≡ECE 306 via equivalence,
+  // so old-catalog completions of ECE 306/306H/BME 306 also satisfy).
+  'ECE 419K': [
+    { one_of: ['ECE 406', 'ECE 306', 'ECE 306H', 'BME 306'] },
   ],
 
   // ── ECE 316 — Microprocessor Systems Design ────────────────────────────────
@@ -121,7 +136,9 @@ export const PREREQ_CNF: PrereqCNF = {
 
   // ── ECE 460N — Computer Architecture ──────────────────────────────────────
   // Needs: any one of the intro-computing family (ECE 306 / 312 / 319 variants or C S 312)
+  // ECE 406/412/419K satisfy via equivalence; listed explicitly for topo-sort correctness.
   'ECE 460N': [
-    { one_of: ['C S 312', 'ECE 306', 'ECE 306H', 'ECE 312', 'ECE 312H', 'ECE 319K', 'ECE 319H'] },
+    { one_of: ['C S 312', 'ECE 306', 'ECE 406', 'ECE 306H', 'ECE 312', 'ECE 412', 'ECE 312H', 'ECE 319K', 'ECE 419K', 'ECE 319H'] },
   ],
+
 };
