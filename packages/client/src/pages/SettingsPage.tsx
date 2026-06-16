@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { RotateCcw, X, Plus, User, Sliders, BookOpen, MessageSquare, UserCog } from 'lucide-react';
-import { AI_ENABLED } from '@/lib/features';
+import { AI_ENABLED, SCHEDULE_ENABLED } from '@/lib/features';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -204,7 +204,14 @@ export default function SettingsPage() {
 
           <Separator />
 
-          {/* ── Section 2: Scheduler Preferences ───────────────────────── */}
+          {/* Scheduler Preferences + Professor Preferences hidden for alpha launch —
+              re-enable by setting SCHEDULE_ENABLED=true in lib/features.ts (plus
+              restoring the Schedule/Career nav links + routes commented out in
+              Header.tsx and the router). These tune the schedule optimizer, which is
+              not reachable in the alpha. Each section keeps its trailing <Separator />
+              inside the gate so the visible section order stays cleanly separated. */}
+          {SCHEDULE_ENABLED && (
+          <>
           <section aria-labelledby="scheduler-section">
             <SectionHeader icon={<Sliders className="h-4 w-4" />} title="Scheduler Preferences" />
 
@@ -290,8 +297,12 @@ export default function SettingsPage() {
           </section>
 
           <Separator />
+          </>
+          )}
 
           {/* ── Section 3: Professor Preferences ───────────────────────── */}
+          {SCHEDULE_ENABLED && (
+          <>
           <section aria-labelledby="prof-section">
             <SectionHeader icon={<User className="h-4 w-4" />} title="Professor Preferences" />
 
@@ -383,12 +394,15 @@ export default function SettingsPage() {
           </section>
 
           <Separator />
+          </>
+          )}
 
           {/* AI hidden for soft launch — re-enable by setting AI_ENABLED=true in lib/features.ts.
               When re-enabled, this section exposes: Chat Provider, Access code (beta),
               and per-tool enable/disable toggles. The Access code field gates /api/* calls;
               the Chat Tools toggles control which tools the agent can use per turn. */}
           {AI_ENABLED && (
+            <>
             <section aria-labelledby="chat-tools-section">
               <SectionHeader icon={<MessageSquare className="h-4 w-4" />} title="Chat Tools" />
 
@@ -461,9 +475,10 @@ export default function SettingsPage() {
                 })}
               </div>
             </section>
-          )}
 
-          <Separator />
+            <Separator />
+            </>
+          )}
 
           {/* ── Section 5: Profile ──────────────────────────────────────── */}
           <section aria-labelledby="profile-section">
@@ -499,7 +514,7 @@ export default function SettingsPage() {
         open={resetSettingsOpen}
         onOpenChange={setResetSettingsOpen}
         title="Reset settings to defaults"
-        consequence="Restores default scoring weights, time window, instruction mode, and graduation target. Professor preferences are cleared."
+        consequence="Restores the default credit load, graduation target, tech core track, and Math BA toggle."
         confirmLabel="Reset Settings"
         onConfirm={() => dispatch({ type: 'RESET_SETTINGS' })}
       />

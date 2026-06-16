@@ -135,6 +135,33 @@ describe('SettingsPage Profile section', () => {
   });
 });
 
+// ── Schedule-optimizer sections — hidden for alpha launch (SCHEDULE_ENABLED=false) ──
+// The Scheduler Preferences (weight sliders, Time-of-Day, Instruction Mode) and
+// Professor Preferences sections tune the schedule optimizer, which is unreachable in
+// the alpha (Schedule/Career nav + routes are commented out). They are gated behind
+// SCHEDULE_ENABLED in lib/features.ts. These assert they are absent while the flag is off.
+describe('SettingsPage schedule-optimizer sections (SCHEDULE_ENABLED=false — hidden for alpha launch)', () => {
+  it('does not render the Scheduler Preferences section', () => {
+    render(<SettingsPage />);
+    expect(screen.queryByText('Scheduler Preferences')).toBeNull();
+    expect(screen.queryByText('GPA / Grade Quality')).toBeNull();
+    expect(screen.queryByText('Time-of-Day Preference')).toBeNull();
+    expect(screen.queryByText('Preferred Instruction Mode')).toBeNull();
+  });
+
+  it('does not render the Professor Preferences section', () => {
+    render(<SettingsPage />);
+    expect(screen.queryByText('Professor Preferences')).toBeNull();
+  });
+
+  it('still renders the visible Academic, Profile, and Import sections', () => {
+    render(<SettingsPage />);
+    expect(screen.getByText('Academic')).toBeDefined();
+    expect(screen.getByText('Profile')).toBeDefined();
+    expect(screen.getByText('Import & Personalize')).toBeDefined();
+  });
+});
+
 // ── Chat Tools section tests — skipped for soft launch (AI_ENABLED=false hides this section) ──
 // The Chat Tools section (provider, access code, tool toggles) is hidden behind AI_ENABLED.
 // These tests remain so they can be un-skipped when AI is re-enabled (set AI_ENABLED=true in lib/features.ts).
