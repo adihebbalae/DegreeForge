@@ -190,18 +190,20 @@ export default function Header() {
 
   return (
     <>
-      <header className="h-14 border-b border-border flex items-center px-4 gap-2 bg-background">
+      <header className="h-14 border-b border-border grid grid-cols-[1fr_auto_1fr] items-center px-4 gap-2 bg-background">
         {/* Logo / wordmark — navigates home (planner) from any route */}
         <NavLink
           to="/"
-          className="text-lg font-bold text-foreground mr-2 rounded-sm hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="text-lg font-bold text-foreground mr-2 rounded-sm hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring justify-self-start"
           aria-label="DegreeForge home"
         >
           DegreeForge
         </NavLink>
 
-        {/* Nav links (centered) — order: Planner · Progress · Settings */}
-        <nav className="flex gap-1 flex-1 justify-center">
+        {/* Nav links — sit in the centered `auto` grid column flanked by two equal
+            1fr columns, so the nav stays at the header's true center regardless of
+            how wide the logo or per-route actions group is. */}
+        <nav className="flex items-center gap-1">
           <NavLink
             to="/"
             end
@@ -241,7 +243,7 @@ export default function Header() {
 
         {/* Actions: high-frequency planner actions stay in the header; everything
             else moves into the ⋯ More menu so the header can't overflow/clip. */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 justify-self-end">
           {isPlannerRoute && (
             <>
               <Button
