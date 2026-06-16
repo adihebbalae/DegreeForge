@@ -8,7 +8,7 @@
  */
 
 import { useMemo } from 'react';
-import { useDroppable, useDndMonitor } from '@dnd-kit/core';
+import { useDroppable, useDndMonitor, useDraggable } from '@dnd-kit/core';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { getCourseCredits, inferCategory, CATEGORY_BG, seasonEmoji } from '@/lib/course-utils';
@@ -117,8 +117,19 @@ function StressBadge({ stressResult }: { stressResult: SemesterStressResult }) {
 
 const MAX_CHIPS = 8;
 
+// Per-category text color for card chips (legible on category background).
+// Luminance of the category bg colors:
+//   ece_core  hsl(16 70% 50%)  ≈ 0.14 → white text
+//   tech_core hsl(85 50% 42%)  ≈ 0.14 → white text
+//   gen_ed    hsl(40 72% 47%)  ≈ 0.17 → white text
+//   elective  hsl(220 8% 55%)  ≈ 0.23 → white text
+//   math      hsl(255 38% 58%) ≈ 0.18 → white text
+// All backgrounds are mid-dark; white is AA-compliant for all five.
+const CHIP_ON_FILL_TEXT = 'text-white';
+
 function CourseChip({
   courseId,
+  semesterId,
   semesterLabel,
   prereqNodes,
   isPast,
@@ -126,6 +137,7 @@ function CourseChip({
   onRemove,
 }: {
   courseId: string;
+  semesterId: string;
   semesterLabel: string;
   prereqNodes: Record<string, PrereqNode>;
   isPast: boolean;
@@ -133,21 +145,40 @@ function CourseChip({
   onRemove: (courseId: string) => void;
 }) {
   const category = inferCategory(courseId, prereqNodes);
-  const dotColor = CATEGORY_BG[category] ?? 'bg-gray-400';
+  const bgColor = CATEGORY_BG[category] ?? 'bg-gray-400';
+
+  // Future/current chips are draggable so they can be moved between tiles.
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `tile-chip-${semesterId}-${courseId}`,
+    disabled: isPast,
+    data: {
+      type: 'course',
+      courseId,
+      source: 'timeline',
+      semesterId,
+    },
+  });
+
   return (
     <span
+      ref={setNodeRef}
       data-course-id={courseId}
       className={cn(
-        'group flex items-center gap-0.5 min-w-0 overflow-hidden rounded-sm',
+        'group flex items-center gap-0.5 min-w-0 overflow-hidden rounded px-1 py-0.5',
+        bgColor,
+        CHIP_ON_FILL_TEXT,
         isHighlighted && 'ring-2 ring-primary animate-pulse',
+        isDragging && 'opacity-40',
+        !isPast && 'touch-none cursor-grab active:cursor-grabbing',
       )}
+      {...(isPast ? {} : { ...attributes, ...listeners })}
     >
-      <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', dotColor)} aria-hidden="true" />
-      <span className="text-[10px] leading-tight truncate text-foreground/80 flex-1 min-w-0">{courseId}</span>
+      <span className="text-[10px] leading-tight truncate flex-1 min-w-0 font-medium">{courseId}</span>
       {!isPast && (
         <button
           type="button"
           aria-label={`Remove ${courseId} from ${semesterLabel}`}
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();
             onRemove(courseId);
@@ -155,7 +186,7 @@ function CourseChip({
           className={cn(
             'shrink-0 h-3 w-3 rounded-full flex items-center justify-center',
             'opacity-0 group-hover:opacity-100 focus:opacity-100',
-            'text-muted-foreground hover:text-destructive hover:bg-destructive/10',
+            'text-white/80 hover:text-white hover:bg-white/20',
             'transition-opacity duration-100',
           )}
         >
@@ -256,7 +287,7 @@ export default function SemesterTile({
       aria-label={`${label}, ${totalCredits} credit hours, ${courseIds.length} courses${isFocused ? ', currently focused' : ''}`}
       onClick={onClick}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter' || (e.key === ' ' && !e.ctrlKey && !e.metaKey)) {
           e.preventDefault();
           onClick();
         }
@@ -347,6 +378,7 @@ export default function SemesterTile({
               <CourseChip
                 key={cId}
                 courseId={cId}
+                semesterId={id}
                 semesterLabel={label}
                 prereqNodes={prereqNodes}
                 isPast={isPast}
