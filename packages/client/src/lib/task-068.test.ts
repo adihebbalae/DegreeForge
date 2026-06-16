@@ -263,9 +263,10 @@ describe('TASK-068 #3 — plan-objective pure functions', () => {
     const u = scoreCandidatePlan(unbalanced, future, resolveCredits);
     const b = scoreCandidatePlan(balanced, future, resolveCredits);
 
-    // Same course set → near-identical aggregate (per-term rounding aside)…
-    expect(Math.abs(b.aggregateStress - u.aggregateStress)).toBeLessThanOrEqual(1);
-    // …but the balanced arrangement has strictly lower spread → lower cost.
+    // With the saturating union, per-term scores are placement-sensitive (union of
+    // two hard courses > union of one hard + one easy), so aggregate differs between
+    // arrangements. The primary invariant is that the balanced plan has strictly
+    // lower spread AND lower total cost, so the solver correctly prefers it.
     expect(b.spread).toBeLessThan(u.spread);
     expect(b.cost).toBeLessThan(u.cost);
   });

@@ -44,12 +44,21 @@
  *   the student can see how reliable the score is.
  *
  * Per-semester Stress Score:
- *   Score = weighted mean difficulty, using IN-RESIDENCE credit hours as weights.
- *   (AP/transfer courses contribute 0 credits via buildTermLoadCredits, so they
- *   do not inflate the score — this is guaranteed by the caller passing
- *   termLoadCredits from buildTermLoadCredits, not buildTranscriptCredits.)
+ *   Saturating union of per-course difficulty values (in-residence courses only):
  *
- *   If the term has 0 in-residence credit hours (empty term or all AP/transfer),
+ *   score = round(100 × (1 − Π over courses (1 − sᵢ/100)))
+ *
+ *   Rationale: two hard courses together are MORE stressful than either alone.
+ *   A simple average masked this — 50+30 averaged to 40 (BELOW the harder course).
+ *   The saturating union always equals or exceeds the hardest single course and
+ *   climbs toward 100 but never pegs it.
+ *   Examples: 50+30 → 65; 50+50 → 75; 5 courses at 30 each → ~83.
+ *
+ *   AP/transfer courses contribute 0 credits via buildTermLoadCredits, so they
+ *   are excluded from the product — this is guaranteed by the caller passing
+ *   termLoadCredits from buildTermLoadCredits, not buildTranscriptCredits.
+ *
+ *   If the term has 0 in-residence courses (empty term or all AP/transfer),
  *   score = 0, band = 'low'.
  *
  * Band thresholds (documented):
@@ -124,7 +133,7 @@ export interface CourseStressEntry {
 
 /** Result of computeSemesterStress */
 export interface SemesterStressResult {
-  /** 0–100 stress score (weighted mean of per-course difficulty × credit hours) */
+  /** 0–100 stress score (saturating union of per-course difficulty for in-residence courses) */
   score: number;
   /** Categorical band derived from score and BAND thresholds */
   band: StressBand;
@@ -192,8 +201,8 @@ export function computeSemesterStress(
     };
   }
 
-  let totalWeightedDifficulty = 0;
-  let totalCredits = 0;
+  let unionProduct = 1; // running product of (1 - sᵢ/100) for in-residence courses
+  let hasInResidenceCourse = false;
   let coursesWithData = 0;
 
   const courses: CourseStressEntry[] = courseIds.map((courseId) => {
@@ -217,18 +226,20 @@ export function computeSemesterStress(
 
     if (!hasNoData) coursesWithData++;
 
-    // Only in-residence credits (creditHours > 0) contribute to the weighted score
-    totalWeightedDifficulty += difficulty * creditHours;
-    totalCredits += creditHours;
+    // Only in-residence courses (creditHours > 0) enter the saturating union
+    if (creditHours > 0) {
+      unionProduct *= 1 - difficulty / 100;
+      hasInResidenceCourse = true;
+    }
 
     return { courseId, creditHours, difficulty, hasNoData };
   });
 
-  // If all courses are AP/transfer (totalCredits = 0), score = 0
-  const score =
-    totalCredits > 0
-      ? Math.round(totalWeightedDifficulty / totalCredits)
-      : 0;
+  // Saturating union: 100 × (1 − Π(1 − sᵢ/100))
+  // Empty or all-AP/transfer → 0
+  const score = hasInResidenceCourse
+    ? Math.round(100 * (1 - unionProduct))
+    : 0;
 
   const clampedScore = Math.min(100, Math.max(0, score));
 

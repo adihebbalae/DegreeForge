@@ -158,33 +158,43 @@ describe('computeSemesterStress — aggregation', () => {
     expect(result.coursesWithData).toBe(1);
   });
 
-  it('weighted mean uses credit hours as weights', () => {
-    // Two courses: ECE 312 (3 cr) + ECE 411 (3 cr)
-    // Expected score = (d312*3 + d411*3) / 6 = (d312 + d411) / 2
+  it('saturating union of two courses exceeds the harder course alone', () => {
+    // Two in-residence courses: ECE 312 (d=55) + ECE 411 (d=44)
+    // Union = round(100 * (1 - (1-55/100)*(1-44/100))) = round(100*(1-0.45*0.56)) = round(100*0.748) = 75
+    // Before (weighted mean): (55*3 + 44*3)/6 = 50 — was BELOW the harder course (55), which was wrong.
     const d312 = computeCourseDifficulty(getCourseGradeStats('ECE 312')!);
     const d411 = computeCourseDifficulty(getCourseGradeStats('ECE 411')!);
-    const expected = Math.round((d312 * 3 + d411 * 3) / 6);
+    const expectedUnion = Math.round(100 * (1 - (1 - d312 / 100) * (1 - d411 / 100)));
 
     const result = computeSemesterStress(
       ['ECE 312', 'ECE 411'],
       { 'ECE 312': 3, 'ECE 411': 3 },
       () => 3,
     );
-    expect(result.score).toBe(expected);
+    expect(result.score).toBe(expectedUnion);
+    // Union always >= the hardest single course
+    expect(result.score).toBeGreaterThanOrEqual(Math.max(d312, d411));
   });
 
-  it('heavier course (4 credits) contributes more to weighted mean', () => {
-    // ECE 312 at 4cr vs ECE 411 at 3cr: ECE 312 should pull the score up more
+  it('union result is the same regardless of credit hours (3cr vs 4cr)', () => {
+    // Saturating union uses difficulty values only; credit hours only gate AP/transfer
+    // (0-credit) courses out of the product. Non-zero credit hours are equivalent.
     const d312 = computeCourseDifficulty(getCourseGradeStats('ECE 312')!);
     const d411 = computeCourseDifficulty(getCourseGradeStats('ECE 411')!);
-    const expected = Math.round((d312 * 4 + d411 * 3) / 7);
+    const expectedUnion = Math.round(100 * (1 - (1 - d312 / 100) * (1 - d411 / 100)));
 
-    const result = computeSemesterStress(
+    const equalCredits = computeSemesterStress(
+      ['ECE 312', 'ECE 411'],
+      { 'ECE 312': 3, 'ECE 411': 3 },
+      () => 3,
+    );
+    const unequalCredits = computeSemesterStress(
       ['ECE 312', 'ECE 411'],
       { 'ECE 312': 4, 'ECE 411': 3 },
       () => 3,
     );
-    expect(result.score).toBe(expected);
+    expect(equalCredits.score).toBe(expectedUnion);
+    expect(unequalCredits.score).toBe(expectedUnion);
   });
 });
 
@@ -307,7 +317,74 @@ describe('scoreToStressBand', () => {
   it('100 → high', () => expect(scoreToStressBand(100)).toBe('high'));
 });
 
-// ─── 8. Catalog-credit fallback ───────────────────────────────────────────────
+// ─── 8. Saturating union math ─────────────────────────────────────────────────
+
+describe('computeSemesterStress — saturating union math', () => {
+  /**
+   * Helper: build a synthetic semester with N courses each having the given
+   * difficulty. Uses distinct fake IDs so each maps to NEUTRAL_DIFFICULTY (50)
+   * via the no-data path — but we want explicit values, so we use real courses
+   * for fixed-value tests and NEUTRAL for the multi-course saturation test.
+   */
+
+  it('50+30 → 65 (canonical example from task)', () => {
+    // 100*(1 - (1-50/100)*(1-30/100)) = 100*(1 - 0.5*0.7) = 100*(0.65) = 65
+    // Use two fake courses and inject their credits; difficulties come from
+    // NEUTRAL_DIFFICULTY (50) and one real course below 50.
+    // Easier: verify the formula directly with synthetic difficulty inputs.
+    const p1 = 1 - 50 / 100; // 0.50
+    const p2 = 1 - 30 / 100; // 0.70
+    expect(Math.round(100 * (1 - p1 * p2))).toBe(65);
+  });
+
+  it('50+50 → 75 (two equal-difficulty courses)', () => {
+    const p = 1 - 50 / 100;
+    expect(Math.round(100 * (1 - p * p))).toBe(75);
+  });
+
+  it('5 courses at 30 each → 83 (saturation without pegging)', () => {
+    const p = Math.pow(1 - 30 / 100, 5);
+    expect(Math.round(100 * (1 - p))).toBe(83);
+  });
+
+  it('single course → returns that course stress unchanged (union identity)', () => {
+    // union of {s} = 100*(1 - (1-s/100)) = s  ✓
+    const result = computeSemesterStress(
+      ['ECE 312'],
+      { 'ECE 312': 3 },
+      () => 3,
+    );
+    const d312 = computeCourseDifficulty(getCourseGradeStats('ECE 312')!);
+    expect(result.score).toBe(d312);
+  });
+
+  it('empty semester → 0', () => {
+    const result = computeSemesterStress([], {}, () => 3);
+    expect(result.score).toBe(0);
+  });
+
+  it('score is always >= the hardest single course (union lower-bound)', () => {
+    const d312 = computeCourseDifficulty(getCourseGradeStats('ECE 312')!);
+    const d411 = computeCourseDifficulty(getCourseGradeStats('ECE 411')!);
+    const result = computeSemesterStress(
+      ['ECE 312', 'ECE 411'],
+      { 'ECE 312': 3, 'ECE 411': 3 },
+      () => 3,
+    );
+    expect(result.score).toBeGreaterThanOrEqual(Math.max(d312, d411));
+  });
+
+  it('score is < 100 for any finite set of non-100-difficulty courses', () => {
+    // With 5 courses of NEUTRAL_DIFFICULTY (50): 100*(1 - 0.5^5) = 96.9 → 97
+    const ids = ['FAKE 001', 'FAKE 002', 'FAKE 003', 'FAKE 004', 'FAKE 005'];
+    const credits = Object.fromEntries(ids.map((id) => [id, 3]));
+    const result = computeSemesterStress(ids, credits, () => 3);
+    expect(result.score).toBeLessThan(100);
+    expect(result.score).toBeGreaterThan(0);
+  });
+});
+
+// ─── 9. Catalog-credit fallback ───────────────────────────────────────────────
 
 describe('computeSemesterStress — catalog credit fallback', () => {
   it('uses catalogCredits when course is not in termLoadCredits', () => {
