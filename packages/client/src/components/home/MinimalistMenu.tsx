@@ -20,7 +20,6 @@ import {
   BookOpen,
   Wand2,
   GitCompare,
-  CalendarDays,
   Settings,
   Download,
   Upload,
@@ -94,10 +93,7 @@ export default function MinimalistMenu({ onRecommend, planIO, onOpenHelp }: Mini
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem onSelect={() => navigate('/schedule')}>
-          <CalendarDays className="h-4 w-4" />
-          Schedule
-        </DropdownMenuItem>
+        {/* Schedule + Career disabled for alpha launch — components retained; re-enable by restoring the nav link + route element. */}
         <DropdownMenuItem onSelect={() => navigate('/settings')}>
           <Settings className="h-4 w-4" />
           Settings

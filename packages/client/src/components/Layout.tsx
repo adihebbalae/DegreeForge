@@ -1,10 +1,8 @@
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Header from './Header'
 import HomeRoute from './HomeRoute'
 import PlannerPage from '../pages/PlannerPage'
-import SchedulerPage from '../pages/SchedulerPage'
 import SettingsPage from '../pages/SettingsPage'
-import CareerPage from '../pages/CareerPage'
 import ProgressPage from '../pages/ProgressPage'
 import { RecoverableErrorBoundary } from './PlannerErrorBoundary'
 import { useHomeVariant } from '../hooks/useHomeVariant'
@@ -28,16 +26,9 @@ export default function Layout() {
         <Routes>
           <Route path="/" element={<HomeRoute />} />
           <Route path="/plan" element={<PlannerPage />} />
-          <Route path="/schedule" element={
-            <RecoverableErrorBoundary label="scheduler page">
-              <SchedulerPage />
-            </RecoverableErrorBoundary>
-          } />
-          <Route path="/career" element={
-            <RecoverableErrorBoundary label="career page">
-              <CareerPage />
-            </RecoverableErrorBoundary>
-          } />
+          {/* Schedule + Career disabled for alpha launch — components retained; re-enable by restoring the nav link + route element. */}
+          <Route path="/schedule" element={<Navigate to="/" replace />} />
+          <Route path="/career" element={<Navigate to="/" replace />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/progress" element={<ProgressPage />} />
         </Routes>

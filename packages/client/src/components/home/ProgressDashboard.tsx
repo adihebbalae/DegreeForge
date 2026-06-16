@@ -16,7 +16,7 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Layers, CalendarDays, FlaskConical, ArrowRight, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { GraduationCap, Layers, FlaskConical, ArrowRight, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -150,14 +150,11 @@ export function ProgressDashboard() {
 
       {/* Quick actions */}
       <div className="flex flex-wrap gap-3">
+        {/* Schedule + Career disabled for alpha launch — components retained; re-enable by restoring the nav link + route element. */}
         <Button onClick={() => goto('/plan', 'view_full_plan')} className="gap-2">
           <Layers className="h-4 w-4" />
           View full plan
           <ArrowRight className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" onClick={() => goto('/schedule', 'schedule')} className="gap-2">
-          <CalendarDays className="h-4 w-4" />
-          Schedule
         </Button>
         <Button variant="outline" onClick={() => goto('/plan', 'what_if')} className="gap-2">
           <FlaskConical className="h-4 w-4" />

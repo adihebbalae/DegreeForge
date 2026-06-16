@@ -131,9 +131,8 @@ describe('HomeLandingDashboard', () => {
     expect(screen.getByText('Next term — Fall 2026')).toBeDefined();
     expect(screen.getByText('ECE 445L')).toBeDefined();
 
-    // Quick actions.
+    // Quick actions (Schedule button removed for alpha launch).
     expect(screen.getByRole('button', { name: /view full plan/i })).toBeDefined();
-    expect(screen.getByRole('button', { name: /schedule/i })).toBeDefined();
     expect(screen.getByRole('button', { name: /what-if/i })).toBeDefined();
   });
 });

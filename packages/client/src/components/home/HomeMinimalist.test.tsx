@@ -178,7 +178,7 @@ describe('HomeMinimalist', () => {
     expect(screen.getByText('Course palette')).toBeDefined();
     expect(screen.getByText('Recommend plan')).toBeDefined();
     expect(screen.getByText('Compare')).toBeDefined();
-    expect(screen.getByText('Schedule')).toBeDefined();
+    // Schedule removed for alpha launch.
     expect(screen.getByText('Settings')).toBeDefined();
     expect(screen.getByText('Export plan')).toBeDefined();
     expect(screen.getByText('Import plan')).toBeDefined();

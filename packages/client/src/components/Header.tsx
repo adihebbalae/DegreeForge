@@ -213,28 +213,7 @@ export default function Header() {
           >
             Planner
           </NavLink>
-          <NavLink
-            to="/schedule"
-            className={({ isActive }) =>
-              cn(
-                buttonVariants({ variant: 'ghost' }),
-                isActive && 'underline underline-offset-4 font-semibold',
-              )
-            }
-          >
-            Schedule
-          </NavLink>
-          <NavLink
-            to="/career"
-            className={({ isActive }) =>
-              cn(
-                buttonVariants({ variant: 'ghost' }),
-                isActive && 'underline underline-offset-4 font-semibold',
-              )
-            }
-          >
-            Career
-          </NavLink>
+          {/* Schedule + Career disabled for alpha launch — components retained; re-enable by restoring the nav link + route element. */}
           <NavLink
             to="/settings"
             className={({ isActive }) =>
