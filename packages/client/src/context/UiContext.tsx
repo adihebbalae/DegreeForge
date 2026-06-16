@@ -1,19 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { OptimizeMode } from '@/lib/solver';
-import { safeGetRaw, safeSetItem } from '@/lib/persist';
-
-export type FocusLayout = 'insights' | 'add' | 'tabbed';
-
-const FOCUS_LAYOUT_KEY = 'df:focusLayout';
-const VALID_FOCUS_LAYOUTS: FocusLayout[] = ['insights', 'add', 'tabbed'];
-
-function loadFocusLayout(): FocusLayout {
-  const raw = safeGetRaw(FOCUS_LAYOUT_KEY);
-  if (raw && (VALID_FOCUS_LAYOUTS as string[]).includes(raw)) {
-    return raw as FocusLayout;
-  }
-  return 'insights';
-}
 
 interface UiContextValue {
   chatOpen: boolean;
@@ -29,9 +15,6 @@ interface UiContextValue {
   /** Planner optimization objective for "Recommend Plan" ('fastest' default). */
   optimizeMode: OptimizeMode;
   setOptimizeMode: (v: OptimizeMode | ((prev: OptimizeMode) => OptimizeMode)) => void;
-  /** Which panel layout to show in the FocusEditor right panel. Persisted. */
-  focusLayout: FocusLayout;
-  setFocusLayout: (v: FocusLayout) => void;
   /** True while a CourseDetailDialog is open — disables dnd-kit sensors to prevent
    *  background dragging while the user reads / selects text in the dialog. Ephemeral. */
   detailDialogOpen: boolean;
@@ -50,7 +33,6 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [focusedSemesterId, setFocusedSemesterId] = useState<string | null>(null);
   const [optimizeMode, setOptimizeMode] = useState<OptimizeMode>('fastest');
-  const [focusLayout, setFocusLayoutRaw] = useState<FocusLayout>(loadFocusLayout);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [highlightedCourseId, setHighlightedCourseId] = useState<string | null>(null);
 
@@ -61,11 +43,6 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(t);
   }, [highlightedCourseId]);
 
-  const setFocusLayout = (v: FocusLayout) => {
-    setFocusLayoutRaw(v);
-    safeSetItem(FOCUS_LAYOUT_KEY, v);
-  };
-
   return (
     <UiContext.Provider value={{
       chatOpen, setChatOpen,
@@ -74,7 +51,6 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
       commandPaletteOpen, setCommandPaletteOpen,
       focusedSemesterId, setFocusedSemesterId,
       optimizeMode, setOptimizeMode,
-      focusLayout, setFocusLayout,
       detailDialogOpen, setDetailDialogOpen,
       highlightedCourseId, setHighlightedCourseId,
     }}>

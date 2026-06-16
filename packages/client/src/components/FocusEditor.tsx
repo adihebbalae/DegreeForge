@@ -2,21 +2,17 @@
  * FocusEditor — TASK-094 redesign
  *
  * Shows only the focused semester (no neighbor), expanded to the left region,
- * with a right-hand context panel. A compact segmented switcher in the header
- * flips the right panel between three layouts: Insights | Add | Tabbed.
- * The choice persists via UiContext → localStorage.
+ * with a right-hand context panel. The right panel is a single tab strip
+ * (Insights | Add | Best Path) rendered by FocusTabbedPanel.
  *
  * Kept from original: header ‹ › prev/next nav, Esc-to-close (in PlannerPage),
- * and the "+ Add course" button (wires to the inline picker in the Add panel
- * when Add or Tabbed is selected; opens a standalone picker otherwise).
+ * and the "+ Add course" button (selects the Add tab in the tab strip).
  */
 
 import { useMemo, useCallback, useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useUi, type FocusLayout } from '@/context/UiContext';
-import CoursePickerSheet from '@/components/CoursePickerSheet';
+import { useUi } from '@/context/UiContext';
 import {
   useSemesters,
   usePlan,
@@ -44,9 +40,7 @@ import { getCreditHourCap } from '@/lib/auto-planner';
 import { useValidation } from '@/hooks/useValidation';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
-import FocusInsightsPanel from './focus/FocusInsightsPanel';
-import FocusAddPanel from './focus/FocusAddPanel';
-import FocusTabbedPanel from './focus/FocusTabbedPanel';
+import FocusTabbedPanel, { type FocusTab } from './focus/FocusTabbedPanel';
 import type { PrereqNode } from '@/types';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -56,22 +50,13 @@ interface FocusEditorProps {
   onClose: () => void;
 }
 
-// ─── Layout switcher labels ───────────────────────────────────────────────────
-
-const LAYOUT_OPTIONS: Array<{ id: FocusLayout; label: string }> = [
-  { id: 'insights', label: 'Insights' },
-  { id: 'add', label: 'Add' },
-  { id: 'tabbed', label: 'Tabbed' },
-];
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorProps) {
-  // pickerOpen is only used when layout = 'insights' (the Add panel is always-open
-  // in 'add' layout; the Tabbed panel has its own Add tab).
-  const [pickerOpen, setPickerOpen] = useState(false);
+  // The single tab strip defaults to Insights; the "+ Add course" button jumps to Add.
+  const [activeTab, setActiveTab] = useState<FocusTab>('insights');
   const semesters = useSemesters();
-  const { setFocusedSemesterId, focusLayout, setFocusLayout } = useUi();
+  const { setFocusedSemesterId } = useUi();
   const plan = usePlan();
   const userProfile = useUserProfile();
   const effectiveProfile = useEffectiveProfile();
@@ -156,17 +141,6 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
 
   if (!focusedSem) return null;
 
-  // The "+ Add course" button opens the standalone picker only when layout is
-  // 'insights' (the other two already embed an always-open picker).
-  const handleAddCourse = () => {
-    if (focusLayout === 'insights') {
-      setPickerOpen((v) => !v);
-    } else {
-      // Switch to the Add layout so the picker becomes visible immediately.
-      setFocusLayout('add');
-    }
-  };
-
   return (
     <div className="h-full flex flex-col min-h-0">
 
@@ -215,45 +189,16 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
           </Button>
         </div>
 
-        {/* Layout switcher */}
-        <div
-          className="flex items-center rounded border border-border bg-muted/40 overflow-hidden text-xs shrink-0"
-          role="group"
-          aria-label="Focus panel layout"
-        >
-          {LAYOUT_OPTIONS.map((opt) => (
-            <button
-              key={opt.id}
-              type="button"
-              onClick={() => { setFocusLayout(opt.id); if (opt.id !== 'insights') setPickerOpen(false); }}
-              className={cn(
-                'px-2.5 py-1 text-[11px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                focusLayout === opt.id
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-              aria-pressed={focusLayout === opt.id}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-
         {/* Esc hint */}
         <span className="text-xs text-muted-foreground hidden sm:inline">Press Esc to close</span>
 
-        {/* + Add course */}
+        {/* + Add course — jumps to the Add tab in the tab strip */}
         <Button
           variant="outline"
           size="sm"
           className="h-6 px-2 gap-1 text-xs shrink-0 ml-auto"
-          onClick={handleAddCourse}
-          aria-label={
-            focusLayout === 'insights'
-              ? pickerOpen ? 'Close course search' : 'Add course to semester'
-              : 'Open Add panel'
-          }
-          {...(focusLayout === 'insights' ? { 'aria-expanded': pickerOpen } : {})}
+          onClick={() => setActiveTab('add')}
+          aria-label="Add course to semester"
           data-testid="focus-editor-add-course-btn"
         >
           <Plus className="h-3 w-3" />
@@ -293,27 +238,16 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
           />
         </div>
 
-        {/* Right: context panel */}
+        {/* Right: single tab strip (Insights | Add | Best Path) */}
         <div className="flex-1 min-w-0 border-l border-border overflow-hidden min-h-0 flex flex-col">
-          {focusLayout === 'insights' && (
-            <FocusInsightsPanel semester={focusedSem} creditHourCap={creditHourCap} />
-          )}
-          {focusLayout === 'add' && (
-            <FocusAddPanel semester={focusedSem} />
-          )}
-          {focusLayout === 'tabbed' && (
-            <FocusTabbedPanel semester={focusedSem} creditHourCap={creditHourCap} />
-          )}
+          <FocusTabbedPanel
+            semester={focusedSem}
+            creditHourCap={creditHourCap}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
         </div>
       </div>
-
-      {/* Standalone picker — only shown when layout = 'insights' and user clicked + Add */}
-      {focusLayout === 'insights' && pickerOpen && (
-        <CoursePickerSheet
-          semesterId={focusedSemesterId}
-          onClose={() => setPickerOpen(false)}
-        />
-      )}
     </div>
   );
 }

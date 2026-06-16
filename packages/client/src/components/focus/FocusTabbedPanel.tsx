@@ -1,10 +1,14 @@
 /**
  * FocusTabbedPanel — TASK-094
  *
- * Right-panel "Tabbed" layout for the FocusEditor.
+ * The single right-panel tab strip for the FocusEditor.
  * Three tabs: Insights | Add | Best Path
  *   - Insights and Add reuse FocusInsightsPanel and FocusAddPanel.
  *   - Best Path renders the full critical path + bottlenecks via BestPathContent.
+ *
+ * The active tab can be controlled (pass `activeTab` + `onTabChange`) so the host
+ * can jump to a specific tab — e.g. the "+ Add course" header button selects 'add'.
+ * When uncontrolled it manages its own state, defaulting to 'insights'.
  */
 
 import { useState } from 'react';
@@ -15,9 +19,9 @@ import FocusInsightsPanel from './FocusInsightsPanel';
 import FocusAddPanel from './FocusAddPanel';
 import type { Semester } from '@/types';
 
-type Tab = 'insights' | 'add' | 'bestpath';
+export type FocusTab = 'insights' | 'add' | 'bestpath';
 
-const TABS: Array<{ id: Tab; label: string }> = [
+const TABS: Array<{ id: FocusTab; label: string }> = [
   { id: 'insights', label: 'Insights' },
   { id: 'add', label: 'Add' },
   { id: 'bestpath', label: 'Best Path' },
@@ -26,10 +30,24 @@ const TABS: Array<{ id: Tab; label: string }> = [
 interface FocusTabbedPanelProps {
   semester: Semester;
   creditHourCap: number;
+  /** Controlled active tab. Omit (with onTabChange) to use internal state. */
+  activeTab?: FocusTab;
+  /** Called when the user selects a tab. Required for controlled use. */
+  onTabChange?: (tab: FocusTab) => void;
 }
 
-export default function FocusTabbedPanel({ semester, creditHourCap }: FocusTabbedPanelProps) {
-  const [activeTab, setActiveTab] = useState<Tab>('insights');
+export default function FocusTabbedPanel({
+  semester,
+  creditHourCap,
+  activeTab: controlledTab,
+  onTabChange,
+}: FocusTabbedPanelProps) {
+  const [internalTab, setInternalTab] = useState<FocusTab>('insights');
+  const activeTab = controlledTab ?? internalTab;
+  const setActiveTab = (tab: FocusTab) => {
+    if (controlledTab === undefined) setInternalTab(tab);
+    onTabChange?.(tab);
+  };
   const diagnostics = useDiagnostics();
 
   return (
