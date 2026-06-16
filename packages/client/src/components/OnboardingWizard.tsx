@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Notice } from '@/components/ui/notice';
 import { Lock, Upload, X } from 'lucide-react';
 import { useTechCoresRecord } from '@/context/DataContext';
-import { useSettings, useSettingsDispatch, type LoadTolerance } from '@/context/SettingsContext';
+import { useSettingsDispatch, type LoadTolerance } from '@/context/SettingsContext';
 import { usePlanDispatch, SEMESTERS } from '@/context/PlanContext';
 import { useProfileDispatch, EMPTY_PROFILE } from '@/context/ProfileContext';
 import { parseTranscript, type ParsedCourse } from '@/lib/agent-tools/parse-transcript';
@@ -27,7 +27,6 @@ interface OnboardingWizardProps {
 
 export function OnboardingWizard({ onComplete, onDismiss }: OnboardingWizardProps) {
   const techCores = useTechCoresRecord();
-  const settings = useSettings();
   const settingsDispatch = useSettingsDispatch();
   const planDispatch = usePlanDispatch();
   const profileDispatch = useProfileDispatch();
@@ -212,9 +211,6 @@ export function OnboardingWizard({ onComplete, onDismiss }: OnboardingWizardProp
 
   const completedCount = parsedCourses.filter(c => c.grade !== 'IP').length;
   const inProgressCount = parsedCourses.filter(c => c.grade === 'IP').length;
-
-  // Unused but kept so settings import doesn't break if someone calls with accessCode
-  void settings;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -465,7 +461,7 @@ export function OnboardingWizard({ onComplete, onDismiss }: OnboardingWizardProp
             )}
             {step < totalSteps - 1 ? (
               <Button onClick={handleNext}>Next</Button>
-            ) : step === 4 ? (
+            ) : step === totalSteps - 1 ? (
               <Button onClick={handleParseTranscript} disabled={isParsing}>
                 {isParsing ? 'Parsing...' : 'Next'}
               </Button>

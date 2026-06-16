@@ -2,8 +2,8 @@
  * HomeLandingDashboard — TASK-076
  *
  * The home screen ("/") for the `landing-dashboard` variant (Direction 1 in
- * .agents/home-design-options.md). It branches on whether the user has onboarded
- * (the same `degreeforge:onboarded` flag main.tsx reads):
+ * .agents/home-design-options.md). It branches on whether the user has onboarded,
+ * derived in useOnboarded.ts from profile content (name, courses, graduation_target):
  *
  *   - first-time (not onboarded) → LandingHero: sells the wedge + onboarding CTAs.
  *   - returning (onboarded)      → ProgressDashboard: a calm progress summary,

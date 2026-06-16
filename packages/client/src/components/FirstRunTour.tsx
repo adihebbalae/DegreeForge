@@ -47,7 +47,7 @@ function markTourSeen() {
 
 interface TourStep {
   /** Where to visually anchor the card */
-  position: 'top-right' | 'center-top' | 'bottom-left' | 'bottom-center';
+  position: 'top-right' | 'center-top' | 'bottom-left';
   /** Headline */
   title: string;
   /** Body copy */
@@ -77,13 +77,15 @@ const TOUR_STEPS: TourStep[] = [
   },
 ];
 
+/** Total number of tour steps. Import in callers to avoid magic numbers. */
+export const TOTAL_TOUR_STEPS = TOUR_STEPS.length;
+
 // ─── Position map ─────────────────────────────────────────────────────────────
 
 const POSITION_CLASSES: Record<TourStep['position'], string> = {
-  'top-right':    'top-20 right-4',
-  'center-top':   'top-24 left-1/2 -translate-x-1/2',
-  'bottom-left':  'bottom-20 left-4',
-  'bottom-center':'bottom-20 left-1/2 -translate-x-1/2',
+  'top-right':   'top-20 right-4',
+  'center-top':  'top-24 left-1/2 -translate-x-1/2',
+  'bottom-left': 'bottom-20 left-4',
 };
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -163,35 +165,6 @@ function TourCard({ step, totalSteps, onNext, onSkip }: FirstRunTourProps) {
   );
 }
 
-// ─── Hook: manage tour lifecycle ──────────────────────────────────────────────
-
-export interface UseTourResult {
-  active: boolean;
-  step: number;
-  totalSteps: number;
-  advance: () => void;
-  skip: () => void;
-}
-
-/**
- * Manages tour state. Returns { active, step, totalSteps, advance, skip }.
- * Caller renders <TourOverlay /> only when active=true.
- */
-export function useTour(enabled: boolean): UseTourResult {
-  const totalSteps = TOUR_STEPS.length;
-
-  // We track step in a ref-style via the parent; this hook just drives side effects.
-  // The actual step state lives in the caller (FirstRunTourController) so that
-  // re-renders don't reset it on every parent update.
-  return {
-    active: enabled,
-    step: 0,
-    totalSteps,
-    advance: () => {},
-    skip: () => {},
-  };
-}
-
 // ─── Main export: self-contained tour controller ──────────────────────────────
 
 interface FirstRunTourControllerProps {
@@ -199,19 +172,28 @@ interface FirstRunTourControllerProps {
   step: number;
   onNext: () => void;
   onSkip: () => void;
+  /**
+   * When true, the tour's Escape handler yields to the planner so Esc closes
+   * the focused semester instead of skipping the tour.
+   */
+  hasFocusedSemester?: boolean;
 }
 
 /**
- * Renders the tour card at the current step. Also handles Esc key to skip.
+ * Renders the tour card at the current step. Also handles Esc key to skip,
+ * but yields if a semester focus panel is open (hasFocusedSemester=true) so
+ * the two Esc listeners don't destructively race.
  * Does NOT manage the step index itself — caller owns step/onNext/onSkip.
  */
-export function FirstRunTourController({ step, onNext, onSkip }: FirstRunTourControllerProps) {
+export function FirstRunTourController({ step, onNext, onSkip, hasFocusedSemester = false }: FirstRunTourControllerProps) {
   const totalSteps = TOUR_STEPS.length;
 
-  // Esc key → skip
+  // Esc key → skip tour, but only when no semester panel is focused.
+  // PlannerPage registers its own Esc handler for focusedSemesterId; yielding
+  // here prevents both handlers from firing on the same keydown event.
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') onSkip();
-  }, [onSkip]);
+    if (e.key === 'Escape' && !hasFocusedSemester) onSkip();
+  }, [onSkip, hasFocusedSemester]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -229,3 +211,4 @@ export function FirstRunTourController({ step, onNext, onSkip }: FirstRunTourCon
     />
   );
 }
+

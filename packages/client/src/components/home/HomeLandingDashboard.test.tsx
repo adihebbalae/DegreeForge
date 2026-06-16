@@ -21,7 +21,6 @@ import { MemoryRouter } from 'react-router-dom';
 const onboardedRef = { value: false };
 vi.mock('./useOnboarded', () => ({
   useOnboarded: () => onboardedRef.value,
-  ONBOARDED_KEY: 'degreeforge:onboarded',
 }));
 
 // ── next-term summary (returning view) ──────────────────────────────────────

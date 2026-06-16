@@ -25,7 +25,7 @@ import FocusEditor from '@/components/FocusEditor';
 import CommandPalette from '@/components/CommandPalette';
 import { OnboardingWizard } from '@/components/OnboardingWizard';
 import { useOnboarded } from '@/components/home/useOnboarded';
-import { FirstRunTourController, hasTourBeenSeen, TOUR_SEEN_KEY } from '@/components/FirstRunTour';
+import { FirstRunTourController, hasTourBeenSeen, TOUR_SEEN_KEY, TOTAL_TOUR_STEPS } from '@/components/FirstRunTour';
 import { safeSetItem } from '@/lib/persist';
 import {
   useCatalogRecord,
@@ -75,11 +75,10 @@ export default function PlannerPage() {
   const tourActive = tourStep !== null;
 
   const handleTourNext = useCallback(() => {
-    const TOTAL = 4; // must match TOUR_STEPS.length in FirstRunTour.tsx
     setTourStep(prev => {
       if (prev === null) return null;
       const next = prev + 1;
-      if (next >= TOTAL) {
+      if (next >= TOTAL_TOUR_STEPS) {
         // Tour complete
         safeSetItem(TOUR_SEEN_KEY, 'true');
         track('tour_completed');
@@ -453,6 +452,7 @@ export default function PlannerPage() {
         step={tourStep!}
         onNext={handleTourNext}
         onSkip={handleTourSkip}
+        hasFocusedSemester={!!focusedSemesterId}
       />
     )}
     </PlannerErrorBoundary>

@@ -4,47 +4,42 @@
  * Determines whether the current visitor has a stored plan/profile and should
  * be treated as a "returning user". Previously this read a `degreeforge:onboarded`
  * flag written by the wizard gate; since TASK-105 removed that gate, onboarded
- * state is now re-derived from profile existence: if a non-empty profile is stored
- * in localStorage, the user is returning and should see their progress dashboard.
+ * state is now derived in this module from profile content. If a profile with
+ * any meaningful field is stored in localStorage, the user is returning and should
+ * see their progress dashboard.
  *
- * Derivation: safeGetRaw(PROFILE_STORAGE_KEY) !== null means some profile JSON has
- * been persisted (ProfileProvider always writes on every change, so even EMPTY_PROFILE
- * gets written on first mount — but EMPTY_PROFILE has no completed_courses and a
- * blank name, so any session that ran the wizard or imported data will have a
- * non-trivially populated profile). We use a two-tier check:
- *   1. Is the profile key present? (null → never stored → true first-timer)
- *   2. Does the stored profile have any meaningful content? (name, completed_courses,
- *      or in_progress_courses non-empty → returning user)
+ * Derivation: a visitor is considered onboarded if their profile has a non-empty
+ * name, at least one completed course, at least one in-progress course, OR a
+ * graduation_target set. This correctly handles the "skipped import" case where
+ * the wizard was completed but no courses were imported (graduation_target is set
+ * but all course arrays are empty and name is blank).
+ *
+ * The Zod-guarded helper (safeGetItem + fromJson + parseProfileState) is reused
+ * from ProfileProvider so this read path is consistent with the rest of the app.
  *
  * Degrades to false (show the hero) on any read error or when storage is unavailable,
  * which is the safe default for a cold visitor.
+ *
+ * Note: the legacy `degreeforge:onboarded` key may still exist in returning users'
+ * localStorage from before TASK-105 — it is simply ignored now; no cleanup needed.
  */
 
-import { safeGetRaw } from '@/lib/persist';
+import { safeGetItem, fromJson } from '@/lib/persist';
+import { parseProfileState } from '@/lib/profile-schema';
 import { PROFILE_STORAGE_KEY } from '@/context/ProfileContext';
 
 /**
- * The old wizard-gate key — kept as a named export so callers that reference it
- * (SettingsPage Re-run Onboarding) can clear it without hard-coding the string.
- * @deprecated No longer written by the gate; profile presence is the truth signal.
- */
-export const ONBOARDED_KEY = 'degreeforge:onboarded';
-
-/**
- * True when the visitor has a stored profile with meaningful content (name,
- * completed_courses, or in_progress_courses set). Returns false for a true
- * first-timer (no stored profile) or on storage errors.
+ * True when the visitor has a stored profile with any meaningful content:
+ * name, completed_courses, in_progress_courses, or graduation_target set.
+ * Returns false for a true first-timer (no stored profile) or on storage errors.
  */
 export function useOnboarded(): boolean {
-  const raw = safeGetRaw(PROFILE_STORAGE_KEY);
-  if (raw === null) return false;
-  try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    const name = typeof parsed.name === 'string' ? parsed.name : '';
-    const completed = Array.isArray(parsed.completed_courses) ? parsed.completed_courses : [];
-    const inProgress = Array.isArray(parsed.in_progress_courses) ? parsed.in_progress_courses : [];
-    return name.trim().length > 0 || completed.length > 0 || inProgress.length > 0;
-  } catch {
-    return false;
-  }
+  const result = safeGetItem(PROFILE_STORAGE_KEY, fromJson(parseProfileState));
+  if (result.status !== 'ok') return false;
+  const p = result.value;
+  const nameNonEmpty = p.name.trim().length > 0;
+  const hasCompleted = p.completed_courses.length > 0;
+  const hasInProgress = p.in_progress_courses.length > 0;
+  const hasGradTarget = typeof p.graduation_target === 'string' && p.graduation_target.trim().length > 0;
+  return nameNonEmpty || hasCompleted || hasInProgress || hasGradTarget;
 }
