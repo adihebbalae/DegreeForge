@@ -5,8 +5,10 @@ import type { Semester, UserProfile } from '../types';
  *
  * - Each completed course is placed into its matching past semester by `course.semester`.
  *   If no matching past/current semester exists, it falls back to the earliest past semester.
- * - Each in-progress course is placed into its matching current semester by `course.semester`.
- *   If no match, falls back to the first current semester, then earliest future.
+ * - Each in-progress course is placed into its matching past/current semester by `course.semester`.
+ *   (Honoring an explicit past match keeps placement stable as the canonical "current" term
+ *   drifts forward over real time.) If no past/current match, falls back to the first current
+ *   semester, then earliest future.
  * - Future semesters are left empty.
  * - Courses are deduplicated within each semester (profile might have duplicates from
  *   import errors).
@@ -60,7 +62,7 @@ export function deriveTimelinePlanFromProfile(
     let targetSem: string | undefined;
     if (allSemesterIds.has(ip.semester)) {
       const sem = semesters.find((s) => s.id === ip.semester);
-      if (sem && sem.status === 'current') {
+      if (sem && (sem.status === 'past' || sem.status === 'current')) {
         targetSem = ip.semester;
       }
     }

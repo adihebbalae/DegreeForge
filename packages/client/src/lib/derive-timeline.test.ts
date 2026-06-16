@@ -80,6 +80,26 @@ describe('deriveTimelinePlanFromProfile', () => {
     expect(plan['Fall 2026']).not.toContain('ECE 312H');
   });
 
+  it('places an in-progress course into its explicit semester when that semester is now past (date drift)', () => {
+    // Simulates real time advancing: a profile lists a course in-progress for "Spring 2026",
+    // but the viewing date has moved on so "Spring 2026" is now past and "Summer 2026" is current.
+    // The course must stay in Spring 2026 (its explicit term), NOT pile into Summer 2026.
+    const driftedSemesters: Semester[] = [
+      { id: 'Fall 2025',   label: "Fall '25", status: 'past',    year: 2025, season: 'Fall'   },
+      { id: 'Spring 2026', label: "Sp '26",   status: 'past',    year: 2026, season: 'Spring' },
+      { id: 'Summer 2026', label: "Su '26",   status: 'current', year: 2026, season: 'Summer' },
+      { id: 'Fall 2026',   label: "Fall '26", status: 'future',  year: 2026, season: 'Fall'   },
+    ];
+    const profile = makeProfile({
+      in_progress_courses: [
+        { course: 'ECE 312H', title: 'Software I', semester: 'Spring 2026', credit_hours: 3 },
+      ],
+    });
+    const plan = deriveTimelinePlanFromProfile(profile, driftedSemesters);
+    expect(plan['Spring 2026']).toContain('ECE 312H');
+    expect(plan['Summer 2026']).not.toContain('ECE 312H');
+  });
+
   it('places an in-progress course with non-current semester into the first current semester', () => {
     const profile = makeProfile({
       in_progress_courses: [
