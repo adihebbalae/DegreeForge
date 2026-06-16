@@ -380,7 +380,7 @@ describe('ProfileEditor — Load Demo confirm flow', () => {
   it('clicking "Load demo profile" button opens confirm dialog', () => {
     render(<ProfileEditor />);
     fireEvent.click(screen.getByLabelText('Load demo profile'));
-    expect(screen.getByTestId('confirm-load-demo-profile-(adi)')).toBeDefined();
+    expect(screen.getByTestId('confirm-load-example-profile')).toBeDefined();
   });
 
   it('confirming Load Demo calls fetchAndLoadDemo and dispatches SET_PLAN', async () => {
