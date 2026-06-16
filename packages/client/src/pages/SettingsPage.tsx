@@ -498,6 +498,9 @@ export default function SettingsPage() {
         onConfirm={() => dispatch({ type: 'RESET_SETTINGS' })}
       />
 
+      {/* Re-import from Settings intentionally has NO onImportComplete — this is
+          housekeeping (updating an existing profile), not first-activation, so the
+          upload reward banner is not shown. */}
       {wizardOpen && (
         <OnboardingWizard
           onComplete={() => setWizardOpen(false)}

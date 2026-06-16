@@ -20,6 +20,8 @@ import { useLocation } from 'react-router-dom';
 import { ProgressDashboard } from '@/components/home/ProgressDashboard';
 import { ProgressReveal } from '@/components/ProgressReveal';
 
+type UploadSource = 'transcript' | 'ida' | 'unknown';
+
 interface UploadRouteState {
   fromUpload?: boolean;
   completed?: number;
@@ -27,16 +29,42 @@ interface UploadRouteState {
   source?: string;
 }
 
+/** Validate and coerce raw router state before passing to ProgressReveal.
+ *  Defense against arbitrary history.pushState polluting analytics. */
+function validateRouteState(raw: unknown): {
+  source: UploadSource;
+  completed: number;
+  inProgress: number;
+} {
+  const s = (raw != null && typeof raw === 'object' ? raw : {}) as UploadRouteState;
+
+  const VALID_SOURCES: UploadSource[] = ['transcript', 'ida', 'unknown'];
+  const source: UploadSource =
+    typeof s.source === 'string' && VALID_SOURCES.includes(s.source as UploadSource)
+      ? (s.source as UploadSource)
+      : 'unknown';
+
+  const toCount = (x: unknown): number =>
+    typeof x === 'number' && Number.isFinite(x) && x >= 0 ? Math.floor(x) : 0;
+
+  return {
+    source,
+    completed: toCount(s.completed),
+    inProgress: toCount(s.inProgress),
+  };
+}
+
 export default function ProgressPage() {
   const location = useLocation();
-  const state = (location.state ?? {}) as UploadRouteState;
+  const rawState = (location.state ?? {}) as UploadRouteState;
 
-  if (state.fromUpload) {
+  if (rawState.fromUpload) {
+    const { source, completed, inProgress } = validateRouteState(location.state);
     return (
       <ProgressReveal
-        completed={state.completed ?? 0}
-        inProgress={state.inProgress ?? 0}
-        source={state.source ?? 'unknown'}
+        completed={completed}
+        inProgress={inProgress}
+        source={source}
       />
     );
   }

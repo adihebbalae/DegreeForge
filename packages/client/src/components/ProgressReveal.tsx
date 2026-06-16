@@ -9,8 +9,8 @@
  *      a warm success banner: "N completed · M in progress loaded!"
  *   3. A prominent nudge CTA routes to the planner and fires upload_reward_nudge_clicked.
  *
- * When rendered WITHOUT fromUpload state (direct nav / bookmark), it renders
- * ProgressDashboard normally — no shimmer, no banner. No crash.
+ * The fallback for direct nav (no fromUpload state) lives in ProgressPage.tsx,
+ * which renders ProgressDashboard directly without this wrapper.
  */
 
 import { useState, useEffect } from 'react';
@@ -101,15 +101,18 @@ export function ProgressReveal({ completed, inProgress, source }: ProgressReveal
 
   return (
     <div className="h-full flex flex-col min-h-0">
-      {/* Indeterminate loading bar — visible during shimmer, hidden after reveal */}
+      {/* Indeterminate loading bar — visible during shimmer, collapsed after reveal.
+          `h-0 overflow-hidden` removes the 4px stripe entirely once revealed, which
+          also stops the `animate-shimmer-bar` animation from running in the background.
+          `pointer-events-none` prevents any accidental click-through while transitioning. */}
       <div
-        className={`h-1 w-full overflow-hidden bg-muted transition-opacity duration-300 shrink-0 ${
-          revealed ? 'opacity-0' : 'opacity-100'
+        className={`w-full overflow-hidden bg-muted transition-all duration-300 shrink-0 pointer-events-none ${
+          revealed ? 'h-0 opacity-0' : 'h-1 opacity-100'
         }`}
         aria-hidden="true"
         data-testid="progress-reveal-loading-bar"
       >
-        <div className="h-full animate-shimmer-bar bg-primary" />
+        {!revealed && <div className="h-full animate-shimmer-bar bg-primary" />}
       </div>
 
       {/* Reveal transition: skeleton → real content */}

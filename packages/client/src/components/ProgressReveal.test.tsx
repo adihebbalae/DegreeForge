@@ -64,6 +64,22 @@ describe('ProgressReveal', () => {
     expect(screen.getByTestId('progress-reveal-loading-bar')).toBeDefined();
   });
 
+  it('loading bar has h-1 before reveal and h-0 after reveal', () => {
+    renderReveal();
+    const bar = screen.getByTestId('progress-reveal-loading-bar');
+    // Before reveal: should have h-1 class
+    expect(bar.className).toContain('h-1');
+    expect(bar.className).not.toContain('h-0');
+
+    act(() => {
+      vi.advanceTimersByTime(MIN_SHIMMER_MS);
+    });
+
+    // After reveal: h-0 collapses the stripe
+    expect(bar.className).toContain('h-0');
+    expect(bar.className).not.toContain('h-1');
+  });
+
   it('success banner is hidden (opacity-0) before MIN_SHIMMER_MS elapses', () => {
     renderReveal();
     // The banner exists in DOM but is inside the opacity-0 layer

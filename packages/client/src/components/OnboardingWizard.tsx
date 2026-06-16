@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -20,6 +20,11 @@ import type { UserProfile } from '@/types';
 type ImportSource = 'transcript' | 'ida';
 
 interface OnboardingWizardProps {
+  /**
+   * Called on the skip-import path (user skips step 4) and the review-step
+   * "Start Planning" path (step 5). Neither path shows the upload reward.
+   * Do NOT add reward navigation here — that is onImportComplete's job.
+   */
   onComplete: () => void;
   /** Optional: called when the user dismisses the wizard without completing it. */
   onDismiss?: () => void;
@@ -27,6 +32,7 @@ interface OnboardingWizardProps {
    * TASK-105 Phase 2: called instead of onComplete when the import step produces
    * a successful parse (≥1 course). Receives the cleaned counts so the caller can
    * navigate to the /progress reveal. When not provided, falls back to onComplete.
+   * This is the ONLY path that triggers the upload reward — onComplete never does.
    */
   onImportComplete?: (completed: number, inProgress: number, source: ImportSource) => void;
 }
@@ -55,6 +61,9 @@ export function OnboardingWizard({ onComplete, onDismiss, onImportComplete }: On
   const [isDragOver, setIsDragOver] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Guard against double-commit within one wizard lifecycle (e.g. future refactor
+  // accidentally wires both the import-success path and the review-step path).
+  const committedRef = useRef(false);
 
   // TASK-106: readable names for each wizard step (used in funnel events only)
   const STEP_NAMES: Record<number, string> = {
@@ -133,9 +142,11 @@ export function OnboardingWizard({ onComplete, onDismiss, onImportComplete }: On
         // immediately and short-circuit the remaining review step. The user
         // goes straight to the /progress reveal with their parsed counts.
         if (onImportComplete) {
-          const { completed, inProgress } = commitWizardState(courses);
-          track('onboarding_completed');
-          onImportComplete(completed, inProgress, importSource);
+          const result = commitWizardState(courses);
+          if (result) {
+            track('onboarding_completed');
+            onImportComplete(result.completed, result.inProgress, importSource);
+          }
         } else {
           // Original path: advance to review step so user can confirm + "Start Planning".
           handleNext();
@@ -157,9 +168,13 @@ export function OnboardingWizard({ onComplete, onDismiss, onImportComplete }: On
    * short-circuit path (TASK-105 Phase 2).
    *
    * Returns the cleaned completed/in-progress counts so the caller can pass
-   * them to the reveal navigation.
+   * them to the reveal navigation. Returns null on a double-call (idempotency
+   * guard — no-op so a future refactor can't double-commit + re-seed the plan).
    */
-  const commitWizardState = (courses: ParsedCourse[]) => {
+  const commitWizardState = (courses: ParsedCourse[]): { completed: number; inProgress: number } | null => {
+    if (committedRef.current) return null;
+    committedRef.current = true;
+
     // Settings dispatches (tolerance, grad target, tech core) remain in SettingsContext.
     settingsDispatch({ type: 'SET_GRAD_TARGET', value: gradTarget });
     settingsDispatch({ type: 'SET_LOAD_TOLERANCE', value: loadTolerance });
@@ -238,13 +253,23 @@ export function OnboardingWizard({ onComplete, onDismiss, onImportComplete }: On
   };
 
   const handleCommit = () => {
-    commitWizardState(parsedCourses);
-    track('onboarding_completed');
-    onComplete();
+    const result = commitWizardState(parsedCourses);
+    if (result) {
+      track('onboarding_completed');
+      onComplete();
+    }
   };
 
-  const completedCount = parsedCourses.filter(c => c.grade !== 'IP').length;
-  const inProgressCount = parsedCourses.filter(c => c.grade === 'IP').length;
+  // Post-sanitize counts: filter through isValidCourseId so the review-step
+  // badges reflect the same set that commitWizardState will actually commit.
+  // Pre-sanitize counts (raw parsedCourses) could be inflated if the parser
+  // returned unrecognized tokens that sanitizeCourseList would drop.
+  const cleanParsedForReview = useMemo(
+    () => parsedCourses.filter(c => isValidCourseId(c.courseId)),
+    [parsedCourses]
+  );
+  const completedCount = cleanParsedForReview.filter(c => c.grade !== 'IP').length;
+  const inProgressCount = cleanParsedForReview.filter(c => c.grade === 'IP').length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
