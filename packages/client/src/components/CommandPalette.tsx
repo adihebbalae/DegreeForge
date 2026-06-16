@@ -1,15 +1,20 @@
 /**
  * CommandPalette — Cmd/Ctrl+K modal to search the course catalog and add a
- * course to the focused or current semester without leaving the keyboard.
+ * course to a user-selected semester without leaving the keyboard.
  *
  * Open:  Cmd+K | Ctrl+K | Ctrl+Space
  * Close: Esc | clicking backdrop
  * Nav:   ↑/↓ arrows move highlight, Enter adds the highlighted course
  *
- * Target semester resolution (spec §5):
- *  1. focusedSemesterId if set
- *  2. First semester with status === 'current'
- *  3. If neither exists, show an inline hint and block the add action.
+ * Target semester resolution:
+ *  1. If focusedSemesterId is set AND non-past → pre-select it.
+ *  2. Otherwise → default to the earliest non-past FUTURE semester.
+ *  3. If no future exists → fall back to the current semester.
+ *  4. If only past semesters exist → show an inline hint and block the add.
+ *
+ * The target is shown as a small native <select> in the search bar so the
+ * user can change it before adding. Arrow keys inside the <select> are
+ * handled by the browser natively and do NOT propagate to the course list.
  *
  * After a successful add the course is dispatched (ADD_COURSE) and
  * focusedSemesterId is set to the target so the user sees the result in
@@ -57,6 +62,27 @@ const CATEGORY_LABEL: Record<CourseCategory, string> = {
   math: 'Math',
 };
 
+/**
+ * Derives the default selected target from the available non-past semesters.
+ * Priority: focused (if non-past) → earliest future → current → null.
+ */
+function deriveDefaultTarget(
+  focusedSemesterId: string | null,
+  semesters: { id: string; status: 'past' | 'current' | 'future' }[]
+): string | null {
+  const nonPast = semesters.filter((s) => s.status !== 'past');
+  if (nonPast.length === 0) return null;
+
+  if (focusedSemesterId && nonPast.some((s) => s.id === focusedSemesterId)) {
+    return focusedSemesterId;
+  }
+
+  const firstFuture = nonPast.find((s) => s.status === 'future');
+  if (firstFuture) return firstFuture.id;
+
+  const current = nonPast.find((s) => s.status === 'current');
+  return current?.id ?? null;
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -82,6 +108,33 @@ export default function CommandPalette() {
   const listRef = useRef<HTMLUListElement>(null);
   /** Element that had focus when the palette opened — restored on close. */
   const prevFocusRef = useRef<Element | null>(null);
+
+  // ── Non-past semesters available as add targets ────────────────────────────
+  const nonPastSemesters = useMemo(
+    () => semesters.filter((s) => s.status !== 'past'),
+    [semesters]
+  );
+
+  // ── Selected target semester (user-controlled) ────────────────────────────
+  const [selectedTargetId, setSelectedTargetId] = useState<string | null>(
+    () => deriveDefaultTarget(focusedSemesterId, semesters)
+  );
+
+  // Re-derive default whenever the palette opens or focusedSemesterId changes.
+  useEffect(() => {
+    if (commandPaletteOpen) {
+      setSelectedTargetId(deriveDefaultTarget(focusedSemesterId, semesters));
+    }
+  // semesters is stable across palette open/close; focusedSemesterId is the
+  // trigger that changes meaningfully between opens.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commandPaletteOpen, focusedSemesterId]);
+
+  const targetLabel = useMemo<string>(() => {
+    if (!selectedTargetId) return '';
+    const sem = semesters.find((s) => s.id === selectedTargetId);
+    return sem?.label ?? selectedTargetId;
+  }, [selectedTargetId, semesters]);
 
   // ── Excluded set: already satisfied or placed ──────────────────────────────
   const excludedSet = useMemo(() => {
@@ -154,44 +207,35 @@ export default function CommandPalette() {
     }
   }, [highlightedIdx]);
 
-  // ── Resolve target semester ────────────────────────────────────────────────
-  const targetSemesterId = useMemo<string | null>(() => {
-    if (focusedSemesterId) return focusedSemesterId;
-    const current = semesters.find((s) => s.status === 'current');
-    return current?.id ?? null;
-  }, [focusedSemesterId, semesters]);
-
-  const targetLabel = useMemo<string>(() => {
-    if (!targetSemesterId) return '';
-    const sem = semesters.find((s) => s.id === targetSemesterId);
-    return sem?.label ?? targetSemesterId;
-  }, [targetSemesterId, semesters]);
-
   // ── Add action ────────────────────────────────────────────────────────────
   const handleAdd = useCallback(
     (courseId: string) => {
-      if (!targetSemesterId) {
+      if (!selectedTargetId) {
         setFeedbackMsg('No current or focused semester to add to.');
         return;
       }
       // UI affordance: inform user when target is a past term.
       // The reducer enforces the invariant (isPastSemester guard) and will silently
       // reject the dispatch — this message just makes the rejection visible.
-      if (isPastSemester(targetSemesterId, semesters)) {
+      if (isPastSemester(selectedTargetId, semesters)) {
         setFeedbackMsg(`Cannot add to ${targetLabel} — it's already past.`);
         return;
       }
-      dispatch({ type: 'ADD_COURSE', semesterId: targetSemesterId, courseId });
+      dispatch({ type: 'ADD_COURSE', semesterId: selectedTargetId, courseId });
       track('course_added', { via: 'palette' });
-      setFocusedSemesterId(targetSemesterId);
+      setFocusedSemesterId(selectedTargetId);
       setCommandPaletteOpen(false);
     },
-    [targetSemesterId, semesters, targetLabel, dispatch, setFocusedSemesterId, setCommandPaletteOpen]
+    [selectedTargetId, semesters, targetLabel, dispatch, setFocusedSemesterId, setCommandPaletteOpen]
   );
 
   // ── Keyboard handler inside the palette ───────────────────────────────────
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
+      // Let the native <select> handle its own arrow keys — don't intercept
+      // events that originate from the semester selector.
+      if ((e.target as HTMLElement).tagName === 'SELECT') return;
+
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
@@ -267,12 +311,31 @@ export default function CommandPalette() {
               'focus:outline-none',
             ].join(' ')}
           />
-          {/* Hint: target semester */}
-          {targetSemesterId && (
-            <span className="text-[11px] text-muted-foreground shrink-0 hidden sm:block">
-              → {targetLabel}
-            </span>
+
+          {/* Target semester selector */}
+          {nonPastSemesters.length > 0 && (
+            <select
+              aria-label="Target semester"
+              value={selectedTargetId ?? ''}
+              onChange={(e) => {
+                setSelectedTargetId(e.target.value || null);
+                setFeedbackMsg(null);
+              }}
+              className={[
+                'text-[11px] text-muted-foreground bg-transparent',
+                'border border-border rounded px-1 py-0.5',
+                'focus:outline-none focus:ring-1 focus:ring-ring',
+                'cursor-pointer shrink-0 hidden sm:block',
+              ].join(' ')}
+            >
+              {nonPastSemesters.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
           )}
+
           <kbd className="text-[10px] text-muted-foreground border border-border rounded px-1 py-0.5 shrink-0">
             esc
           </kbd>

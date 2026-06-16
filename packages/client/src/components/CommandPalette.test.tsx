@@ -6,14 +6,15 @@
  *  2. Search filters results by code and title
  *  3. Excludes courses already in the plan or completed
  *  4. Enter dispatches ADD_COURSE to the focused semester when one is set
- *  5. When no focusedSemesterId, target resolves to current semester
+ *  5. When no focusedSemesterId, default target is the first FUTURE semester (not current)
  *  6. Esc closes the palette without adding a course
  *  7. Mouse click on a result adds the course
  *  8. Shows hint when no target semester exists
+ *  9. Changing the selector and adding dispatches to the chosen semester
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, act, cleanup, within } from '@testing-library/react';
 
 // ─── Hoisted mutable state — must use vi.hoisted to be available in vi.mock factories ──
 
@@ -108,7 +109,8 @@ describe('CommandPalette', () => {
 
   it('shows catalog courses unfiltered when query is empty', () => {
     render(<CommandPalette />);
-    const options = screen.getAllByRole('option');
+    const listbox = screen.getByRole('listbox', { name: /course results/i });
+    const options = within(listbox).getAllByRole('option');
     expect(options.some((o) => o.textContent?.includes('ECE 302'))).toBe(true);
     expect(options.some((o) => o.textContent?.includes('ECE 306'))).toBe(true);
     expect(options.some((o) => o.textContent?.includes('M 408C'))).toBe(true);
@@ -118,7 +120,8 @@ describe('CommandPalette', () => {
     render(<CommandPalette />);
     const input = screen.getByPlaceholderText(/search course/i);
     fireEvent.change(input, { target: { value: '302' } });
-    const options = screen.getAllByRole('option');
+    const listbox = screen.getByRole('listbox', { name: /course results/i });
+    const options = within(listbox).getAllByRole('option');
     expect(options.some((o) => o.textContent?.includes('ECE 302'))).toBe(true);
     expect(options.every((o) => !o.textContent?.includes('ECE 306'))).toBe(true);
     expect(options.every((o) => !o.textContent?.includes('M 408C'))).toBe(true);
@@ -128,7 +131,8 @@ describe('CommandPalette', () => {
     render(<CommandPalette />);
     const input = screen.getByPlaceholderText(/search course/i);
     fireEvent.change(input, { target: { value: 'calculus' } });
-    const options = screen.getAllByRole('option');
+    const listbox = screen.getByRole('listbox', { name: /course results/i });
+    const options = within(listbox).getAllByRole('option');
     expect(options.some((o) => o.textContent?.includes('M 408C'))).toBe(true);
     expect(options.every((o) => !o.textContent?.includes('ECE 302'))).toBe(true);
   });
@@ -136,7 +140,8 @@ describe('CommandPalette', () => {
   it('excludes courses already in the plan', () => {
     mocks.plan = { 'sem-1': ['ECE 302'] };
     render(<CommandPalette />);
-    const options = screen.getAllByRole('option');
+    const listbox = screen.getByRole('listbox', { name: /course results/i });
+    const options = within(listbox).getAllByRole('option');
     expect(options.every((o) => !o.textContent?.includes('ECE 302'))).toBe(true);
     expect(options.some((o) => o.textContent?.includes('ECE 306'))).toBe(true);
   });
@@ -147,12 +152,14 @@ describe('CommandPalette', () => {
       in_progress_courses: [],
     };
     render(<CommandPalette />);
-    const options = screen.getAllByRole('option');
+    const listbox = screen.getByRole('listbox', { name: /course results/i });
+    const options = within(listbox).getAllByRole('option');
     expect(options.every((o) => !o.textContent?.includes('M 408C'))).toBe(true);
     expect(options.some((o) => o.textContent?.includes('ECE 302'))).toBe(true);
   });
 
   it('Enter dispatches ADD_COURSE to focusedSemesterId and closes palette', () => {
+    // focusedSemesterId = 'sem-2' (current, non-past) — should pre-select it
     render(<CommandPalette />);
     const dialog = screen.getByRole('dialog');
     fireEvent.keyDown(dialog, { key: 'Enter' });
@@ -165,8 +172,23 @@ describe('CommandPalette', () => {
     expect(mocks.setCommandPaletteOpen).toHaveBeenCalledWith(false);
   });
 
-  it('when focusedSemesterId is null, target resolves to the current semester', () => {
+  it('when focusedSemesterId is null, default target is the first FUTURE semester (not current)', () => {
     mocks.focusedSemesterId = null;
+    render(<CommandPalette />);
+    const dialog = screen.getByRole('dialog');
+    fireEvent.keyDown(dialog, { key: 'Enter' });
+    // sem-3 is the only future semester; sem-2 is current — must pick sem-3
+    expect(mocks.dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'ADD_COURSE', semesterId: 'sem-3' })
+    );
+  });
+
+  it('when focusedSemesterId is null and no future semester exists, falls back to the current semester', () => {
+    mocks.focusedSemesterId = null;
+    mocks.semesters = [
+      { id: 'sem-1', label: 'Fall 2025', status: 'past', season: 'Fall', year: 2025 },
+      { id: 'sem-2', label: 'Spring 2026', status: 'current', season: 'Spring', year: 2026 },
+    ];
     render(<CommandPalette />);
     const dialog = screen.getByRole('dialog');
     fireEvent.keyDown(dialog, { key: 'Enter' });
@@ -196,7 +218,8 @@ describe('CommandPalette', () => {
 
   it('clicking a result adds that course', () => {
     render(<CommandPalette />);
-    const items = screen.getAllByRole('option');
+    const listbox = screen.getByRole('listbox', { name: /course results/i });
+    const items = within(listbox).getAllByRole('option');
     act(() => {
       fireEvent.mouseDown(items[0]);
     });
@@ -216,5 +239,18 @@ describe('CommandPalette', () => {
     fireEvent.keyDown(dialog, { key: 'Enter' });
     expect(mocks.dispatch).not.toHaveBeenCalled();
     expect(screen.getByText(/no current or focused semester/i)).toBeTruthy();
+  });
+
+  it('changing the semester selector and pressing Enter dispatches ADD_COURSE to the chosen semester', () => {
+    mocks.focusedSemesterId = null;
+    // Default will be sem-3 (first future); change it to sem-2 (current)
+    render(<CommandPalette />);
+    const selector = screen.getByRole('combobox', { name: /target semester/i });
+    fireEvent.change(selector, { target: { value: 'sem-2' } });
+    const dialog = screen.getByRole('dialog');
+    fireEvent.keyDown(dialog, { key: 'Enter' });
+    expect(mocks.dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'ADD_COURSE', semesterId: 'sem-2' })
+    );
   });
 });
