@@ -160,7 +160,7 @@ function makeEmptyProfile() {
 
 beforeEach(() => {
   mockUseOwnedProfile.mockReturnValue(makeEmptyProfile());
-  mockFetchAndLoadDemo.mockResolvedValue({ ...makeEmptyProfile(), name: 'Adi H.' });
+  mockFetchAndLoadDemo.mockResolvedValue({ ...makeEmptyProfile(), name: 'Example Student' });
 });
 
 afterEach(() => {
@@ -201,7 +201,7 @@ describe('ProfileEditor — renders', () => {
     expect(screen.getByTestId('course-list-editor')).toBeDefined();
   });
 
-  it('renders "Load demo profile (Adi)" button', () => {
+  it('renders "Load example profile" button', () => {
     render(<ProfileEditor />);
     expect(screen.getByLabelText('Load demo profile')).toBeDefined();
   });

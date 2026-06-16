@@ -164,7 +164,7 @@ export function ProfileEditor() {
       <div className="flex flex-wrap gap-3 p-4 rounded-lg border border-border bg-muted/30">
         <div className="flex-1 min-w-[200px]">
           <p className="text-sm font-medium text-foreground mb-0.5">Demo data</p>
-          <p className="text-xs text-muted-foreground">Load Adi's profile and timeline to explore the app with real data.</p>
+          <p className="text-xs text-muted-foreground">Load an example profile and timeline to explore the app with real data.</p>
         </div>
         <div className="flex gap-2 items-center flex-wrap">
           <Button
@@ -180,7 +180,7 @@ export function ProfileEditor() {
             ) : (
               <Database className="h-3.5 w-3.5" />
             )}
-            Load demo profile (Adi)
+            Load example profile
           </Button>
           <Button
             variant="outline"
@@ -492,8 +492,8 @@ export function ProfileEditor() {
       <ConfirmDialog
         open={loadDemoOpen}
         onOpenChange={setLoadDemoOpen}
-        title="Load demo profile (Adi)"
-        consequence="Replaces your current profile and plan with Adi's sample data. Your existing coursework and GPA will be overwritten."
+        title="Load example profile"
+        consequence="Replaces your current profile and plan with the example student data. Your existing coursework and GPA will be overwritten."
         confirmLabel="Load Demo"
         destructive={false}
         onConfirm={handleLoadDemo}

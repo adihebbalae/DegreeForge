@@ -20,8 +20,8 @@ const DEMO_INPROGRESS: UserProfile['in_progress_courses'][number] = {
 
 const DEMO_PROFILE: UserProfile = {
   ...EMPTY_PROFILE,
-  name: 'Adi H.',
-  eid: 'DEMO001',
+  name: 'Example Student',
+  eid: 'EXAMPLE',
   completed_courses: [DEMO_COMPLETED],
   in_progress_courses: [DEMO_INPROGRESS],
 };
@@ -30,8 +30,8 @@ describe('profileReducer', () => {
   // ─── SET_PROFILE ────────────────────────────────────────────────────────────
   it('SET_PROFILE replaces entire profile', () => {
     const result = profileReducer(EMPTY_PROFILE, { type: 'SET_PROFILE', profile: DEMO_PROFILE });
-    expect(result.name).toBe('Adi H.');
-    expect(result.eid).toBe('DEMO001');
+    expect(result.name).toBe('Example Student');
+    expect(result.eid).toBe('EXAMPLE');
     expect(result.completed_courses).toHaveLength(1);
     expect(result.in_progress_courses).toHaveLength(1);
   });
@@ -142,7 +142,7 @@ describe('profileReducer', () => {
       type: 'LOAD_DEMO',
       profile: DEMO_PROFILE,
     });
-    expect(result.name).toBe('Adi H.');
+    expect(result.name).toBe('Example Student');
     expect(result.completed_courses).toHaveLength(1);
   });
 

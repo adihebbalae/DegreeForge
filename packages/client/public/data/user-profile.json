@@ -1,6 +1,6 @@
 {
-  "name": "Adi H.",
-  "eid": "DEMO001",
+  "name": "Example Student",
+  "eid": "EXAMPLE",
   "university": "The University of Texas at Austin",
   "catalog_year": "2026-2028",
   "major": "BSE in Electrical and Computer Engineering (BSECE)",
@@ -171,5 +171,5 @@
     "Hardware/software co-design"
   ],
 
-  "notes": "Profile auto-generated from unofficial transcript + user interview. Career interests inferred from tech core choice — update with specifics when available."
+  "notes": "Example profile demonstrating a Computer Architecture & Embedded Systems tech core with transfer credit and honors coursework. Swap in your own transcript via Settings."
 }
