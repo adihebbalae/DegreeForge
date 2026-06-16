@@ -67,6 +67,11 @@ scripts/sections/.ut-session
 scraped_data_corpus/
 utgradesdist_21-26/
 UT_Grade_Parser/
+# UT course feed for scripts/catalog/build-catalog.ts — 10.7MB external source,
+# never committed (the regenerated course-catalog.json is the tracked output)
+Degree-Audit-Plus/
+ut-courses.json
+ch-raw-courses.json
 
 # Logs
 *.log

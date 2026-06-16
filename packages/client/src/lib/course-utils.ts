@@ -18,12 +18,19 @@ export const GEN_ED_PREFIXES = new Set(['CTI', 'RHE', 'UGS', 'GOV', 'HIS', 'SOC'
  *  ece_core / ece_lower → 'ece_core'  (blue)
  *  ece_upper            → 'tech_core' (green — upper-div ECE / tech core tier)
  *  M prefix             → 'math'      (purple)
+ *  catalog core flag    → 'gen_ed'    (amber) — UT core-curriculum courses
  *  CTI / RHE / UGS / E → 'gen_ed'    (amber) — see GEN_ED_PREFIXES
  *  everything else      → 'elective'  (gray)
+ *
+ * `catalog` is optional so existing 2-arg call sites (and their tests) keep
+ * working; pass it to color UT core-flagged courses (PHY, VAPA, etc.) amber.
+ * A course with a catalog `core` flag is always 'gen_ed'; courses without a
+ * flag (e.g. PHY 303K) keep their prefix-based fallback ('elective').
  */
 export function inferCategory(
   courseId: string,
-  prereqNodes: Record<string, PrereqNode>
+  prereqNodes: Record<string, PrereqNode>,
+  catalog?: CourseCatalog | null
 ): CourseCategory {
   const prefix = parseCourseId(courseId)?.prefix;
   if (!prefix) return 'elective';
@@ -44,6 +51,9 @@ export function inferCategory(
 
   // Fallback for ECE not in prereq graph
   if (prefix === 'ECE') return 'ece_core';
+
+  // UT core-curriculum courses (catalog core flag) display as gen_ed.
+  if (catalog?.[courseId]?.core && catalog[courseId]!.core!.length > 0) return 'gen_ed';
 
   if (GEN_ED_PREFIXES.has(prefix)) return 'gen_ed';
 

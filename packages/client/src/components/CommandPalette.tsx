@@ -168,7 +168,7 @@ export default function CommandPalette() {
       matches.push({
         id,
         title: getCourseTitle(id, catalog, prereqNodes),
-        category: inferCategory(id, prereqNodes),
+        category: inferCategory(id, prereqNodes, catalog),
       });
 
       if (matches.length >= MAX_RESULTS) break;

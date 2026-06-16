@@ -13,6 +13,7 @@
     "fetch:syllabi": "tsx scripts/syllabi/fetch-syllabi.ts",
     "aggregate:offerings": "tsx scripts/sections/aggregate-offerings.ts",
     "scrape:audit": "tsx scripts/sections/scrape-audit.ts",
+    "build:catalog": "tsx scripts/catalog/build-catalog.ts",
     "privacy:paths": "node scripts/security/check-protected-paths.mjs --tracked",
     "privacy:secrets": "node scripts/security/check-secrets.mjs --tracked",
     "privacy:check": "npm run privacy:paths && npm run privacy:secrets",

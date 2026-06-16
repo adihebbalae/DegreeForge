@@ -251,6 +251,99 @@ describe('computeProgress — real data (characterization)', () => {
   });
 });
 
+// ─── Core-flag gen-ed satisfaction (TASK-catalog) ─────────────────────────────
+//
+// vapa / sbs / his / gov / ugs slots are satisfied by ANY planned/completed
+// course whose catalog `core` flag matches the bucket — not just the explicit
+// `options` list. These tests use the REAL degree-requirements.json (which has
+// the his1/his2 + gov1/gov2 two-slot requirements) so the no-double-count
+// guarantee is exercised against production slot ids.
+describe('computeProgress — core-flag gen-ed satisfaction', () => {
+  function loadJson<T>(filename: string): T {
+    const path = join(__dirname, '../../public/data', filename);
+    return JSON.parse(readFileSync(path, 'utf8')) as T;
+  }
+
+  const degreeReqs = loadJson<DegreeRequirements>('degree-requirements.json');
+  const techCores = loadJson<TechCores>('tech-cores.json');
+  const techCore = techCores.software_engineering;
+
+  // A catalog of core-flagged courses NOT in any slot's explicit `options` list,
+  // so satisfaction can only come from the core flag.
+  const coreCatalog: CourseCatalog = {
+    'AET 304': { id: 'AET 304', title: 'Some VAPA course', credits: 3, department: 'AET', description: '', prerequisites: [], corequisites: [], grading: 'letter', core: ['vapa'] },
+    'ANT 302': { id: 'ANT 302', title: 'Some SBS course', credits: 3, department: 'ANT', description: '', prerequisites: [], corequisites: [], grading: 'letter', core: ['sbs'] },
+    'HIS 360': { id: 'HIS 360', title: 'Some HIS course', credits: 3, department: 'HIS', description: '', prerequisites: [], corequisites: [], grading: 'letter', core: ['his'] },
+    'HIS 361': { id: 'HIS 361', title: 'Another HIS course', credits: 3, department: 'HIS', description: '', prerequisites: [], corequisites: [], grading: 'letter', core: ['his'] },
+    'GOV 360': { id: 'GOV 360', title: 'Some GOV course', credits: 3, department: 'GOV', description: '', prerequisites: [], corequisites: [], grading: 'letter', core: ['gov'] },
+    'UGS 320': { id: 'UGS 320', title: 'Some signature course', credits: 3, department: 'UGS', description: '', prerequisites: [], corequisites: [], grading: 'letter', core: ['ugs'] },
+  };
+
+  const emptyProfile: UserProfile = {
+    name: '', eid: '', university: '', catalog_year: '', major: '', classification: '', first_semester: '', graduation_target: '',
+    tech_core: { declared: '', status: '', required_math: '', required_ece: [], tech_electives_needed: 0 },
+    secondary_aspirations: { math_ba: { status: '', notes: '' }, advanced_math_cert: { status: '', notes: '' }, jefferson_scholars_cert: { status: '', notes: '' } },
+    preferences: { course_load: '', course_load_tolerance: '', time_preference: '', summer_courses: false, summer_notes: '' },
+    gpa: { cumulative: 0, lower_division: 0, upper_division: 0, gpa_hours: 0, grade_points: 0 },
+    credit_summary: { total_hours_transferred: 0, total_hours_taken: 0, total_hours: 0 },
+    completed_courses: [],
+    in_progress_courses: [],
+    career_interests: [],
+    notes: '',
+  };
+
+  it('a core=vapa course satisfies the VAPA slot', () => {
+    const result = computeProgress({ 'Fall 2026': ['AET 304'] }, emptyProfile, coreCatalog, degreeReqs, techCore);
+    const vapaSub = result.buckets.find((b) => b.id === 'gen_ed')!.subRequirements!.find((s) => s.label === 'Visual & Performing Arts');
+    expect(vapaSub?.status).toBe('done');
+    expect(result.completedGenEdSlots.has('vapa')).toBe(true);
+  });
+
+  it('a core=sbs course satisfies the Social & Behavioral Sciences slot', () => {
+    const result = computeProgress({ 'Fall 2026': ['ANT 302'] }, emptyProfile, coreCatalog, degreeReqs, techCore);
+    expect(result.completedGenEdSlots.has('sbs')).toBe(true);
+  });
+
+  it('a core=his course satisfies a US History slot', () => {
+    const result = computeProgress({ 'Fall 2026': ['HIS 360'] }, emptyProfile, coreCatalog, degreeReqs, techCore);
+    // One his-flagged course satisfies exactly ONE of the two his slots.
+    const hisDone = (['his1', 'his2'] as const).filter((id) => result.completedGenEdSlots.has(id));
+    expect(hisDone).toHaveLength(1);
+  });
+
+  it('a core=gov course satisfies a Government slot', () => {
+    const result = computeProgress({ 'Fall 2026': ['GOV 360'] }, emptyProfile, coreCatalog, degreeReqs, techCore);
+    const govDone = (['gov1', 'gov2'] as const).filter((id) => result.completedGenEdSlots.has(id));
+    expect(govDone).toHaveLength(1);
+  });
+
+  it('a core=ugs course satisfies the First-Year Signature slot', () => {
+    const result = computeProgress({ 'Fall 2026': ['UGS 320'] }, emptyProfile, coreCatalog, degreeReqs, techCore);
+    expect(result.completedGenEdSlots.has('ugs')).toBe(true);
+  });
+
+  it('ONE his-flagged course does not double-count across his1 + his2', () => {
+    const one = computeProgress({ 'Fall 2026': ['HIS 360'] }, emptyProfile, coreCatalog, degreeReqs, techCore);
+    expect((['his1', 'his2'] as const).filter((id) => one.completedGenEdSlots.has(id))).toHaveLength(1);
+
+    // TWO distinct his-flagged courses fill BOTH his slots.
+    const two = computeProgress({ 'Fall 2026': ['HIS 360', 'HIS 361'] }, emptyProfile, coreCatalog, degreeReqs, techCore);
+    expect((['his1', 'his2'] as const).filter((id) => two.completedGenEdSlots.has(id))).toHaveLength(2);
+  });
+
+  it('the 6 bucket totalHours still sum to total_credit_hours with core-flagged courses planned', () => {
+    const result = computeProgress(
+      { 'Fall 2026': ['AET 304', 'ANT 302', 'HIS 360', 'GOV 360', 'UGS 320'] },
+      emptyProfile,
+      coreCatalog,
+      degreeReqs,
+      techCore
+    );
+    const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
+    expect(bucketSum).toBe(degreeReqs.total_credit_hours);
+  });
+});
+
 // ─── BucketView tests (TASK-098 Increment 1) ─────────────────────────────────
 //
 // Four mandatory cases per spec §6:

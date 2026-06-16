@@ -178,6 +178,12 @@ describe('TASK-102 — catalog structural integrity', () => {
       if (!match) continue;
       const courseNum = parseInt(match[1], 10);
       const firstDigit = Math.floor(courseNum / 100);
+      // The "first digit = SCH ceiling" convention only describes 100-level and
+      // up ("course 100–199 → 1 hr max"). Sub-100 UT courses (PE, leadership
+      // labs, first-year interest groups, developmental, peer-assistant) don't
+      // follow it and the Fall-2026 feed reports a placeholder 3 SCH for many of
+      // them; getCourseCredits overrides the ones that matter (e.g. UGS 016 → 0).
+      if (courseNum < 100) continue;
       // Graduate courses (600+) allow up to 6 SCH — skip the guard for them
       if (firstDigit >= 6) continue;
       const maxScH = firstDigit; // 1xx→1, 2xx→2, 3xx→3, 4xx→4, 5xx→5

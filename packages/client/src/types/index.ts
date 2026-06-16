@@ -1,4 +1,34 @@
 // ─── Course Catalog ──────────────────────────────────────────────────────────
+
+/**
+ * UT core-curriculum flag, normalized from the catalog's verbose core labels.
+ * A single course may carry more than one (e.g. a course flagged both
+ * "Visual and Performing Arts" and "Humanities"), so `CatalogCourse.core`
+ * is an array. Mapping (UT label → CoreCategory) lives in
+ * scripts/catalog/catalog-transform.ts (CORE_LABEL_MAP) and is the single
+ * source of truth for the transform.
+ *
+ *   'vapa'            ← "Visual and Performing Arts"
+ *   'sbs'             ← "Social and Behavioral Sciences"
+ *   'his'             ← "U.S. History"
+ *   'gov'             ← "American and Texas Government"
+ *   'ugs'             ← "First-Year Signature Course"
+ *   'humanities'      ← "Humanities"
+ *   'communication'   ← "Communication"
+ *   'natural_science' ← "Natural Science and Technology, Part I" / "Part II"
+ *   'math'            ← "Mathematics"
+ */
+export type CoreCategory =
+  | 'vapa'
+  | 'sbs'
+  | 'his'
+  | 'gov'
+  | 'ugs'
+  | 'humanities'
+  | 'communication'
+  | 'natural_science'
+  | 'math';
+
 export interface CatalogCourse {
   id: string;
   title: string;
@@ -9,6 +39,14 @@ export interface CatalogCourse {
   corequisites: string[];
   grading: string;
   department: string;
+  /**
+   * UT core-curriculum flags this course satisfies (gen-ed buckets). Present
+   * only on catalog entries derived from the UT course feed (TASK-catalog).
+   * Hand-curated ECE/M entries leave this undefined — their gen-ed
+   * satisfaction is driven by the explicit `options` lists in
+   * degree-requirements.json, not by a fabricated flag.
+   */
+  core?: CoreCategory[];
   /** true for provisional 26-28 records not yet in catalog.utexas.edu (TASK-102) */
   provisional?: boolean;
   /** catalog year this record is effective from, e.g. "2026-28" (TASK-102) */

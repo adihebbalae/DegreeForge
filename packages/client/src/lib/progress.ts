@@ -5,11 +5,110 @@ import type {
   DegreeRequirements,
   TechCoreTrack,
   BucketView,
+  CoreCategory,
 } from '../types';
 import { getCourseCredits, buildTranscriptCredits } from './course-utils';
 import { parseCourseId } from './sanitize-course-list';
 import { isTechCorePickOne } from '../types';
 import { getEquivalenceRegistry, satisfiesRequirement, expandSatisfied } from './equivalence';
+
+/**
+ * Gen-ed slot id → UT core-curriculum flag that satisfies it. A planned/
+ * completed course whose catalog `core` array contains the mapped category
+ * satisfies the slot, in addition to the slot's explicit `options` list.
+ *
+ * Deliberately omitted: `rhe` (no UT core flag — RHE 306 is named directly) and
+ * `humanities` (the UT "Humanities" flag is broad and the BSECE humanities slot
+ * is the specific E 316L/M/N/P set + CTI 302; keeping it option-driven avoids
+ * over-satisfying it with unrelated humanities-flagged courses).
+ *
+ * his1/his2 both map to 'his' and gov1/gov2 both map to 'gov'; the allocator
+ * below assigns each taken course to at most one slot so a single flagged
+ * course cannot satisfy both halves of a two-slot requirement.
+ */
+const SLOT_CORE_CATEGORY: Readonly<Record<string, CoreCategory>> = {
+  ugs: 'ugs',
+  vapa: 'vapa',
+  his1: 'his',
+  his2: 'his',
+  gov1: 'gov',
+  gov2: 'gov',
+  sbs: 'sbs',
+};
+
+/**
+ * Compute which gen-ed slots are satisfied, allocating each taken course to at
+ * most ONE slot so two-slot requirements (his1/his2, gov1/gov2) can never be
+ * double-counted by a single flagged course.
+ *
+ * A taken course satisfies a slot when it matches the slot's explicit `options`
+ * (via the equivalence registry, plus the CTI 301G/302 special-cases) OR its
+ * catalog `core` flag matches the slot's mapped CoreCategory. Explicit-option
+ * matches are allocated first (they are the canonical, named courses); core-flag
+ * matches fill the remaining slots from the still-unconsumed taken courses.
+ */
+function computeGenEdSlots(
+  slots: DegreeRequirements['core_curriculum']['slots'],
+  takenCourses: readonly string[],
+  uniqueSet: ReadonlySet<string>,
+  catalog: CourseCatalog,
+  registry: ReturnType<typeof getEquivalenceRegistry>
+): Set<string> {
+  const completed = new Set<string>();
+  const consumed = new Set<string>();
+
+  const resolveOptions = (slot: (typeof slots)[number]): string[] => {
+    let options = slot.options;
+    if (options.includes('same_as_his1')) {
+      const his1 = slots.find((s) => s.id === 'his1');
+      if (his1) options = his1.options;
+    }
+    const enhanced = [...options];
+    if (slot.id === 'vapa') enhanced.push('CTI 301G');
+    if (slot.id === 'humanities') enhanced.push('CTI 302');
+    return enhanced;
+  };
+
+  // Pass 1: explicit options. Mark the matching taken course consumed so it
+  // can't also satisfy a sibling slot via its core flag.
+  for (const slot of slots) {
+    const options = resolveOptions(slot);
+    for (const opt of options) {
+      if (opt === 'list_of_approved') continue;
+      if (satisfiesRequirement(opt, uniqueSet, registry)) {
+        completed.add(slot.id);
+        // Consume the actual taken course(s) that satisfy this option so a
+        // taken HIS 315K used for his1 isn't reused for his2.
+        for (const taken of takenCourses) {
+          if (consumed.has(taken)) continue;
+          if (satisfiesRequirement(opt, new Set([taken]), registry)) {
+            consumed.add(taken);
+            break;
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  // Pass 2: core-flag fallback for still-unsatisfied slots, drawing from the
+  // taken courses not already consumed (one course per slot).
+  for (const slot of slots) {
+    if (completed.has(slot.id)) continue;
+    const cat = SLOT_CORE_CATEGORY[slot.id];
+    if (!cat) continue;
+    for (const taken of takenCourses) {
+      if (consumed.has(taken)) continue;
+      if (catalog[taken]?.core?.includes(cat)) {
+        completed.add(slot.id);
+        consumed.add(taken);
+        break;
+      }
+    }
+  }
+
+  return completed;
+}
 
 /**
  * Minimum course number that counts as an "advanced" ECE elective toward the free
@@ -101,26 +200,16 @@ export function computeProgress(
   const eceCoreTotal = eceCoreList.length;
 
   // 4. Core Curriculum (Gen Ed)
-  // Maps slots to completion
-  const completedGenEdSlots = new Set<string>();
+  // Each slot is satisfied by its explicit options OR a catalog core flag; the
+  // allocator assigns each taken course to at most one slot (no double-count).
   const genEdSlots = degreeReqs.core_curriculum.slots;
-
-  genEdSlots.forEach((slot) => {
-    let options = slot.options;
-    if (options.includes('same_as_his1')) {
-      const his1Slot = genEdSlots.find((s) => s.id === 'his1');
-      if (his1Slot) options = his1Slot.options;
-    }
-
-    // Include common CTI equivalents for VAPA and Humanities
-    const enhancedOptions = [...options];
-    if (slot.id === 'vapa') enhancedOptions.push('CTI 301G');
-    if (slot.id === 'humanities') enhancedOptions.push('CTI 302');
-
-    if (enhancedOptions.some((opt) => satisfiesRequirement(opt, uniqueSet, registry))) {
-      completedGenEdSlots.add(slot.id);
-    }
-  });
+  const completedGenEdSlots = computeGenEdSlots(
+    genEdSlots,
+    unique,
+    uniqueSet,
+    catalog,
+    registry
+  );
 
   // Denominator is the number of slots authored in the JSON — data-driven.
   const genEdTotal = degreeReqs.core_curriculum.slots.length;
