@@ -391,6 +391,20 @@ export function OnboardingWizard({ onComplete, onDismiss, onImportComplete }: On
                   IDA Audit
                 </button>
               </div>
+              {importSource === 'transcript' && (
+                <p className="text-xs text-muted-foreground">
+                  Find your unofficial transcript{' '}
+                  <a
+                    href="https://utdirect.utexas.edu/apps/student/academic_summary/summary/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-foreground transition-colors"
+                  >
+                    here
+                  </a>
+                  .
+                </p>
+              )}
               {/* PDF drop zone — additive above the textarea */}
               <div
                 role="button"
