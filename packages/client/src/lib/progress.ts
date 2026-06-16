@@ -459,9 +459,6 @@ export function buildBucketViews(
 
   // Elective pool deficit
   const electivesNeeded = techCore.elective_count?.general ?? 0;
-  const electivesDone = techCore.elective_pool.filter(
-    (id) => satisfiesRequirement(id, uniqueSet, registry) && !techCoreUsed.has(id)
-  ).length;
   // How many elective slots are already filled (from the pool, not re-counting above)
   // Re-derive by subtracting required-slot done count from overall techCoreCompleted
   const requiredSlotsDone =
@@ -483,7 +480,10 @@ export function buildBucketViews(
           : satisfiesRequirement(req.required_elective.id, uniqueSet, registry) ? 1 : 0)
       : 0);
 
-  const electiveSlotsFilled = Math.min(summary.techCoreCompleted - requiredSlotsDone, electivesNeeded);
+  const electiveSlotsFilled = Math.min(
+    Math.max(0, summary.techCoreCompleted - requiredSlotsDone),
+    electivesNeeded
+  );
   const electiveSlotsNeeded = Math.max(0, electivesNeeded - electiveSlotsFilled);
   if (electiveSlotsNeeded > 0) {
     techRemaining.push({
@@ -558,7 +558,18 @@ export function buildBucketViews(
         : 0
       : 0);
 
-  const techElectiveDoneHours = Math.min(electiveSlotsFilled * 3, techElectiveHoursTotal);
+  // DONE hours for elective slots: sum actual credits of the pool courses the
+  // student completed (a 4-hr elective must count as 4, not the proxy 3).
+  // Cap at the number of filled slots so surplus pool courses don't over-count.
+  const poolElectivesDone = techCore.elective_pool.filter(
+    (id) => satisfiesRequirement(id, uniqueSet, registry) && !techCoreUsed.has(id)
+  );
+  const techElectiveDoneHours = Math.min(
+    poolElectivesDone
+      .slice(0, electiveSlotsFilled)
+      .reduce((s, id) => s + getCourseCredits(id, catalog, transcriptCredits), 0),
+    techElectiveHoursTotal
+  );
   const techDoneHours = Math.min(
     techRequiredDoneHours + techElectiveDoneHours,
     techTotalHours
@@ -623,9 +634,12 @@ export function buildBucketViews(
     }
   }
 
-  const genEdHoursPerSlot = 3; // All gen-ed slots are 3 credit hours
-  const genEdDoneHours = Math.min(summary.genEdCompleted * genEdHoursPerSlot, summary.genEdTotal * genEdHoursPerSlot);
-  const genEdTotalHours = summary.genEdTotal * genEdHoursPerSlot;
+  // Read slot.hours from the data rather than assuming a fixed 3 per slot.
+  const genEdTotalHours = genEdSlots.reduce((s, slot) => s + slot.hours, 0);
+  // Completed hours = sum of hours for satisfied slots.
+  const genEdDoneHours = genEdSlots
+    .filter((slot) => summary.completedGenEdSlots.has(slot.id))
+    .reduce((s, slot) => s + slot.hours, 0);
 
   const genEdBucket: BucketView = {
     id: 'gen_ed',
@@ -643,7 +657,15 @@ export function buildBucketViews(
   };
 
   // ── Free Electives ─────────────────────────────────────────────────────────
-  const freeElecTotal = degreeReqs.free_electives.total_hours;
+  // totalHours is a computed remainder so that all 6 buckets sum to the degree
+  // total_credit_hours exactly. Free electives are the flex hours to reach the
+  // headline — the remaining hours after the other 5 fixed buckets are accounted
+  // for. This guarantees the radial arcs cover the full circle.
+  const freeElecTotal = Math.max(
+    0,
+    degreeReqs.total_credit_hours -
+      (eceCoreHoursTotal + summary.mathHoursTotal + summary.physicsTotal + techTotalHours + genEdTotalHours)
+  );
   const freeElecDone = Math.min(summary.electiveHours, freeElecTotal);
   const freeElecGap = Math.max(0, freeElecTotal - summary.electiveHours);
   const freeElecRemaining: BucketView['remaining'] = [];

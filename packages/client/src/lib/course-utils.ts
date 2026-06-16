@@ -118,6 +118,7 @@ const CREDIT_OVERRIDES: Record<string, number> = {
   'PHY 105M': 1,
   'PHY 303L': 3,
   'PHY 105N': 1,
+  // PHY 303E is in physics_sequence.alternate (not .required); see PHY_303L_105N_REPLACES_303E TODO.
   'PHY 303E': 3,
 };
 

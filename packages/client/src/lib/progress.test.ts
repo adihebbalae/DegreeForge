@@ -234,6 +234,21 @@ describe('computeProgress — real data (characterization)', () => {
     // M 325K satisfies the software_engineering advanced-math slot → 1 of 8.
     expect(result.techCoreCompleted).toBe(1);
   });
+
+  it('bucket totalHours sum equals total_credit_hours for SE track', () => {
+    // The 6 bucket totalHours must sum exactly to degreeReqs.total_credit_hours so
+    // radial arcs cover the full circle. freeElecTotal is the computed remainder.
+    const result = computeProgress({}, adiProfile, catalog, degreeReqs, techCore);
+    const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
+    expect(bucketSum).toBe(degreeReqs.total_credit_hours);
+  });
+
+  it('bucket totalHours sum equals total_credit_hours for CA track', () => {
+    const caTechCore = techCores.computer_architecture;
+    const result = computeProgress({}, adiProfile, catalog, degreeReqs, caTechCore);
+    const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
+    expect(bucketSum).toBe(degreeReqs.total_credit_hours);
+  });
 });
 
 // ─── BucketView tests (TASK-098 Increment 1) ─────────────────────────────────
@@ -335,7 +350,7 @@ describe('buildBucketViews — BucketView per-bucket view-model', () => {
   // ── Case 1: Partially-done pick-one slot ───────────────────────────────────
   it('pick-one unsatisfied tech slot emits note-form remaining entry', () => {
     // The CA tech core has a single required_elective (ECE 360C) — but we test
-    // using the SE track fixture which has a PickOne required_elective.
+    // using a fixture that has a PickOne core_lab (ECE 445L / ECE 461L).
     const seTrack: TechCoreTrack = {
       ...mockTechCore,
       required_courses: {
@@ -374,6 +389,45 @@ describe('buildBucketViews — BucketView per-bucket view-model', () => {
     expect(advMathEntry).toBeUndefined();
   });
 
+  // ── Case 1b: PickOne required_elective — options[1] taken, options[0] not ───
+  it('pick-one required_elective satisfied by options[1] counts as done, not in remaining', () => {
+    // Real SE track: required_elective has options [ECE 316, ECE 445L].
+    // User takes ECE 445L (options[1]) but NOT ECE 316 (options[0]).
+    // Expect: slot counted satisfied, absent from remaining[].
+    const realCatalog = loadJson<CourseCatalog>('course-catalog.json');
+    const realDegreeReqs = loadJson<DegreeRequirements>('degree-requirements.json');
+    const techCores = loadJson<TechCores>('tech-cores.json');
+    const seTrack = techCores.software_engineering; // required_elective.options = [ECE 316, ECE 445L]
+
+    const profile: UserProfile = {
+      ...emptyProfile,
+      completed_courses: [
+        // Satisfy advanced_math + 2 core courses so the required_elective is the focus
+        { course: 'M 325K', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+        { course: 'ECE 422C', title: '', grade: 'A', semester: '', type: '', credit_hours: 4 },
+        { course: 'ECE 360C', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+        // Take options[1] of required_elective — NOT options[0] (ECE 316)
+        { course: 'ECE 445L', title: '', grade: 'A', semester: '', type: '', credit_hours: 4 },
+      ],
+    };
+
+    const result = computeProgress({}, profile, realCatalog, realDegreeReqs, seTrack);
+    const techBucket = result.buckets.find((b) => b.id === 'tech')!;
+
+    // The required_elective slot must be marked satisfied (ECE 445L covers it)
+    const reqElecEntry = techBucket.remaining?.find(
+      (r) => r.note?.includes('ECE 316') && r.note?.includes('ECE 445L')
+    );
+    expect(reqElecEntry).toBeUndefined(); // slot is satisfied → not in remaining
+
+    // ECE 445L should not appear as a missing courseId entry
+    const ece445Entry = techBucket.remaining?.find((r) => r.courseId === 'ECE 445L');
+    expect(ece445Entry).toBeUndefined();
+
+    // Tech core count must include the required_elective slot (advanced_math + 2 core + required_elective = 4)
+    expect(result.techCoreCompleted).toBeGreaterThanOrEqual(4);
+  });
+
   // ── Case 2: Fully-satisfied bucket → remaining[] empty, complete: true ─────
   it('fully-satisfied math bucket has empty remaining[] and complete: true', () => {
     // Give the user all 4 math sequence courses
@@ -397,7 +451,12 @@ describe('buildBucketViews — BucketView per-bucket view-model', () => {
 
   // ── Case 3: Over-cap bucket fill clamps, remaining[] empty ─────────────────
   it('over-cap free-electives bucket: doneHours clamps at totalHours, remaining empty', () => {
-    // User has 20 hrs of advanced ECE electives but target is 11 hrs
+    // freeElecTotal is computed as: total_credit_hours − (eceCoreHrs + mathHrs + physicsHrs + techHrs + genEdHrs)
+    // Mock bucket sums: ece_core=36, math=15, physics=8, tech=26, gen_ed=6 → fixed sum = 91
+    // Set total_credit_hours=100 → freeElecTotal = 100−91 = 9.
+    // User has 15 hrs of advanced ECE electives → doneHours clamps to 9.
+    const tightDegreeReqs: DegreeRequirements = { ...mockDegreeReqs, total_credit_hours: 100 };
+
     const bigCatalog: CourseCatalog = {
       ...mockCatalog,
       'ECE 360G': { id: 'ECE 360G', title: 'Graph Theory', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
@@ -409,7 +468,7 @@ describe('buildBucketViews — BucketView per-bucket view-model', () => {
     const profile: UserProfile = {
       ...emptyProfile,
       completed_courses: [
-        // 5 non-core non-tech-core advanced ECE courses = 15 hrs
+        // 5 non-core non-tech-core advanced ECE courses = 15 hrs > freeElecTotal(9)
         { course: 'ECE 360G', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
         { course: 'ECE 371P', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
         { course: 'ECE 380J', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
@@ -418,12 +477,12 @@ describe('buildBucketViews — BucketView per-bucket view-model', () => {
       ],
     };
 
-    const result = computeProgress({}, profile, bigCatalog, mockDegreeReqs, mockTechCore);
+    const result = computeProgress({}, profile, bigCatalog, tightDegreeReqs, mockTechCore);
     const freeElecBucket = result.buckets.find((b) => b.id === 'free_elec')!;
 
-    // doneHours clamps at totalHours (11), never exceeds it
-    expect(freeElecBucket.doneHours).toBe(11);
-    expect(freeElecBucket.totalHours).toBe(11);
+    // doneHours clamps at totalHours (9), never exceeds it
+    expect(freeElecBucket.totalHours).toBe(9);
+    expect(freeElecBucket.doneHours).toBe(9);
     expect(freeElecBucket.complete).toBe(true);
     // No negative gap → remaining is empty
     expect(freeElecBucket.remaining).toEqual([]);
