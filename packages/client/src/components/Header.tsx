@@ -208,7 +208,7 @@ export default function Header() {
             className={({ isActive }) =>
               cn(
                 buttonVariants({ variant: 'ghost' }),
-                isActive && 'underline underline-offset-4 font-semibold',
+                isActive && 'underline underline-offset-4 text-primary',
               )
             }
           >
@@ -219,7 +219,7 @@ export default function Header() {
             className={({ isActive }) =>
               cn(
                 buttonVariants({ variant: 'ghost' }),
-                isActive && 'underline underline-offset-4 font-semibold',
+                isActive && 'underline underline-offset-4 text-primary',
               )
             }
           >
@@ -231,7 +231,7 @@ export default function Header() {
             className={({ isActive }) =>
               cn(
                 buttonVariants({ variant: 'ghost' }),
-                isActive && 'underline underline-offset-4 font-semibold',
+                isActive && 'underline underline-offset-4 text-primary',
               )
             }
           >
