@@ -331,9 +331,72 @@ describe('computeProgress — core-flag gen-ed satisfaction', () => {
     expect((['his1', 'his2'] as const).filter((id) => two.completedGenEdSlots.has(id))).toHaveLength(2);
   });
 
+  // ─── BLOCKER regression: explicit-option path must not double-count ──────────
+  //
+  // his2 resolves to his1's option list (same_as_his1). A single HIS 315K (a
+  // member of both his1's and his2's explicit options) must satisfy exactly ONE
+  // his slot — Pass 1 has to be consume-aware, not just test the full taken set.
+  it('ONE explicit-option HIS 315K satisfies his1 only, not his2', () => {
+    const r = computeProgress({ 'Fall 2026': ['HIS 315K'] }, emptyProfile, coreCatalog, degreeReqs, techCore);
+    expect(r.completedGenEdSlots.has('his1')).toBe(true);
+    expect(r.completedGenEdSlots.has('his2')).toBe(false);
+    expect((['his1', 'his2'] as const).filter((id) => r.completedGenEdSlots.has(id))).toHaveLength(1);
+  });
+
+  it('ONE explicit-option GOV 310L satisfies gov1 only, not gov2', () => {
+    // gov1 lists GOV 310L; gov2 has a different option list. GOV 310L also
+    // carries a core:[gov] flag, so the Pass-2 fallback must not reuse the
+    // already-consumed GOV 310L to fill gov2.
+    const r = computeProgress({ 'Fall 2026': ['GOV 310L'] }, emptyProfile, coreCatalog, degreeReqs, techCore);
+    expect(r.completedGenEdSlots.has('gov1')).toBe(true);
+    expect(r.completedGenEdSlots.has('gov2')).toBe(false);
+  });
+
+  it('HIS 315K + HIS 315L fill BOTH his slots via explicit options', () => {
+    const r = computeProgress({ 'Fall 2026': ['HIS 315K', 'HIS 315L'] }, emptyProfile, coreCatalog, degreeReqs, techCore);
+    expect(r.completedGenEdSlots.has('his1')).toBe(true);
+    expect(r.completedGenEdSlots.has('his2')).toBe(true);
+  });
+
+  // ─── SHOULD-FIX regression: order-independent core-flag allocation ───────────
+  //
+  // A multi-flag [vapa,sbs] course must not strand the sbs slot that a
+  // single-flag [vapa] course could have left for it. Allocation processes
+  // single-purpose courses first, so BOTH slots satisfy regardless of plan order.
+  it('multi-flag + single-flag course satisfy both slots, independent of plan order', () => {
+    const abCatalog: CourseCatalog = {
+      ...coreCatalog,
+      // A: eligible for two open slots (vapa + sbs)
+      'AAA 301': { id: 'AAA 301', title: 'A', credits: 3, department: 'AAA', description: '', prerequisites: [], corequisites: [], grading: 'letter', core: ['vapa', 'sbs'] },
+      // B: eligible for one open slot (vapa)
+      'BBB 301': { id: 'BBB 301', title: 'B', credits: 3, department: 'BBB', description: '', prerequisites: [], corequisites: [], grading: 'letter', core: ['vapa'] },
+    };
+    for (const order of [['AAA 301', 'BBB 301'], ['BBB 301', 'AAA 301']]) {
+      const r = computeProgress({ 'Fall 2026': order }, emptyProfile, abCatalog, degreeReqs, techCore);
+      expect(r.completedGenEdSlots.has('vapa')).toBe(true);
+      expect(r.completedGenEdSlots.has('sbs')).toBe(true);
+    }
+  });
+
   it('the 6 bucket totalHours still sum to total_credit_hours with core-flagged courses planned', () => {
     const result = computeProgress(
       { 'Fall 2026': ['AET 304', 'ANT 302', 'HIS 360', 'GOV 360', 'UGS 320'] },
+      emptyProfile,
+      coreCatalog,
+      degreeReqs,
+      techCore
+    );
+    const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
+    expect(bucketSum).toBe(degreeReqs.total_credit_hours);
+  });
+
+  it('bucket totalHours sum holds with explicit-option HIS/GOV core courses planned', () => {
+    // Exercises the invariant against the exact courses the Pass-1 fix touches:
+    // explicit-option his1/his2 + gov1 courses, all carrying core flags. The
+    // genEdTotalHours (Σ slot.hours) is fixed regardless of how slots fill, so the
+    // 6-bucket sum must still equal total_credit_hours.
+    const result = computeProgress(
+      { 'Fall 2026': ['HIS 315K', 'HIS 315L', 'GOV 310L'] },
       emptyProfile,
       coreCatalog,
       degreeReqs,

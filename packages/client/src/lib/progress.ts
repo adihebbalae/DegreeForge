@@ -46,6 +46,14 @@ const SLOT_CORE_CATEGORY: Readonly<Record<string, CoreCategory>> = {
  * catalog `core` flag matches the slot's mapped CoreCategory. Explicit-option
  * matches are allocated first (they are the canonical, named courses); core-flag
  * matches fill the remaining slots from the still-unconsumed taken courses.
+ *
+ * Both passes are consume-aware: a slot only completes when an *as-yet-unconsumed*
+ * taken course actually satisfies it, and that exact course is consumed in the
+ * same step. The core-flag pass allocates deterministically and independent of
+ * plan order by claiming single-purpose courses (eligible for the fewest open
+ * slots) before multi-flag courses, so a multi-flag course can never strand a
+ * slot that a single-flag course could have covered (e.g. WGS 301, the only
+ * catalog course carrying 3 allocatable flags).
  */
 function computeGenEdSlots(
   slots: DegreeRequirements['core_curriculum']['slots'],
@@ -69,41 +77,59 @@ function computeGenEdSlots(
     return enhanced;
   };
 
-  // Pass 1: explicit options. Mark the matching taken course consumed so it
-  // can't also satisfy a sibling slot via its core flag.
+  // Pass 1: explicit options. A slot only completes when an as-yet-UNCONSUMED
+  // taken course satisfies one of its options; finding it and consuming it is a
+  // single step. This is what stops a single HIS 315K from satisfying both his1
+  // and his2 (his2 resolves to his1's option list via same_as_his1): once his1
+  // consumes HIS 315K, his2 finds no unconsumed match and stays incomplete.
   for (const slot of slots) {
     const options = resolveOptions(slot);
     for (const opt of options) {
       if (opt === 'list_of_approved') continue;
-      if (satisfiesRequirement(opt, uniqueSet, registry)) {
+      // Find a still-available taken course that satisfies this option.
+      const match = takenCourses.find(
+        (taken) =>
+          !consumed.has(taken) && satisfiesRequirement(opt, new Set([taken]), registry)
+      );
+      if (match) {
         completed.add(slot.id);
-        // Consume the actual taken course(s) that satisfy this option so a
-        // taken HIS 315K used for his1 isn't reused for his2.
-        for (const taken of takenCourses) {
-          if (consumed.has(taken)) continue;
-          if (satisfiesRequirement(opt, new Set([taken]), registry)) {
-            consumed.add(taken);
-            break;
-          }
-        }
+        consumed.add(match);
         break;
       }
     }
   }
 
   // Pass 2: core-flag fallback for still-unsatisfied slots, drawing from the
-  // taken courses not already consumed (one course per slot).
-  for (const slot of slots) {
-    if (completed.has(slot.id)) continue;
-    const cat = SLOT_CORE_CATEGORY[slot.id];
-    if (!cat) continue;
-    for (const taken of takenCourses) {
-      if (consumed.has(taken)) continue;
-      if (catalog[taken]?.core?.includes(cat)) {
-        completed.add(slot.id);
-        consumed.add(taken);
-        break;
-      }
+  // taken courses not already consumed (one course per slot). Allocation is
+  // deterministic and order-independent: process candidate courses in ascending
+  // order of how many open core-flag slots they're eligible for (single-purpose
+  // courses first), so a multi-flag course never greedily claims a slot a
+  // single-flag course needed. Ties break on course id for stability.
+  const openFlagSlots = slots.filter(
+    (slot) => !completed.has(slot.id) && SLOT_CORE_CATEGORY[slot.id]
+  );
+
+  const eligibleSlotsOf = (taken: string): string[] =>
+    openFlagSlots
+      .filter((slot) => catalog[taken]?.core?.includes(SLOT_CORE_CATEGORY[slot.id]))
+      .map((slot) => slot.id);
+
+  const candidates = [...new Set(takenCourses)]
+    .filter((taken) => !consumed.has(taken) && eligibleSlotsOf(taken).length > 0)
+    .map((taken) => ({ taken, eligible: eligibleSlotsOf(taken) }))
+    .sort((a, b) => a.eligible.length - b.eligible.length || a.taken.localeCompare(b.taken));
+
+  for (const { taken } of candidates) {
+    if (consumed.has(taken)) continue;
+    // Re-evaluate against the still-open slots (an earlier candidate may have
+    // filled one). Claim the first open eligible slot in declaration order.
+    const slotId = openFlagSlots.find(
+      (slot) =>
+        !completed.has(slot.id) && catalog[taken]?.core?.includes(SLOT_CORE_CATEGORY[slot.id])
+    )?.id;
+    if (slotId) {
+      completed.add(slotId);
+      consumed.add(taken);
     }
   }
 
