@@ -14,6 +14,8 @@ import { parseIdaAudit } from '@/lib/parse-ida';
 import { extractPdfText } from '@/lib/extract-pdf-text';
 import { deriveTimelinePlanFromProfile } from '@/lib/derive-timeline';
 import { sanitizePlan, sanitizeCourseList, isValidCourseId } from '@/lib/sanitize-course-list';
+import { safeSetItem } from '@/lib/persist';
+import { PROFILE_SOURCE_KEY } from '@/components/DemoSeedBootstrap';
 import { track } from '@/lib/analytics';
 import type { UserProfile } from '@/types';
 
@@ -245,6 +247,9 @@ export function OnboardingWizard({ onComplete, onDismiss, onImportComplete }: On
 
     // Keep PlanState.major/catalogYear in sync for any consumers that read those fields.
     planDispatch({ type: 'SET_PROFILE_META', major, catalogYear });
+
+    // Mark the profile as user-imported so the "Exploring the example?" CTA hides.
+    safeSetItem(PROFILE_SOURCE_KEY, 'user');
 
     return {
       completed: completedCourses.length,

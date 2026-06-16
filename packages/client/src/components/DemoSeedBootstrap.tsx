@@ -2,6 +2,10 @@ import { useEffect, useRef } from 'react';
 import { fetchAndLoadDemo, useProfileDispatch, useOwnedProfile } from '@/context/ProfileContext';
 import { usePlanDispatch, usePlan, SEMESTERS } from '@/context/PlanContext';
 import { deriveTimelinePlanFromProfile } from '@/lib/derive-timeline';
+import { safeSetItem } from '@/lib/persist';
+
+/** localStorage flag: 'example' = seeded demo profile; 'user' = user imported their own data. */
+export const PROFILE_SOURCE_KEY = 'df:profile-source';
 
 interface DemoSeedBootstrapProps {
   /** True when this is a genuine first run (no profile stored before providers mounted). */
@@ -49,6 +53,9 @@ export function DemoSeedBootstrap({ isFirstRun }: DemoSeedBootstrapProps) {
     fetchAndLoadDemo(profileDispatch).then((demo) => {
       const plan = deriveTimelinePlanFromProfile(demo, SEMESTERS);
       planDispatch({ type: 'SET_PLAN', plan });
+      // Mark this profile as the seeded example so the CTA persists until the
+      // user imports their own data (commitWizardState sets this to 'user').
+      safeSetItem(PROFILE_SOURCE_KEY, 'example');
     }).catch((err) => {
       // Non-fatal: dev server may not have public/data/user-profile.json ready.
       console.warn('[DemoSeedBootstrap] Failed to load demo profile:', err);

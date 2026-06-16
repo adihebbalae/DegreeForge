@@ -26,7 +26,8 @@ import FocusEditor from '@/components/FocusEditor';
 import CommandPalette from '@/components/CommandPalette';
 import { OnboardingWizard } from '@/components/OnboardingWizard';
 import { FirstRunTourController, hasTourBeenSeen, TOUR_SEEN_KEY, TOTAL_TOUR_STEPS } from '@/components/FirstRunTour';
-import { safeSetItem } from '@/lib/persist';
+import { safeSetItem, safeGetRaw } from '@/lib/persist';
+import { PROFILE_SOURCE_KEY } from '@/components/DemoSeedBootstrap';
 import {
   useCatalogRecord,
   usePrereqGraph as useRawPrereqGraph,
@@ -60,11 +61,14 @@ export default function PlannerPage() {
     detailDialogOpen,
   } = useUi();
 
-  // Show the "Import transcript / audit" CTA persistently — even for the seeded
-  // example visitor. User can dismiss for the session; wizard opens the reward flow.
+  // Show the "Import transcript / audit" CTA only while the profile is the seeded
+  // example (or absent). Once the user imports their own data, commitWizardState
+  // sets df:profile-source='user' and the CTA hides permanently.
   const [ctaDismissed, setCtaDismissed] = useState(false);
   const [personalizeOpen, setPersonalizeOpen] = useState(false);
-  const showPersonalizeCta = !ctaDismissed;
+  const profileSource = safeGetRaw(PROFILE_SOURCE_KEY);
+  const isExampleOrEmpty = profileSource !== 'user';
+  const showPersonalizeCta = isExampleOrEmpty && !ctaDismissed;
 
   // ── First-run tour ─────────────────────────────────────────────────────────
   // Show on first visit to this browser (key: tour-seen localStorage flag).
