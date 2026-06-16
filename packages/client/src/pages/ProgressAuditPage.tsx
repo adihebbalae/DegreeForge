@@ -95,7 +95,7 @@ export function ProgressAuditPage() {
   if (!progress) {
     return (
       <div
-        className="mx-auto h-full w-full max-w-5xl overflow-y-auto px-6 py-8"
+        className="mx-auto w-full max-w-5xl px-6 py-8"
         data-testid="progress-audit-loading"
       >
         {/* Hero skeleton */}
@@ -136,7 +136,7 @@ export function ProgressAuditPage() {
 
   return (
     <div
-      className="mx-auto h-full w-full max-w-5xl overflow-y-auto px-4 py-6 sm:px-6 sm:py-8"
+      className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-8"
       data-testid="progress-audit-page"
     >
       {/* Page title */}

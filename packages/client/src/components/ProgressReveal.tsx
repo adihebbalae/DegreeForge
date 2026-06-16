@@ -37,7 +37,7 @@ interface ProgressRevealProps {
 function RevealSkeleton() {
   return (
     <div
-      className="mx-auto h-full w-full max-w-5xl overflow-y-auto px-6 py-8"
+      className="mx-auto w-full max-w-5xl px-6 py-8"
       data-testid="progress-reveal-skeleton"
     >
       {/* Title bar skeleton */}
@@ -110,7 +110,7 @@ export function ProgressReveal({ completed, inProgress, source }: ProgressReveal
       <div className="flex-1 min-h-0 relative">
         {/* Skeleton layer — fades out */}
         <div
-          className={`absolute inset-0 transition-opacity duration-300 ${
+          className={`absolute inset-0 overflow-y-auto transition-opacity duration-300 ${
             revealed ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}
           aria-hidden={revealed}

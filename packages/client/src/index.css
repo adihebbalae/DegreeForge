@@ -56,4 +56,43 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* ── Themed scrollbars (site-wide) ──────────────────────────────────────────
+     Slim, on-theme scrollbars that adapt to light + dark via the shadcn HSL
+     tokens. Replaces the chunky default OS scrollbar (with arrow buttons) on
+     every scroll area: planner overview, course palette, progress page, etc.
+     The thumb uses --muted-foreground so it stays visible on both the light
+     (--background 40 20% 96%) and dark (--background 30 8% 11%) backgrounds. */
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.4) transparent;
+  }
+
+  /* WebKit / Blink */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.35);
+    border-radius: 9999px;
+    /* Transparent border carves inset padding so the thumb reads as a slim pill. */
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.55);
+  }
+  /* Drop the up/down arrow buttons and the dead corner square. */
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
 }
