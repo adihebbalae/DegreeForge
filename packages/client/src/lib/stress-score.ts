@@ -43,33 +43,43 @@
  *   scale, honest about uncertainty. The UI exposes coverage (X/Y courses) so
  *   the student can see how reliable the score is.
  *
- * Per-semester Stress Score:
- *   Saturating union of per-course difficulty values (in-residence courses only):
+ * Per-semester Stress Score (normalized, credit-weighted sum):
+ *   rawLoad = Σ over in-residence courses (difficulty_i × creditHours_i)
+ *   score   = min(100, round(STRESS_ANCHOR × rawLoad / STRESS_REF_LOAD))
  *
- *   score = round(100 × (1 − Π over courses (1 − sᵢ/100)))
+ *   Rationale: credit-weighted sum scales monotonically with load — adding any
+ *   course or substituting a harder one never decreases the score. It also
+ *   differentiates full-load semesters (5-hard > 5-moderate > 2-course) without
+ *   saturating. The previous saturating union over-saturated in practice: all
+ *   semesters read "High" (77–99) even for moderate plans.
  *
- *   Rationale: two hard courses together are MORE stressful than either alone.
- *   A simple average masked this — 50+30 averaged to 40 (BELOW the harder course).
- *   The saturating union always equals or exceeds the hardest single course and
- *   climbs toward 100 but never pegs it.
- *   Examples: 50+30 → 65; 50+50 → 75; 5 courses at 30 each → ~83.
+ *   Constants are calibrated so a normal full-time moderate load
+ *   (STRESS_REF_LOAD ≈ 15 cr × difficulty 50 = 750) maps to roughly STRESS_ANCHOR
+ *   (≈ 55), landing in the Medium band with headroom for harder loads to reach High.
+ *
+ *   Examples (3 cr per course unless noted):
+ *     1 course d=50          →  rawLoad=150  → score=11  (Low)
+ *     2 courses d=50+30      →  rawLoad=240  → score=18  (Low)
+ *     5 courses d=50 each    →  rawLoad=750  → score=55  (Med)
+ *     5 courses d=70 each    →  rawLoad=1050 → score=77  (High)
+ *     5 courses d=30 each    →  rawLoad=450  → score=33  (Low)
  *
  *   AP/transfer courses contribute 0 credits via buildTermLoadCredits, so they
- *   are excluded from the product — this is guaranteed by the caller passing
+ *   are excluded from the sum — this is guaranteed by the caller passing
  *   termLoadCredits from buildTermLoadCredits, not buildTranscriptCredits.
  *
  *   If the term has 0 in-residence courses (empty term or all AP/transfer),
  *   score = 0, band = 'low'.
  *
- * Band thresholds (documented):
- *   0–34  → 'low'    (manageable term; lighter courses or low load)
- *   35–59 → 'medium' (normal full-time ECE workload)
- *   60–100→ 'high'   (demanding term; high credit load of hard courses)
+ * Band thresholds (calibrated for the normalized-sum scale):
+ *   0–34  → 'low'    (light load: 1–3 courses or mostly easy courses)
+ *   35–64 → 'medium' (normal full-time ECE workload)
+ *   65–100→ 'high'   (demanding term: high credit load of hard courses)
  *
- * These thresholds were calibrated against typical UT ECE plan data:
- *   - A standard 3-course term of lower-division ECE ≈ 25–35 (low-medium)
- *   - A 5-course term mixing upper-div ECE with gen-eds ≈ 40–55 (medium)
- *   - A heavy upper-division semester (5 courses, all hard ECE) ≈ 60–75 (high)
+ * These thresholds were calibrated so realistic plans span all three bands:
+ *   - A 1-course or 2-course semester ≈ 10–20 (low)
+ *   - A 5-course moderate semester (d≈50 each) ≈ 55 (medium)
+ *   - A 5-course heavy ECE semester (d≈70 each) ≈ 77 (high)
  */
 
 import { getCourseGradeStats } from './grade-distributions';
@@ -101,13 +111,29 @@ export const NORMALIZATION_MAX = 0.40;
  */
 export const NEUTRAL_DIFFICULTY = 50;
 
+// ─── Normalized-sum aggregation constants ────────────────────────────────────
+
+/**
+ * Reference load (in difficulty × credit-hours units) that a normal full-time
+ * moderate semester represents.  Calibrated as 15 credit-hours × difficulty 50
+ * = 750.  A semester at exactly this load scores STRESS_ANCHOR.
+ */
+export const STRESS_REF_LOAD = 750;
+
+/**
+ * Anchor score (0–100) that a semester at STRESS_REF_LOAD receives.
+ * Set to 55 so a normal moderate full load lands comfortably in Medium, with
+ * headroom for harder loads to climb into High.
+ */
+export const STRESS_ANCHOR = 55;
+
 // ─── Band thresholds ─────────────────────────────────────────────────────────
 
 /** Stress Score threshold (inclusive) below which a semester is classified "low" */
 export const BAND_LOW_MAX = 34;
 /** Stress Score threshold (inclusive) below which a semester is classified "medium" */
-export const BAND_MEDIUM_MAX = 59;
-// Score >= 60 → 'high'
+export const BAND_MEDIUM_MAX = 64;
+// Score >= 65 → 'high'
 
 export type StressBand = 'low' | 'medium' | 'high';
 
@@ -133,7 +159,7 @@ export interface CourseStressEntry {
 
 /** Result of computeSemesterStress */
 export interface SemesterStressResult {
-  /** 0–100 stress score (saturating union of per-course difficulty for in-residence courses) */
+  /** 0–100 stress score (normalized credit-weighted sum of per-course difficulty) */
   score: number;
   /** Categorical band derived from score and BAND thresholds */
   band: StressBand;
@@ -201,7 +227,7 @@ export function computeSemesterStress(
     };
   }
 
-  let unionProduct = 1; // running product of (1 - sᵢ/100) for in-residence courses
+  let rawLoad = 0; // Σ (difficulty_i × creditHours_i) for in-residence courses
   let hasInResidenceCourse = false;
   let coursesWithData = 0;
 
@@ -226,26 +252,24 @@ export function computeSemesterStress(
 
     if (!hasNoData) coursesWithData++;
 
-    // Only in-residence courses (creditHours > 0) enter the saturating union
+    // Only in-residence courses (creditHours > 0) enter the weighted sum
     if (creditHours > 0) {
-      unionProduct *= 1 - difficulty / 100;
+      rawLoad += difficulty * creditHours;
       hasInResidenceCourse = true;
     }
 
     return { courseId, creditHours, difficulty, hasNoData };
   });
 
-  // Saturating union: 100 × (1 − Π(1 − sᵢ/100))
+  // Normalized credit-weighted sum: min(100, round(ANCHOR × rawLoad / REF_LOAD))
   // Empty or all-AP/transfer → 0
   const score = hasInResidenceCourse
-    ? Math.round(100 * (1 - unionProduct))
+    ? Math.min(100, Math.round((STRESS_ANCHOR * rawLoad) / STRESS_REF_LOAD))
     : 0;
 
-  const clampedScore = Math.min(100, Math.max(0, score));
-
   return {
-    score: clampedScore,
-    band: scoreToStressBand(clampedScore),
+    score,
+    band: scoreToStressBand(score),
     courses,
     coursesWithData,
     totalCourses: courseIds.length,
