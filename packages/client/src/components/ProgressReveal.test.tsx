@@ -29,9 +29,9 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
-// ── ProgressDashboard mock (heavy; not under test) ──────────────────────────
-vi.mock('./home/ProgressDashboard', () => ({
-  ProgressDashboard: () => <div data-testid="mock-progress-dashboard">Progress Dashboard</div>,
+// ── ProgressAuditPage mock (heavy; not under test) ───────────────────────────
+vi.mock('@/pages/ProgressPage', () => ({
+  ProgressAuditPage: () => <div data-testid="mock-progress-dashboard">Progress Dashboard</div>,
 }));
 
 import { ProgressReveal, MIN_SHIMMER_MS } from './ProgressReveal';

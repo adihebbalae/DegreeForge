@@ -17,7 +17,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ProgressDashboard } from './home/ProgressDashboard';
+import { ProgressAuditPage } from '@/pages/ProgressPage';
 import { track } from '@/lib/analytics';
 
 // Minimum shimmer display time in ms. Parsing is sync + fast; without a floor
@@ -150,8 +150,8 @@ export function ProgressReveal({ completed, inProgress, source }: ProgressReveal
             </Button>
           </div>
 
-          {/* Existing progress dashboard — unmodified */}
-          <ProgressDashboard />
+          {/* FR-4 radial + cards page — reveals the degree audit */}
+          <ProgressAuditPage />
         </div>
       </div>
     </div>

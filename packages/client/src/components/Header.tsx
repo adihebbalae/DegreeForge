@@ -199,7 +199,7 @@ export default function Header() {
           DegreeForge
         </NavLink>
 
-        {/* Nav links (centered) */}
+        {/* Nav links (centered) — order: Planner · Progress · Settings */}
         <nav className="flex gap-1 flex-1 justify-center">
           <NavLink
             to="/"
@@ -213,7 +213,18 @@ export default function Header() {
           >
             Planner
           </NavLink>
-          {/* Schedule + Career disabled for alpha launch — components retained; re-enable by restoring the nav link + route element. */}
+          <NavLink
+            to="/progress"
+            className={({ isActive }) =>
+              cn(
+                buttonVariants({ variant: 'ghost' }),
+                isActive && 'underline underline-offset-4 font-semibold',
+              )
+            }
+          >
+            Progress
+          </NavLink>
+          {/* Schedule + Career disabled for alpha launch — re-enable by restoring nav link + route element. */}
           <NavLink
             to="/settings"
             className={({ isActive }) =>
