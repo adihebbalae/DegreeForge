@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Notice } from '@/components/ui/notice';
-import { Lock, Upload } from 'lucide-react';
+import { Lock, Upload, X } from 'lucide-react';
 import { useTechCoresRecord } from '@/context/DataContext';
 import { useSettings, useSettingsDispatch, type LoadTolerance } from '@/context/SettingsContext';
 import { usePlanDispatch, SEMESTERS } from '@/context/PlanContext';
@@ -21,9 +21,11 @@ type ImportSource = 'transcript' | 'ida';
 
 interface OnboardingWizardProps {
   onComplete: () => void;
+  /** Optional: called when the user dismisses the wizard without completing it. */
+  onDismiss?: () => void;
 }
 
-export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
+export function OnboardingWizard({ onComplete, onDismiss }: OnboardingWizardProps) {
   const techCores = useTechCoresRecord();
   const settings = useSettings();
   const settingsDispatch = useSettingsDispatch();
@@ -31,11 +33,10 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const profileDispatch = useProfileDispatch();
 
   const [step, setStep] = useState(1);
-  const totalSteps = 7;
+  const totalSteps = 5;
 
-  const [accessCodeInput, setAccessCodeInput] = useState(settings.accessCode);
-
-  const [major, setMajor] = useState('ece-bse');
+  // TASK-105: steps are now grad_target, load_tolerance, tech_core, import, review
+  // (access_code and major_catalog steps removed from the first-run flow)
   const [catalogYear, setCatalogYear] = useState('2024');
   const [gradTarget, setGradTarget] = useState('Spring 2028');
   const [loadTolerance, setLoadTolerance] = useState<LoadTolerance>('normal');
@@ -52,13 +53,11 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
   // TASK-106: readable names for each wizard step (used in funnel events only)
   const STEP_NAMES: Record<number, string> = {
-    1: 'access_code',
-    2: 'major_catalog',
-    3: 'grad_target',
-    4: 'load_tolerance',
-    5: 'tech_core',
-    6: 'import',
-    7: 'review',
+    1: 'grad_target',
+    2: 'load_tolerance',
+    3: 'tech_core',
+    4: 'import',
+    5: 'review',
   };
 
   // TASK-106: fire once on mount to mark funnel entry
@@ -182,6 +181,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         credit_hours: c.creditHours,
       }));
 
+    // ECE BSE is the only major; catalog_year is set on the review step.
+    const major = 'ece-bse';
+
     const profile: UserProfile = {
       ...EMPTY_PROFILE,
       major,
@@ -211,15 +213,31 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const completedCount = parsedCourses.filter(c => c.grade !== 'IP').length;
   const inProgressCount = parsedCourses.filter(c => c.grade === 'IP').length;
 
+  // Unused but kept so settings import doesn't break if someone calls with accessCode
+  void settings;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <Card className="w-full max-w-xl shadow-lg">
         <CardHeader>
           <div className="flex items-center justify-between mb-2">
-            <CardTitle>Welcome to DegreeForge</CardTitle>
-            <div className="text-sm text-muted-foreground">Step {step} of {totalSteps}</div>
+            <CardTitle>Personalize your plan</CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="text-sm text-muted-foreground">Step {step} of {totalSteps}</div>
+              {onDismiss && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onDismiss}
+                  aria-label="Close setup"
+                  className="h-7 w-7 text-muted-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
-          <CardDescription>Let&apos;s set up your initial degree plan profile.</CardDescription>
+          <CardDescription>Set your graduation goal and import your course history (optional).</CardDescription>
           {/* Stepper */}
           <div className="flex gap-2 mt-4">
             {Array.from({ length: totalSteps }).map((_, i) => (
@@ -233,70 +251,6 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
         <CardContent className="min-h-[300px]">
           {step === 1 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-              <h3 className="text-lg font-medium">Beta access code</h3>
-              <p className="text-sm text-muted-foreground">
-                Enter the access code you were given to enable the AI assistant.
-                No code? You can skip — the planner still works, and you can add a code later in Settings.
-              </p>
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="access-code-input">Access code</label>
-                <input
-                  id="access-code-input"
-                  type="password"
-                  className="w-full px-3 py-2 rounded-md border bg-background text-sm focus:ring-2 focus:ring-ring outline-none"
-                  placeholder="Paste your access code here"
-                  value={accessCodeInput}
-                  onChange={e => setAccessCodeInput(e.target.value)}
-                />
-              </div>
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={() => {
-                    settingsDispatch({ type: 'SET_ACCESS_CODE', value: accessCodeInput });
-                    handleNext();
-                  }}
-                >
-                  Enter
-                </Button>
-                <Button variant="outline" onClick={handleNext}>
-                  Skip
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-              <h3 className="text-lg font-medium">Confirm Major & Catalog</h3>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Major</label>
-                <Select value={major} onValueChange={setMajor}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ece-bse">Electrical & Computer Engineering (BSE)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Catalog Year</label>
-                <Select value={catalogYear} onValueChange={setCatalogYear}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {['2024', '2025', '2026', '2027', '2028', '2029'].map(y => (
-                      <SelectItem key={y} value={y}>{y}-{parseInt(y)+2}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
               <h3 className="text-lg font-medium">Target Graduation</h3>
               <div className="space-y-2">
@@ -315,7 +269,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             </div>
           )}
 
-          {step === 4 && (
+          {step === 2 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
               <h3 className="text-lg font-medium">Load Tolerance</h3>
               <p className="text-sm text-muted-foreground">How many credit hours do you prefer to take per semester?</p>
@@ -339,7 +293,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             </div>
           )}
 
-          {step === 5 && (
+          {step === 3 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
               <h3 className="text-lg font-medium">Tech Core Preference</h3>
               <p className="text-sm text-muted-foreground">Select a primary tech core track, or skip to let the recommender help you later.</p>
@@ -359,7 +313,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             </div>
           )}
 
-          {step === 6 && (
+          {step === 4 && (
             <div className="space-y-4 flex flex-col h-full animate-in fade-in slide-in-from-right-4">
               <h3 className="text-lg font-medium">Import Course History (Optional)</h3>
               <p className="text-sm text-muted-foreground">
@@ -453,13 +407,28 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             </div>
           )}
 
-          {step === 7 && (
+          {step === 5 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
               <h3 className="text-lg font-medium">Review & Commit</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-2 border-b">
                   <span className="text-muted-foreground">Major</span>
-                  <span className="font-medium">ECE BSE ({catalogYear})</span>
+                  <span className="font-medium">ECE BSE</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b">
+                  <span className="text-muted-foreground">Catalog Year</span>
+                  <div className="w-36">
+                    <Select value={catalogYear} onValueChange={setCatalogYear}>
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['2024', '2025', '2026', '2027', '2028', '2029'].map(y => (
+                          <SelectItem key={y} value={y}>{y}–{parseInt(y)+2}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b">
                   <span className="text-muted-foreground">Graduation Target</span>
@@ -487,18 +456,16 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         </CardContent>
 
         <CardFooter className="flex justify-between border-t p-4">
-          {/* On step 1 (access code), Back is hidden — the wizard hasn't started yet */}
           <Button variant="ghost" onClick={handleBack} disabled={step === 1}>
             Back
           </Button>
           <div className="flex gap-2">
-            {/* Step 1 uses its own inline Enter/Skip buttons; hide the global ones */}
-            {step > 1 && step < totalSteps && (
-               <Button variant="outline" onClick={handleNext}>Skip</Button>
+            {step < totalSteps && (
+              <Button variant="outline" onClick={handleNext}>Skip</Button>
             )}
-            {step === 1 ? null : step < totalSteps - 1 ? (
+            {step < totalSteps - 1 ? (
               <Button onClick={handleNext}>Next</Button>
-            ) : step === 6 ? (
+            ) : step === 4 ? (
               <Button onClick={handleParseTranscript} disabled={isParsing}>
                 {isParsing ? 'Parsing...' : 'Next'}
               </Button>

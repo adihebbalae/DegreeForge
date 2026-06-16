@@ -18,8 +18,8 @@ import {
 import { useSettings, useSettingsDispatch, type LoadTolerance, type InstructionMode, type TimeWindow, type ChatProvider } from '@/context/SettingsContext';
 import { useTechCoresRecord } from '@/context/DataContext';
 import { TOOL_REGISTRY } from '@/lib/agent-tools/registry';
-import { safeRemoveItem } from '@/lib/persist';
 import { ProfileEditor } from '@/components/ProfileEditor';
+import { OnboardingWizard } from '@/components/OnboardingWizard';
 import type { TechCoreTrack } from '@/types';
 
 // ─── Section Header ────────────────────────────────────────────────────────────
@@ -74,7 +74,7 @@ export default function SettingsPage() {
   const [newProfName, setNewProfName] = useState('');
   const [newProfType, setNewProfType] = useState<'prefer' | 'avoid'>('prefer');
   const [resetSettingsOpen, setResetSettingsOpen] = useState(false);
-  const [rerunOnboardingOpen, setRerunOnboardingOpen] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   const techCoreList = techCoresRecord
     ? (Object.entries(techCoresRecord) as [string, TechCoreTrack][]).map(([id, track]) => ({
@@ -473,14 +473,14 @@ export default function SettingsPage() {
           <section aria-labelledby="onboarding-section" className="pt-4">
              <div className="flex items-center justify-between">
                <div>
-                 <h2 className="text-base font-semibold text-foreground">Re-run Onboarding</h2>
-                 <p className="text-sm text-muted-foreground">Restart the initial setup wizard.</p>
+                 <h2 className="text-base font-semibold text-foreground">Import &amp; Personalize</h2>
+                 <p className="text-sm text-muted-foreground">Re-run the setup wizard to import a transcript or adjust your plan preferences.</p>
                </div>
                <Button
                   variant="outline"
-                  onClick={() => setRerunOnboardingOpen(true)}
+                  onClick={() => setWizardOpen(true)}
                >
-                 Re-run Onboarding
+                 Open Setup
                </Button>
              </div>
           </section>
@@ -498,17 +498,12 @@ export default function SettingsPage() {
         onConfirm={() => dispatch({ type: 'RESET_SETTINGS' })}
       />
 
-      <ConfirmDialog
-        open={rerunOnboardingOpen}
-        onOpenChange={setRerunOnboardingOpen}
-        title="Re-run onboarding wizard"
-        consequence={`Overwrites ${settings.profPreferences.length} saved professor preference${settings.profPreferences.length === 1 ? '' : 's'} and resets onboarding flags. Reloads the page.`}
-        confirmLabel="Re-run Onboarding"
-        onConfirm={() => {
-          safeRemoveItem('degreeforge:onboarded');
-          window.location.reload();
-        }}
-      />
+      {wizardOpen && (
+        <OnboardingWizard
+          onComplete={() => setWizardOpen(false)}
+          onDismiss={() => setWizardOpen(false)}
+        />
+      )}
     </div>
   );
 }

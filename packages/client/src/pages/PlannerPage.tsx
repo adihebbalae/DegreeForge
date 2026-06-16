@@ -23,6 +23,8 @@ import WhatIfPanel from '@/components/WhatIfPanel';
 import OverviewYearGrid from '@/components/OverviewYearGrid';
 import FocusEditor from '@/components/FocusEditor';
 import CommandPalette from '@/components/CommandPalette';
+import { OnboardingWizard } from '@/components/OnboardingWizard';
+import { useOnboarded } from '@/components/home/useOnboarded';
 import {
   useCatalogRecord,
   usePrereqGraph as useRawPrereqGraph,
@@ -53,6 +55,13 @@ export default function PlannerPage() {
     focusedSemesterId, setFocusedSemesterId,
     detailDialogOpen,
   } = useUi();
+
+  const isOnboarded = useOnboarded();
+  // Show the "Import / Personalize" CTA for first-time visitors; user can dismiss
+  // it or open the wizard. Once dismissed or wizard completes, it hides for the session.
+  const [ctaDismissed, setCtaDismissed] = useState(false);
+  const [personalizeOpen, setPersonalizeOpen] = useState(false);
+  const showPersonalizeCta = !isOnboarded && !ctaDismissed;
 
   const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
   // Track whether the command palette is the "primary" Esc consumer so that
@@ -225,6 +234,35 @@ export default function PlannerPage() {
         <ProgressBars />
         <ValidationBanner />
 
+        {/* ── Import / Personalize CTA — first-time visitors only ──────────── */}
+        {showPersonalizeCta && (
+          <div className="flex items-center justify-between gap-3 px-4 py-2 bg-primary/5 border-b border-primary/20 text-sm shrink-0">
+            <span className="text-muted-foreground">
+              This is your default plan for ECE BSE.{' '}
+              <button
+                type="button"
+                className="text-primary underline underline-offset-2 hover:opacity-80 font-medium"
+                onClick={() => {
+                  track('personalize_cta_clicked');
+                  setPersonalizeOpen(true);
+                }}
+              >
+                Import your transcript or audit
+              </button>{' '}
+              to personalize it.
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
+              onClick={() => setCtaDismissed(true)}
+              aria-label="Dismiss personalize prompt"
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )}
+
         {/* ── Plan Comparison Overlay ─────────────────────────────────────── */}
         <PlanComparisonPanel />
 
@@ -355,6 +393,14 @@ export default function PlannerPage() {
         )}
       </DragOverlay>
     </DndContext>
+
+    {/* ── Import / Personalize wizard — opened via CTA banner ──────────── */}
+    {personalizeOpen && (
+      <OnboardingWizard
+        onComplete={() => setPersonalizeOpen(false)}
+        onDismiss={() => setPersonalizeOpen(false)}
+      />
+    )}
     </PlannerErrorBoundary>
   );
 }

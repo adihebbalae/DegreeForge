@@ -1,4 +1,6 @@
 // @vitest-environment jsdom
+// TASK-105: Wizard reflowed to 5 steps (grad_target, load_tolerance, tech_core, import, review).
+// access_code and major_catalog steps removed from the first-run flow.
 import React from 'react';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
@@ -79,114 +81,118 @@ function renderWithProviders(ui: React.ReactElement) {
   );
 }
 
-// Helper: advance past step 1 (access code) using the inline Skip button
-function skipAccessCodeStep() {
+// Helper: skip through steps to reach the import step (step 4)
+function skipToImportStep() {
+  // step 1 grad_target -> 2
+  fireEvent.click(screen.getByRole('button', { name: 'Skip' }));
+  // step 2 load_tolerance -> 3
+  fireEvent.click(screen.getByRole('button', { name: 'Skip' }));
+  // step 3 tech_core -> 4
   fireEvent.click(screen.getByRole('button', { name: 'Skip' }));
 }
 
-describe('OnboardingWizard', () => {
-  it('renders the access code step as the first step', () => {
+describe('OnboardingWizard (TASK-105 5-step flow)', () => {
+  it('renders the grad_target step as the first step', () => {
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
-    expect(screen.getByText('Beta access code')).toBeDefined();
-    expect(screen.getByLabelText('Access code')).toBeDefined();
-  });
-
-  it('shows step 1 of 7 on the access code step', () => {
-    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
-    expect(screen.getByText('Step 1 of 7')).toBeDefined();
-  });
-
-  it('Enter button on access code step dispatches SET_ACCESS_CODE and advances', () => {
-    mockSettingsDispatch.mockClear();
-    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
-
-    const input = screen.getByLabelText('Access code');
-    fireEvent.change(input, { target: { value: 'test-code-abc' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Enter' }));
-
-    expect(mockSettingsDispatch).toHaveBeenCalledWith({ type: 'SET_ACCESS_CODE', value: 'test-code-abc' });
-    expect(screen.getByText('Confirm Major & Catalog')).toBeDefined();
-  });
-
-  it('Skip button on access code step does NOT dispatch SET_ACCESS_CODE and advances', () => {
-    mockSettingsDispatch.mockClear();
-    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' }));
-
-    const setAccessCodeCalls = mockSettingsDispatch.mock.calls.filter(
-      ([action]) => action.type === 'SET_ACCESS_CODE'
-    );
-    expect(setAccessCodeCalls).toHaveLength(0);
-    expect(screen.getByText('Confirm Major & Catalog')).toBeDefined();
-  });
-
-  it('should render the major/catalog step after skipping access code', () => {
-    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
-    skipAccessCodeStep();
-    expect(screen.getByText('Confirm Major & Catalog')).toBeDefined();
-  });
-
-  it('should navigate through the steps when Next is clicked', () => {
-    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
-
-    // Step 1 (access code) -> step 2
-    skipAccessCodeStep();
-    expect(screen.getByText('Confirm Major & Catalog')).toBeDefined();
-
-    // Step 2 -> step 3
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(screen.getByText('Target Graduation')).toBeDefined();
+  });
 
-    // Step 3 -> step 4
+  it('shows step 1 of 5 on the first step', () => {
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+    expect(screen.getByText('Step 1 of 5')).toBeDefined();
+  });
+
+  it('does NOT render the access code step', () => {
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+    expect(screen.queryByText('Beta access code')).toBeNull();
+    expect(screen.queryByLabelText('Access code')).toBeNull();
+  });
+
+  it('does NOT render the Confirm Major & Catalog step', () => {
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+    // Step 1 is grad_target — major/catalog step is gone
+    expect(screen.queryByText('Confirm Major & Catalog')).toBeNull();
+  });
+
+  it('Next advances from grad_target to load_tolerance', () => {
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(screen.getByText('Load Tolerance')).toBeDefined();
   });
 
-  it('should skip to next step when global Skip is clicked (step 2+)', () => {
+  it('Skip advances from step 1 to step 2', () => {
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' }));
+    expect(screen.getByText('Load Tolerance')).toBeDefined();
+  });
+
+  it('should navigate through all steps', () => {
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
 
-    skipAccessCodeStep(); // step 1 -> 2
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // step 2 -> 3
-    expect(screen.getByText('Target Graduation')).toBeDefined();
+    // Step 1 (grad_target) -> step 2
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByText('Load Tolerance')).toBeDefined();
+
+    // Step 2 -> step 3
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByText('Tech Core Preference')).toBeDefined();
+
+    // Step 3 -> step 4
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByText('Import Course History (Optional)')).toBeDefined();
   });
 
   it('should go back when Back is clicked', () => {
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
 
-    skipAccessCodeStep(); // step 1 -> 2
-    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // step 2 -> 3
-    expect(screen.getByText('Target Graduation')).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // step 1 -> 2
+    expect(screen.getByText('Load Tolerance')).toBeDefined();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Back' })); // step 3 -> 2
-    expect(screen.getByText('Confirm Major & Catalog')).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Back' })); // step 2 -> 1
+    expect(screen.getByText('Target Graduation')).toBeDefined();
+  });
+
+  it('Back is disabled on step 1', () => {
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+    const backBtn = screen.getByRole('button', { name: 'Back' });
+    expect(backBtn).toBeDefined();
+    expect((backBtn as HTMLButtonElement).disabled).toBe(true);
   });
 
   it('should call onComplete when finishing the wizard', () => {
     const handleComplete = vi.fn();
     renderWithProviders(<OnboardingWizard onComplete={handleComplete} />);
 
-    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 1->2
     fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
     fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
-    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 6->7
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 4->5 (empty transcript)
 
     fireEvent.click(screen.getByRole('button', { name: 'Start Planning' }));
     expect(handleComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onDismiss when the close button is clicked', () => {
+    const handleDismiss = vi.fn();
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} onDismiss={handleDismiss} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close setup' }));
+    expect(handleDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not show close button when onDismiss is not provided', () => {
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Close setup' })).toBeNull();
   });
 
   it('fires the onboarding_completed event on finish', () => {
     mockTrack.mockClear();
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
 
-    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 1->2
     fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
     fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
-    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 6->7
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 4->5
 
     fireEvent.click(screen.getByRole('button', { name: 'Start Planning' }));
 
@@ -209,16 +215,16 @@ describe('OnboardingWizard', () => {
 
     // Step 1 fires immediately on mount (via the step useEffect)
     const step1Views = mockTrack.mock.calls.filter(
-      ([event, props]) => event === 'onboarding_step_viewed' && props?.step === 1 && props?.name === 'access_code'
+      ([event, props]) => event === 'onboarding_step_viewed' && props?.step === 1 && props?.name === 'grad_target'
     );
     expect(step1Views).toHaveLength(1);
 
     // Advance to step 2
     mockTrack.mockClear();
-    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 1->2
 
     const step2Views = mockTrack.mock.calls.filter(
-      ([event, props]) => event === 'onboarding_step_viewed' && props?.step === 2 && props?.name === 'major_catalog'
+      ([event, props]) => event === 'onboarding_step_viewed' && props?.step === 2 && props?.name === 'load_tolerance'
     );
     expect(step2Views).toHaveLength(1);
   });
@@ -234,11 +240,7 @@ describe('OnboardingWizard', () => {
     mockTrack.mockClear();
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
 
-    skipAccessCodeStep(); // 1->2
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+    skipToImportStep(); // reach step 4
 
     const textarea = screen.getByPlaceholderText(/ECE 302/);
     fireEvent.change(textarea, { target: { value: 'ECE 302 Intro EE A Fall 2025 3' } });
@@ -262,11 +264,7 @@ describe('OnboardingWizard', () => {
     mockTrack.mockClear();
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
 
-    skipAccessCodeStep(); // 1->2
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+    skipToImportStep(); // reach step 4
 
     const textarea = screen.getByPlaceholderText(/ECE 302/);
     fireEvent.change(textarea, { target: { value: 'garbage text that wont parse' } });
@@ -286,12 +284,10 @@ describe('OnboardingWizard', () => {
     const handleComplete = vi.fn();
     renderWithProviders(<OnboardingWizard onComplete={handleComplete} />);
 
-    skipAccessCodeStep(); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 1->2
     fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
     fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
-    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 6->7 (empty transcript)
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 4->5 (empty transcript)
 
     fireEvent.click(screen.getByRole('button', { name: 'Start Planning' }));
 
@@ -315,16 +311,12 @@ describe('OnboardingWizard', () => {
     const handleComplete = vi.fn();
     renderWithProviders(<OnboardingWizard onComplete={handleComplete} />);
 
-    skipAccessCodeStep(); // 1->2
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+    skipToImportStep(); // reach step 4
 
     const textarea = screen.getByPlaceholderText(/ECE 302/);
     fireEvent.change(textarea, { target: { value: 'ECE 302 Intro to Electrical Eng A Fall 2025 3' } });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 6->7
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 4->5
 
     fireEvent.click(screen.getByRole('button', { name: 'Start Planning' }));
 
@@ -367,15 +359,11 @@ describe('OnboardingWizard', () => {
     mockPlanDispatch.mockClear();
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
 
-    skipAccessCodeStep(); // 1->2
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+    skipToImportStep(); // reach step 4
 
     const textarea = screen.getByPlaceholderText(/ECE 302/);
     fireEvent.change(textarea, { target: { value: 'ECE 302 Intro to Electrical Eng A Fall 2025 3' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 6->7
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 4->5
 
     fireEvent.click(screen.getByRole('button', { name: 'Start Planning' }));
 
@@ -401,11 +389,7 @@ describe('OnboardingWizard', () => {
     mockProfileDispatch.mockClear();
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
 
-    skipAccessCodeStep(); // 1->2
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+    skipToImportStep(); // reach step 4
 
     // Switch to IDA mode
     fireEvent.click(screen.getByRole('button', { name: 'IDA Audit' }));
@@ -429,15 +413,11 @@ describe('OnboardingWizard', () => {
 
     renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
 
-    skipAccessCodeStep(); // 1->2
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 4->5
-    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 5->6
+    skipToImportStep(); // reach step 4
 
     const textarea = screen.getByPlaceholderText(/ECE 302/);
     fireEvent.change(textarea, { target: { value: 'ECE 302 Intro EE A Fall 2025 3' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 6->7
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 4->5
 
     // Review step: should show 2 completed and 1 in-progress
     expect(screen.getByText('Completed courses')).toBeDefined();
@@ -449,5 +429,17 @@ describe('OnboardingWizard', () => {
     const inProgressLabel = screen.getByText('In-progress courses');
     const inProgressRow = inProgressLabel.closest('div');
     expect(inProgressRow?.textContent).toContain('1');
+  });
+
+  it('review step shows catalog year selector with default 2024', () => {
+    renderWithProviders(<OnboardingWizard onComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 1->2
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 2->3
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' })); // 3->4
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // 4->5
+
+    // Review step shows catalog year
+    expect(screen.getByText('Catalog Year')).toBeDefined();
   });
 });
