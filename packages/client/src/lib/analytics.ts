@@ -119,7 +119,10 @@ export function initAnalytics() {
     // capture_exceptions enables autocapture of uncaught errors + unhandled promise rejections as $exception events.
     // posthog-js v1.384.0+ handles this natively via ExceptionObserver.
     capture_exceptions: true,
-    session_recording: { maskAllInputs: true }, // mask all input values in replay (protects the access code + any sensitive entry)
+    // Session replay is intentionally disabled: grades, courses, and GPA render
+    // on screen after transcript import and must never be recorded or transmitted.
+    // Event analytics and scrubbed exception capture are unaffected.
+    disable_session_recording: true,
     before_send: (event: CaptureResult | null) => {
       if (!event) return event
       return scrubExceptionEvent(event)
