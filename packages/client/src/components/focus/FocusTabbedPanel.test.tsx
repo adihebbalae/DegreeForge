@@ -44,7 +44,7 @@ afterEach(cleanup);
 describe('FocusTabbedPanel', () => {
   it('renders a single tab strip with Insights, Add, and Best Path', () => {
     render(<FocusTabbedPanel semester={semester} creditHourCap={18} />);
-    const tabs = screen.getAllByRole('button');
+    const tabs = screen.getAllByRole('tab');
     expect(tabs.map((t) => t.textContent)).toEqual(['Insights', 'Add', 'Best Path']);
   });
 
@@ -58,13 +58,25 @@ describe('FocusTabbedPanel', () => {
   it('switches tabs on click (uncontrolled)', () => {
     render(<FocusTabbedPanel semester={semester} creditHourCap={18} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Add' }));
     expect(screen.getByTestId('add-panel')).toBeTruthy();
     expect(screen.queryByTestId('insights-panel')).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Best Path' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Best Path' }));
     expect(screen.getByTestId('bestpath-content')).toBeTruthy();
     expect(screen.queryByTestId('add-panel')).toBeNull();
+  });
+
+  it('renders ONLY the active panel content with no tab bar when headless', () => {
+    render(
+      <FocusTabbedPanel semester={semester} creditHourCap={18} activeTab="add" headless />,
+    );
+    // No tab buttons in headless mode — the host renders them in its header.
+    expect(screen.queryAllByRole('tab')).toHaveLength(0);
+    // Only the controlled-active panel content shows.
+    expect(screen.getByTestId('add-panel')).toBeTruthy();
+    expect(screen.queryByTestId('insights-panel')).toBeNull();
+    expect(screen.queryByTestId('bestpath-content')).toBeNull();
   });
 
   it('honours a controlled activeTab and reports changes via onTabChange', () => {
@@ -81,7 +93,7 @@ describe('FocusTabbedPanel', () => {
     expect(screen.getByTestId('add-panel')).toBeTruthy();
 
     // Clicking a tab does NOT change internal state — it reports up via callback.
-    fireEvent.click(screen.getByRole('button', { name: 'Insights' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Insights' }));
     expect(onTabChange).toHaveBeenCalledWith('insights');
     // Still showing Add because the controlled prop hasn't changed.
     expect(screen.getByTestId('add-panel')).toBeTruthy();

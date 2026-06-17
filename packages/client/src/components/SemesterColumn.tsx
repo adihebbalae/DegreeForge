@@ -147,6 +147,12 @@ interface SemesterColumnProps {
   onRejectGhost?: (courseId: string) => void;
   /** Per-semester credit-hour cap from the user's selected load tolerance. Defaults to getCreditHourCap(null) (normal load). */
   creditHourCap?: number;
+  /**
+   * Suppress the column's own header (label + credit-hours + GPA row). Default OFF.
+   * Used by FocusEditor, which surfaces the focused-semester label and credit-hours
+   * in its own header to avoid a duplicate heading.
+   */
+  hideHeader?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -169,6 +175,7 @@ export default function SemesterColumn({
   onAcceptGhost,
   onRejectGhost,
   creditHourCap = getCreditHourCap(null),
+  hideHeader = false,
 }: SemesterColumnProps) {
   const { id, label, status, season } = semester;
   const isPast = status === 'past';
@@ -260,42 +267,44 @@ export default function SemesterColumn({
       {/* Inner content with padding (moved from outer to preserve stripe flush positioning) */}
       <div className="flex flex-col gap-2 px-2 pb-2">
         {/* ── Column Header ─────────────────────────────────────────── */}
-        <div
-          className={cn(
-            'flex flex-col gap-0.5 px-1 pb-1 border-b border-border',
-            isPast && 'opacity-75'
-          )}
-        >
-          {/* Semester label + season icon + status badge */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-foreground flex items-center gap-1">
-              <SeasonIcon season={season} />
-              {label}
-            </span>
-            {isPast && (
-              <span className="text-green-600 dark:text-green-400 text-sm font-bold" aria-label="Past semester">
-                ✓
-              </span>
+        {!hideHeader && (
+          <div
+            className={cn(
+              'flex flex-col gap-0.5 px-1 pb-1 border-b border-border',
+              isPast && 'opacity-75'
             )}
-            {isCurrent && (
-              <span className="text-[10px] bg-primary text-primary-foreground px-1 rounded font-medium">
-                NOW
+          >
+            {/* Semester label + season icon + status badge */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground flex items-center gap-1">
+                <SeasonIcon season={season} />
+                {label}
               </span>
-            )}
-          </div>
+              {isPast && (
+                <span className="text-green-600 dark:text-green-400 text-sm font-bold" aria-label="Past semester">
+                  ✓
+                </span>
+              )}
+              {isCurrent && (
+                <span className="text-[10px] bg-primary text-primary-foreground px-1 rounded font-medium">
+                  NOW
+                </span>
+              )}
+            </div>
 
-          {/* Credit count & optional GPA */}
-          <div className="flex items-center justify-between">
-            <span className={cn('text-[11px]', creditCountClass(totalCredits, creditHourCap))}>
-              {isPast ? `${totalCredits} hrs` : `${totalCredits} / ${creditHourCap} hrs`}
-            </span>
-            {estimatedGPA && (
-              <span className="text-[10px] text-muted-foreground" title="Estimated GPA based on historical data">
-                ~{estimatedGPA} est. GPA
+            {/* Credit count & optional GPA */}
+            <div className="flex items-center justify-between">
+              <span className={cn('text-[11px]', creditCountClass(totalCredits, creditHourCap))}>
+                {isPast ? `${totalCredits} hrs` : `${totalCredits} / ${creditHourCap} hrs`}
               </span>
-            )}
+              {estimatedGPA && (
+                <span className="text-[10px] text-muted-foreground" title="Estimated GPA based on historical data">
+                  ~{estimatedGPA} est. GPA
+                </span>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ── Course List (droppable + sortable for non-past) ──────── */}
         {isPast ? (

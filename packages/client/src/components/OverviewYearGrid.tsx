@@ -101,6 +101,19 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
     [yearGroups]
   );
 
+  // When focused, the grid runs as a slim strip alongside the FocusEditor and
+  // should show ONLY the academic year that CONTAINS the focused semester
+  // (its Fall/Spring/Summer trio) — e.g. focus Spring 2028 → 2027–28 strip.
+  // Clicking a tile re-focuses it, swapping the strip to that semester's year.
+  // Unfocused overview shows every academic year.
+  const displayYears = useMemo(() => {
+    if (!focusedSemesterId) return sortedYears;
+    const focusedSem = semesters.find((s) => s.id === focusedSemesterId);
+    if (!focusedSem) return sortedYears;
+    const focusedAy = academicYearOf(focusedSem);
+    return sortedYears.includes(focusedAy) ? [focusedAy] : sortedYears;
+  }, [focusedSemesterId, semesters, sortedYears]);
+
   // Which season rows actually appear across all semesters, in canonical order
   const seasonsPresent = useMemo(() => {
     const set = new Set<string>();
@@ -118,7 +131,7 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
 
   // Transposed layout: columns = academic years, rows = seasons.
   // Season-label gutter is 44px; year columns grow to fill width (minmax 200px, 1fr).
-  const gridCols = `44px repeat(${sortedYears.length}, minmax(200px, 1fr))`;
+  const gridCols = `44px repeat(${displayYears.length}, minmax(200px, 1fr))`;
 
   return (
     <div className="h-full flex flex-col gap-0 overflow-x-auto overflow-y-hidden">
@@ -129,7 +142,7 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
         style={{ gridTemplateColumns: gridCols }}
       >
         <div /> {/* season-label gutter corner */}
-        {sortedYears.map((ay) => (
+        {displayYears.map((ay) => (
           <div key={ay} className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider text-center">
             {ay}–{String(ay + 1).slice(2)}
           </div>
@@ -155,7 +168,7 @@ export default function OverviewYearGrid({ focusedSemesterId, onTileClick }: Ove
             </div>
 
             {/* One tile per academic year */}
-            {sortedYears.map((ay) => {
+            {displayYears.map((ay) => {
               const seasonMap = yearGroups.get(ay);
               const sem = seasonMap?.get(season);
               if (!sem) {

@@ -31,7 +31,7 @@ import {
   useSectionsIndex,
 } from '@/context/DataContext';
 import SemesterColumn from './SemesterColumn';
-import { buildTermLoadCredits } from '@/lib/course-utils';
+import { buildTermLoadCredits, getCourseCredits } from '@/lib/course-utils';
 import {
   buildVerifiedTermSet,
   isUnverifiedOfferingPlacement,
@@ -40,7 +40,7 @@ import { getCreditHourCap } from '@/lib/auto-planner';
 import { useValidation } from '@/hooks/useValidation';
 import { usePrereqGraph } from '@/hooks/usePrereqGraph';
 import { useEffectiveProfile } from '@/hooks/useEffectiveProfile';
-import FocusTabbedPanel, { type FocusTab } from './focus/FocusTabbedPanel';
+import FocusTabbedPanel, { FocusTabStrip, type FocusTab } from './focus/FocusTabbedPanel';
 import type { PrereqNode } from '@/types';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -86,6 +86,17 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
   const transcriptCredits = useMemo(
     () => buildTermLoadCredits(userProfile),
     [userProfile]
+  );
+
+  // Total credits for the focused semester — surfaced in the header since the
+  // SemesterColumn's own header (which normally shows this) is suppressed below.
+  const focusedCredits = useMemo(
+    () =>
+      (plan[focusedSemesterId] ?? []).reduce(
+        (sum, courseId) => sum + getCourseCredits(courseId, catalog, transcriptCredits),
+        0
+      ),
+    [plan, focusedSemesterId, catalog, transcriptCredits]
   );
 
   const downstreamCourses = useMemo(() => {
@@ -158,9 +169,15 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
           Overview
         </Button>
 
-        {/* Focused semester label */}
+        {/* Focused semester label + credit-hours (credit-hours surfaced here since
+            SemesterColumn's own header is suppressed via hideHeader below). */}
         <span className="text-sm font-medium text-foreground shrink-0">
           {focusedSem.label}
+        </span>
+        <span className="text-[11px] text-muted-foreground shrink-0" data-testid="focus-editor-credits">
+          {focusedSem.status === 'past'
+            ? `${focusedCredits} hrs`
+            : `${focusedCredits} / ${creditHourCap} hrs`}
         </span>
 
         {/* Prev/next semester nav */}
@@ -192,11 +209,20 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
         {/* Esc hint */}
         <span className="text-xs text-muted-foreground hidden sm:inline">Press Esc to close</span>
 
+        {/* Inline segmented tab strip (Insights · Add · Best Path) — drives the
+            headless FocusTabbedPanel below. Pushed right with the Add button. */}
+        <FocusTabStrip
+          activeTab={activeTab}
+          onSelect={setActiveTab}
+          variant="segmented"
+          className="ml-auto shrink-0"
+        />
+
         {/* + Add course — jumps to the Add tab in the tab strip */}
         <Button
           variant="outline"
           size="sm"
-          className="h-6 px-2 gap-1 text-xs shrink-0 ml-auto"
+          className="h-6 px-2 gap-1 text-xs shrink-0"
           onClick={() => setActiveTab('add')}
           aria-label="Add course to semester"
           data-testid="focus-editor-add-course-btn"
@@ -235,16 +261,18 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
             onAcceptGhost={handleAcceptGhost}
             onRejectGhost={handleRejectGhost}
             creditHourCap={creditHourCap}
+            hideHeader
           />
         </div>
 
-        {/* Right: single tab strip (Insights | Add | Best Path) */}
+        {/* Right: active panel content (headless — tabs live in the header above) */}
         <div className="flex-1 min-w-0 border-l border-border overflow-hidden min-h-0 flex flex-col">
           <FocusTabbedPanel
             semester={focusedSem}
             creditHourCap={creditHourCap}
             activeTab={activeTab}
             onTabChange={setActiveTab}
+            headless
           />
         </div>
       </div>

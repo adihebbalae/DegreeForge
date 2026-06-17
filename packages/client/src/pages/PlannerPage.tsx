@@ -280,9 +280,10 @@ export default function PlannerPage() {
              each is 28px with border; actual total depends on how many render).
              ComparisonToggle is moved inline here to avoid occupying its own 40px band. ── */}
 
-        {/* ── Slim chrome: progress + validation (each 28px = ~56px total, well under 60px) */}
+        {/* ── Slim chrome: progress bar only. The prereq-violation surface is now
+             a compact floating card overlaid on the content area (see below), so
+             it no longer occupies its own top band. */}
         <ProgressBars />
-        <ValidationBanner />
 
         {/* ── Import / Personalize CTA — first-time visitors only ──────────── */}
         {showPersonalizeCta && (
@@ -317,7 +318,14 @@ export default function PlannerPage() {
         <PlanComparisonPanel />
 
         {/* ── Main content row ────────────────────────────────────────────── */}
-        <div className="flex-1 flex overflow-hidden min-h-0">
+        {/* `relative` anchors the floating prereq-violation card to this content
+            area (top-right, below the toolbar — never under the Recommend/Best
+            Path controls which live in the header band above). */}
+        <div className="flex-1 flex overflow-hidden min-h-0 relative">
+
+          {/* ── Floating prereq-violation card — overlay, renders only when there
+               are hard violations (self-hides otherwise). ─────────────────── */}
+          <ValidationBanner />
 
           {/* ── Overview year grid (always visible) ───────────────────────── */}
           <div className={[
