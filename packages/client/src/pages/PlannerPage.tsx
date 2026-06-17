@@ -33,8 +33,12 @@ import {
   useCatalogRecord,
   usePrereqGraph as useRawPrereqGraph,
   useGradeDistributions,
+  useDegreeRequirements,
+  useTechCoresRecord,
+  useMathRequirements,
 } from '@/context/DataContext';
-import { usePlanDispatch, usePlan, useSemesters } from '@/context/PlanContext';
+import { usePlanDispatch, usePlan, useSemesters, useTechCoreId, useMathBAToggle } from '@/context/PlanContext';
+import { computeRemainingRequired } from '@/lib/requirements';
 import { isBlockedPastDrop, canReverseSemester } from '@/lib/past-drop';
 import { useUi } from '@/context/UiContext';
 import { track } from '@/lib/analytics';
@@ -111,6 +115,31 @@ export default function PlannerPage() {
     () => Object.values(plan).reduce((sum, ids) => sum + ids.length, 0),
     [plan]
   );
+
+  // ── Manual-selection warnings for the tour's manual-slots step ───────────
+  // Mirrors how useRecommendPlan obtains techCore. Passing an empty satisfied
+  // set is intentional — the warnings are invariant to satisfied courses (they
+  // are unconditional pushes in computeRemainingRequired for list_of_approved
+  // slots, free electives, and the advanced tech elective).
+  const degreeReqs = useDegreeRequirements();
+  const techCores = useTechCoresRecord();
+  const mathReqs = useMathRequirements();
+  const techCoreId = useTechCoreId();
+  const mathBAToggle = useMathBAToggle();
+
+  const manualSelectionWarnings = useMemo<string[]>(() => {
+    if (!degreeReqs || !techCores) return [];
+    const techCore = techCores[techCoreId];
+    if (!techCore) return [];
+    const { warnings } = computeRemainingRequired(
+      degreeReqs,
+      techCore,
+      mathReqs ?? null,
+      mathBAToggle,
+      new Set<string>()
+    );
+    return warnings;
+  }, [degreeReqs, techCores, techCoreId, mathReqs, mathBAToggle]);
 
   // ── Data for the DragOverlay CourseCard ──────────────────────────────────
   const catalog = useCatalogRecord();
@@ -515,6 +544,7 @@ export default function PlannerPage() {
         onCloseAdd={() => setCommandPaletteOpen(false)}
         hasFocusedSemester={!!focusedSemesterId}
         onEnd={() => setTourMounted(false)}
+        manualSelectionWarnings={manualSelectionWarnings}
       />
     )}
     </PlannerErrorBoundary>

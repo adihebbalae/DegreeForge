@@ -6,7 +6,8 @@
  *  - the tour-seen gate (hasTourBeenSeen)
  *  - the pure step machine (tourReducer): advance, complete→null, skip→null
  *  - the controller: Next advances, Skip sets tour-seen, course-added auto-advances,
- *    Recommend-click advances, welcome step has no spotlight, Esc skips/yields.
+ *    Recommend-click advances, welcome step has no spotlight, Esc skips/yields,
+ *    bulk fill does NOT advance the Add step (regression for Recommend-skip bug).
  */
 
 import { render, screen, fireEvent, cleanup, act } from '@testing-library/react';
@@ -52,6 +53,7 @@ function controllerProps(overrides: Partial<React.ComponentProps<typeof FirstRun
     onOpenAdd: vi.fn(),
     onCloseAdd: vi.fn(),
     onEnd: vi.fn(),
+    manualSelectionWarnings: [],
     ...overrides,
   };
 }
@@ -104,8 +106,8 @@ describe('tourReducer', () => {
     expect(tourReducer({ step: null }, { type: 'goto', step: 3 })).toEqual({ step: 3 });
   });
 
-  it('has 5 steps', () => {
-    expect(TOTAL_TOUR_STEPS).toBe(5);
+  it('has 6 steps', () => {
+    expect(TOTAL_TOUR_STEPS).toBe(6);
   });
 });
 
@@ -115,7 +117,7 @@ describe('FirstRunTourController', () => {
   it('starts at step 0 (welcome) with a centered card and NO spotlight', () => {
     render(<FirstRunTourController {...controllerProps()} />);
     expect(screen.getByTestId('tour-card')).toBeDefined();
-    expect(screen.getByText('1 / 5')).toBeDefined();
+    expect(screen.getByText('1 / 6')).toBeDefined();
     // Welcome step has no target → full backdrop, no per-target spotlight ring.
     expect(screen.getByTestId('tour-backdrop')).toBeDefined();
     expect(screen.queryByTestId('tour-spotlight')).toBeNull();
@@ -123,13 +125,13 @@ describe('FirstRunTourController', () => {
 
   it('shows the welcome copy on step 0', () => {
     render(<FirstRunTourController {...controllerProps()} />);
-    expect(screen.getByText('Build your plan in under a minute')).toBeDefined();
+    expect(screen.getByText('Welcome to DegreeForge')).toBeDefined();
   });
 
   it('Next advances from welcome to the Recommend step', () => {
     render(<FirstRunTourController {...controllerProps()} />);
     fireEvent.click(screen.getByRole('button', { name: /start/i }));
-    expect(screen.getByText('2 / 5')).toBeDefined();
+    expect(screen.getByText('2 / 6')).toBeDefined();
     expect(screen.getByText('One click for a full plan')).toBeDefined();
   });
 
@@ -170,7 +172,7 @@ describe('FirstRunTourController', () => {
     expect(onOpenAdd).toHaveBeenCalled();
   });
 
-  it('auto-advances from Add to Progress when placedCourseCount rises', () => {
+  it('auto-advances from Add to Manual-slots when placedCourseCount rises by 1', () => {
     const { rerender } = render(
       <FirstRunTourController {...controllerProps({ placedCourseCount: 5 })} />
     );
@@ -179,11 +181,12 @@ describe('FirstRunTourController', () => {
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
     expect(screen.getByText('Add a course here')).toBeDefined();
 
-    // Simulate a course being added → count increases.
+    // Simulate a single course being added → count increases by 1.
     act(() => {
       rerender(<FirstRunTourController {...controllerProps({ placedCourseCount: 6 })} />);
     });
-    expect(screen.getByText('Watch your progress climb')).toBeDefined();
+    // Advanced to step 3 (Manual slots).
+    expect(screen.getByText('A few slots are your call')).toBeDefined();
   });
 
   it('does NOT auto-advance the Add step if the count does not rise', () => {
@@ -201,6 +204,48 @@ describe('FirstRunTourController', () => {
     expect(screen.getByText('Add a course here')).toBeDefined();
   });
 
+  it('does NOT advance the Add step on a bulk fill (≥2 courses added at once)', () => {
+    // Regression: clicking Recommend during the tour bulk-fills the plan.
+    // A +20 jump should re-baseline and stay on the Add step.
+    const { rerender } = render(
+      <FirstRunTourController {...controllerProps({ placedCourseCount: 5 })} />
+    );
+    // Navigate to the Add step.
+    fireEvent.click(screen.getByRole('button', { name: /start/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(screen.getByText('Add a course here')).toBeDefined();
+
+    // Simulate a bulk fill (e.g. Recommend was clicked) — count jumps by 20.
+    act(() => {
+      rerender(<FirstRunTourController {...controllerProps({ placedCourseCount: 25 })} />);
+    });
+    // Still on the Add step (bulk fill must NOT advance).
+    expect(screen.getByText('Add a course here')).toBeDefined();
+
+    // Now a genuine single add (+1 above the new baseline of 25) should advance.
+    act(() => {
+      rerender(<FirstRunTourController {...controllerProps({ placedCourseCount: 26 })} />);
+    });
+    expect(screen.getByText('A few slots are your call')).toBeDefined();
+  });
+
+  it('renders live warning bullets on the manual-slots step', () => {
+    const warnings = ['Slot "VAPA" requires manual selection (3 hrs).', '11 hours of free electives.'];
+    const { rerender } = render(
+      <FirstRunTourController {...controllerProps({ placedCourseCount: 5, manualSelectionWarnings: warnings })} />
+    );
+    // Navigate to Add step then trigger advance.
+    fireEvent.click(screen.getByRole('button', { name: /start/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    act(() => {
+      rerender(<FirstRunTourController {...controllerProps({ placedCourseCount: 6, manualSelectionWarnings: warnings })} />);
+    });
+    // Now on manual-slots step (3 / 6).
+    expect(screen.getByText('A few slots are your call')).toBeDefined();
+    expect(screen.getByText('Slot "VAPA" requires manual selection (3 hrs).')).toBeDefined();
+    expect(screen.getByText('11 hours of free electives.')).toBeDefined();
+  });
+
   it('shows "Done" on the last (Import) step and completing ends the tour', () => {
     const onEnd = vi.fn();
     const { rerender } = render(
@@ -209,10 +254,13 @@ describe('FirstRunTourController', () => {
     // welcome → recommend → add
     fireEvent.click(screen.getByRole('button', { name: /start/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
-    // add → progress via a count rise
+    // add → manual-slots via a count rise of 1
     act(() => {
       rerender(<FirstRunTourController {...controllerProps({ placedCourseCount: 1, onEnd })} />);
     });
+    // manual-slots → progress
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(screen.getByText('Watch your progress climb')).toBeDefined();
     // progress → import
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
     expect(screen.getByText('Make it yours')).toBeDefined();

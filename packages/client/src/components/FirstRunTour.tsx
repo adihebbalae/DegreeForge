@@ -10,13 +10,16 @@
  * Gate: df:tour-seen in localStorage. Set on skip OR complete; never re-shown on
  * ordinary repeat visits or hard refresh. True first-timer = no stored value.
  *
- * Steps (5):
+ * Steps (6):
  *   0. Welcome — no spotlight (centered card). [Next]
  *   1. Recommend — spotlight the header Recommend button. (advance on click OR Next)
  *   2. Add — opens the command palette and spotlights its search input.
- *           (auto-advances when a course is actually added — placedCount rises)
- *   3. Progress — spotlight the "X / N hrs" total, which now reflects the add. [Next]
- *   4. Import — spotlight the "Import your transcript / audit" CTA. [Done]
+ *           (auto-advances when a course is actually added — placedCount rises by 1;
+ *            a bulk fill of ≥2 re-baselines and does NOT advance so Recommend during
+ *            the tour can't skip this step)
+ *   3. Manual slots — no spotlight (centered card). Live warnings from the solver. [Next]
+ *   4. Progress — spotlight the "X / N hrs" total, which now reflects the add. [Next]
+ *   5. Import — spotlight the "Import your transcript / audit" CTA. [Done]
  *
  * Spotlight technique: a four-rectangle frame (top/right/bottom/left of the
  * target's bounding rect). Each frame rect is dark + backdrop-blurred and
@@ -64,13 +67,18 @@ interface TourStep {
   advanceOn: AdvanceTrigger;
   /** Label for the primary button. */
   cta: string;
+  /**
+   * Optional marker for steps that need runtime-injected bullet content.
+   * The controller matches on this to inject manualSelectionWarnings.
+   */
+  manualSlots?: true;
 }
 
 const TOUR_STEPS: TourStep[] = [
   {
     target: null,
-    title: 'Build your plan in under a minute',
-    body: 'A quick tour of the four moves that turn this example into your degree plan.',
+    title: 'Welcome to DegreeForge',
+    body: 'Build your plan in under a minute — a quick tour of the moves that turn this example into your degree plan.',
     advanceOn: 'next',
     cta: 'Start',
   },
@@ -87,6 +95,14 @@ const TOUR_STEPS: TourStep[] = [
     body: 'Search the catalog and press Enter to drop a course into a semester. Add one to continue.',
     advanceOn: 'course-added',
     cta: 'Next',
+  },
+  {
+    target: null,
+    title: 'A few slots are your call',
+    body: 'Recommend fills most of your degree automatically, but a handful of slots need your personal choice:',
+    advanceOn: 'next',
+    cta: 'Next',
+    manualSlots: true,
   },
   {
     target: '[data-tour="progress-total"]',
@@ -106,6 +122,9 @@ const TOUR_STEPS: TourStep[] = [
 
 /** Total number of tour steps. Import in callers to avoid magic numbers. */
 export const TOTAL_TOUR_STEPS = TOUR_STEPS.length;
+
+// Index of the manual-slots step (used by the controller to inject bullets).
+const MANUAL_SLOTS_STEP_INDEX = TOUR_STEPS.findIndex((s) => s.manualSlots === true);
 
 // ─── Geometry ─────────────────────────────────────────────────────────────────
 
@@ -217,11 +236,13 @@ interface SpotlightProps {
   title: string;
   body: string;
   cta: string;
+  /** Bullet lines to render below body (used for the manual-slots step). */
+  bullets?: string[];
   onNext: () => void;
   onSkip: () => void;
 }
 
-function Spotlight({ targetRect, step, totalSteps, title, body, cta, onNext, onSkip }: SpotlightProps) {
+function Spotlight({ targetRect, step, totalSteps, title, body, cta, bullets, onNext, onSkip }: SpotlightProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [cardHeight, setCardHeight] = useState(150);
   const [vw, setVw] = useState(() => window.innerWidth);
@@ -319,9 +340,19 @@ function Spotlight({ targetRect, step, totalSteps, title, body, cta, onNext, onS
           </div>
 
           <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
-          <p className="text-xs leading-relaxed text-muted-foreground mb-4">{body}</p>
+          <p className="text-xs leading-relaxed text-muted-foreground mb-2">{body}</p>
 
-          <div className="flex items-center justify-between gap-2">
+          {bullets && bullets.length > 0 && (
+            <ul className="mb-3 ml-3 list-disc space-y-1">
+              {bullets.map((line, i) => (
+                <li key={i} className="text-xs leading-relaxed text-muted-foreground">
+                  {line}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="flex items-center justify-between gap-2 mt-2">
             <Button
               variant="ghost"
               size="sm"
@@ -494,8 +525,10 @@ export function tourReducer(
 interface FirstRunTourControllerProps {
   /**
    * Count of courses currently placed in the plan (sum of all semester arrays).
-   * Step 2 ("Add a course") auto-advances when this rises above the count
-   * captured on entering the step.
+   * Step 2 ("Add a course") auto-advances when this rises by exactly 1 above the
+   * count captured on entering the step. A bulk rise of ≥2 (e.g. from clicking
+   * Recommend) re-baselines and does NOT advance, so Recommend during the tour
+   * cannot skip the Add step.
    */
   placedCourseCount: number;
   /**
@@ -512,6 +545,13 @@ interface FirstRunTourControllerProps {
   hasFocusedSemester?: boolean;
   /** Notifies the parent that the tour ended (skip or complete) so it can clean up. */
   onEnd?: () => void;
+  /**
+   * Live solver warnings for the manual-slots step — the degree slots Recommend
+   * deliberately leaves to the student (VAPA, Soc/Behavioral Sci, free electives,
+   * advanced tech elective). Sourced from computeRemainingRequired().warnings in
+   * PlannerPage. Pass [] if data isn't loaded yet.
+   */
+  manualSelectionWarnings?: string[];
 }
 
 /**
@@ -525,6 +565,7 @@ export function FirstRunTourController({
   onCloseAdd,
   hasFocusedSemester = false,
   onEnd,
+  manualSelectionWarnings = [],
 }: FirstRunTourControllerProps) {
   const [{ step }, dispatch] = useReducer(tourReducer, { step: 0 });
   const active = step !== null;
@@ -590,10 +631,19 @@ export function FirstRunTourController({
   }, [step, addStepIndex]);
 
   // ── Auto-advance: a course was added during the Add step. ──────────────────
+  // Only a genuine single manual add (+1) advances. A bulk fill (≥2, e.g. from
+  // clicking Recommend) re-baselines so the Add step stays until the user
+  // manually adds one course.
   useEffect(() => {
     if (step !== addStepIndex) return;
     if (addBaselineRef.current === null) return;
-    if (placedCourseCount > addBaselineRef.current) {
+    const delta = placedCourseCount - addBaselineRef.current;
+    if (delta >= 2) {
+      // Bulk fill detected (e.g. Recommend was clicked) — re-baseline and stay.
+      addBaselineRef.current = placedCourseCount;
+      return;
+    }
+    if (delta === 1) {
       handleNext();
     }
   }, [placedCourseCount, step, addStepIndex, handleNext]);
@@ -619,6 +669,9 @@ export function FirstRunTourController({
 
   if (step === null || !currentStep) return null;
 
+  // Inject live warnings into the manual-slots step.
+  const bullets = step === MANUAL_SLOTS_STEP_INDEX ? manualSelectionWarnings : undefined;
+
   return (
     <Spotlight
       targetRect={targetRect}
@@ -627,6 +680,7 @@ export function FirstRunTourController({
       title={currentStep.title}
       body={currentStep.body}
       cta={currentStep.cta}
+      bullets={bullets}
       onNext={handleNext}
       onSkip={handleSkip}
     />
