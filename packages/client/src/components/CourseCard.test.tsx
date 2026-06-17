@@ -91,3 +91,35 @@ describe('CourseCard remove affordance (TASK-080 BUG 2)', () => {
     expect(screen.queryByRole('button', { name: 'Remove ECE 302' })).toBeNull();
   });
 });
+
+describe('CourseCard side controls layout (focus column)', () => {
+  it('renders both pin and remove controls in the side layout', () => {
+    render(
+      <CourseCard {...baseProps} controlsLayout="side" onRemove={vi.fn()} onTogglePin={vi.fn()} />
+    );
+    expect(screen.getByRole('button', { name: 'Remove ECE 302' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Pin' })).toBeTruthy();
+  });
+
+  it('still calls onRemove without opening the dialog in the side layout (stopPropagation)', () => {
+    const onRemove = vi.fn();
+    render(<CourseCard {...baseProps} controlsLayout="side" onRemove={onRemove} onTogglePin={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Remove ECE 302' }));
+    expect(onRemove).toHaveBeenCalledWith('ECE 302');
+    expect(screen.queryByTestId('detail-dialog-open')).toBeNull();
+  });
+
+  it('still calls onTogglePin without opening the dialog in the side layout (stopPropagation)', () => {
+    const onTogglePin = vi.fn();
+    render(<CourseCard {...baseProps} controlsLayout="side" onRemove={vi.fn()} onTogglePin={onTogglePin} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
+    expect(onTogglePin).toHaveBeenCalledWith('ECE 302');
+    expect(screen.queryByTestId('detail-dialog-open')).toBeNull();
+  });
+
+  it('still opens the dialog when the card body is clicked in the side layout', () => {
+    render(<CourseCard {...baseProps} controlsLayout="side" onRemove={vi.fn()} onTogglePin={vi.fn()} />);
+    fireEvent.click(screen.getByText('Title for ECE 302'));
+    expect(screen.getByTestId('detail-dialog-open')).toBeTruthy();
+  });
+});

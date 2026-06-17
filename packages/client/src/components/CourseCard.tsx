@@ -54,6 +54,14 @@ interface CourseCardProps {
    * When provided, an explicit remove affordance is shown on hover (TASK-080 BUG 2).
    */
   onRemove?: (courseId: string) => void;
+  /**
+   * Placement of the pin + remove controls (timeline, non-past cards only):
+   *  - 'corner' (default): legacy absolutely-positioned cluster at bottom-right.
+   *  - 'side': a dedicated right gutter, controls vertically centered. Used by the
+   *    wide focus column (FocusEditor) where the card has horizontal room, so the
+   *    ✕ reads as a clear remove affordance instead of being cramped in the corner.
+   */
+  controlsLayout?: 'corner' | 'side';
   /** Ghost card: solver-proposed, not yet in real plan */
   isGhost?: boolean;
   /** Called when ghost is accepted (click) */
@@ -83,6 +91,7 @@ export default function CourseCard({
   isPinned = false,
   onTogglePin,
   onRemove,
+  controlsLayout = 'corner',
   isGhost = false,
   onAcceptGhost,
   onRejectGhost,
@@ -207,6 +216,38 @@ export default function CourseCard({
     );
   }
 
+  // Timeline (non-past) cards get pin + remove controls. The same buttons render
+  // in either layout — only their container/position differs.
+  const showControls = !isPalette && !isPast && (Boolean(onTogglePin) || Boolean(onRemove));
+  const isSideControls = showControls && controlsLayout === 'side';
+
+  const pinButton = onTogglePin && (
+    <button
+      onClick={(e) => { e.stopPropagation(); onTogglePin(courseId); }}
+      className={cn(
+        'p-0.5 rounded transition-opacity',
+        isPinned
+          ? 'opacity-100 text-primary'
+          : 'opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-primary'
+      )}
+      title={isPinned ? 'Unpin course' : 'Pin course (hold position in auto-plan)'}
+      aria-label={isPinned ? 'Unpin' : 'Pin'}
+    >
+      {isPinned ? <Pin className="h-3 w-3 fill-current" /> : <PinOff className="h-3 w-3" />}
+    </button>
+  );
+
+  const removeButton = onRemove && (
+    <button
+      onClick={(e) => { e.stopPropagation(); onRemove(courseId); }}
+      className="p-0.5 rounded transition-opacity opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500" // full opacity on hover for stronger affordance
+      title="Remove course from plan"
+      aria-label={`Remove ${courseId}`}
+    >
+      <X className="h-3 w-3" />
+    </button>
+  );
+
   const cardContent = (
     <div
       data-course-id={courseId}
@@ -236,7 +277,11 @@ export default function CourseCard({
       )}
       title={`${courseId} — ${title} (${credits} cr)`}
     >
-      <div className="px-2 py-1.5">
+      {/* Card body. In 'side' controls layout the body becomes a flex row so the
+          content block keeps its full reading width on the left and the pin/✕
+          controls live in a dedicated right gutter (vertically centered). */}
+      <div className={cn('px-2 py-1.5', isSideControls && 'flex items-stretch gap-1')}>
+      <div className={cn(isSideControls && 'flex-1 min-w-0')}>
         {/* Top row: course ID + GPA badge */}
         <div className="flex items-center justify-between gap-1">
           <span className="text-xs font-semibold text-foreground leading-tight">
@@ -289,6 +334,17 @@ export default function CourseCard({
         )}
       </div>
 
+      {/* Side controls gutter — pin + ✕ in a dedicated right column, vertically
+          centered. Only in 'side' layout; in 'corner' layout the controls render
+          as an absolute cluster below (outside this body row). */}
+      {isSideControls && (
+        <div className="flex flex-col items-center justify-center gap-0.5 shrink-0 -my-0.5 -mr-0.5 pl-0.5">
+          {pinButton}
+          {removeButton}
+        </div>
+      )}
+      </div>
+
       {/* Past: checkmark overlay */}
       {isPast && (
         <span
@@ -301,34 +357,13 @@ export default function CourseCard({
 
       {/* Controls — Pin + Remove, visible on hover (timeline only, non-past).
           Remove (X) gives an explicit, discoverable alternative to drag-to-palette.
-          Positioned bottom-right to avoid overlapping the GPA badge in the top-right. */}
-      {!isPalette && !isPast && (onTogglePin || onRemove) && (
+          'corner' layout: absolutely positioned bottom-right to avoid overlapping
+          the GPA badge in the top-right. ('side' layout renders them in the body
+          gutter above instead.) */}
+      {showControls && !isSideControls && (
         <div className="absolute bottom-0.5 right-0.5 flex items-center gap-0.5">
-          {onTogglePin && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onTogglePin(courseId); }}
-              className={cn(
-                'p-0.5 rounded transition-opacity',
-                isPinned
-                  ? 'opacity-100 text-primary'
-                  : 'opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-primary'
-              )}
-              title={isPinned ? 'Unpin course' : 'Pin course (hold position in auto-plan)'}
-              aria-label={isPinned ? 'Unpin' : 'Pin'}
-            >
-              {isPinned ? <Pin className="h-3 w-3 fill-current" /> : <PinOff className="h-3 w-3" />}
-            </button>
-          )}
-          {onRemove && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onRemove(courseId); }}
-              className="p-0.5 rounded transition-opacity opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500" // full opacity on hover for stronger affordance
-              title="Remove course from plan"
-              aria-label={`Remove ${courseId}`}
-            >
-              <X className="h-3 w-3" />
-            </button>
-          )}
+          {pinButton}
+          {removeButton}
         </div>
       )}
 

@@ -262,6 +262,7 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
             onRejectGhost={handleRejectGhost}
             creditHourCap={creditHourCap}
             hideHeader
+            controlsLayout="side"
           />
         </div>
 

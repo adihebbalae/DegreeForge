@@ -29,6 +29,7 @@ interface SortableCourseCardProps {
   isUnverifiedOffering?: boolean;
   isPinned?: boolean;
   onTogglePin?: (courseId: string) => void;
+  controlsLayout?: 'corner' | 'side';
 }
 
 function SortableCourseCard({
@@ -46,6 +47,7 @@ function SortableCourseCard({
   isUnverifiedOffering,
   isPinned,
   onTogglePin,
+  controlsLayout,
 }: SortableCourseCardProps) {
   const dispatch = usePlanDispatch();
   const {
@@ -94,6 +96,7 @@ function SortableCourseCard({
         isPinned={isPinned}
         onTogglePin={onTogglePin}
         onRemove={handleRemove}
+        controlsLayout={controlsLayout}
       />
     </div>
   );
@@ -153,6 +156,12 @@ interface SemesterColumnProps {
    * in its own header to avoid a duplicate heading.
    */
   hideHeader?: boolean;
+  /**
+   * Layout for the per-course pin + remove controls on timeline (non-past) cards.
+   * 'corner' (default) keeps the legacy bottom-right cluster; 'side' uses a wide
+   * right gutter — passed by FocusEditor's roomy focus column. See CourseCard.
+   */
+  controlsLayout?: 'corner' | 'side';
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -176,6 +185,7 @@ export default function SemesterColumn({
   onRejectGhost,
   creditHourCap = getCreditHourCap(null),
   hideHeader = false,
+  controlsLayout = 'corner',
 }: SemesterColumnProps) {
   const { id, label, status, season } = semester;
   const isPast = status === 'past';
@@ -354,6 +364,7 @@ export default function SemesterColumn({
                   isUnverifiedOffering={unverifiedOfferingCourses.has(courseId)}
                   isPinned={pinnedCourses.includes(courseId)}
                   onTogglePin={onTogglePin}
+                  controlsLayout={controlsLayout}
                 />
               ))}
             </SortableContext>
