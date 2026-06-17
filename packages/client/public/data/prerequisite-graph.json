@@ -5647,6 +5647,18 @@
       "to": "ECE 479K",
       "type": "prerequisite",
       "min_grade": "C-"
+    },
+    {
+      "from": "PHY 303K",
+      "to": "PHY 105M",
+      "type": "corequisite",
+      "min_grade": "C-"
+    },
+    {
+      "from": "PHY 303L",
+      "to": "PHY 105N",
+      "type": "corequisite",
+      "min_grade": "C-"
     }
   ]
 }
