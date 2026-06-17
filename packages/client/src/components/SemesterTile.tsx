@@ -10,6 +10,7 @@
 import { useMemo } from 'react';
 import { useDroppable, useDndMonitor, useDraggable } from '@dnd-kit/core';
 import { useState } from 'react';
+import { GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getCourseCredits, inferCategory, CATEGORY_BG, seasonEmoji } from '@/lib/course-utils';
 import { computeSemesterDifficulty, HEAT_STRIPE_CLASS } from '@/lib/workload';
@@ -173,6 +174,12 @@ function CourseChip({
       )}
       {...(isPast ? {} : { ...attributes, ...listeners })}
     >
+      {!isPast && (
+        <GripVertical
+          aria-hidden="true"
+          className="shrink-0 h-2.5 w-2.5 opacity-0 group-hover:opacity-60 transition-opacity duration-100 text-white/80"
+        />
+      )}
       <span className="text-[10px] leading-tight truncate flex-1 min-w-0 font-medium">{courseId}</span>
       {!isPast && (
         <button

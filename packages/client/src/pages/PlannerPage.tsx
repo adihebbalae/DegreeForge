@@ -194,7 +194,7 @@ export default function PlannerPage() {
   // ── Sensors ───────────────────────────────────────────────────────────────
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
+      activationConstraint: { distance: 4 },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
