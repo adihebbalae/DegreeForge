@@ -125,14 +125,17 @@ export default function ValidationBanner() {
 
   return (
     <>
-      {/* Compact floating card — overlays the planner content (does NOT push it
-          down). Pinned to the top-right of the content area, below the global
-          OptimizeStrip toolbar, so it never sits under the Recommend/Best Path
-          controls. z-10 keeps it above tiles but below the slide-in panels. */}
+      {/* Compact floating toast — fixed to the bottom-right of the viewport so it
+          never overlaps the focus-view "Insights · Add · Best Path" tab strip
+          (top-right) or the Fall column headers. bottom-[72px] places the card
+          just above the fixed "Send feedback" button (~bottom-4 to bottom-14),
+          leaving a small gap. z-40 keeps it above planner tiles/panels but below
+          the ConfirmDialog modal layer (z-50), so Auto-fix confirm still appears
+          on top. shadow-lg provides clear separation from content beneath. */}
       <div
         className={cn(
-          "absolute top-2 right-2 z-10 max-w-[280px] rounded-md border shadow-md text-[11px]",
-          "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800",
+          "fixed bottom-[72px] right-4 z-40 max-w-[280px] rounded-md border shadow-lg text-[11px]",
+          "bg-amber-50 dark:bg-amber-950 border-amber-300 dark:border-amber-800",
           "text-amber-800 dark:text-amber-300"
         )}
         role="alert"
