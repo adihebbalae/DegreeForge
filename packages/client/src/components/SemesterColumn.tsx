@@ -162,6 +162,14 @@ interface SemesterColumnProps {
    * right gutter — passed by FocusEditor's roomy focus column. See CourseCard.
    */
   controlsLayout?: 'corner' | 'side';
+  /**
+   * When set, the column (and its cards) fill the parent's width instead of the
+   * fixed `w-[180px]`. Used ONLY by FocusEditor's roomy focus column so the cards
+   * span the available horizontal space and the 'side' ✕ gutter sits at the far
+   * right edge. Default OFF keeps the fixed-width column for the year-grid/legacy
+   * callers (e.g. dead TimelineGrid) whose layout depends on the 180px width.
+   */
+  fullWidth?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -186,6 +194,7 @@ export default function SemesterColumn({
   creditHourCap = getCreditHourCap(null),
   hideHeader = false,
   controlsLayout = 'corner',
+  fullWidth = false,
 }: SemesterColumnProps) {
   const { id, label, status, season } = semester;
   const isPast = status === 'past';
@@ -261,7 +270,10 @@ export default function SemesterColumn({
   return (
     <div
       className={cn(
-        'flex flex-col gap-2 min-w-[180px] w-[180px] shrink-0 rounded-lg overflow-hidden',
+        'flex flex-col gap-2 rounded-lg overflow-hidden',
+        // Width: fixed 180px column by default (year-grid / legacy callers), or
+        // fill the parent when fullWidth is set (FocusEditor's roomy focus column).
+        fullWidth ? 'w-full' : 'min-w-[180px] w-[180px] shrink-0',
         // Background tint by status
         isPast && 'bg-gray-50 dark:bg-gray-900/50',
         isCurrent && 'bg-background ring-2 ring-primary',

@@ -235,8 +235,10 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
       {/* ── Body: semester column + right panel ──────────────────────────────── */}
       <div className="flex-1 min-h-0 flex overflow-hidden">
 
-        {/* Left: focused semester column */}
-        <div className="w-72 shrink-0 overflow-y-auto p-3">
+        {/* Left: focused semester column. w-80 wrapper (slightly wider than the
+            old w-72) gives the full-width cards more reading room without starving
+            the flex-1 Insights panel on the right. */}
+        <div className="w-80 shrink-0 overflow-y-auto p-3">
           <SemesterColumn
             semester={focusedSem}
             courseIds={plan[focusedSem.id] ?? []}
@@ -263,6 +265,7 @@ export default function FocusEditor({ focusedSemesterId, onClose }: FocusEditorP
             creditHourCap={creditHourCap}
             hideHeader
             controlsLayout="side"
+            fullWidth
           />
         </div>
 

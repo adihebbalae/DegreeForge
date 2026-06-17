@@ -88,3 +88,23 @@ describe('SemesterColumn hideHeader', () => {
     expect(screen.getByTestId('course-card')).toBeTruthy();
   });
 });
+
+describe('SemesterColumn fullWidth', () => {
+  // The column root is the outermost element rendered by the component. The
+  // mocked CourseCard's data-testid is nested inside it, so walk up to the root.
+  const columnRoot = () => screen.getByTestId('course-card').closest('div.rounded-lg') as HTMLElement;
+
+  it('uses the fixed 180px width by default', () => {
+    render(<SemesterColumn {...baseProps} creditHourCap={15} hideHeader />);
+    const root = columnRoot();
+    expect(root.className).toContain('w-[180px]');
+    expect(root.className).not.toContain('w-full');
+  });
+
+  it('fills the parent width when fullWidth is set', () => {
+    render(<SemesterColumn {...baseProps} creditHourCap={15} hideHeader fullWidth />);
+    const root = columnRoot();
+    expect(root.className).toContain('w-full');
+    expect(root.className).not.toContain('w-[180px]');
+  });
+});
