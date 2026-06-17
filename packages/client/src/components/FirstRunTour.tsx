@@ -340,7 +340,9 @@ function Spotlight({ targetRect, step, totalSteps, title, body, cta, bullets, on
           </div>
 
           <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
-          <p className="text-xs leading-relaxed text-muted-foreground mb-2">{body}</p>
+          <p className="text-xs leading-relaxed text-muted-foreground mb-2">
+            {bullets && bullets.length > 0 ? body : body.replace(/:$/, '')}
+          </p>
 
           {bullets && bullets.length > 0 && (
             <ul className="mb-3 ml-3 list-disc space-y-1">
