@@ -14,15 +14,19 @@ export const COURSE_ALIASES: Record<string, string[]> = {
   'PHY 105M': [
     'engineering physics i lab',
     'engineering physics 1 lab',
+    'engineering physics lab',
     'eng phys 1 lab',
     'physics 1 lab',
+    'physics lab',
     'ep1 lab',
   ],
   'PHY 105N': [
     'engineering physics ii lab',
     'engineering physics 2 lab',
+    'engineering physics lab',
     'eng phys 2 lab',
     'physics 2 lab',
+    'physics lab',
     'ep2 lab',
   ],
   'PHY 303K': [
