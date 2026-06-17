@@ -41,6 +41,7 @@ import { useUi } from '@/context/UiContext';
 import { track } from '@/lib/analytics';
 import { getCourseTitle, inferCategory, CATEGORY_TEXT, CATEGORY_BORDER_COLOR } from '@/lib/course-utils';
 import { isCourseSatisfied } from '@/lib/palette-courses';
+import { matchesAlias } from '@/lib/course-aliases';
 import type { CourseCategory } from '@/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -162,7 +163,8 @@ export default function CommandPalette() {
       if (q) {
         const codeMatch = id.toLowerCase().includes(q);
         const titleMatch = course.title.toLowerCase().includes(q);
-        if (!codeMatch && !titleMatch) continue;
+        const aliasMatch = matchesAlias(id, q);
+        if (!codeMatch && !titleMatch && !aliasMatch) continue;
       }
 
       matches.push({
