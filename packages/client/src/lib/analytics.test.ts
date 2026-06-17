@@ -152,16 +152,262 @@ describe('syncInternalFlag — prod (VITE_INTERNAL_TOKEN set)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Fix 2: before_send — $exception PII scrub
-// ---------------------------------------------------------------------------
-
 // Helper: extract the before_send function passed to posthog.init
+// ---------------------------------------------------------------------------
 function getBeforeSend(): ((event: unknown) => unknown) | undefined {
   const call = mockInit.mock.calls[0];
   if (!call) return undefined;
   const config = call[1] as Record<string, unknown>;
   return config['before_send'] as (event: unknown) => unknown;
 }
+
+// ---------------------------------------------------------------------------
+// Helper: extract the full init config passed to posthog.init
+// ---------------------------------------------------------------------------
+function getInitConfig(): Record<string, unknown> | undefined {
+  const call = mockInit.mock.calls[0];
+  if (!call) return undefined;
+  return call[1] as Record<string, unknown>;
+}
+
+// ---------------------------------------------------------------------------
+// Part A: verify init config disables all DOM-content autocapture surfaces
+// ---------------------------------------------------------------------------
+
+describe('initAnalytics config — DOM autocapture disabled', () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.unstubAllEnvs();
+    mockInit.mockClear();
+    Object.defineProperty(window, 'location', {
+      value: { search: '' },
+      writable: true,
+      configurable: true,
+    });
+    vi.stubEnv('VITE_POSTHOG_KEY', 'phc_test_key');
+    const { initAnalytics } = await import('./analytics');
+    initAnalytics();
+  });
+
+  it('sets autocapture: false', () => {
+    const config = getInitConfig()!;
+    expect(config['autocapture']).toBe(false);
+  });
+
+  it('sets rageclick: false', () => {
+    const config = getInitConfig()!;
+    expect(config['rageclick']).toBe(false);
+  });
+
+  it('sets capture_heatmaps: false', () => {
+    const config = getInitConfig()!;
+    expect(config['capture_heatmaps']).toBe(false);
+  });
+
+  it('sets capture_dead_clicks: false', () => {
+    const config = getInitConfig()!;
+    expect(config['capture_dead_clicks']).toBe(false);
+  });
+
+  it('keeps disable_session_recording: true', () => {
+    const config = getInitConfig()!;
+    expect(config['disable_session_recording']).toBe(true);
+  });
+
+  it('keeps capture_pageview: true', () => {
+    const config = getInitConfig()!;
+    expect(config['capture_pageview']).toBe(true);
+  });
+
+  it('keeps capture_exceptions: true', () => {
+    const config = getInitConfig()!;
+    expect(config['capture_exceptions']).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Part B / scrubEvent routing — backstop scrubber tests
+// ---------------------------------------------------------------------------
+
+describe('scrubEvent — $autocapture events', () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.unstubAllEnvs();
+    mockInit.mockClear();
+    Object.defineProperty(window, 'location', {
+      value: { search: '' },
+      writable: true,
+      configurable: true,
+    });
+    vi.stubEnv('VITE_POSTHOG_KEY', 'phc_test_key');
+    const { initAnalytics } = await import('./analytics');
+    initAnalytics();
+  });
+
+  it('redacts a course code in $el_text of a $autocapture event', () => {
+    const beforeSend = getBeforeSend()!;
+    const result = beforeSend({
+      event: '$autocapture',
+      properties: { $el_text: 'ECE 312', $event_type: 'click' },
+    }) as { properties: Record<string, unknown> };
+    expect(result.properties['$el_text']).toBe('[redacted]');
+    expect(result.properties['$event_type']).toBe('click'); // non-text prop untouched
+  });
+
+  it('redacts a grade in $el_text of a $autocapture event', () => {
+    const beforeSend = getBeforeSend()!;
+    const result = beforeSend({
+      event: '$autocapture',
+      properties: { $el_text: 'Grade: A+' },
+    }) as { properties: Record<string, unknown> };
+    expect(result.properties['$el_text']).toBe('Grade: [redacted]');
+  });
+
+  it('passes through $autocapture with no $el_text unchanged', () => {
+    const beforeSend = getBeforeSend()!;
+    const input = {
+      event: '$autocapture',
+      properties: { $event_type: 'click', $lib: 'web' },
+    };
+    const result = beforeSend(input) as { properties: Record<string, unknown> };
+    expect(result.properties['$event_type']).toBe('click');
+    expect(result.properties['$lib']).toBe('web');
+  });
+});
+
+describe('scrubEvent — $copy_autocapture events', () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.unstubAllEnvs();
+    mockInit.mockClear();
+    Object.defineProperty(window, 'location', {
+      value: { search: '' },
+      writable: true,
+      configurable: true,
+    });
+    vi.stubEnv('VITE_POSTHOG_KEY', 'phc_test_key');
+    const { initAnalytics } = await import('./analytics');
+    initAnalytics();
+  });
+
+  it('redacts clipboard text (selected_content) in a $copy_autocapture event', () => {
+    const beforeSend = getBeforeSend()!;
+    const result = beforeSend({
+      event: '$copy_autocapture',
+      properties: { selected_content: 'ECE 312 — Grade A-' },
+    }) as { properties: Record<string, unknown> };
+    expect(result.properties['selected_content']).toBe('[redacted] — Grade [redacted]');
+  });
+
+  it('handles $copy_autocapture with no selected_content gracefully', () => {
+    const beforeSend = getBeforeSend()!;
+    const input = {
+      event: '$copy_autocapture',
+      properties: { $lib: 'web' },
+    };
+    const result = beforeSend(input) as { properties: Record<string, unknown> };
+    expect(result.properties['$lib']).toBe('web');
+  });
+});
+
+describe('scrubEvent — $pageview / $pageleave events', () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.unstubAllEnvs();
+    mockInit.mockClear();
+    Object.defineProperty(window, 'location', {
+      value: { search: '' },
+      writable: true,
+      configurable: true,
+    });
+    vi.stubEnv('VITE_POSTHOG_KEY', 'phc_test_key');
+    const { initAnalytics } = await import('./analytics');
+    initAnalytics();
+  });
+
+  it('scrubs $current_url on $pageview (future-proofing, today is a no-op)', () => {
+    const beforeSend = getBeforeSend()!;
+    const result = beforeSend({
+      event: '$pageview',
+      properties: {
+        $current_url: 'https://degreeforge.app/progress',
+        $pathname: '/progress',
+        $referrer: 'https://degreeforge.app/',
+      },
+    }) as { properties: Record<string, unknown> };
+    // No academic data in current routes — strings pass through unchanged
+    expect(result.properties['$current_url']).toBe('https://degreeforge.app/progress');
+    expect(result.properties['$pathname']).toBe('/progress');
+    expect(result.properties['$referrer']).toBe('https://degreeforge.app/');
+  });
+
+  it('scrubs a hypothetical URL that embeds a course code', () => {
+    const beforeSend = getBeforeSend()!;
+    const result = beforeSend({
+      event: '$pageview',
+      properties: {
+        $current_url: 'https://degreeforge.app/course/ECE 312',
+        $pathname: '/course/ECE 312',
+        $referrer: '',
+      },
+    }) as { properties: Record<string, unknown> };
+    expect(result.properties['$current_url']).toBe('https://degreeforge.app/course/[redacted]');
+    expect(result.properties['$pathname']).toBe('/course/[redacted]');
+  });
+
+  it('scrubs $current_url on $pageleave too', () => {
+    const beforeSend = getBeforeSend()!;
+    const result = beforeSend({
+      event: '$pageleave',
+      properties: {
+        $current_url: 'https://degreeforge.app/course/ECE 460N',
+        $pathname: '/course/ECE 460N',
+        $referrer: '',
+      },
+    }) as { properties: Record<string, unknown> };
+    expect(result.properties['$current_url']).toBe('https://degreeforge.app/course/[redacted]');
+  });
+});
+
+describe('scrubEvent — allow-listed custom track() events pass through UNTOUCHED', () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.unstubAllEnvs();
+    mockInit.mockClear();
+    Object.defineProperty(window, 'location', {
+      value: { search: '' },
+      writable: true,
+      configurable: true,
+    });
+    vi.stubEnv('VITE_POSTHOG_KEY', 'phc_test_key');
+    const { initAnalytics } = await import('./analytics');
+    initAnalytics();
+  });
+
+  it('passes a benign custom event through UNCHANGED (same reference)', () => {
+    const beforeSend = getBeforeSend()!;
+    const event = {
+      event: 'plan_recommended',
+      properties: { mode: 'fastest' },
+    };
+    const result = beforeSend(event);
+    expect(result).toBe(event); // exact same object reference — nothing cloned
+  });
+
+  it('passes onboarding_step_completed through UNCHANGED', () => {
+    const beforeSend = getBeforeSend()!;
+    const event = {
+      event: 'onboarding_step_completed',
+      properties: { step: 'import_transcript', method: 'pdf' },
+    };
+    const result = beforeSend(event);
+    expect(result).toBe(event);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Fix 2: before_send scrub — $exception PII scrub (original tests, kept green)
+// ---------------------------------------------------------------------------
 
 describe('before_send scrub — $exception events', () => {
   beforeEach(async () => {
@@ -253,4 +499,55 @@ describe('before_send scrub — $exception events', () => {
     const beforeSend = getBeforeSend()!;
     expect(beforeSend(null)).toBeNull();
   });
+});
+
+// ---------------------------------------------------------------------------
+// scrubString — unit tests for the widened COURSE_CODE_RE
+// ---------------------------------------------------------------------------
+
+// We test scrubString indirectly through the before_send scrubber on
+// $exception events (which call scrubString on $exception_message).
+
+describe('scrubString — course code coverage', () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.unstubAllEnvs();
+    mockInit.mockClear();
+    Object.defineProperty(window, 'location', {
+      value: { search: '' },
+      writable: true,
+      configurable: true,
+    });
+    vi.stubEnv('VITE_POSTHOG_KEY', 'phc_test_key');
+    const { initAnalytics } = await import('./analytics');
+    initAnalytics();
+  });
+
+  const cases: [string, string][] = [
+    // input message                     expected output
+    ['ECE 312 failed',                  '[redacted] failed'],
+    ['ECE  312 double space',           '[redacted] double space'],
+    ['M 408D required',                 '[redacted] required'],
+    ['C S 363M prereq',                 '[redacted] prereq'],
+    ['B M E 311 conflict',              '[redacted] conflict'],
+    ['M E 326 not offered',             '[redacted] not offered'],
+    ['E E 319K overlap',                '[redacted] overlap'],
+    ['A E 333T missing',                '[redacted] missing'],
+    ['took ECE 312 and ECE 445',        'took [redacted] and [redacted]'],
+  ];
+
+  for (const [input, expected] of cases) {
+    it(`scrubs "${input}"`, () => {
+      const beforeSend = getBeforeSend()!;
+      const result = beforeSend({
+        event: '$exception',
+        properties: {
+          $exception_message: input,
+          $exception_type: 'Error',
+          $exception_list: [],
+        },
+      }) as { properties: Record<string, unknown> };
+      expect(result.properties['$exception_message']).toBe(expected);
+    });
+  }
 });
