@@ -11,16 +11,8 @@
  */
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-
-// Mock analytics and navigate so we don't need the full app context
-vi.mock('@/lib/analytics', () => ({ track: vi.fn() }));
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('react-router-dom')>();
-  return { ...actual, useNavigate: () => mockNavigate };
-});
 
 import { RequirementCard, RequirementCards } from './RequirementCards';
 import type { BucketView } from '@/types';
@@ -123,10 +115,10 @@ describe('RequirementCard', () => {
     expect(screen.getByText(/Gov II/)).toBeDefined();
   });
 
-  it('incomplete card renders an action button', () => {
+  it('incomplete card does not render an action button', () => {
     wrap(<RequirementCard bucket={incompleteEceCore} />);
-    // "Add to plan" is the default action for ECE Core
-    expect(screen.getByRole('button', { name: /add to plan/i })).toBeDefined();
+    // The misleading "Add to plan" / per-bucket action button was removed for launch
+    expect(screen.queryByRole('button')).toBeNull();
   });
 
   it('renders card test id by bucket id', () => {

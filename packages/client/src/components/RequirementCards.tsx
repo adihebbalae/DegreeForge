@@ -6,7 +6,6 @@
  *   2. Rule line: human-readable requirement note.
  *   3. Status chips: ✓/~/✗ for sub-requirements (gen-ed slots, tech sub-reqs).
  *   4. "Still need:" block: bucket.remaining[] entries.
- *   5. Action button (v1 stub → /plan).
  *
  * Completed buckets (complete:true) render a compact "✓ Complete" card with
  * the satisfied course IDs shown as static chips — no "still need" block.
@@ -17,16 +16,12 @@
  * A11y:
  *   - Colored text uses CATEGORY_TEXT (AA-safe variants).
  *   - Completion conveyed by ✓ glyph + numbers, not color alone.
- *   - Action buttons ≥44px tap target on mobile (min-h-[44px]).
  */
 
-import { useNavigate } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { CATEGORY_BG, CATEGORY_TEXT } from '@/lib/course-utils';
-import { track } from '@/lib/analytics';
 import type { BucketView } from '@/types';
 
 // ─── Mini progress bar ────────────────────────────────────────────────────────
@@ -88,8 +83,6 @@ interface RequirementCardProps {
 }
 
 export function RequirementCard({ bucket }: RequirementCardProps) {
-  const navigate = useNavigate();
-
   const pct = bucket.totalHours > 0
     ? Math.min(100, Math.round((bucket.doneHours / bucket.totalHours) * 100))
     : 0;
@@ -98,11 +91,6 @@ export function RequirementCard({ bucket }: RequirementCardProps) {
     bucket.doneCount !== undefined && bucket.totalCount !== undefined
       ? `${bucket.doneHours}/${bucket.totalHours} hrs · ${bucket.doneCount}/${bucket.totalCount} ${bucket.countNoun ?? ''}`
       : `${bucket.doneHours}/${bucket.totalHours} hrs`;
-
-  const handleAction = () => {
-    track('progress_card_action', { bucket_id: bucket.id });
-    navigate('/plan');
-  };
 
   // ── Completed card ──────────────────────────────────────────────────────────
   if (bucket.complete) {
@@ -146,14 +134,6 @@ export function RequirementCard({ bucket }: RequirementCardProps) {
   if (bucket.ruleNote) {
     ruleLine = ruleLine ? `${ruleLine} · ${bucket.ruleNote}` : bucket.ruleNote;
   }
-
-  // Action button label by bucket
-  const actionLabel =
-    bucket.id === 'gen_ed'
-      ? 'Browse approved'
-      : bucket.id === 'tech'
-      ? 'Pick electives'
-      : 'Add to plan';
 
   return (
     <Card className="p-4" data-testid={`req-card-${bucket.id}`}>
@@ -216,16 +196,6 @@ export function RequirementCard({ bucket }: RequirementCardProps) {
           </ul>
         </div>
       )}
-
-      {/* Action button */}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleAction}
-        className="mt-3 min-h-[44px] w-full border-[hsl(18_58%_50%)] text-[hsl(18_58%_50%)] hover:bg-[hsl(18_58%_50%/0.08)] text-xs font-semibold sm:min-h-0 sm:w-auto"
-      >
-        {actionLabel}
-      </Button>
     </Card>
   );
 }
