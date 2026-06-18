@@ -1,12 +1,14 @@
-import { useState } from 'react';
-import { Database, Loader2, Plus, X } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Database, Loader2, Plus, X, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { CourseListEditor } from '@/components/CourseListEditor';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useOwnedProfile, useProfileDispatch, fetchAndLoadDemo } from '@/context/ProfileContext';
 import { usePlanDispatch, SEMESTERS, INITIAL_STATE } from '@/context/PlanContext';
 import { deriveTimelinePlanFromProfile } from '@/lib/derive-timeline';
+import { computeUtGpa } from '@/lib/gpa';
 import type { UserProfile } from '@/types';
 
 // ─── Field Input ───────────────────────────────────────────────────────────────
@@ -83,6 +85,14 @@ export function ProfileEditor() {
   function setField<K extends keyof UserProfile>(field: K, value: UserProfile[K]) {
     profileDispatch({ type: 'UPDATE_PROFILE_FIELD', field, value });
   }
+
+  // ── Computed UT GPA (in-residence letter grades only, local-only) ──────────
+  // PRIVACY: This value is computed locally and must NEVER appear in any
+  // analytics/track() call. It is display-only.
+  const computedGpa = useMemo(
+    () => computeUtGpa(profile.completed_courses ?? []),
+    [profile.completed_courses]
+  );
 
   // ── GPA helpers ────────────────────────────────────────────────────────────
 
@@ -263,6 +273,52 @@ export function ProfileEditor() {
       {/* GPA */}
       <div>
         <h3 className="text-sm font-semibold text-foreground mb-4">GPA</h3>
+
+        {/* Computed UT GPA — derived locally from in-residence letter grades */}
+        <div className="mb-5 flex items-center gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                UT GPA (in-residence coursework)
+              </span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="About UT GPA calculation"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <HelpCircle className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[260px] text-xs leading-snug">
+                    Computed from your completed in-residence courses using the UT 4.0 scale. Transfer, AP, and credit-by-exam don't affect your UT GPA.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            {computedGpa.gpa !== null ? (
+              <div className="mt-0.5 flex items-baseline gap-2">
+                <span className="text-2xl font-bold tabular-nums text-foreground">
+                  {computedGpa.gpa.toFixed(2)}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {computedGpa.gpaHours} hrs · {computedGpa.includedCount} course{computedGpa.includedCount === 1 ? '' : 's'}
+                </span>
+              </div>
+            ) : (
+              <p className="mt-0.5 text-sm text-muted-foreground italic">
+                No in-residence letter grades yet
+              </p>
+            )}
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground mb-4">
+          Override fields below let you manually enter GPA values (e.g. from your official transcript).
+        </p>
+
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <FieldRow label="Cumulative" htmlFor="gpa-cumulative">
             <FieldInput

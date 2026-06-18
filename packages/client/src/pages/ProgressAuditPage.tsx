@@ -11,8 +11,9 @@
 
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, ArrowRight } from 'lucide-react';
+import { GraduationCap, ArrowRight, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePlan, useTechCoreId, useMathBAToggle, useWhatIf } from '@/context/PlanContext';
 import {
   useCatalogRecord,
@@ -22,6 +23,7 @@ import {
 } from '@/context/DataContext';
 import { computeProgress } from '@/lib/progress';
 import { CATEGORY_BG } from '@/lib/course-utils';
+import { computeUtGpa } from '@/lib/gpa';
 import { cn } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 import { DegreeRadial } from '@/components/DegreeRadial';
@@ -91,6 +93,14 @@ function LegendRow({ bucket }: { bucket: BucketView }) {
 export function ProgressAuditPage() {
   const navigate = useNavigate();
   const progress = useProgressData();
+  const profile = useUserProfile();
+
+  // Computed UT GPA — local only, never transmitted to analytics.
+  // PRIVACY: Do NOT add this value to any track() call.
+  const computedGpa = useMemo(
+    () => computeUtGpa(profile?.completed_courses ?? []),
+    [profile?.completed_courses]
+  );
 
   if (!progress) {
     return (
@@ -190,6 +200,38 @@ export function ProgressAuditPage() {
               </span>
             )}
           </p>
+
+          {/* UT GPA stat — computed locally from in-residence letter grades only */}
+          <div className="flex items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2 self-start">
+            <div className="flex items-center gap-1">
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                UT GPA
+              </span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="About UT GPA"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <HelpCircle className="h-3 w-3" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[240px] text-xs leading-snug">
+                    In-residence letter grades only. Transfer, AP, and credit-by-exam are excluded per UT policy.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            {computedGpa.gpa !== null ? (
+              <span className="text-base font-bold tabular-nums text-foreground">
+                {computedGpa.gpa.toFixed(2)}
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground italic">No letter grades yet</span>
+            )}
+          </div>
 
           {/* Quick action button */}
           <Button
