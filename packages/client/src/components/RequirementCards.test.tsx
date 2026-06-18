@@ -70,10 +70,10 @@ const incompleteFreeElec: BucketView = {
   label: 'Free Electives',
   category: 'elective',
   doneHours: 3,
-  totalHours: 14,
+  totalHours: 11,
   unit: 'hrs',
   complete: false,
-  remaining: [{ note: '11 hrs of advanced ECE 320+ electives' }],
+  remaining: [{ note: '8 hrs of free electives (unrestricted; see bit.ly/UTECE-FE)' }],
 };
 
 function wrap(el: React.ReactElement) {
@@ -94,7 +94,7 @@ describe('RequirementCard', () => {
 
   it('renders note-only remaining entry without a courseId', () => {
     wrap(<RequirementCard bucket={incompleteFreeElec} />);
-    expect(screen.getByText(/11 hrs of advanced ECE 320\+/)).toBeDefined();
+    expect(screen.getByText(/8 hrs of free electives/)).toBeDefined();
   });
 
   it('completed bucket renders ✓ Complete, not "Still need"', () => {

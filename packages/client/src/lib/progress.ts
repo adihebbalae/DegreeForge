@@ -393,19 +393,29 @@ export function computeProgress(
     completedGenEdSlots,
   };
 
+  const buckets = buildBucketViews(
+    summary,
+    degreeReqs,
+    techCore,
+    uniqueSet,
+    registry,
+    catalog,
+    transcriptCredits,
+    techCoreUsed,
+    eceCoreAllIds
+  );
+
+  // totalHoursTarget is the sum of the 6 bucket totals so radial arcs always cover
+  // the full circle. free_electives.total_hours is authoritative (11 hrs per the
+  // degree catalog); using it directly (rather than a residual) means the bucket
+  // totals no longer always sum to degreeReqs.total_credit_hours (125), which varies
+  // by track. The radial denominator follows the bucket sum.
+  const bucketTotalHours = buckets.reduce((s, b) => s + b.totalHours, 0);
+
   return {
     ...summary,
-    buckets: buildBucketViews(
-      summary,
-      degreeReqs,
-      techCore,
-      uniqueSet,
-      registry,
-      catalog,
-      transcriptCredits,
-      techCoreUsed,
-      eceCoreAllIds
-    ),
+    totalHoursTarget: bucketTotalHours,
+    buckets,
   };
 }
 
@@ -785,21 +795,17 @@ export function buildBucketViews(
   };
 
   // ── Free Electives ─────────────────────────────────────────────────────────
-  // totalHours is a computed remainder so that all 6 buckets sum to the degree
-  // total_credit_hours exactly. Free electives are the flex hours to reach the
-  // headline — the remaining hours after the other 5 fixed buckets are accounted
-  // for. This guarantees the radial arcs cover the full circle.
-  const freeElecTotal = Math.max(
-    0,
-    degreeReqs.total_credit_hours -
-      (eceCoreHoursTotal + summary.mathHoursTotal + summary.physicsTotal + techTotalHours + genEdTotalHours)
-  );
+  // Use the authoritative total from the degree catalog (11 hrs) rather than a
+  // residual. The residual approach produced 13–14 depending on the tech-core
+  // track because advanced_tech_elective hours were never included in any fixed
+  // bucket, creating a phantom gap. Using the static value eliminates that error.
+  const freeElecTotal = degreeReqs.free_electives.total_hours;
   const freeElecDone = Math.min(summary.electiveHours, freeElecTotal);
   const freeElecGap = Math.max(0, freeElecTotal - summary.electiveHours);
   const freeElecRemaining: BucketView['remaining'] = [];
   if (freeElecGap > 0) {
     freeElecRemaining.push({
-      note: `${freeElecGap} hr${freeElecGap !== 1 ? 's' : ''} of advanced ECE ${ADVANCED_ELECTIVE_MIN_NUMBER}+ electives`,
+      note: `${freeElecGap} hr${freeElecGap !== 1 ? 's' : ''} of free electives (unrestricted; see bit.ly/UTECE-FE)`,
     });
   }
 

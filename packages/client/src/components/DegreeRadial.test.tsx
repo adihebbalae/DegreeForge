@@ -75,7 +75,7 @@ const SAMPLE_BUCKETS: BucketView[] = [
     totalHours: 14,
     unit: 'hrs',
     complete: false,
-    remaining: [{ note: '11 hrs of advanced ECE 320+ electives' }],
+    remaining: [{ note: '8 hrs of free electives (unrestricted; see bit.ly/UTECE-FE)' }],
   },
 ];
 
