@@ -57,15 +57,82 @@ describe('deriveTimelinePlanFromProfile', () => {
     expect(plan['Fall 2026']).not.toContain('ECE 302');
   });
 
-  it('places a completed course with unknown semester into the earliest past semester', () => {
+  it('places an in-residence completed course with unknown semester into the earliest past semester', () => {
     const profile = makeProfile({
       completed_courses: [
-        { course: 'M 408C', title: 'Calc', grade: 'CR', semester: 'Summer 2023', type: 'Exam', credit_hours: 4 },
+        { course: 'M 408C', title: 'Calc', grade: 'B', semester: 'Summer 2023', type: 'In residence', credit_hours: 4 },
       ],
     });
     const plan = deriveTimelinePlanFromProfile(profile, SEMESTERS);
     // Summer 2023 is not in SEMESTERS, so falls back to earliest past = Fall 2025
     expect(plan['Fall 2025']).toContain('M 408C');
+  });
+
+  it('excludes AP credit from the planner grid (source field)', () => {
+    const profile = makeProfile({
+      completed_courses: [
+        { course: 'M 408C', title: 'Calc', grade: 'CR', semester: 'Summer 2023', type: 'Exam', credit_hours: 4, source: 'ap' },
+      ],
+    });
+    const plan = deriveTimelinePlanFromProfile(profile, SEMESTERS);
+    for (const sem of SEMESTERS) {
+      expect(plan[sem.id]).not.toContain('M 408C');
+    }
+  });
+
+  it('excludes transfer credit from the planner grid (source field)', () => {
+    const profile = makeProfile({
+      completed_courses: [
+        { course: 'RHE 306', title: 'Rhetoric', grade: 'CR', semester: 'Spring 2024', type: 'Transfer', credit_hours: 3, source: 'transfer' },
+      ],
+    });
+    const plan = deriveTimelinePlanFromProfile(profile, SEMESTERS);
+    for (const sem of SEMESTERS) {
+      expect(plan[sem.id]).not.toContain('RHE 306');
+    }
+  });
+
+  it('excludes credit_by_exam from the planner grid (source field)', () => {
+    const profile = makeProfile({
+      completed_courses: [
+        { course: 'ECE 302', title: 'Intro EE', grade: 'CR', semester: 'Fall 2025', type: 'Credit by exam', credit_hours: 3, source: 'credit_by_exam' },
+      ],
+    });
+    const plan = deriveTimelinePlanFromProfile(profile, SEMESTERS);
+    for (const sem of SEMESTERS) {
+      expect(plan[sem.id]).not.toContain('ECE 302');
+    }
+  });
+
+  it('excludes non-residence courses detected via type field (no source field)', () => {
+    // Demo profile uses type="Transfer"/"AP"/"Credit by exam" without a source field.
+    const profile = makeProfile({
+      completed_courses: [
+        { course: 'M 408C', title: 'Calc', grade: 'CR', semester: 'Fall 2023', type: 'Transfer', credit_hours: 4 },
+        { course: 'PHY 303K', title: 'Physics', grade: 'CR', semester: 'Fall 2023', type: 'AP', credit_hours: 3 },
+        { course: 'RHE 306', title: 'Rhetoric', grade: 'CR', semester: 'Fall 2023', type: 'Credit by exam', credit_hours: 3 },
+      ],
+    });
+    const plan = deriveTimelinePlanFromProfile(profile, SEMESTERS);
+    for (const sem of SEMESTERS) {
+      expect(plan[sem.id]).not.toContain('M 408C');
+      expect(plan[sem.id]).not.toContain('PHY 303K');
+      expect(plan[sem.id]).not.toContain('RHE 306');
+    }
+  });
+
+  it('places an in-residence course normally while excluding non-residence in the same profile', () => {
+    const profile = makeProfile({
+      completed_courses: [
+        { course: 'ECE 302', title: 'Intro EE', grade: 'A', semester: 'Fall 2025', type: 'In residence', credit_hours: 3 },
+        { course: 'M 408C', title: 'Calc', grade: 'CR', semester: 'Spring 2023', type: 'AP', credit_hours: 4, source: 'ap' },
+      ],
+    });
+    const plan = deriveTimelinePlanFromProfile(profile, SEMESTERS);
+    expect(plan['Fall 2025']).toContain('ECE 302');
+    for (const sem of SEMESTERS) {
+      expect(plan[sem.id]).not.toContain('M 408C');
+    }
   });
 
   it('places an in-progress course with matching current semester into that semester', () => {

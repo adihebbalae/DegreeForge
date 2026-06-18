@@ -23,6 +23,7 @@ import { Notice } from '@/components/ui/notice';
 import ChatPanel from '@/components/ChatPanel';
 import WhatIfPanel from '@/components/WhatIfPanel';
 import OverviewYearGrid from '@/components/OverviewYearGrid';
+import TransferCreditSection from '@/components/TransferCreditSection';
 import FocusEditor from '@/components/FocusEditor';
 import CommandPalette from '@/components/CommandPalette';
 import { OnboardingWizard } from '@/components/OnboardingWizard';
@@ -370,6 +371,9 @@ export default function PlannerPage() {
                 onTileClick={handleTileClick}
               />
             </div>
+
+            {/* Transfer / AP / credit-by-exam courses that have no UT semester tile */}
+            <TransferCreditSection />
           </div>
 
           {/* ── Focus editor (shown when a tile is clicked) ──────────────── */}

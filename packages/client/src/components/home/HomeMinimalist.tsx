@@ -49,6 +49,7 @@ import ChatPanel from '@/components/ChatPanel';
 import WhatIfPanel from '@/components/WhatIfPanel';
 import CommandPalette from '@/components/CommandPalette';
 import OverviewYearGrid from '@/components/OverviewYearGrid';
+import TransferCreditSection from '@/components/TransferCreditSection';
 import PlanOptimizeControl from '@/components/PlanOptimizeControl';
 import { PlanComparisonPanel } from '@/components/PlanComparison';
 import {
@@ -285,17 +286,21 @@ export default function HomeMinimalist() {
           </div>
 
           {/* ── Plan canvas — fills the viewport ─────────────────────────────── */}
-          <div className="flex-1 min-h-0 relative overflow-hidden">
+          <div className="flex-1 min-h-0 relative overflow-hidden flex flex-col">
             <PlanComparisonPanel />
 
             {/* Mobile (<md): vertical single-column list. */}
-            <div className="md:hidden h-full">
+            <div className="md:hidden flex-1 min-h-0">
               <MobilePlanList focusedSemesterId={focusedSemesterId} onTileClick={handleTileClick} />
             </div>
 
             {/* Desktop (md+): the dense year grid. */}
-            <div className="hidden md:block h-full">
-              <OverviewYearGrid focusedSemesterId={focusedSemesterId} onTileClick={handleTileClick} />
+            <div className="hidden md:flex md:flex-col flex-1 min-h-0">
+              <div className="flex-1 min-h-0">
+                <OverviewYearGrid focusedSemesterId={focusedSemesterId} onTileClick={handleTileClick} />
+              </div>
+              {/* Transfer / AP / credit-by-exam courses that have no UT semester tile */}
+              <TransferCreditSection />
             </div>
           </div>
 
