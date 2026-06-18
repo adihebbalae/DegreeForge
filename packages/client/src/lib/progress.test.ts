@@ -210,11 +210,11 @@ describe('computeProgress — real data (characterization)', () => {
   it('reports the canonical requirement totals from the real degree JSON', () => {
     const result = computeProgress({}, adiProfile, catalog, degreeReqs, techCore);
 
-    // Derivable / constant denominators — these pin the X/Y targets the bars render.
-    // totalHoursTarget is now the sum of the 6 bucket totals (radial consistency),
-    // not the static 125 from the catalog. For the SE track the 6 buckets are:
-    // ECE 36 + Math 15 + Physics 8 + GenEd 27 + Tech 26 + FreeElec 11 = 123.
-    expect(result.totalHoursTarget).toBe(result.buckets.reduce((s, b) => s + b.totalHours, 0));
+    // totalHoursTarget is the authoritative degree size (total_credit_hours = 125),
+    // not the bucket sum. The 6 buckets sum to 123 (advanced_tech_elective is
+    // unbucketed), producing a 2-hr gap — intentional until a dedicated bucket
+    // is added. The headline "X / 125 hrs" is correct; pct/arcs clamp at 100%.
+    expect(result.totalHoursTarget).toBe(degreeReqs.total_credit_hours); // 125
     expect(result.eceCoreTotal).toBe(degreeReqs.ece_core.courses.length); // 10
     expect(result.genEdTotal).toBe(9); // 9 slots authored in degree-requirements.json
     expect(result.techCoreTotal).toBe(8);
@@ -238,21 +238,31 @@ describe('computeProgress — real data (characterization)', () => {
     expect(result.techCoreCompleted).toBe(1);
   });
 
-  it('bucket totalHours sum equals totalHoursTarget for SE track', () => {
-    // The 6 bucket totalHours must sum to totalHoursTarget so radial arcs cover
-    // the full circle. totalHoursTarget is now derived from the bucket sum rather
-    // than the static degree total_credit_hours (125), because free_electives
-    // uses the authoritative 11 hrs and the tech-core total varies per track.
+  it('totalHoursTarget equals degreeReqs.total_credit_hours (125) for SE track', () => {
+    // totalHoursTarget is the authoritative degree size, not the bucket sum.
     const result = computeProgress({}, adiProfile, catalog, degreeReqs, techCore);
-    const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
-    expect(bucketSum).toBe(result.totalHoursTarget);
+    expect(result.totalHoursTarget).toBe(degreeReqs.total_credit_hours);
+    expect(result.totalHoursTarget).toBe(125);
   });
 
-  it('bucket totalHours sum equals totalHoursTarget for CA track', () => {
+  it('bucket sum is ≤ totalHoursTarget for SE track (adv-tech gap is acceptable)', () => {
+    // The 6 buckets sum to 123; advanced_tech_elective (2 h gap) is unbucketed.
+    // bucketSum < totalHoursTarget is intentional — the outer spokes cover ~98%
+    // of the radial circle. No NaN, no negative, no overflow.
+    const result = computeProgress({}, adiProfile, catalog, degreeReqs, techCore);
+    const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
+    expect(bucketSum).toBeLessThanOrEqual(result.totalHoursTarget);
+    expect(bucketSum).toBeGreaterThan(0);
+    for (const b of result.buckets) {
+      expect(b.totalHours).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it('totalHoursTarget equals degreeReqs.total_credit_hours (125) for CA track', () => {
     const caTechCore = techCores.computer_architecture;
     const result = computeProgress({}, adiProfile, catalog, degreeReqs, caTechCore);
-    const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
-    expect(bucketSum).toBe(result.totalHoursTarget);
+    expect(result.totalHoursTarget).toBe(degreeReqs.total_credit_hours);
+    expect(result.totalHoursTarget).toBe(125);
   });
 });
 
@@ -383,7 +393,9 @@ describe('computeProgress — core-flag gen-ed satisfaction', () => {
     }
   });
 
-  it('the 6 bucket totalHours still sum to totalHoursTarget with core-flagged courses planned', () => {
+  it('totalHoursTarget is stable (=125) regardless of which courses are planned', () => {
+    // totalHoursTarget = degreeReqs.total_credit_hours and never changes based on
+    // planned courses; only totalHours (numerator) varies.
     const result = computeProgress(
       { 'Fall 2026': ['AET 304', 'ANT 302', 'HIS 360', 'GOV 360', 'UGS 320'] },
       emptyProfile,
@@ -391,15 +403,19 @@ describe('computeProgress — core-flag gen-ed satisfaction', () => {
       degreeReqs,
       techCore
     );
+    expect(result.totalHoursTarget).toBe(degreeReqs.total_credit_hours);
+    // bucket sum ≤ totalHoursTarget (adv-tech gap); all bucket totals are non-negative
     const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
-    expect(bucketSum).toBe(result.totalHoursTarget);
+    expect(bucketSum).toBeLessThanOrEqual(result.totalHoursTarget);
+    for (const b of result.buckets) {
+      expect(b.totalHours).toBeGreaterThanOrEqual(0);
+    }
   });
 
-  it('bucket totalHours sum holds with explicit-option HIS/GOV core courses planned', () => {
+  it('bucket totalHours are stable with explicit-option HIS/GOV core courses planned', () => {
     // Exercises the invariant against the exact courses the Pass-1 fix touches:
     // explicit-option his1/his2 + gov1 courses, all carrying core flags. The
-    // genEdTotalHours (Σ slot.hours) is fixed regardless of how slots fill, so the
-    // 6-bucket sum must still equal totalHoursTarget.
+    // genEdTotalHours (Σ slot.hours) is fixed regardless of how slots fill.
     const result = computeProgress(
       { 'Fall 2026': ['HIS 315K', 'HIS 315L', 'GOV 310L'] },
       emptyProfile,
@@ -407,8 +423,12 @@ describe('computeProgress — core-flag gen-ed satisfaction', () => {
       degreeReqs,
       techCore
     );
+    expect(result.totalHoursTarget).toBe(degreeReqs.total_credit_hours);
     const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
-    expect(bucketSum).toBe(result.totalHoursTarget);
+    expect(bucketSum).toBeLessThanOrEqual(result.totalHoursTarget);
+    for (const b of result.buckets) {
+      expect(b.totalHours).toBeGreaterThanOrEqual(0);
+    }
   });
 });
 

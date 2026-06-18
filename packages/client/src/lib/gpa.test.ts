@@ -207,6 +207,61 @@ describe('computeUtGpa — empty state', () => {
   });
 });
 
+// ─── Lowercase / mixed-case grade normalisation (NIT 1) ─────────────────────
+
+describe('computeUtGpa — grade case normalisation', () => {
+  it('lowercase "a" is treated as "A" (4.0)', () => {
+    const result = computeUtGpa([
+      course({ source: 'in_residence', grade: 'a', credit_hours: 3 }),
+    ]);
+    expect(result.gpa).toBe(4.0);
+    expect(result.includedCount).toBe(1);
+  });
+
+  it('lowercase "b+" is treated as "B+" (3.33)', () => {
+    const result = computeUtGpa([
+      course({ source: 'in_residence', grade: 'b+', credit_hours: 3 }),
+    ]);
+    expect(result.gpa).toBe(3.33);
+    expect(result.includedCount).toBe(1);
+  });
+
+  it('mixed-case "A-" (unchanged) still works', () => {
+    const result = computeUtGpa([
+      course({ source: 'in_residence', grade: 'A-', credit_hours: 3 }),
+    ]);
+    expect(result.gpa).toBe(3.67);
+  });
+
+  it('leading/trailing whitespace is trimmed before normalisation', () => {
+    const result = computeUtGpa([
+      course({ source: 'in_residence', grade: '  B  ', credit_hours: 3 }),
+    ]);
+    expect(result.gpa).toBe(3.0);
+    expect(result.includedCount).toBe(1);
+  });
+});
+
+// ─── Prototype-key safety (NIT 2) ────────────────────────────────────────────
+
+describe('computeUtGpa — prototype-key safety', () => {
+  it('"constructor" grade is excluded (not treated as a valid letter grade)', () => {
+    const result = computeUtGpa([
+      course({ source: 'in_residence', grade: 'constructor', credit_hours: 3 }),
+    ]);
+    expect(result.gpa).toBeNull();
+    expect(result.includedCount).toBe(0);
+  });
+
+  it('"toString" grade is excluded', () => {
+    const result = computeUtGpa([
+      course({ source: 'in_residence', grade: 'toString', credit_hours: 3 }),
+    ]);
+    expect(result.gpa).toBeNull();
+    expect(result.includedCount).toBe(0);
+  });
+});
+
 // ─── Hand-verified multi-course example ──────────────────────────────────────
 
 describe('computeUtGpa — multi-course hand-verified example', () => {

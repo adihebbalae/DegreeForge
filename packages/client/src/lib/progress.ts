@@ -405,16 +405,20 @@ export function computeProgress(
     eceCoreAllIds
   );
 
-  // totalHoursTarget is the sum of the 6 bucket totals so radial arcs always cover
-  // the full circle. free_electives.total_hours is authoritative (11 hrs per the
-  // degree catalog); using it directly (rather than a residual) means the bucket
-  // totals no longer always sum to degreeReqs.total_credit_hours (125), which varies
-  // by track. The radial denominator follows the bucket sum.
-  const bucketTotalHours = buckets.reduce((s, b) => s + b.totalHours, 0);
-
+  // totalHoursTarget is the authoritative degree size from the catalog
+  // (total_credit_hours = 125). The 6 bucket totals sum to 123 for all tracks
+  // because the unbucketed advanced_tech_elective (3-4 h) is in no bucket — a
+  // 2 h gap is intentional and accepted until a dedicated bucket is added.
+  //
+  // Keeping totalHoursTarget = 125 (not bucketSum) means:
+  //   • headline "X / 125 hrs" can never show numerator > denominator for a
+  //     normal student (completed+planned ≤ 125).
+  //   • DegreeRadial outer spokes cover ~98 % of the circle (123/125); the small
+  //     uncovered arc is visible as a minor gap — not a NaN/overflow.
+  //   • The Claude chat tool get-credit-progress also uses total_credit_hours,
+  //     so both surfaces agree.
   return {
     ...summary,
-    totalHoursTarget: bucketTotalHours,
     buckets,
   };
 }

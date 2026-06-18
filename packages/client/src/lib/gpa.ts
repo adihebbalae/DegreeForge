@@ -82,9 +82,11 @@ export function computeUtGpa(
       typ === 'dual enrollment'
     ) continue;
 
-    // Validate the grade against the UT scale
-    const gradeStr = (c.grade ?? '').trim();
-    if (!(gradeStr in UT_GRADE_POINTS)) continue;
+    // Validate the grade against the UT scale.
+    // Normalise to uppercase so freehand entries like "a" or "b+" are accepted.
+    // Use hasOwnProperty to avoid matching inherited prototype keys (e.g. "constructor").
+    const gradeStr = (c.grade ?? '').trim().toUpperCase();
+    if (!Object.prototype.hasOwnProperty.call(UT_GRADE_POINTS, gradeStr)) continue;
 
     const pts = UT_GRADE_POINTS[gradeStr];
     const hrs = c.credit_hours ?? 0;
