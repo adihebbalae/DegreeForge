@@ -210,10 +210,9 @@ describe('computeProgress — real data (characterization)', () => {
   it('reports the canonical requirement totals from the real degree JSON', () => {
     const result = computeProgress({}, adiProfile, catalog, degreeReqs, techCore);
 
-    // totalHoursTarget is the authoritative degree size (total_credit_hours = 125),
-    // not the bucket sum. The 6 buckets sum to 123 (advanced_tech_elective is
-    // unbucketed), producing a 2-hr gap — intentional until a dedicated bucket
-    // is added. The headline "X / 125 hrs" is correct; pct/arcs clamp at 100%.
+    // totalHoursTarget is the authoritative degree size (total_credit_hours = 125).
+    // The 7 buckets (incl. adv_tech sized as residual) sum to exactly 125 for all
+    // standard tracks. The headline "X / 125 hrs" is always consistent.
     expect(result.totalHoursTarget).toBe(degreeReqs.total_credit_hours); // 125
     expect(result.eceCoreTotal).toBe(degreeReqs.ece_core.courses.length); // 10
     expect(result.genEdTotal).toBe(9); // 9 slots authored in degree-requirements.json
@@ -245,13 +244,12 @@ describe('computeProgress — real data (characterization)', () => {
     expect(result.totalHoursTarget).toBe(125);
   });
 
-  it('bucket sum is ≤ totalHoursTarget for SE track (adv-tech gap is acceptable)', () => {
-    // The 6 buckets sum to 123; advanced_tech_elective (2 h gap) is unbucketed.
-    // bucketSum < totalHoursTarget is intentional — the outer spokes cover ~98%
-    // of the radial circle. No NaN, no negative, no overflow.
+  it('bucket sum equals totalHoursTarget for SE track (adv_tech closes the gap)', () => {
+    // The 7th bucket (adv_tech) is sized as the residual so all 7 buckets sum to
+    // exactly total_credit_hours (125). No NaN, no negative, no overflow.
     const result = computeProgress({}, adiProfile, catalog, degreeReqs, techCore);
     const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
-    expect(bucketSum).toBeLessThanOrEqual(result.totalHoursTarget);
+    expect(bucketSum).toBe(result.totalHoursTarget);
     expect(bucketSum).toBeGreaterThan(0);
     for (const b of result.buckets) {
       expect(b.totalHours).toBeGreaterThanOrEqual(0);
@@ -404,9 +402,9 @@ describe('computeProgress — core-flag gen-ed satisfaction', () => {
       techCore
     );
     expect(result.totalHoursTarget).toBe(degreeReqs.total_credit_hours);
-    // bucket sum ≤ totalHoursTarget (adv-tech gap); all bucket totals are non-negative
+    // adv_tech bucket is the residual: all 7 buckets sum to exactly totalHoursTarget
     const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
-    expect(bucketSum).toBeLessThanOrEqual(result.totalHoursTarget);
+    expect(bucketSum).toBe(result.totalHoursTarget);
     for (const b of result.buckets) {
       expect(b.totalHours).toBeGreaterThanOrEqual(0);
     }
@@ -424,8 +422,9 @@ describe('computeProgress — core-flag gen-ed satisfaction', () => {
       techCore
     );
     expect(result.totalHoursTarget).toBe(degreeReqs.total_credit_hours);
+    // adv_tech bucket is the residual: all 7 buckets sum to exactly totalHoursTarget
     const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
-    expect(bucketSum).toBeLessThanOrEqual(result.totalHoursTarget);
+    expect(bucketSum).toBe(result.totalHoursTarget);
     for (const b of result.buckets) {
       expect(b.totalHours).toBeGreaterThanOrEqual(0);
     }
@@ -723,6 +722,53 @@ describe('buildBucketViews — BucketView per-bucket view-model', () => {
     // Confirm an uncompleted slot is marked missing
     const govSub = genEdBucket.subRequirements?.find((s) => s.label === 'American Government I');
     expect(govSub?.status).toBe('missing');
+  });
+
+  // ── adv_tech bucket tests ──────────────────────────────────────────────────
+  it('adv_tech bucket is present, totalCount=1, countNoun=course', () => {
+    const result = computeProgress({}, emptyProfile, mockCatalog, mockDegreeReqs, mockTechCore);
+    const advTech = result.buckets.find((b) => b.id === 'adv_tech');
+    expect(advTech).toBeDefined();
+    expect(advTech?.totalCount).toBe(1);
+    expect(advTech?.countNoun).toBe('course');
+  });
+
+  it('adv_tech: empty profile → doneCount=0, complete=false, non-empty remaining', () => {
+    const result = computeProgress({}, emptyProfile, mockCatalog, mockDegreeReqs, mockTechCore);
+    const advTech = result.buckets.find((b) => b.id === 'adv_tech')!;
+    expect(advTech.doneCount).toBe(0);
+    expect(advTech.complete).toBe(false);
+    expect(advTech.remaining?.length).toBeGreaterThan(0);
+  });
+
+  it('adv_tech: completing an upper-div ECE course not in ece_core/tech_core → complete=true', () => {
+    // ECE 372N: number 372 ≥ 320, not in eceCoreAllIds, not in the elective_pool
+    // so it is never swept into techCoreUsed even when no tech-core slots are filled.
+    const catalogWithElec: CourseCatalog = {
+      ...mockCatalog,
+      'ECE 372N': { id: 'ECE 372N', title: 'Digital Signal Processing', credits: 3, department: 'ECE', description: '', prerequisites: [], corequisites: [], grading: 'letter' },
+    };
+    const profile: UserProfile = {
+      ...emptyProfile,
+      completed_courses: [
+        { course: 'ECE 372N', title: '', grade: 'A', semester: '', type: '', credit_hours: 3 },
+      ],
+    };
+    const result = computeProgress({}, profile, catalogWithElec, mockDegreeReqs, mockTechCore);
+    const advTech = result.buckets.find((b) => b.id === 'adv_tech')!;
+    expect(advTech.doneCount).toBe(1);
+    expect(advTech.complete).toBe(true);
+    expect(advTech.doneHours).toBe(advTech.totalHours);
+    expect(advTech.remaining).toEqual([]);
+  });
+
+  it('7 buckets sum to exactly totalHoursTarget for the mock track', () => {
+    // Mock six-bucket sum = 36+15+8+26+6+11 = 102; advTechTotal = 125-102 = 23.
+    // Physics resolves via CREDIT_OVERRIDES (PHY 303K=3, PHY 105M=1, PHY 303L=3, PHY 105N=1 → 8).
+    // 102 ≤ 125 so residual is non-negative and 7-bucket sum == 125.
+    const result = computeProgress({}, emptyProfile, mockCatalog, mockDegreeReqs, mockTechCore);
+    const bucketSum = result.buckets.reduce((s, b) => s + b.totalHours, 0);
+    expect(bucketSum).toBe(result.totalHoursTarget);
   });
 
   // ── Dedupe check: gen-ed remaining[] has no duplicate courseIds ────────────

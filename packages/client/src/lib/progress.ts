@@ -406,17 +406,12 @@ export function computeProgress(
   );
 
   // totalHoursTarget is the authoritative degree size from the catalog
-  // (total_credit_hours = 125). The 6 bucket totals sum to 123 for all tracks
-  // because the unbucketed advanced_tech_elective (3-4 h) is in no bucket — a
-  // 2 h gap is intentional and accepted until a dedicated bucket is added.
-  //
-  // Keeping totalHoursTarget = 125 (not bucketSum) means:
-  //   • headline "X / 125 hrs" can never show numerator > denominator for a
-  //     normal student (completed+planned ≤ 125).
-  //   • DegreeRadial outer spokes cover ~98 % of the circle (123/125); the small
-  //     uncovered arc is visible as a minor gap — not a NaN/overflow.
-  //   • The Claude chat tool get-credit-progress also uses total_credit_hours,
-  //     so both surfaces agree.
+  // (total_credit_hours = 125). The 7 bucket totals sum to exactly 125 for all
+  // standard tracks: the 7th bucket (adv_tech) is sized as the residual
+  // (total_credit_hours − sixBucketSum), so the DegreeRadial outer spokes cover
+  // the full circle and the headline "X / 125 hrs" is always consistent.
+  // The Claude chat tool get-credit-progress also reads total_credit_hours, so
+  // both surfaces agree on the degree size.
   return {
     ...summary,
     buckets,
@@ -825,5 +820,56 @@ export function buildBucketViews(
     remaining: freeElecRemaining,
   };
 
-  return [eceCoreBucket, mathBucket, physicsBucket, techBucket, genEdBucket, freeElecBucket];
+  // ── Advanced Tech Elective ──────────────────────────────────────────────────
+  // 1 upper-division ECE course beyond ECE-core + tech-core. Detect ANY qualifying
+  // taken course: ECE number ≥ 320, plus the ECE 316 (if not in tech core) and
+  // ECE 125S substitution carve-outs. (Co-op multi-semester substitution is in the
+  // rule note only — not auto-detected.) This reads the same extra-ECE pool the
+  // free-electives bucket reads; the benign overlap is acceptable because the
+  // headline total is real completed hours, not the bucket sum.
+  let advTechDone = 0;
+  for (const courseId of uniqueSet) {
+    if (eceCoreAllIds.has(courseId) || techCoreUsed.has(courseId)) continue;
+    const parsed = parseCourseId(courseId);
+    if (!parsed || parsed.prefix !== 'ECE') continue;
+    const qualifies =
+      parsed.number >= ADVANCED_ELECTIVE_MIN_NUMBER ||
+      courseId === 'ECE 316' ||
+      courseId === 'ECE 125S';
+    if (qualifies) { advTechDone = 1; break; }
+  }
+
+  // Size as the residual to the catalog total so all 7 buckets sum to exactly
+  // total_credit_hours (125) and the radial closes.
+  const advTechTotal = Math.max(
+    0,
+    degreeReqs.total_credit_hours -
+      (eceCoreBucket.totalHours +
+        mathBucket.totalHours +
+        physicsBucket.totalHours +
+        techBucket.totalHours +
+        genEdBucket.totalHours +
+        freeElecBucket.totalHours)
+  );
+
+  const advTechBucket: BucketView = {
+    id: 'adv_tech',
+    label: 'Advanced Tech Elective',
+    category: 'tech_core',
+    doneHours: advTechDone >= 1 ? advTechTotal : 0,
+    totalHours: advTechTotal,
+    unit: 'hrs',
+    complete: advTechDone >= 1,
+    doneCount: advTechDone,
+    totalCount: degreeReqs.advanced_tech_elective.count,
+    countNoun: 'course',
+    ruleNote:
+      '1 upper-div ECE 320+ course (ECE 316 if not in tech core; Co-op/ECE 125S may substitute)',
+    remaining:
+      advTechDone >= 1
+        ? []
+        : [{ note: '1 upper-div ECE 320+ course from any tech area' }],
+  };
+
+  return [eceCoreBucket, mathBucket, physicsBucket, techBucket, genEdBucket, freeElecBucket, advTechBucket];
 }

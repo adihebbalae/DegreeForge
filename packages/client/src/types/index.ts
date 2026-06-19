@@ -551,7 +551,7 @@ export type CourseCategory = 'ece_core' | 'tech_core' | 'gen_ed' | 'elective' | 
  * this shape so buckets can never disagree across views.
  */
 export interface BucketView {
-  id: 'ece_core' | 'math' | 'physics' | 'tech' | 'gen_ed' | 'free_elec';
+  id: 'ece_core' | 'math' | 'physics' | 'tech' | 'gen_ed' | 'free_elec' | 'adv_tech';
   label: string;
   category: CourseCategory;
   doneHours: number;
